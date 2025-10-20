@@ -1,21 +1,17 @@
 class CalendarController < ApplicationController
+  include AccountLoadable
+  include DateParseable
+
   def index
-    # Get year and month from params, default to current
-    @year = params[:year]&.to_i || Date.today.year
-    @month = params[:month]&.to_i || Date.today.month
-    @date = Date.new(@year, @month, 1)
+    # Parse date parameters
+    parse_month_params
 
-    # Get account (we'll handle multiple accounts later)
-    @account = Account.order(:created_at).last
-
+    # Load account or return early if not found
+    load_account_or_return
     return unless @account
 
     # Get all transactions for this month
-    start_date = @date.beginning_of_month
-    end_date = @date.end_of_month
-
-    # Reload account to ensure we have fresh transaction data
-    @account.reload
+    start_date, end_date = month_date_range
 
     # Generate recurring transactions for this month if needed (for indefinite patterns)
     generate_recurring_for_month(start_date, end_date)
@@ -32,6 +28,9 @@ class CalendarController < ApplicationController
 
     # Calculate EOW amounts
     @eow_amounts = calculate_eow_amounts
+
+    # Calculate End of Month balance using Account model method
+    @end_of_month_balance = @account.end_of_month_balance(@date)
   end
 
   private

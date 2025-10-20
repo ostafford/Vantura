@@ -1,11 +1,9 @@
 class TransactionsController < ApplicationController
-  def create
-    @account = Account.order(:created_at).last
+  include AccountLoadable
+  include DateParseable
 
-    if @account.nil?
-      redirect_to root_path, alert: "Please sync your Up Bank account first."
-      return
-    end
+  def create
+    return unless load_account
 
     @transaction = @account.transactions.build(transaction_params)
     @transaction.is_hypothetical = true
@@ -30,20 +28,16 @@ class TransactionsController < ApplicationController
   end
 
   def all
-    @account = Account.order(:created_at).last
-    return redirect_to root_path, alert: "No account found" unless @account
+    return unless load_account
 
-    # Get year and month from params, default to current
-    @year = params[:year]&.to_i || Date.today.year
-    @month = params[:month]&.to_i || Date.today.month
-    @date = Date.new(@year, @month, 1)
+    # Parse date parameters
+    parse_month_params
 
     # Get filter type from params, default to "all"
     @filter_type = params[:filter] || "all"
 
     # Filter transactions for this month
-    start_date = @date.beginning_of_month
-    end_date = @date.end_of_month
+    start_date, end_date = month_date_range
 
     @transactions = @account.transactions
                             .where(transaction_date: start_date..end_date)
@@ -71,17 +65,13 @@ class TransactionsController < ApplicationController
   end
 
   def expenses
-    @account = Account.order(:created_at).last
-    return redirect_to root_path, alert: "No account found" unless @account
+    return unless load_account
 
-    # Get year and month from params, default to current
-    @year = params[:year]&.to_i || Date.today.year
-    @month = params[:month]&.to_i || Date.today.month
-    @date = Date.new(@year, @month, 1)
+    # Parse date parameters
+    parse_month_params
 
     # Filter transactions for this month
-    start_date = @date.beginning_of_month
-    end_date = @date.end_of_month
+    start_date, end_date = month_date_range
 
     @transactions = @account.transactions.expenses
                             .where(transaction_date: start_date..end_date)
@@ -90,17 +80,13 @@ class TransactionsController < ApplicationController
   end
 
   def income
-    @account = Account.order(:created_at).last
-    return redirect_to root_path, alert: "No account found" unless @account
+    return unless load_account
 
-    # Get year and month from params, default to current
-    @year = params[:year]&.to_i || Date.today.year
-    @month = params[:month]&.to_i || Date.today.month
-    @date = Date.new(@year, @month, 1)
+    # Parse date parameters
+    parse_month_params
 
     # Filter transactions for this month
-    start_date = @date.beginning_of_month
-    end_date = @date.end_of_month
+    start_date, end_date = month_date_range
 
     @transactions = @account.transactions.income
                             .where(transaction_date: start_date..end_date)

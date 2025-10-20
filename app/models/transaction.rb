@@ -30,4 +30,11 @@ class Transaction < ApplicationRecord
   def recurring?
     recurring_transaction_id.present?
   end
+
+  # Determine the transaction type based on amount
+  # @return [String] "expense" or "income"
+  def transaction_type
+    return "expense" if amount.nil? # Default for new transactions
+    amount < 0 ? "expense" : "income"
+  end
 end

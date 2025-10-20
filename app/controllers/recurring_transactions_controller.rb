@@ -1,7 +1,8 @@
 class RecurringTransactionsController < ApplicationController
+  include AccountLoadable
+
   def index
-    @account = Account.order(:created_at).last
-    return redirect_to root_path, alert: "No account found" unless @account
+    return unless load_account
 
     @recurring_transactions = @account.recurring_transactions.order(created_at: :desc)
   end
@@ -20,7 +21,7 @@ class RecurringTransactionsController < ApplicationController
       amount_tolerance: params[:amount_tolerance] || 1.0,
       frequency: params[:frequency],
       next_occurrence_date: params[:next_occurrence_date],
-      transaction_type: @transaction.amount < 0 ? "expense" : "income",
+      transaction_type: @transaction.transaction_type,
       projection_months: params[:projection_months] || "indefinite",
       is_active: true
     )

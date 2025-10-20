@@ -22,3 +22,49 @@
 * {
   max-width: 100vw;
 }
+
+/* Up Bank Brand Colors */
+:root {
+  --up-orange: #FF7A5A;
+  --up-orange-dark: #E86646;
+  --up-orange-light: #FF9478;
+  --up-peach: #FFB4A0;
+}
+
+/* Bento Grid Layout */
+.bento-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(140px, auto);
+}
+
+/* Bento grid item spans */
+.bento-span-1 { grid-column: span 1; }
+.bento-span-2 { grid-column: span 2; }
+.bento-span-3 { grid-column: span 3; }
+.bento-span-4 { grid-column: span 4; }
+.bento-row-span-1 { grid-row: span 1; }
+.bento-row-span-2 { grid-row: span 2; }
+.bento-row-span-3 { grid-row: span 3; }
+
+/* Responsive bento grid */
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .bento-span-3 { grid-column: span 2; }
+  .bento-span-4 { grid-column: span 2; }
+}
+
+@media (max-width: 640px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .bento-span-1,
+  .bento-span-2,
+  .bento-span-3,
+  .bento-span-4 {
+    grid-column: span 1;
+  }
+}
