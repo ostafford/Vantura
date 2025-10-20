@@ -1,6 +1,7 @@
 class Account < ApplicationRecord
   # Associations
   has_many :transactions, dependent: :destroy
+  has_many :recurring_transactions, dependent: :destroy
 
   # Validations
   validates :up_account_id, presence: true, uniqueness: true

@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  account: one
+  description: MyString
+  amount: 9.99
+  frequency: MyString
+  next_occurrence_date: 2025-10-20
+  is_active: false
+  transaction_type: MyString
+  category: MyString
+
+two:
+  account: two
+  description: MyString
+  amount: 9.99
+  frequency: MyString
+  next_occurrence_date: 2025-10-20
+  is_active: false
+  transaction_type: MyString
+  category: MyString
