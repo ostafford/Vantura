@@ -9,6 +9,8 @@ Rails.application.routes.draw do
 
   # Transactions (for hypothetical transactions)
   resources :transactions, only: [:create, :destroy]
+  get "transactions/expenses", to: "transactions#expenses", as: :transactions_expenses
+  get "transactions/income", to: "transactions#income", as: :transactions_income
 
   # Health check and PWA routes...
   get "up" => "rails/health#show", as: :rails_health_check

@@ -50,11 +50,11 @@
             <%= @date.strftime("%B %Y") %>
           </h2>
 
-          <button onclick="openHypotheticalModal()" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+          <button onclick="openTransactionModal()" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
-            Add "What-If"
+            Add Transaction
           </button>
         </div>
       </div>
@@ -242,37 +242,69 @@
     </div>
   <% end %>
 
-  <!-- Hypothetical Transaction Modal -->
+  <!-- Transaction Modal -->
   <% if @account %>
-    <div id="hypotheticalModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4" style="display: none;">
+    <div id="transactionModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4" style="display: none;">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
         <div class="bg-purple-600 px-6 py-4 rounded-t-lg">
           <div class="flex items-center justify-between">
-            <h3 class="text-xl font-bold text-white">Add Hypothetical Purchase</h3>
-            <button onclick="closeHypotheticalModal()" class="text-white hover:text-gray-200">
+            <h3 class="text-xl font-bold text-white">Add Transaction</h3>
+            <button onclick="closeTransactionModal()" class="text-white hover:text-gray-200">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
           </div>
-          <p class="text-purple-100 text-sm mt-1">See how a future purchase affects your cash flow</p>
+          <p class="text-purple-100 text-sm mt-1">Plan future expenses or income</p>
         </div>
 
-        <%= form_with model: Transaction.new, url: transactions_path, method: :post, class: "p-6" do |f| %>
+        <%= form_with model: Transaction.new, url: transactions_path, method: :post, class: "p-6", id: "calendarTransactionForm" do |f| %>
           <div class="space-y-4">
+            <!-- Transaction Type -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Transaction Type</label>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="transaction-type-option cursor-pointer">
+                  <%= f.radio_button :transaction_type, 'expense', 
+                      checked: true, 
+                      class: "hidden transaction-type-radio",
+                      onchange: "updateCalendarTransactionTypeUI()" %>
+                  <div class="transaction-type-card border-2 border-red-500 bg-red-50 rounded-lg p-4 text-center">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
+                    </svg>
+                    <span class="font-semibold text-red-700">Expense</span>
+                  </div>
+                </label>
+                
+                <label class="transaction-type-option cursor-pointer">
+                  <%= f.radio_button :transaction_type, 'income', 
+                      class: "hidden transaction-type-radio",
+                      onchange: "updateCalendarTransactionTypeUI()" %>
+                  <div class="transaction-type-card border-2 border-gray-300 bg-white rounded-lg p-4 text-center hover:border-green-400">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="font-semibold text-green-700">Income</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
             <div>
               <label for="transaction_description" class="block text-sm font-medium text-gray-700 mb-1">
-                What are you buying?
+                <span id="calendarDescriptionLabel">What are you buying?</span>
               </label>
               <%= f.text_field :description, 
                   class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent",
-                  placeholder: "e.g., New laptop, Restaurant dinner, Concert tickets",
+                  placeholder: "e.g., New laptop, Restaurant dinner",
+                  id: "calendarTransactionDescription",
                   required: true %>
             </div>
 
             <div>
               <label for="transaction_amount" class="block text-sm font-medium text-gray-700 mb-1">
-                How much will it cost?
+                <span id="calendarAmountLabel">How much will it cost?</span>
               </label>
               <div class="relative">
                 <span class="absolute left-4 top-2 text-gray-500 text-lg">$</span>
@@ -281,14 +313,13 @@
                     class: "w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent",
                     placeholder: "0.00",
                     required: true,
-                    min: 0 %>
+                    min: 0.01 %>
               </div>
-              <p class="text-xs text-gray-500 mt-1">Enter the positive amount (we'll mark it as an expense)</p>
             </div>
 
             <div>
               <label for="transaction_transaction_date" class="block text-sm font-medium text-gray-700 mb-1">
-                When do you plan to buy it?
+                <span id="calendarDateLabel">When do you plan to buy it?</span>
               </label>
               <%= f.date_field :transaction_date, 
                   value: @date,
@@ -307,9 +338,9 @@
           </div>
 
           <div class="mt-6 flex gap-3">
-            <%= f.submit "Add Hypothetical Purchase", 
+            <%= f.submit "Add Transaction", 
                 class: "flex-1 bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold" %>
-            <button type="button" onclick="closeHypotheticalModal()" 
+            <button type="button" onclick="closeTransactionModal()" 
                     class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
               Cancel
             </button>
@@ -345,29 +376,67 @@
     }
   }
 
-  function openHypotheticalModal() {
-    const modal = document.getElementById('hypotheticalModal');
+  function openTransactionModal() {
+    const modal = document.getElementById('transactionModal');
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
+    updateCalendarTransactionTypeUI(); // Initialize UI state
   }
 
-  function closeHypotheticalModal() {
-    const modal = document.getElementById('hypotheticalModal');
+  function closeTransactionModal() {
+    const modal = document.getElementById('transactionModal');
     modal.classList.add('hidden');
     modal.style.display = 'none';
+    // Reset form
+    document.getElementById('calendarTransactionForm').reset();
+    updateCalendarTransactionTypeUI();
+  }
+
+  function updateCalendarTransactionTypeUI() {
+    const radios = document.querySelectorAll('.transaction-type-radio');
+    const cards = document.querySelectorAll('.transaction-type-card');
+    let selectedType = 'expense';
+    
+    radios.forEach((radio, index) => {
+      if (radio.checked) {
+        selectedType = radio.value;
+        cards[index].classList.remove('border-gray-300', 'bg-white');
+        if (radio.value === 'expense') {
+          cards[index].classList.add('border-red-500', 'bg-red-50');
+        } else {
+          cards[index].classList.add('border-green-500', 'bg-green-50');
+        }
+      } else {
+        cards[index].classList.remove('border-red-500', 'bg-red-50', 'border-green-500', 'bg-green-50');
+        cards[index].classList.add('border-gray-300', 'bg-white');
+      }
+    });
+
+    // Update labels based on transaction type
+    if (selectedType === 'expense') {
+      document.getElementById('calendarDescriptionLabel').textContent = 'What are you buying?';
+      document.getElementById('calendarAmountLabel').textContent = 'How much will it cost?';
+      document.getElementById('calendarDateLabel').textContent = 'When do you plan to buy it?';
+      document.getElementById('calendarTransactionDescription').placeholder = 'e.g., New laptop, Restaurant dinner';
+    } else {
+      document.getElementById('calendarDescriptionLabel').textContent = 'What income are you receiving?';
+      document.getElementById('calendarAmountLabel').textContent = 'How much will you receive?';
+      document.getElementById('calendarDateLabel').textContent = 'When do you expect to receive it?';
+      document.getElementById('calendarTransactionDescription').placeholder = 'e.g., Freelance work, Gift, Tax refund';
+    }
   }
 
   // Close modal on escape key
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
-      closeHypotheticalModal();
+      closeTransactionModal();
     }
   });
 
   // Close modal on background click
-  document.getElementById('hypotheticalModal')?.addEventListener('click', function(event) {
+  document.getElementById('transactionModal')?.addEventListener('click', function(event) {
     if (event.target === this) {
-      closeHypotheticalModal();
+      closeTransactionModal();
     }
   });
 

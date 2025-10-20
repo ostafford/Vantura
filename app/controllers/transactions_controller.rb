@@ -11,16 +11,38 @@ class TransactionsController < ApplicationController
     @transaction.is_hypothetical = true
     @transaction.status = :hypothetical
     
-    # Convert to negative if it's an expense (positive amounts are expenses in our UI)
-    if @transaction.amount && @transaction.amount > 0
-      @transaction.amount = -@transaction.amount.abs
+    # Handle transaction type (expense or income)
+    transaction_type = params[:transaction][:transaction_type]
+    if transaction_type == 'expense'
+      # Expenses are negative
+      @transaction.amount = -@transaction.amount.abs if @transaction.amount
+    else
+      # Income is positive
+      @transaction.amount = @transaction.amount.abs if @transaction.amount
     end
 
     if @transaction.save
-      redirect_back(fallback_location: root_path, notice: "Hypothetical transaction added! Check the calendar to see its impact.")
+      type_name = transaction_type == 'expense' ? 'expense' : 'income'
+      redirect_back(fallback_location: root_path, notice: "#{type_name.capitalize} transaction added! Check the calendar to see its impact.")
     else
       redirect_back(fallback_location: root_path, alert: "Error adding transaction: #{@transaction.errors.full_messages.join(', ')}")
     end
+  end
+
+  def expenses
+    @account = Account.order(:created_at).last
+    return redirect_to root_path, alert: "No account found" unless @account
+    
+    @transactions = @account.transactions.expenses.order(transaction_date: :desc)
+    @total_amount = @transactions.sum(:amount).abs
+  end
+
+  def income
+    @account = Account.order(:created_at).last
+    return redirect_to root_path, alert: "No account found" unless @account
+    
+    @transactions = @account.transactions.income.order(transaction_date: :desc)
+    @total_amount = @transactions.sum(:amount)
   end
 
   def destroy
@@ -28,9 +50,9 @@ class TransactionsController < ApplicationController
     
     if @transaction.is_hypothetical
       @transaction.destroy
-      redirect_back(fallback_location: root_path, notice: "Hypothetical transaction removed.")
+      redirect_back(fallback_location: root_path, notice: "Transaction removed.")
     else
-      redirect_back(fallback_location: root_path, alert: "Cannot delete real transactions.")
+      redirect_back(fallback_location: root_path, alert: "Cannot delete real transactions from Up Bank.")
     end
   end
 
