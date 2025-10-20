@@ -6,10 +6,16 @@ module UpBank
     end
 
     def call
-      if @account_id
-        sync_single_account(@account_id)
-      else
-        sync_all_accounts
+      begin
+        if @account_id
+          sync_single_account(@account_id)
+        else
+          sync_all_accounts
+        end
+      rescue StandardError => e
+        Rails.logger.error "Sync failed: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+        { success: false, error: e.message, new_transactions: 0 }
       end
     end
 
@@ -20,15 +26,17 @@ module UpBank
 
       response = @client.accounts
       synced_accounts = []
+      total_new_transactions = 0
 
       response[:data].each do |account_data|
         account = sync_account(account_data)
-        sync_transactions_for_account(account)
+        result = sync_transactions_for_account(account)
+        total_new_transactions += result[:new]
         synced_accounts << account
       end
 
       Rails.logger.info "Sync completed: #{synced_accounts.count} accounts synced"
-      synced_accounts
+      { success: true, new_transactions: total_new_transactions, accounts: synced_accounts }
     end
 
     def sync_single_account(up_account_id)
@@ -36,10 +44,10 @@ module UpBank
 
       response = @client.account(up_account_id)
       account = sync_account(response[:data])
-      sync_transactions_for_account(account)
+      result = sync_transactions_for_account(account)
 
       Rails.logger.info "Sync completed for account: #{account.display_name}"
-      account
+      { success: true, new_transactions: result[:new], account: account }
     end
 
     def sync_account(account_data)

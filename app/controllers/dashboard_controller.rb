@@ -16,4 +16,18 @@ class DashboardController < ApplicationController
       @hypothetical_count = @account.transactions.hypothetical.count
     end
   end
+
+  def sync
+    begin
+      result = UpBank::SyncService.call
+      
+      if result[:success]
+        redirect_to root_path, notice: "Successfully synced! Added #{result[:new_transactions]} new transactions."
+      else
+        redirect_to root_path, alert: "Sync failed: #{result[:error]}"
+      end
+    rescue StandardError => e
+      redirect_to root_path, alert: "Sync failed: #{e.message}"
+    end
+  end
 end
