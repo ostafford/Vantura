@@ -11,8 +11,8 @@ class Account < ApplicationRecord
 
   # Enums for account types (matching Up Bank API)
   enum :account_type, {
-    transactional: 'TRANSACTIONAL',
-    saver: 'SAVER',
-    home_loan: 'HOME_LOAN'
+    transactional: "TRANSACTIONAL",
+    saver: "SAVER",
+    home_loan: "HOME_LOAN"
   }, prefix: true
 end

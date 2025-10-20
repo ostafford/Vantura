@@ -74,7 +74,7 @@ module UpBank
       # Fetch ALL transactions using pagination for full backfill
       first_page = @client.account_transactions(
         account.up_account_id,
-        { 'page[size]' => 100 }
+        { "page[size]" => 100 }
       )
       pages = @client.paginate(first_page)
 
@@ -109,8 +109,8 @@ module UpBank
       status = map_status(attrs[:status])
 
       # Extract category
-      category = txn_data.dig(:relationships, :category, :data, :id) || 'uncategorized'
-      
+      category = txn_data.dig(:relationships, :category, :data, :id) || "uncategorized"
+
       # Build transaction attributes
       transaction_attrs = {
         description: attrs[:description],
@@ -125,22 +125,22 @@ module UpBank
 
       # Check if this matches any recurring transaction pattern
       matching_recurring = find_matching_recurring_pattern(account, transaction_attrs)
-      
+
       if matching_recurring
         # Find and remove the hypothetical transaction for this date
         hypothetical = account.transactions.hypothetical
                               .where(recurring_transaction_id: matching_recurring.id)
                               .where(transaction_date: transaction_attrs[:transaction_date])
                               .first
-        
+
         hypothetical&.destroy
-        
+
         # Link this real transaction to the recurring pattern
         transaction_attrs[:recurring_transaction_id] = matching_recurring.id
-        
+
         # Update next occurrence date
         matching_recurring.update(next_occurrence_date: matching_recurring.calculate_next_occurrence)
-        
+
         Rails.logger.info "  ✓ Matched transaction to recurring pattern: #{matching_recurring.description}"
       end
 
@@ -148,7 +148,7 @@ module UpBank
       transaction.save!
       transaction
     end
-    
+
     def find_matching_recurring_pattern(account, transaction_attrs)
       # Only check active recurring patterns
       account.recurring_transactions.active.find do |recurring|
@@ -158,28 +158,28 @@ module UpBank
           amount: transaction_attrs[:amount],
           transaction_date: transaction_attrs[:transaction_date]
         )
-        
+
         # Check if date is within expected window (±3 days)
         date_match = (temp_transaction.transaction_date - recurring.next_occurrence_date).abs <= 3
-        
+
         date_match && recurring.matches_transaction?(temp_transaction)
       end
     end
 
     def map_status(up_status)
       case up_status
-      when 'HELD'
-        'HELD'
-      when 'SETTLED'
-        'SETTLED'
+      when "HELD"
+        "HELD"
+      when "SETTLED"
+        "SETTLED"
       else
-        'SETTLED'
+        "SETTLED"
       end
     end
 
     def extract_merchant(attrs)
       # Try to get merchant from description, fallback to rawText
-      attrs[:description] || attrs[:rawText] || 'Unknown'
+      attrs[:description] || attrs[:rawText] || "Unknown"
     end
   end
 end

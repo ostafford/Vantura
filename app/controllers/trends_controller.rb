@@ -4,20 +4,20 @@ class TrendsController < ApplicationController
     return redirect_to root_path, alert: "No account found" unless @account
 
     # Date range based on user selection (default last 12 months)
-    @date_range = params[:date_range] || '12'
+    @date_range = params[:date_range] || "12"
     end_date = Date.today.end_of_month
-    
+
     case @date_range
-    when 'all'
+    when "all"
       # Get all transactions
       start_date = @account.transactions.minimum(:transaction_date) || (end_date - 11.months).beginning_of_month
-    when '3'
+    when "3"
       start_date = (end_date - 2.months).beginning_of_month
-    when '6'
+    when "6"
       start_date = (end_date - 5.months).beginning_of_month
-    when '12'
+    when "12"
       start_date = (end_date - 11.months).beginning_of_month
-    when '24'
+    when "24"
       start_date = (end_date - 23.months).beginning_of_month
     else
       start_date = (end_date - 11.months).beginning_of_month
@@ -59,13 +59,13 @@ class TrendsController < ApplicationController
                       .sort
 
     # Multi-select filters
-    @selected_merchants = params[:merchants].presence&.split(',') || []
-    @selected_categories = params[:categories].presence&.split(',') || []
-    @filter_type = params[:filter_type] || 'merchant' # 'merchant' or 'category'
+    @selected_merchants = params[:merchants].presence&.split(",") || []
+    @selected_categories = params[:categories].presence&.split(",") || []
+    @filter_type = params[:filter_type] || "merchant" # 'merchant' or 'category'
 
     # Comparison data for selected items
     @comparison_data = []
-    
+
     if @selected_merchants.any?
       @selected_merchants.each do |merchant|
         merchant_transactions = scope.where(merchant: merchant)
@@ -80,7 +80,7 @@ class TrendsController < ApplicationController
         end
         @comparison_data << {
           name: merchant,
-          type: 'merchant',
+          type: "merchant",
           monthly: monthly_data,
           total: merchant_transactions.sum(&:amount).abs
         }
@@ -101,7 +101,7 @@ class TrendsController < ApplicationController
         end
         @comparison_data << {
           name: category.humanize,
-          type: 'category',
+          type: "category",
           monthly: monthly_data,
           total: category_transactions.sum(&:amount).abs
         }
@@ -109,5 +109,3 @@ class TrendsController < ApplicationController
     end
   end
 end
-
-

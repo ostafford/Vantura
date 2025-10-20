@@ -1,13 +1,13 @@
-require 'httparty'
+require "httparty"
 
 module UpBank
   class Client < ApplicationService
     include HTTParty
-    base_uri 'https://api.up.com.au/api/v1'
+    base_uri "https://api.up.com.au/api/v1"
 
     def initialize
       @access_token = Rails.application.credentials.dig(:up_bank, :access_token)
-      raise 'Up Bank access token not configured' if @access_token.blank?
+      raise "Up Bank access token not configured" if @access_token.blank?
     end
 
     def call
@@ -17,12 +17,12 @@ module UpBank
 
     # Ping endpoint - test authentication
     def ping
-      get('/util/ping')
+      get("/util/ping")
     end
 
     # Get all accounts
     def accounts
-      get('/accounts')
+      get("/accounts")
     end
 
     # Get specific account
@@ -32,7 +32,7 @@ module UpBank
 
     # Get all transactions
     def transactions(params = {})
-      get('/transactions', params)
+      get("/transactions", params)
     end
 
     # Get transactions for specific account
@@ -42,7 +42,7 @@ module UpBank
 
     # Follow pagination links until exhausted; returns array of page responses
     def paginate(initial_response)
-      responses = [initial_response]
+      responses = [ initial_response ]
       next_link = initial_response.dig(:links, :next)
       while next_link
         response = follow(next_link)
@@ -57,8 +57,8 @@ module UpBank
     def get(endpoint, params = {})
       options = {
         headers: {
-          'Authorization' => "Bearer #{@access_token}",
-          'Content-Type' => 'application/json'
+          "Authorization" => "Bearer #{@access_token}",
+          "Content-Type" => "application/json"
         },
         query: params
       }
@@ -71,8 +71,8 @@ module UpBank
     def follow(url)
       options = {
         headers: {
-          'Authorization' => "Bearer #{@access_token}",
-          'Content-Type' => 'application/json'
+          "Authorization" => "Bearer #{@access_token}",
+          "Content-Type" => "application/json"
         }
       }
       response = HTTParty.get(url, options)
@@ -84,9 +84,9 @@ module UpBank
       when 200..299
         JSON.parse(response.body, symbolize_names: true)
       when 401
-        raise 'Up Bank authentication failed - check your access token'
+        raise "Up Bank authentication failed - check your access token"
       when 429
-        raise 'Up Bank rate limit exceeded - please wait before retrying'
+        raise "Up Bank rate limit exceeded - please wait before retrying"
       else
         raise "Up Bank API error: #{response.code} - #{response.body}"
       end
