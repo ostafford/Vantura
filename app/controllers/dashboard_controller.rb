@@ -4,15 +4,16 @@ class DashboardController < ApplicationController
     @account = Account.order(:created_at).last
 
     if @account
-      # Get recent transactions
-      @recent_transactions = @account.transactions
-                                     .order(transaction_date: :desc)
-                                     .limit(10)
-
       # Calculate summary stats for current month ONLY
       @current_date = Date.today
       current_month_start = @current_date.beginning_of_month
       current_month_end = @current_date.end_of_month
+      
+      # Get recent transactions for CURRENT MONTH ONLY
+      @recent_transactions = @account.transactions
+                                     .where(transaction_date: current_month_start..current_month_end)
+                                     .order(transaction_date: :desc)
+                                     .limit(10)
       
       # Current month expenses
       current_month_expenses = @account.transactions.expenses

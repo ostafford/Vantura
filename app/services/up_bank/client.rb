@@ -40,6 +40,18 @@ module UpBank
       get("/accounts/#{account_id}/transactions", params)
     end
 
+    # Follow pagination links until exhausted; returns array of page responses
+    def paginate(initial_response)
+      responses = [initial_response]
+      next_link = initial_response.dig(:links, :next)
+      while next_link
+        response = follow(next_link)
+        responses << response
+        next_link = response.dig(:links, :next)
+      end
+      responses
+    end
+
     private
 
     def get(endpoint, params = {})
@@ -52,6 +64,18 @@ module UpBank
       }
 
       response = self.class.get(endpoint, options)
+      handle_response(response)
+    end
+
+    # Follow an absolute URL returned by Up's pagination links
+    def follow(url)
+      options = {
+        headers: {
+          'Authorization' => "Bearer #{@access_token}",
+          'Content-Type' => 'application/json'
+        }
+      }
+      response = HTTParty.get(url, options)
       handle_response(response)
     end
 

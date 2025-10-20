@@ -15,6 +15,16 @@ Rails.application.routes.draw do
   get "transactions/expenses/:year/:month", to: "transactions#expenses", as: :transactions_expenses_month
   get "transactions/income", to: "transactions#income", as: :transactions_income
   get "transactions/income/:year/:month", to: "transactions#income", as: :transactions_income_month
+  
+  # Trends
+  get "trends", to: "trends#index", as: :trends
+
+  # Recurring transactions
+  resources :recurring_transactions, only: [:index, :create, :destroy] do
+    member do
+      post :toggle_active
+    end
+  end
 
   # Health check and PWA routes...
   get "up" => "rails/health#show", as: :rails_health_check

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Configure dark mode to use class strategy instead of media query */
+@variant dark (&:where(.dark, .dark *));
+
 /* Custom styles for Vantura */
 .vantura-container {
   max-width: 100vw;

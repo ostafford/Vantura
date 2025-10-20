@@ -71,22 +71,24 @@ module UpBank
     def sync_transactions_for_account(account)
       Rails.logger.info "  Syncing transactions for: #{account.display_name}"
 
-      # Fetch transactions from Up Bank
-      # We'll fetch the most recent 100 transactions
-      response = @client.account_transactions(
+      # Fetch ALL transactions using pagination for full backfill
+      first_page = @client.account_transactions(
         account.up_account_id,
         { 'page[size]' => 100 }
       )
+      pages = @client.paginate(first_page)
 
       new_count = 0
       updated_count = 0
 
-      response[:data].each do |txn_data|
+      pages.each do |response|
+        response[:data].each do |txn_data|
         transaction = sync_transaction(account, txn_data)
         if transaction.previously_new_record?
           new_count += 1
         else
           updated_count += 1
+        end
         end
       end
 
@@ -108,8 +110,9 @@ module UpBank
 
       # Extract category
       category = txn_data.dig(:relationships, :category, :data, :id) || 'uncategorized'
-
-      transaction.assign_attributes(
+      
+      # Build transaction attributes
+      transaction_attrs = {
         description: attrs[:description],
         merchant: extract_merchant(attrs),
         amount: attrs[:amount][:value].to_f,
@@ -118,10 +121,49 @@ module UpBank
         status: status,
         is_hypothetical: false,
         settled_at: attrs[:settledAt] ? Time.parse(attrs[:settledAt]) : nil
-      )
+      }
 
+      # Check if this matches any recurring transaction pattern
+      matching_recurring = find_matching_recurring_pattern(account, transaction_attrs)
+      
+      if matching_recurring
+        # Find and remove the hypothetical transaction for this date
+        hypothetical = account.transactions.hypothetical
+                              .where(recurring_transaction_id: matching_recurring.id)
+                              .where(transaction_date: transaction_attrs[:transaction_date])
+                              .first
+        
+        hypothetical&.destroy
+        
+        # Link this real transaction to the recurring pattern
+        transaction_attrs[:recurring_transaction_id] = matching_recurring.id
+        
+        # Update next occurrence date
+        matching_recurring.update(next_occurrence_date: matching_recurring.calculate_next_occurrence)
+        
+        Rails.logger.info "  ✓ Matched transaction to recurring pattern: #{matching_recurring.description}"
+      end
+
+      transaction.assign_attributes(transaction_attrs)
       transaction.save!
       transaction
+    end
+    
+    def find_matching_recurring_pattern(account, transaction_attrs)
+      # Only check active recurring patterns
+      account.recurring_transactions.active.find do |recurring|
+        # Create a temporary transaction object for matching
+        temp_transaction = Transaction.new(
+          description: transaction_attrs[:description],
+          amount: transaction_attrs[:amount],
+          transaction_date: transaction_attrs[:transaction_date]
+        )
+        
+        # Check if date is within expected window (±3 days)
+        date_match = (temp_transaction.transaction_date - recurring.next_occurrence_date).abs <= 3
+        
+        date_match && recurring.matches_transaction?(temp_transaction)
+      end
     end
 
     def map_status(up_status)

@@ -1,6 +1,7 @@
 class Transaction < ApplicationRecord
   # Associations
   belongs_to :account
+  belongs_to :recurring_transaction, optional: true
 
   # Validations
   validates :description, presence: true
@@ -16,6 +17,7 @@ class Transaction < ApplicationRecord
   scope :income, -> { where('amount > 0') }
   scope :for_date, ->(date) { where(transaction_date: date) }
   scope :for_month, ->(month, year) { where('extract(month from transaction_date) = ? AND extract(year from transaction_date) = ?', month, year) }
+  scope :from_recurring, -> { where.not(recurring_transaction_id: nil) }
 
   # Enums for status
   enum :status, {
@@ -23,4 +25,9 @@ class Transaction < ApplicationRecord
     settled: 'SETTLED',
     hypothetical: 'HYPOTHETICAL'
   }, prefix: true
+  
+  # Check if this is a recurring transaction (generated or real matched)
+  def recurring?
+    recurring_transaction_id.present?
+  end
 end

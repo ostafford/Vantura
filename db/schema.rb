@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_20_004546) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_20_061303) do
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -32,7 +32,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_004546) do
     t.string "category"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "template_transaction_id"
+    t.string "merchant_pattern"
+    t.decimal "amount_tolerance", precision: 10, scale: 2, default: "1.0"
+    t.string "projection_months", default: "indefinite"
     t.index ["account_id"], name: "index_recurring_transactions_on_account_id"
+    t.index ["template_transaction_id"], name: "index_recurring_transactions_on_template_transaction_id"
   end
 
   create_table "transactions", force: :cascade do |t|
@@ -48,9 +53,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_004546) do
     t.datetime "settled_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "recurring_transaction_id"
     t.index ["account_id"], name: "index_transactions_on_account_id"
+    t.index ["recurring_transaction_id"], name: "index_transactions_on_recurring_transaction_id"
   end
 
   add_foreign_key "recurring_transactions", "accounts"
+  add_foreign_key "recurring_transactions", "transactions", column: "template_transaction_id"
   add_foreign_key "transactions", "accounts"
+  add_foreign_key "transactions", "recurring_transactions"
 end

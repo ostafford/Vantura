@@ -17,6 +17,9 @@ class CalendarController < ApplicationController
     # Reload account to ensure we have fresh transaction data
     @account.reload
     
+    # Generate recurring transactions for this month if needed (for indefinite patterns)
+    generate_recurring_for_month(start_date, end_date)
+    
     @transactions = @account.transactions
                             .where(transaction_date: start_date..end_date)
                             .order(:transaction_date)
@@ -96,4 +99,41 @@ class CalendarController < ApplicationController
     @transactions_by_date[date] || []
   end
   helper_method :day_transactions
+  
+  def generate_recurring_for_month(start_date, end_date)
+    # Only generate for active, indefinite recurring patterns
+    @account.recurring_transactions.active.where(projection_months: 'indefinite').each do |recurring|
+      # Check if we need to generate transactions for this month
+      current_date = recurring.next_occurrence_date
+      
+      while current_date <= end_date
+        # Skip if already past
+        break if current_date < start_date && recurring.calculate_next_occurrence(current_date) > end_date
+        
+        # Check if transaction already exists for this date
+        existing = @account.transactions
+                           .where(recurring_transaction_id: recurring.id)
+                           .where(transaction_date: current_date)
+                           .exists?
+        
+        unless existing
+          # Generate transaction for this occurrence
+          if current_date >= start_date && current_date <= end_date && current_date > Date.today
+            @account.transactions.create!(
+              description: recurring.description,
+              amount: recurring.amount,
+              category: recurring.category,
+              transaction_date: current_date,
+              status: 'HYPOTHETICAL',
+              is_hypothetical: true,
+              recurring_transaction_id: recurring.id
+            )
+          end
+        end
+        
+        # Move to next occurrence
+        current_date = recurring.calculate_next_occurrence(current_date)
+      end
+    end
+  end
 end
