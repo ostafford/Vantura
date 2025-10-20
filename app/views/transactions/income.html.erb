@@ -4,7 +4,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">All Income</h1>
+          <h1 class="text-3xl font-bold text-gray-900">Income</h1>
           <p class="text-sm text-gray-600 mt-1">
             <%= link_to "← Back to Dashboard", root_path, class: "text-blue-600 hover:text-blue-700" %>
           </p>
@@ -17,6 +17,37 @@
           </p>
           <p class="text-xs text-gray-500 mt-1"><%= @transactions.count %> transactions</p>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Month Navigation -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex gap-3">
+          <%= link_to transactions_income_month_path(@date.prev_month.year, @date.prev_month.month),
+                      class: "inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Previous
+          <% end %>
+
+          <%= link_to transactions_income_month_path(@date.next_month.year, @date.next_month.month),
+                      class: "inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" do %>
+            Next
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          <% end %>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-900">
+          <%= @date.strftime("%B %Y") %>
+        </h2>
+
+        <div class="w-32"></div> <!-- Spacer for alignment -->
       </div>
     </div>
   </div>

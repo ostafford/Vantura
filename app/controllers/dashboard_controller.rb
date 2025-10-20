@@ -9,20 +9,27 @@ class DashboardController < ApplicationController
                                      .order(transaction_date: :desc)
                                      .limit(10)
 
-      # Calculate summary stats for current month
-      current_month_start = Date.today.beginning_of_month
-      current_month_end = Date.today.end_of_month
+      # Calculate summary stats for current month ONLY
+      @current_date = Date.today
+      current_month_start = @current_date.beginning_of_month
+      current_month_end = @current_date.end_of_month
       
-      @expense_count = @account.transactions.expenses.count
-      @expense_total = @account.transactions.expenses.sum(:amount).abs
+      # Current month expenses
+      current_month_expenses = @account.transactions.expenses
+                                       .where(transaction_date: current_month_start..current_month_end)
+      @expense_count = current_month_expenses.count
+      @expense_total = current_month_expenses.sum(:amount).abs
       
-      @income_count = @account.transactions.income.count
-      @income_total = @account.transactions.income.sum(:amount)
+      # Current month income
+      current_month_income = @account.transactions.income
+                                     .where(transaction_date: current_month_start..current_month_end)
+      @income_count = current_month_income.count
+      @income_total = current_month_income.sum(:amount)
       
       # Calculate End of Month balance
       future_transactions = @account.transactions
                                     .where('transaction_date > ? AND transaction_date <= ?', 
-                                           Date.today, current_month_end)
+                                           @current_date, current_month_end)
       @end_of_month_balance = @account.current_balance + future_transactions.sum(:amount)
     end
   end

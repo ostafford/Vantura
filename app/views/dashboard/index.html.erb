@@ -55,8 +55,8 @@
   <% end %>
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <div class="flex gap-3">
-      <%= link_to calendar_path, class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm" do %>
+    <div class="flex gap-3 justify-center">
+      <%= link_to calendar_path, class: "inline-flex items-center whitespace-nowrap px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" do %>
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
         </svg>
@@ -64,7 +64,7 @@
       <% end %>
       
       <% if @account %>
-        <button onclick="openTransactionModal()" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm">
+        <button onclick="openTransactionModal()" class="inline-flex items-center whitespace-nowrap px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
@@ -75,10 +75,22 @@
   </div>
 
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
     <% if @account %>
+      <!-- Current Date Display -->
+      <% if @current_date %>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-4 text-center">
+          <p class="text-3xl font-bold text-gray-900">
+            <%= @current_date.strftime("%B %d, %Y") %>
+          </p>
+          <p class="text-sm text-gray-500 mt-2">
+            <%= @current_date.strftime("%A") %> • Summary for <%= @current_date.strftime("%B %Y") %>
+          </p>
+        </div>
+      <% end %>
+
       <!-- Account Summary Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-4">
         <!-- Current Balance -->
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <p class="text-sm font-medium text-gray-600 mb-1">Current Balance</p>
@@ -98,28 +110,35 @@
         </div>
 
         <!-- Expenses -->
-        <%= link_to transactions_expenses_path, class: "bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:border-red-300 hover:shadow-md transition-all cursor-pointer" do %>
+        <%= link_to transactions_expenses_path(year: @current_date.year, month: @current_date.month), class: "bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:bg-red-50 hover:border-red-300 hover:shadow-md transition-all cursor-pointer" do %>
           <p class="text-sm font-medium text-gray-600 mb-1">Expenses</p>
           <p class="text-3xl font-bold text-red-600">
             $<%= number_with_precision(@expense_total, precision: 2) %>
           </p>
-          <p class="text-xs text-gray-500 mt-2"><%= @expense_count %> transactions</p>
+          <p class="text-xs text-gray-500 mt-2"><%= @expense_count %> transactions this month</p>
         <% end %>
 
         <!-- Income -->
-        <%= link_to transactions_income_path, class: "bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:border-green-300 hover:shadow-md transition-all cursor-pointer" do %>
+        <%= link_to transactions_income_path(year: @current_date.year, month: @current_date.month), class: "bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:bg-green-50 hover:border-green-300 hover:shadow-md transition-all cursor-pointer" do %>
           <p class="text-sm font-medium text-gray-600 mb-1">Income</p>
           <p class="text-3xl font-bold text-green-600">
             $<%= number_with_precision(@income_total, precision: 2) %>
           </p>
-          <p class="text-xs text-gray-500 mt-2"><%= @income_count %> transactions</p>
+          <p class="text-xs text-gray-500 mt-2"><%= @income_count %> transactions this month</p>
         <% end %>
       </div>
 
       <!-- Recent Transactions -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
           <h2 class="text-xl font-bold text-gray-900">Recent Transactions</h2>
+          <%= link_to transactions_all_path(year: @current_date.year, month: @current_date.month), 
+                      class: "inline-flex items-center px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors" do %>
+            View All
+            <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          <% end %>
         </div>
 
         <div class="overflow-x-auto">
@@ -368,14 +387,5 @@
         }
       });
     }
-    
-    // Force all SVGs to proper size (backup in case CSS doesn't load)
-    const allSvgs = document.querySelectorAll('svg');
-    allSvgs.forEach(svg => {
-      svg.style.maxWidth = '24px';
-      svg.style.maxHeight = '24px';
-      svg.style.width = 'auto';
-      svg.style.height = 'auto';
-    });
   });
 </script>

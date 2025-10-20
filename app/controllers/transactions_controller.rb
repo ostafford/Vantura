@@ -29,11 +29,63 @@ class TransactionsController < ApplicationController
     end
   end
 
+  def all
+    @account = Account.order(:created_at).last
+    return redirect_to root_path, alert: "No account found" unless @account
+    
+    # Get year and month from params, default to current
+    @year = params[:year]&.to_i || Date.today.year
+    @month = params[:month]&.to_i || Date.today.month
+    @date = Date.new(@year, @month, 1)
+    
+    # Get filter type from params, default to "all"
+    @filter_type = params[:filter] || "all"
+    
+    # Filter transactions for this month
+    start_date = @date.beginning_of_month
+    end_date = @date.end_of_month
+    
+    @transactions = @account.transactions
+                            .where(transaction_date: start_date..end_date)
+    
+    # Apply filter based on type
+    case @filter_type
+    when "expenses"
+      @transactions = @transactions.expenses
+    when "income"
+      @transactions = @transactions.income
+    when "hypothetical"
+      @transactions = @transactions.hypothetical
+    # "all" - no additional filter needed
+    end
+    
+    @transactions = @transactions.order(transaction_date: :desc)
+    
+    # Calculate totals
+    @expense_total = @account.transactions.expenses
+                             .where(transaction_date: start_date..end_date)
+                             .sum(:amount).abs
+    @income_total = @account.transactions.income
+                            .where(transaction_date: start_date..end_date)
+                            .sum(:amount)
+  end
+
   def expenses
     @account = Account.order(:created_at).last
     return redirect_to root_path, alert: "No account found" unless @account
     
-    @transactions = @account.transactions.expenses.order(transaction_date: :desc)
+    # Get year and month from params, default to current
+    @year = params[:year]&.to_i || Date.today.year
+    @month = params[:month]&.to_i || Date.today.month
+    @date = Date.new(@year, @month, 1)
+    
+    # Filter transactions for this month
+    start_date = @date.beginning_of_month
+    end_date = @date.end_of_month
+    
+    @transactions = @account.transactions.expenses
+                            .where(transaction_date: start_date..end_date)
+                            .order(transaction_date: :desc)
     @total_amount = @transactions.sum(:amount).abs
   end
 
@@ -41,7 +93,18 @@ class TransactionsController < ApplicationController
     @account = Account.order(:created_at).last
     return redirect_to root_path, alert: "No account found" unless @account
     
-    @transactions = @account.transactions.income.order(transaction_date: :desc)
+    # Get year and month from params, default to current
+    @year = params[:year]&.to_i || Date.today.year
+    @month = params[:month]&.to_i || Date.today.month
+    @date = Date.new(@year, @month, 1)
+    
+    # Filter transactions for this month
+    start_date = @date.beginning_of_month
+    end_date = @date.end_of_month
+    
+    @transactions = @account.transactions.income
+                            .where(transaction_date: start_date..end_date)
+                            .order(transaction_date: :desc)
     @total_amount = @transactions.sum(:amount)
   end
 

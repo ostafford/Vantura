@@ -440,15 +440,4 @@
     }
   });
 
-  // Clean up any potential visual artifacts on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    // Force all SVGs to proper size (backup in case CSS doesn't load)
-    const allSvgs = document.querySelectorAll('svg');
-    allSvgs.forEach(svg => {
-      svg.style.maxWidth = '24px';
-      svg.style.maxHeight = '24px';
-      svg.style.width = 'auto';
-      svg.style.height = 'auto';
-    });
-  });
 </script>
