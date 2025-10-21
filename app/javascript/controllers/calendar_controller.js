@@ -2,7 +2,18 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="calendar"
 export default class extends Controller {
-  // Toggle day details
+  connect() {
+    // Save current view to localStorage for persistence
+    const viewLinks = this.element.querySelectorAll('[data-view]')
+    viewLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const view = e.currentTarget.dataset.view
+        localStorage.setItem('calendarView', view)
+      })
+    })
+  }
+  
+  // Toggle day details (for month view expandable details)
   toggleDay(event) {
     const dayId = event.currentTarget.dataset.dayId
     const element = document.getElementById(dayId)

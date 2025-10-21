@@ -19,7 +19,7 @@ Rails.application.routes.draw do
 
   # Calendar
   get "calendar", to: "calendar#index"
-  get "calendar/:year/:month", to: "calendar#index", as: :calendar_month
+  get "calendar/:year/:month(/:day)", to: "calendar#index", as: :calendar_month
 
   # Transactions (for hypothetical transactions)
   resources :transactions, only: [ :create, :destroy ]
