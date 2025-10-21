@@ -23,33 +23,9 @@
 
   <!-- Month Navigation -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <div class="bg-gradient-to-r from-neutral-light to-white dark:from-gray-800 dark:to-secondary-dark rounded-lg shadow-sm border-2 border-secondary/20 dark:border-secondary-dark p-4">
-      <div class="flex items-center justify-between">
-        <div class="flex gap-3">
-          <%= link_to transactions_income_month_path(@date.prev_month.year, @date.prev_month.month),
-                      class: "inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" do %>
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Previous
-          <% end %>
-
-          <%= link_to transactions_income_month_path(@date.next_month.year, @date.next_month.month),
-                      class: "inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors" do %>
-            Next
-            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          <% end %>
-        </div>
-
-        <h2 class="text-2xl font-bold text-gray-900">
-          <%= @date.strftime("%B %Y") %>
-        </h2>
-
-        <div class="w-32"></div> <!-- Spacer for alignment -->
-      </div>
-    </div>
+    <%= render 'shared/month_navigation',
+        prev_path: transactions_income_month_path(@date.prev_month.year, @date.prev_month.month),
+        next_path: transactions_income_month_path(@date.next_month.year, @date.next_month.month) %>
   </div>
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -83,34 +59,13 @@
                   <%= transaction.category&.humanize || "Uncategorized" %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <% if transaction.is_hypothetical %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      Hypothetical
-                    </span>
-                  <% elsif transaction.status == "HELD" %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                      Pending
-                    </span>
-                  <% else %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Settled
-                    </span>
-                  <% end %>
+                  <%= transaction_status_badge(transaction) %>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-green-600">
-                  +$<%= number_with_precision(transaction.amount.abs, precision: 2) %>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
+                  <%= formatted_transaction_amount(transaction) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                  <% if transaction.is_hypothetical %>
-                    <%= button_to transaction_path(transaction), method: :delete, 
-                        data: { confirm: "Remove this transaction?" },
-                        class: "inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs font-medium" do %>
-                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                      </svg>
-                      Remove
-                    <% end %>
-                  <% end %>
+                  <%= transaction_action_buttons(transaction) %>
                 </td>
               </tr>
             <% end %>

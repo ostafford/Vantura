@@ -1,0 +1,22 @@
+<!-- Page Header -->
+<div class="bg-gradient-to-r from-neutral-light to-white dark:from-secondary-dark dark:to-gray-800 shadow-sm border-b border-primary/20 dark:border-primary-dark/30">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="flex items-center justify-between <%= local_assigns[:flex_wrap] ? 'flex-wrap gap-4' : '' %>">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= title %></h1>
+        <% if local_assigns[:show_back_link] %>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <%= link_to "← Back to Dashboard", root_path, class: "text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary font-medium" %>
+          </p>
+        <% elsif local_assigns[:subtitle] %>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1"><%= subtitle %></p>
+        <% end %>
+      </div>
+
+      <% if block_given? %>
+        <%= yield %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
