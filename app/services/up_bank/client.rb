@@ -5,9 +5,9 @@ module UpBank
     include HTTParty
     base_uri "https://api.up.com.au/api/v1"
 
-    def initialize
-      @access_token = Rails.application.credentials.dig(:up_bank, :access_token)
-      raise "Up Bank access token not configured" if @access_token.blank?
+    def initialize(access_token)
+      @access_token = access_token
+      raise "Up Bank access token not provided" if @access_token.blank?
     end
 
     def call

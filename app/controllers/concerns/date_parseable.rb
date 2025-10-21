@@ -16,7 +16,6 @@ module DateParseable
   # Requires parse_month_params to be called first
   # @return [Array<Date>] [start_date, end_date]
   def month_date_range
-    [@date.beginning_of_month, @date.end_of_month]
+    [ @date.beginning_of_month, @date.end_of_month ]
   end
 end
-

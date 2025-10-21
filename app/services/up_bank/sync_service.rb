@@ -1,11 +1,16 @@
 module UpBank
   class SyncService < ApplicationService
-    def initialize(account_id: nil)
+    def initialize(user, account_id: nil)
+      @user = user
       @account_id = account_id
-      @client = UpBank::Client.call
+      @client = UpBank::Client.new(@user.up_bank_token)
     end
 
     def call
+      unless @user.up_bank_token.present?
+        return { success: false, error: "Up Bank token not configured", new_transactions: 0 }
+      end
+
       begin
         if @account_id
           sync_single_account(@account_id)
@@ -13,7 +18,7 @@ module UpBank
           sync_all_accounts
         end
       rescue StandardError => e
-        Rails.logger.error "Sync failed: #{e.message}"
+        Rails.logger.error "Sync failed for user #{@user.id}: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         { success: false, error: e.message, new_transactions: 0 }
       end
@@ -53,7 +58,22 @@ module UpBank
     def sync_account(account_data)
       attrs = account_data[:attributes]
 
-      account = Account.find_or_initialize_by(up_account_id: account_data[:id])
+      # First, check if account exists globally (might be orphaned from pre-auth days)
+      account = Account.find_by(up_account_id: account_data[:id])
+
+      if account
+        # Account exists - assign to current user if orphaned
+        if account.user_id.nil?
+          Rails.logger.info "  ℹ️  Found orphaned account, assigning to user #{@user.id}"
+          account.user = @user
+        elsif account.user_id != @user.id
+          # Account belongs to different user - this shouldn't happen
+          raise "Account #{account_data[:id]} belongs to a different user"
+        end
+      else
+        # Account doesn't exist, create new one for this user
+        account = @user.accounts.new(up_account_id: account_data[:id])
+      end
 
       account.assign_attributes(
         display_name: attrs[:displayName],

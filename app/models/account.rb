@@ -1,5 +1,6 @@
 class Account < ApplicationRecord
   # Associations
+  belongs_to :user, optional: true # Made optional for backward compatibility with existing data
   has_many :transactions, dependent: :destroy
   has_many :recurring_transactions, dependent: :destroy
 

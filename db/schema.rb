@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_20_061303) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_20_230731) do
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -19,6 +19,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_061303) do
     t.datetime "last_synced_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.index ["user_id"], name: "index_accounts_on_user_id"
   end
 
   create_table "recurring_transactions", force: :cascade do |t|
@@ -40,6 +42,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_061303) do
     t.index ["template_transaction_id"], name: "index_recurring_transactions_on_template_transaction_id"
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "ip_address"
+    t.string "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.integer "account_id", null: false
     t.string "up_transaction_id"
@@ -58,8 +69,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_20_061303) do
     t.index ["recurring_transaction_id"], name: "index_transactions_on_recurring_transaction_id"
   end
 
+  create_table "users", force: :cascade do |t|
+    t.string "email_address", null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "up_bank_token"
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
+  add_foreign_key "accounts", "users"
   add_foreign_key "recurring_transactions", "accounts"
   add_foreign_key "recurring_transactions", "transactions", column: "template_transaction_id"
+  add_foreign_key "sessions", "users"
   add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "recurring_transactions"
 end

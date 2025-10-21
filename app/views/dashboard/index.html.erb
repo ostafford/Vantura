@@ -8,31 +8,50 @@
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Your cash flow projection tool</p>
         </div>
 
-        <% if @account %>
-          <div class="flex items-center gap-3 flex-wrap">
+        <div class="flex items-center gap-3 flex-wrap">
+          <% if @account %>
             <div class="text-right">
               <p class="text-sm text-gray-600 dark:text-gray-400">Last synced</p>
               <p class="text-sm font-medium text-gray-900 dark:text-white">
                 <%= @account.last_synced_at ? time_ago_in_words(@account.last_synced_at) + " ago" : "Never" %>
               </p>
             </div>
-            
-            <!-- Theme Toggle -->
-            <button onclick="toggleTheme()" id="themeToggle" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-              </svg>
-              <span>Auto</span>
-            </button>
-            
+          <% end %>
+          
+          <!-- Settings Link -->
+          <%= link_to settings_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm", title: "Settings" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>Settings</span>
+          <% end %>
+          
+          <!-- Theme Toggle -->
+          <button onclick="toggleTheme()" id="themeToggle" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+            </svg>
+            <span>Auto</span>
+          </button>
+          
+          <% if @account %>
             <%= button_to sync_path, method: :post, id: "syncButton", class: "inline-flex items-center px-4 py-2 bg-[#FF7A5A] text-white rounded-lg hover:bg-[#E86646] transition-colors shadow-sm font-medium", data: { disable_with: "Syncing..." } do %>
               <svg class="w-5 h-5 mr-2" id="syncIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
               <span id="syncButtonText">Sync Now</span>
             <% end %>
-          </div>
-        <% end %>
+          <% end %>
+          
+          <!-- Sign Out -->
+          <%= button_to session_path, method: :delete, class: "inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            <span>Sign Out</span>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
@@ -288,7 +307,7 @@
       </div>
 
     <% else %>
-      <!-- No Account Found - Show Sync Instructions -->
+      <!-- No Account Found - Guide User to Settings -->
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
         <div class="max-w-md mx-auto">
           <div class="inline-flex items-center justify-center w-16 h-16 bg-[#FF7A5A]/10 dark:bg-[#FF7A5A]/20 rounded-full mb-4">
@@ -297,11 +316,34 @@
             </svg>
           </div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Welcome to Vantura!</h2>
-          <p class="text-gray-600 dark:text-gray-400 mb-6">You haven't synced your Up Bank account yet.</p>
-          <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Run this in your Rails console to sync your data:</p>
-            <code class="bg-white dark:bg-gray-800 px-4 py-2 rounded text-sm font-mono text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 inline-block">UpBank::SyncService.call</code>
-          </div>
+          
+          <% if Current.user.up_bank_token.present? %>
+            <!-- Token is configured but sync hasn't happened yet -->
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Your Up Bank token is configured. Click the button below to sync your data!</p>
+            <%= button_to sync_path, method: :post, class: "inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] hover:from-[#E86646] hover:to-[#FF7A5A] text-white rounded-xl transition-all font-semibold shadow-lg", data: { disable_with: "Syncing your data..." } do %>
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Sync Up Bank Data
+            <% end %>
+          <% else %>
+            <!-- No token configured - direct to settings -->
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Let's get you set up! Click below to configure your Up Bank token.</p>
+            <%= link_to settings_path, class: "inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] hover:from-[#E86646] hover:to-[#FF7A5A] text-white rounded-xl transition-all font-semibold shadow-lg" do %>
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              Go to Settings
+            <% end %>
+            
+            <div class="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <p class="text-sm text-blue-800 dark:text-blue-200">
+                <strong>What you'll need:</strong> Your Personal Access Token from 
+                <a href="https://developer.up.com.au/" target="_blank" class="underline hover:text-blue-600">developer.up.com.au</a>
+              </p>
+            </div>
+          <% end %>
         </div>
       </div>
     <% end %>

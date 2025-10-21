@@ -1,0 +1,106 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 py-12">
+  <div class="max-w-md w-full">
+    <!-- Flash Messages -->
+    <% if alert %>
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="text-red-800 dark:text-red-200 font-medium"><%= alert %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Sign Up Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] dark:from-[#E86646] dark:to-[#FF7A5A] px-8 py-6">
+        <h1 class="text-3xl font-bold text-white">Create Account</h1>
+        <p class="text-orange-100 text-sm mt-1">Join Vantura to track your finances</p>
+      </div>
+
+      <!-- Form -->
+      <%= form_with model: @user, url: sign_up_path, class: "p-8 space-y-6" do |form| %>
+        <% if @user.errors.any? %>
+          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <h3 class="font-semibold text-red-900 dark:text-red-100 mb-2">
+              <%= pluralize(@user.errors.count, "error") %> prevented this account from being created:
+            </h3>
+            <ul class="list-disc list-inside text-sm text-red-800 dark:text-red-200 space-y-1">
+              <% @user.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <!-- Email Address -->
+        <div>
+          <label for="user_email_address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Email Address
+          </label>
+          <%= form.email_field :email_address,
+              required: true,
+              autofocus: true,
+              autocomplete: "username",
+              placeholder: "you@example.com",
+              class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#FF7A5A] focus:border-transparent transition-all" %>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="user_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Password
+          </label>
+          <%= form.password_field :password,
+              required: true,
+              autocomplete: "new-password",
+              placeholder: "Create a secure password",
+              maxlength: 72,
+              class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#FF7A5A] focus:border-transparent transition-all" %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Must be at least 8 characters
+          </p>
+        </div>
+
+        <!-- Password Confirmation -->
+        <div>
+          <label for="user_password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Confirm Password
+          </label>
+          <%= form.password_field :password_confirmation,
+              required: true,
+              autocomplete: "new-password",
+              placeholder: "Re-enter your password",
+              maxlength: 72,
+              class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#FF7A5A] focus:border-transparent transition-all" %>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <%= form.submit "Create Account",
+              class: "w-full bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] hover:from-[#E86646] hover:to-[#FF7A5A] text-white px-6 py-3 rounded-xl transition-all font-semibold shadow-lg text-center" %>
+        </div>
+
+        <!-- Sign In Link -->
+        <div class="text-center">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            Already have an account?
+            <%= link_to "Sign in", new_session_path, class: "text-[#FF7A5A] dark:text-[#FF9478] hover:text-[#E86646] dark:hover:text-[#FF7A5A] font-medium" %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        By creating an account, you agree to securely store your Up Bank Personal Access Token.
+        <br>
+        Your token is encrypted and never shared.
+      </p>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,209 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <!-- Header -->
+  <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <%= link_to "← Back to Dashboard", root_path, class: "text-[#FF7A5A] dark:text-[#FF9478] hover:text-[#E86646] dark:hover:text-[#FF7A5A] font-medium" %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flash Messages -->
+  <% if notice || alert %>
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <% if notice %>
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-green-600 dark:text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-green-800 dark:text-green-200 font-medium"><%= notice %></p>
+          </div>
+        </div>
+      <% end %>
+      <% if alert %>
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-red-800 dark:text-red-200 font-medium"><%= alert %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Up Bank Token Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div class="bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] dark:from-[#E86646] dark:to-[#FF7A5A] px-6 py-5">
+        <h2 class="text-2xl font-bold text-white">Up Bank Integration</h2>
+        <p class="text-orange-100 text-sm mt-1">Securely connect your Up Bank account</p>
+      </div>
+
+      <div class="p-6">
+        <!-- Information Section -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+          <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            How to get your Personal Access Token
+          </h3>
+          <ol class="text-sm text-blue-800 dark:text-blue-200 space-y-2 ml-7 list-decimal">
+            <li>Visit <a href="https://developer.up.com.au/" target="_blank" class="underline hover:text-blue-600">developer.up.com.au</a></li>
+            <li>Log in with your Up Bank credentials</li>
+            <li>Click "Get your Personal Access Token"</li>
+            <li>Copy the token and paste it below</li>
+          </ol>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
+          <h3 class="font-semibold text-green-900 dark:text-green-100 mb-2 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+            Your token is secure
+          </h3>
+          <ul class="text-sm text-green-800 dark:text-green-200 space-y-1 ml-7 list-disc">
+            <li>Encrypted using Rails encrypted attributes</li>
+            <li>Never stored in plaintext</li>
+            <li>Filtered from all log files</li>
+            <li>Only accessible by you</li>
+          </ul>
+        </div>
+
+        <%= form_with model: Current.user, url: settings_path, method: :patch, class: "space-y-4" do |f| %>
+          <div>
+            <label for="user_up_bank_token" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Personal Access Token
+            </label>
+            <%= f.text_field :up_bank_token,
+                class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#FF7A5A] focus:border-transparent transition-all font-mono",
+                placeholder: Current.user.up_bank_token.present? ? "Token is saved - enter new token to update" : "up:yeah:xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                value: "",
+                autocomplete: "off",
+                onfocus: "this.placeholder = 'Paste your Up Bank token here'" %>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <% if Current.user.up_bank_token.present? %>
+                ✓ Token is saved and encrypted. Enter a new token to update.
+              <% else %>
+                Paste your Up Bank Personal Access Token here
+              <% end %>
+            </p>
+          </div>
+
+          <!-- Validation Info -->
+          <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+            <h3 class="font-semibold text-yellow-900 dark:text-yellow-100 mb-2 flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+              Token Validation
+            </h3>
+            <p class="text-sm text-yellow-800 dark:text-yellow-200">
+              When you save your token, we'll verify it by pinging the Up Bank API. 
+              If valid, we'll automatically sync your account data and redirect you to the Dashboard!
+            </p>
+          </div>
+
+          <div class="flex gap-3">
+            <%= f.submit "Save & Sync", 
+                class: "flex-1 bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] hover:from-[#E86646] hover:to-[#FF7A5A] text-white px-6 py-3 rounded-xl transition-all font-semibold shadow-lg text-center",
+                data: { disable_with: "⚡ Validating token and syncing data..." } %>
+            <%= link_to "Cancel", root_path, class: "px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold text-center" %>
+          </div>
+        <% end %>
+
+        <!-- Read-only Access Notice -->
+        <div class="mt-6 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <p class="text-xs text-gray-600 dark:text-gray-400">
+            <strong>Note:</strong> Vantura only has <strong>read-only</strong> access to your Up Bank account. 
+            We can view transactions and account balances, but we cannot make transfers or modify your account in any way.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone - Account Deletion -->
+    <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 border-red-200 dark:border-red-800 overflow-hidden">
+      <div class="bg-red-50 dark:bg-red-900/20 px-6 py-4 border-b border-red-200 dark:border-red-800">
+        <h2 class="text-xl font-bold text-red-900 dark:text-red-100 flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          Danger Zone
+        </h2>
+      </div>
+
+      <div class="p-6">
+        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Delete Account</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Permanently delete your Vantura account and all associated data. This action cannot be undone.
+        </p>
+
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+          <p class="text-sm font-medium text-red-900 dark:text-red-100 mb-2">This will permanently delete:</p>
+          <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
+            <li>Your user account and login credentials</li>
+            <li>Your encrypted Up Bank token</li>
+            <li>All synced bank accounts (<%= Current.user.accounts.count %> account<%= Current.user.accounts.count == 1 ? '' : 's' %>)</li>
+            <li>All transactions (hypothetical and real)</li>
+            <li>All recurring transaction patterns</li>
+            <li>All session data</li>
+          </ul>
+        </div>
+
+        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+          <p class="text-sm text-yellow-800 dark:text-yellow-200">
+            <strong>Note:</strong> This only deletes your Vantura account. Your actual Up Bank account and 
+            transactions remain unaffected. You can always sign up again and re-sync your data.
+          </p>
+        </div>
+
+        <%= button_to delete_account_path, 
+            method: :delete,
+            data: { 
+              turbo_confirm: "⚠️ Are you absolutely sure?\n\nThis will permanently delete:\n- Your Vantura account\n- All #{Current.user.accounts.count} synced bank account(s)\n- All transaction data\n- All recurring patterns\n\nThis action CANNOT be undone!\n\nType 'DELETE' to confirm:" 
+            },
+            class: "inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all font-semibold shadow-lg" do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          Delete My Account
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Account Information -->
+    <% if Current.user.accounts.any? %>
+      <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Connected Accounts</h2>
+        <% Current.user.accounts.each do |account| %>
+          <div class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
+            <div>
+              <p class="font-medium text-gray-900 dark:text-white"><%= account.display_name %></p>
+              <p class="text-sm text-gray-500 dark:text-gray-400"><%= account.account_type.humanize %></p>
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold text-[#FF7A5A] dark:text-[#FF9478]">
+                $<%= number_with_precision(account.current_balance, precision: 2) %>
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                Last synced: <%= account.last_synced_at ? time_ago_in_words(account.last_synced_at) + " ago" : "Never" %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

@@ -33,8 +33,13 @@ class DashboardController < ApplicationController
   end
 
   def sync
+    unless Current.user.up_bank_token.present?
+      redirect_to settings_path, alert: "Please configure your Up Bank token first."
+      return
+    end
+
     begin
-      result = UpBank::SyncService.call
+      result = UpBank::SyncService.call(Current.user)
 
       if result[:success]
         redirect_to root_path, notice: "Successfully synced! Added #{result[:new_transactions]} new transactions."

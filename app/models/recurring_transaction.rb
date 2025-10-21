@@ -2,7 +2,7 @@ class RecurringTransaction < ApplicationRecord
   # Associations
   belongs_to :account
   belongs_to :template_transaction, class_name: "Transaction", optional: true
-  has_many :generated_transactions, class_name: "Transaction", foreign_key: "recurring_transaction_id", dependent: :nullify
+  has_many :generated_transactions, class_name: "Transaction", foreign_key: "recurring_transaction_id", dependent: :destroy
 
   # Validations
   validates :description, presence: true
