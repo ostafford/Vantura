@@ -1,0 +1,66 @@
+<%
+  # Hero Card - Large intro card with decorative elements
+  title = local_assigns.fetch(:title, 'Title')
+  subtitle = local_assigns.fetch(:subtitle, nil)
+  description = local_assigns.fetch(:description, nil)
+  icon = local_assigns.fetch(:icon, 'chart')
+  size = local_assigns.fetch(:size, 'bento-span-2 bento-row-span-2')
+  color_scheme = local_assigns.fetch(:color, 'primary')
+  
+  # Color scheme mapping
+  color_map = {
+    'primary' => 'from-primary to-primary-dark dark:from-primary dark:to-primary-dark',
+    'secondary' => 'from-secondary to-secondary-dark dark:from-secondary-dark dark:to-primary-dark',
+    'accent-coral' => 'from-accent-coral to-accent-coral-dark dark:from-accent-coral dark:to-accent-coral-dark'
+  }
+  
+  gradient_classes = color_map[color_scheme] || color_map['primary']
+  
+  # Icon mapping
+  icon_map = {
+    'chart' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />',
+    'wallet' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />',
+    'trend' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />',
+    'calendar' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />'
+  }
+  
+  icon_path = icon_map[icon] || icon_map['chart']
+%>
+
+<div class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-lg p-8 text-white relative overflow-hidden">
+  <!-- Decorative elements -->
+  <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+  <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
+  
+  <div class="relative z-10">
+    <!-- Icon -->
+    <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-6 backdrop-blur-sm">
+      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <%= icon_path.html_safe %>
+      </svg>
+    </div>
+    
+    <!-- Title -->
+    <h2 class="text-3xl font-bold mb-3"><%= title %></h2>
+    
+    <!-- Subtitle -->
+    <% if subtitle.present? %>
+      <p class="text-white/90 text-lg mb-6">
+        <%= subtitle %>
+      </p>
+    <% end %>
+    
+    <!-- Description -->
+    <% if description.present? %>
+      <div class="mt-8 pt-6 border-t border-white/20">
+        <p class="text-white/80 text-sm leading-relaxed">
+          <%= description %>
+        </p>
+      </div>
+    <% end %>
+    
+    <!-- Optional custom content -->
+    <%= yield if block_given? %>
+  </div>
+</div>
+

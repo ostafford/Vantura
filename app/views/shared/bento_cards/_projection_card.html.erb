@@ -1,0 +1,54 @@
+<%
+  # Projection Card - Shows calculated projections with trend indicators
+  title = local_assigns.fetch(:title, 'Projection')
+  value = local_assigns.fetch(:value, '$0.00')
+  change = local_assigns.fetch(:change, 0)
+  balance = local_assigns.fetch(:balance, 0) # Raw numeric balance for color determination
+  size = local_assigns.fetch(:size, 'bento-span-2 bento-row-span-1')
+  
+  # Determine if change is positive (net cash flow)
+  change_is_positive = change >= 0
+  
+  # Determine if balance is positive (actual balance)
+  balance_is_positive = balance >= 0
+  
+  # Format change value
+  change_display = change.is_a?(Numeric) ? "$#{'%.2f' % change.abs}" : change.to_s
+  
+  # Badge color based on NET CASH FLOW (Income - Expenses)
+  if change_is_positive
+    badge_bg = 'bg-green-100 dark:bg-green-900/30'
+    badge_text = 'text-green-700 dark:text-green-400'
+    icon_path = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />'
+  else
+    badge_bg = 'bg-red-100 dark:bg-red-900/30'
+    badge_text = 'text-red-700 dark:text-red-400'
+    icon_path = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />'
+  end
+  
+  # Value color based on ACTUAL BALANCE (positive or negative)
+  if balance_is_positive
+    value_color = 'text-green-600 dark:text-green-400'
+  else
+    value_color = 'text-red-600 dark:text-red-400'
+  end
+%>
+
+<div class="<%= size %> bg-gradient-to-r from-neutral-light via-white to-neutral-light dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-2xl shadow-lg p-6 border-2 border-primary/20 dark:border-primary-dark/30">
+  <div class="flex items-center justify-between h-full">
+    <div class="flex-1">
+      <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1"><%= title %></p>
+      <p class="text-3xl font-bold <%= value_color %>"><%= value %></p>
+    </div>
+    <div class="text-right">
+      <div class="inline-flex items-center px-3 py-1 rounded-full <%= badge_bg %> <%= badge_text %>">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= icon_path.html_safe %>
+        </svg>
+        <span class="font-semibold text-sm">
+          <%= change_is_positive ? '+' : '' %><%= change_display %>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

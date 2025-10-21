@@ -31,9 +31,9 @@ class Account < ApplicationRecord
                                          month_end, today)
       current_balance - transactions_after_month.sum(:amount)
     else
-      # For current/future months: current balance plus all transactions from today to month_end
+      # For current/future months: current balance plus all FUTURE transactions (after today)
       transactions_until_month_end = transactions
-                                      .where("transaction_date >= ? AND transaction_date <= ?",
+                                      .where("transaction_date > ? AND transaction_date <= ?",
                                              today, month_end)
       current_balance + transactions_until_month_end.sum(:amount)
     end

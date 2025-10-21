@@ -21,6 +21,9 @@ Rails.application.routes.draw do
   get "calendar", to: "calendar#index"
   get "calendar/:year/:month(/:day)", to: "calendar#index", as: :calendar_month
 
+  # Trends (Analytics and Data Insights)
+  get "trends", to: "trends#index"
+
   # Transactions (for hypothetical transactions)
   resources :transactions, only: [ :create, :destroy ]
   get "transactions/all", to: "transactions#all", as: :transactions_all

@@ -121,10 +121,10 @@ class CalendarController < ApplicationController
                                                  week_end_date, today)
         balance_at_eow = current_balance - transactions_after_week.sum(:amount)
       else
-        # For current/future weeks: current balance plus all transactions from today onwards to week_end_date
-        # This includes hypothetical transactions created for today or future dates
+        # For current/future weeks: current balance plus all FUTURE transactions (after today)
+        # This includes hypothetical transactions created for future dates
         transactions_until_week = @account.transactions
-                                          .where("transaction_date >= ? AND transaction_date <= ?",
+                                          .where("transaction_date > ? AND transaction_date <= ?",
                                                  today, week_end_date)
         balance_at_eow = current_balance + transactions_until_week.sum(:amount)
       end

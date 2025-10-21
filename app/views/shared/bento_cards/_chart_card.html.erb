@@ -1,0 +1,66 @@
+<%
+  # Chart Card - Placeholder for future charts
+  title = local_assigns.fetch(:title, 'Chart')
+  subtitle = local_assigns.fetch(:subtitle, nil)
+  chart_type = local_assigns.fetch(:chart_type, 'line')
+  description = local_assigns.fetch(:description, 'Chart coming soon')
+  icon_color = local_assigns.fetch(:icon_color, 'primary')
+  size = local_assigns.fetch(:size, 'bento-span-2 bento-row-span-2')
+  
+  # Icon color schemes
+  case icon_color
+  when 'secondary'
+    icon_bg = 'bg-secondary/10 dark:bg-secondary-dark/20'
+    icon_text = 'text-secondary dark:text-secondary-light'
+    border_color = 'border-secondary/20 dark:border-secondary-dark/30'
+  when 'gold'
+    icon_bg = 'bg-accent-gold/10 dark:bg-accent-gold/20'
+    icon_text = 'text-accent-gold-dark dark:text-accent-gold-light'
+    border_color = 'border-accent-gold/20 dark:border-accent-gold/30'
+  else # primary
+    icon_bg = 'bg-primary/10 dark:bg-primary-light/20'
+    icon_text = 'text-primary dark:text-primary-light'
+    border_color = 'border-primary/20 dark:border-primary-dark/30'
+  end
+  
+  # Chart type icons
+  case chart_type
+  when 'pie'
+    icon_svg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />'
+    chart_name = 'Pie Chart'
+  when 'bar'
+    icon_svg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />'
+    chart_name = 'Bar Chart'
+  else # line
+    icon_svg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />'
+    chart_name = 'Line Chart'
+  end
+%>
+
+<div class="<%= size %> bg-gradient-to-br from-neutral-light to-white dark:from-dark-bg-elevated dark:to-dark-bg rounded-2xl shadow-lg p-6 border-2 <%= border_color %>">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white"><%= title %></h3>
+      <% if subtitle.present? %>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"><%= subtitle %></p>
+      <% end %>
+    </div>
+    <div class="inline-flex items-center justify-center w-10 h-10 <%= icon_bg %> rounded-lg">
+      <svg class="w-6 h-6 <%= icon_text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <%= icon_svg.html_safe %>
+      </svg>
+    </div>
+  </div>
+  
+  <!-- Chart Placeholder -->
+  <div class="h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-bg-secondary dark:to-dark-bg rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600">
+    <div class="text-center p-8">
+      <svg class="w-20 h-20 mx-auto text-gray-400 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <%= icon_svg.html_safe %>
+      </svg>
+      <p class="text-gray-600 dark:text-gray-400 font-medium text-lg"><%= chart_name %> Coming Soon</p>
+      <p class="text-sm text-gray-500 dark:text-gray-500 mt-2"><%= description %></p>
+    </div>
+  </div>
+</div>

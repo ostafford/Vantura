@@ -24,7 +24,13 @@
   </head>
 
   <body data-controller="theme modal recurring-modal calendar sync filter">
-    <%= yield %>
+    <!-- Main content wrapper (shrinks when drawer opens) -->
+    <div id="mainContent" 
+         data-modal-target="content" 
+         data-recurring-modal-target="content"
+         class="transition-all duration-300 ease-in-out">
+      <%= yield %>
+    </div>
     
     <%= render 'shared/notifications' %>
   </body>

@@ -2,12 +2,12 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="recurring-modal"
 export default class extends Controller {
-  static targets = ["modal", "form", "description", "amount", "transactionId", "nextOccurrenceDate", "frequencySelect"]
+  static targets = ["modal", "form", "description", "amount", "transactionId", "nextOccurrenceDate", "frequencySelect", "drawer", "content"]
   
   currentTransactionId = null
   currentTransactionDate = null
 
-  // Open the recurring modal
+  // Open the recurring drawer
   open(event) {
     event.preventDefault()
     
@@ -24,21 +24,50 @@ export default class extends Controller {
     const formattedAmount = (amount < 0 ? '-' : '+') + '$' + Math.abs(amount).toFixed(2)
     const amountColor = amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
     this.amountTarget.textContent = formattedAmount
-    this.amountTarget.className = 'font-medium ' + amountColor
+    this.amountTarget.className = 'font-semibold ' + amountColor
     
-    // Show modal
+    // Show container
     this.modalTarget.classList.remove('hidden')
     this.modalTarget.classList.add('flex')
+    
+    // Shrink content and slide in drawer
+    if (this.hasDrawerTarget && this.hasContentTarget) {
+      setTimeout(() => {
+        // Add right margin to shrink content (responsive - only on desktop)
+        if (window.innerWidth >= 640) {
+          this.contentTarget.style.marginRight = '384px'
+        }
+        this.drawerTarget.classList.remove('translate-x-full')
+        this.drawerTarget.classList.add('translate-x-0')
+      }, 10)
+    }
   }
 
-  // Close the recurring modal
+  // Close the recurring drawer
   close(event) {
     event?.preventDefault()
-    this.modalTarget.classList.add('hidden')
-    this.modalTarget.classList.remove('flex')
-    this.formTarget.reset()
-    this.currentTransactionId = null
-    this.currentTransactionDate = null
+    
+    // Slide out drawer and restore content width
+    if (this.hasDrawerTarget && this.hasContentTarget) {
+      this.contentTarget.style.marginRight = '0'
+      this.drawerTarget.classList.remove('translate-x-0')
+      this.drawerTarget.classList.add('translate-x-full')
+      
+      // Wait for animation to complete before hiding
+      setTimeout(() => {
+        this.modalTarget.classList.add('hidden')
+        this.modalTarget.classList.remove('flex')
+        this.formTarget.reset()
+        this.currentTransactionId = null
+        this.currentTransactionDate = null
+      }, 300)
+    } else {
+      this.modalTarget.classList.add('hidden')
+      this.modalTarget.classList.remove('flex')
+      this.formTarget.reset()
+      this.currentTransactionId = null
+      this.currentTransactionDate = null
+    }
   }
 
   // Update next occurrence date when frequency changes

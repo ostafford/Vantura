@@ -1,0 +1,113 @@
+<%
+  # Stat Card - Flexible metric display card
+  title = local_assigns.fetch(:title, 'Metric')
+  value = local_assigns.fetch(:value, '$0.00')
+  subtitle = local_assigns.fetch(:subtitle, nil)
+  detail = local_assigns.fetch(:detail, nil)
+  icon = local_assigns.fetch(:icon, 'chart')
+  color = local_assigns.fetch(:color, 'blue')
+  size = local_assigns.fetch(:size, 'bento-span-1 bento-row-span-2')
+  link = local_assigns.fetch(:link, nil)
+  clickable = link.present?
+  
+  # Icon paths
+  icon_paths = {
+    'arrow-down' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />',
+    'arrow-up' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />',
+    'chart' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />',
+    'dollar' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />',
+    'refresh' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />'
+  }
+  icon_svg = icon_paths[icon] || icon_paths['chart']
+  
+  # Color classes based on color scheme
+  case color
+  when 'red'
+    bg_gradient = 'from-red-50 to-white dark:from-red-900/10 dark:to-gray-800'
+    border_color = 'border-accent-coral/30 dark:border-accent-coral/20'
+    hover_border = 'hover:border-accent-coral dark:hover:border-accent-coral'
+    icon_bg = 'bg-red-100 dark:bg-red-900/30'
+    icon_text = 'text-accent-coral dark:text-accent-coral-light'
+    value_text = 'text-accent-coral dark:text-accent-coral-light'
+  when 'green'
+    bg_gradient = 'from-green-50 to-white dark:from-green-900/10 dark:to-gray-800'
+    border_color = 'border-secondary/30 dark:border-secondary/20'
+    hover_border = 'hover:border-secondary dark:hover:border-secondary'
+    icon_bg = 'bg-green-100 dark:bg-green-900/30'
+    icon_text = 'text-secondary dark:text-secondary-light'
+    value_text = 'text-secondary dark:text-secondary-light'
+  when 'gold'
+    bg_gradient = 'from-yellow-50 to-white dark:from-yellow-900/10 dark:to-gray-800'
+    border_color = 'border-accent-gold/30 dark:border-accent-gold/20'
+    hover_border = 'hover:border-accent-gold dark:hover:border-accent-gold'
+    icon_bg = 'bg-yellow-100 dark:bg-yellow-900/30'
+    icon_text = 'text-accent-gold-dark dark:text-accent-gold-light'
+    value_text = 'text-accent-gold-dark dark:text-accent-gold-light'
+  else # blue
+    bg_gradient = 'from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800'
+    border_color = 'border-primary/30 dark:border-primary-light/20'
+    hover_border = 'hover:border-primary dark:hover:border-primary-light'
+    icon_bg = 'bg-blue-100 dark:bg-blue-900/30'
+    icon_text = 'text-primary dark:text-primary-light'
+    value_text = 'text-primary dark:text-primary-light'
+  end
+  
+  # Build CSS classes
+  base_classes = "#{size} bg-gradient-to-br #{bg_gradient} rounded-2xl shadow-lg p-6 border-2 #{border_color}"
+  interactive_classes = clickable ? "#{hover_border} hover:shadow-xl transition-all cursor-pointer group" : ""
+  card_classes = "#{base_classes} #{interactive_classes}"
+%>
+
+<% if clickable %>
+  <%= link_to link, class: card_classes do %>
+    <div class="flex flex-col h-full">
+      <div class="flex-1">
+        <div class="inline-flex items-center justify-center w-12 h-12 <%= icon_bg %> rounded-xl mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6 <%= icon_text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <%= icon_svg.html_safe %>
+          </svg>
+        </div>
+        
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"><%= title %></p>
+        <p class="text-4xl font-bold <%= value_text %> mb-2"><%= value %></p>
+      </div>
+      
+      <% if subtitle.present? || detail.present? %>
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <% if subtitle.present? %>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= subtitle %></p>
+          <% end %>
+          <% if detail.present? %>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1"><%= detail %></p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="<%= card_classes %>">
+    <div class="flex flex-col h-full">
+      <div class="flex-1">
+        <div class="inline-flex items-center justify-center w-12 h-12 <%= icon_bg %> rounded-xl mb-4">
+          <svg class="w-6 h-6 <%= icon_text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <%= icon_svg.html_safe %>
+          </svg>
+        </div>
+        
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"><%= title %></p>
+        <p class="text-4xl font-bold <%= value_text %> mb-2"><%= value %></p>
+      </div>
+      
+      <% if subtitle.present? || detail.present? %>
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <% if subtitle.present? %>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= subtitle %></p>
+          <% end %>
+          <% if detail.present? %>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1"><%= detail %></p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

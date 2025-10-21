@@ -1,0 +1,151 @@
+<!-- Recurring Transaction Drawer (Slide-in Panel) -->
+<% if @account %>
+  <!-- Drawer Container -->
+  <div id="recurringModal" 
+       data-recurring-modal-target="modal"
+       class="hidden z-50">
+    
+    <!-- Drawer Panel (slides in from right - responsive width) -->
+    <div class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-dark-bg-elevated shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out border-l-2 border-gray-300 dark:border-gray-700"
+         data-recurring-modal-target="drawer">
+      
+      <!-- Drawer Header -->
+      <div class="bg-gradient-to-r from-secondary to-secondary-dark dark:from-secondary-dark dark:to-primary-dark px-6 py-5 flex-shrink-0">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="inline-flex items-center justify-center w-10 h-10 bg-white/20 rounded-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white">Make Recurring</h3>
+              <p class="text-white/80 text-sm mt-0.5">Auto-project into the future</p>
+            </div>
+          </div>
+          <button type="button" 
+                  data-action="click->recurring-modal#close" 
+                  class="text-white/70 hover:text-white hover:bg-white/10 rounded-lg p-2 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Drawer Content (Scrollable) -->
+      <div class="flex-1 overflow-y-auto">
+        <%= form_with url: recurring_transactions_path, method: :post, class: "p-6", id: "recurringForm", data: { recurring_modal_target: "form" } do |f| %>
+          <%= f.hidden_field :transaction_id, id: "recurringTransactionId", data: { recurring_modal_target: "transactionId" } %>
+          
+          <div class="space-y-5">
+            <!-- Transaction Preview -->
+            <div class="bg-secondary/5 dark:bg-secondary-dark/10 border-2 border-secondary/20 dark:border-secondary-dark rounded-lg p-4">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="inline-flex items-center justify-center w-9 h-9 bg-secondary/10 dark:bg-secondary-dark/20 rounded-lg">
+                  <svg class="w-5 h-5 text-secondary dark:text-secondary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Transaction Details</p>
+              </div>
+              <p class="text-lg font-bold text-gray-900 dark:text-white mb-1" id="recurringDescription" data-recurring-modal-target="description">-</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Amount: <span id="recurringAmount" data-recurring-modal-target="amount" class="font-semibold text-gray-900 dark:text-white">-</span></p>
+            </div>
+
+            <!-- Frequency Selection -->
+            <div>
+              <label for="frequency" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">How often does this occur?</label>
+              <select name="frequency" id="frequency" required 
+                      data-recurring-modal-target="frequencySelect"
+                      data-action="change->recurring-modal#updateNextOccurrenceDate"
+                      class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary dark:focus:border-secondary-light transition-all">
+                <option value="">Select frequency...</option>
+                <option value="weekly">Weekly (every 7 days)</option>
+                <option value="fortnightly">Fortnightly (every 14 days)</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly (every 3 months)</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+
+            <!-- Next Occurrence Date -->
+            <div>
+              <label for="nextOccurrenceDate" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                When is the next occurrence?
+              </label>
+              <%= f.date_field :next_occurrence_date, 
+                  id: "nextOccurrenceDate",
+                  data: { recurring_modal_target: "nextOccurrenceDate" },
+                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary dark:focus:border-secondary-light transition-all",
+                  required: true %>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">We'll project future occurrences from this date</p>
+            </div>
+
+            <!-- Projection Duration -->
+            <div>
+              <label for="projection_months" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                How far ahead to project?
+              </label>
+              <select name="projection_months" id="projection_months" 
+                      class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary dark:focus:border-secondary-light transition-all">
+                <option value="indefinite" selected>Indefinite (recommended)</option>
+                <option value="3">3 months</option>
+                <option value="6">6 months</option>
+                <option value="12">12 months</option>
+                <option value="24">24 months</option>
+              </select>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Indefinite will continue projecting as you navigate future months</p>
+            </div>
+
+            <!-- Amount Tolerance -->
+            <div>
+              <label for="recurring_transaction_amount_tolerance" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                Amount matching tolerance
+              </label>
+              <div class="relative">
+                <span class="absolute left-4 top-3 text-gray-500 dark:text-gray-400 font-semibold">±$</span>
+                <%= f.number_field :amount_tolerance,
+                    id: "recurring_transaction_amount_tolerance", 
+                    step: 0.01,
+                    value: 1.0,
+                    class: "w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary dark:focus:border-secondary-light transition-all",
+                    min: 0 %>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Allows matching transactions with slightly different amounts</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="bg-secondary/10 dark:bg-secondary-dark/10 border border-secondary/30 dark:border-secondary-dark rounded-lg p-4">
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-secondary dark:text-secondary-light flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">How it works</p>
+                  <p class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                    We'll automatically add this transaction to future months. When Up Bank syncs the real transaction, we'll match and replace it.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drawer Footer (Sticky at bottom) -->
+          <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex gap-3">
+              <%= f.submit "Create Pattern", 
+                  class: "flex-1 bg-gradient-to-r from-secondary to-secondary-dark dark:from-secondary-dark dark:to-secondary hover:from-secondary-dark hover:to-secondary text-white px-5 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all" %>
+              <button type="button" 
+                      data-action="click->recurring-modal#close" 
+                      class="px-5 py-3 bg-white dark:bg-dark-bg-secondary border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-bg font-semibold transition-all">
+                Cancel
+              </button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+

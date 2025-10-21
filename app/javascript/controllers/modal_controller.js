@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="modal"
 export default class extends Controller {
-  static targets = ["modal", "form"]
+  static targets = ["modal", "form", "drawer", "content"]
   static values = {
     type: String // "transaction" or "recurring"
   }
@@ -22,29 +22,57 @@ export default class extends Controller {
     document.removeEventListener('keydown', this.escapeHandler)
   }
 
-  // Open the modal
+  // Open the drawer
   open(event) {
     event?.preventDefault()
     this.modalTarget.classList.remove('hidden')
     this.modalTarget.classList.add('flex')
+    
+    // Shrink content and slide in drawer
+    if (this.hasDrawerTarget && this.hasContentTarget) {
+      setTimeout(() => {
+        // Add right margin to shrink content (responsive - only on desktop)
+        if (window.innerWidth >= 640) {
+          this.contentTarget.style.marginRight = '384px'
+        }
+        this.drawerTarget.classList.remove('translate-x-full')
+        this.drawerTarget.classList.add('translate-x-0')
+      }, 10)
+    }
     
     if (this.typeValue === "transaction") {
       this.updateTransactionTypeUI()
     }
   }
 
-  // Close the modal
+  // Close the drawer
   close(event) {
     event?.preventDefault()
-    this.modalTarget.classList.add('hidden')
-    this.modalTarget.classList.remove('flex')
+    
+    // Slide out drawer and restore content width
+    if (this.hasDrawerTarget && this.hasContentTarget) {
+      this.contentTarget.style.marginRight = '0'
+      this.drawerTarget.classList.remove('translate-x-0')
+      this.drawerTarget.classList.add('translate-x-full')
+      
+      // Wait for animation to complete before hiding
+      setTimeout(() => {
+        this.modalTarget.classList.add('hidden')
+        this.modalTarget.classList.remove('flex')
+      }, 300)
+    } else {
+      this.modalTarget.classList.add('hidden')
+      this.modalTarget.classList.remove('flex')
+    }
     
     // Reset form if present
     if (this.hasFormTarget) {
-      this.formTarget.reset()
-      if (this.typeValue === "transaction") {
-        this.updateTransactionTypeUI()
-      }
+      setTimeout(() => {
+        this.formTarget.reset()
+        if (this.typeValue === "transaction") {
+          this.updateTransactionTypeUI()
+        }
+      }, 300)
     }
   }
 
@@ -73,12 +101,12 @@ export default class extends Controller {
         selectedType = radio.value
         cards[index].classList.remove('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
         if (radio.value === 'expense') {
-          cards[index].classList.add('border-red-500', 'dark:border-red-600', 'bg-red-50', 'dark:bg-red-900/20')
+          cards[index].classList.add('border-accent-coral', 'dark:border-accent-coral', 'bg-red-50', 'dark:bg-red-900/20')
         } else {
-          cards[index].classList.add('border-green-500', 'dark:border-green-600', 'bg-green-50', 'dark:bg-green-900/20')
+          cards[index].classList.add('border-secondary', 'dark:border-secondary', 'bg-green-50', 'dark:bg-green-900/20')
         }
       } else {
-        cards[index].classList.remove('border-red-500', 'dark:border-red-600', 'bg-red-50', 'dark:bg-red-900/20', 'border-green-500', 'dark:border-green-600', 'bg-green-50', 'dark:bg-green-900/20')
+        cards[index].classList.remove('border-accent-coral', 'dark:border-accent-coral', 'bg-red-50', 'dark:bg-red-900/20', 'border-secondary', 'dark:border-secondary', 'bg-green-50', 'dark:bg-green-900/20')
         cards[index].classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
       }
     })
