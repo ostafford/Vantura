@@ -1,18 +1,18 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen bg-neutral-light dark:bg-secondary-dark">
   <!-- Header -->
-  <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+  <div class="bg-gradient-to-r from-neutral-light to-white dark:from-secondary-dark dark:to-gray-800 shadow-sm border-b border-primary/20 dark:border-primary-dark/30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Manage Recurring Transactions</h1>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <%= link_to "← Back to Dashboard", root_path, class: "text-[#FF7A5A] dark:text-[#FF9478] hover:text-[#E86646] dark:hover:text-[#FF7A5A] font-medium" %>
+            <%= link_to "← Back to Dashboard", root_path, class: "text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary font-medium" %>
           </p>
         </div>
 
         <div class="text-right">
           <p class="text-sm text-gray-600 dark:text-gray-400">Active Patterns</p>
-          <p class="text-3xl font-bold text-[#FF7A5A] dark:text-[#FF9478]">
+          <p class="text-3xl font-bold text-primary dark:text-primary-light">
             <%= @recurring_transactions.active.count %>
           </p>
         </div>
@@ -21,7 +21,7 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="bg-gradient-to-br from-neutral-light to-white dark:from-gray-800 dark:to-secondary-dark rounded-lg shadow-sm border-2 border-secondary/20 dark:border-secondary-dark">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recurring Patterns</h2>
       </div>

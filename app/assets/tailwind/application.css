@@ -23,48 +23,69 @@
   max-width: 100vw;
 }
 
-/* Up Bank Brand Colors */
-:root {
-  --up-orange: #FF7A5A;
-  --up-orange-dark: #E86646;
-  --up-orange-light: #FF9478;
-  --up-peach: #FFB4A0;
+/* Vantura Brand Colors - Premium Navy & Slate Palette - Integrated with Tailwind Theme */
+@theme {
+  /* Primary Colors - Sophisticated blue tones for trust and professionalism */
+  --color-primary: #748CAB;        /* Dusty Blue - main brand color, soft & approachable */
+  --color-primary-dark: #3E5C76;   /* Medium Slate - hover states, refined accents */
+  --color-primary-light: #95A6C0;  /* Light Slate Blue - lighter variant, subtle highlights */
+  
+  /* Secondary Colors - Deep navy tones for depth and premium feel */
+  --color-secondary: #1D2D44;      /* Dark Slate - borders, secondary elements */
+  --color-secondary-dark: #0D1321; /* Midnight Navy - dark mode backgrounds, deepest accents */
+  
+  /* Neutral Colors */
+  --color-neutral-light: #F0EBD8;  /* Ivory Cream - warm backgrounds, cards */
 }
 
-/* Bento Grid Layout */
+/* Bento Grid Layout - Using native CSS Grid with Tailwind-friendly approach */
 .bento-grid {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: minmax(140px, auto);
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Bento grid item spans */
 .bento-span-1 { grid-column: span 1; }
-.bento-span-2 { grid-column: span 2; }
-.bento-span-3 { grid-column: span 3; }
-.bento-span-4 { grid-column: span 4; }
-.bento-row-span-1 { grid-row: span 1; }
-.bento-row-span-2 { grid-row: span 2; }
-.bento-row-span-3 { grid-row: span 3; }
-
-/* Responsive bento grid */
-@media (max-width: 1024px) {
-  .bento-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .bento-span-3 { grid-column: span 2; }
-  .bento-span-4 { grid-column: span 2; }
-}
-
-@media (max-width: 640px) {
-  .bento-grid {
-    grid-template-columns: 1fr;
-  }
-  .bento-span-1,
-  .bento-span-2,
-  .bento-span-3,
-  .bento-span-4 {
+.bento-span-2 { 
+  grid-column: span 2;
+  
+  @media (max-width: 640px) {
     grid-column: span 1;
   }
 }
+.bento-span-3 { 
+  grid-column: span 3;
+  
+  @media (max-width: 1024px) {
+    grid-column: span 2;
+  }
+  
+  @media (max-width: 640px) {
+    grid-column: span 1;
+  }
+}
+.bento-span-4 { 
+  grid-column: span 4;
+  
+  @media (max-width: 1024px) {
+    grid-column: span 2;
+  }
+  
+  @media (max-width: 640px) {
+    grid-column: span 1;
+  }
+}
+
+.bento-row-span-1 { grid-row: span 1; }
+.bento-row-span-2 { grid-row: span 2; }
+.bento-row-span-3 { grid-row: span 3; }

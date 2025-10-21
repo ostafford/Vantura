@@ -1,12 +1,12 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen bg-neutral-light dark:bg-secondary-dark">
   <!-- Header -->
-  <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+  <div class="bg-gradient-to-r from-neutral-light to-white dark:from-secondary-dark dark:to-gray-800 shadow-sm border-b border-primary/20 dark:border-primary-dark/30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <%= link_to "← Back to Dashboard", root_path, class: "text-[#FF7A5A] dark:text-[#FF9478] hover:text-[#E86646] dark:hover:text-[#FF7A5A] font-medium" %>
+            <%= link_to "← Back to Dashboard", root_path, class: "text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary font-medium" %>
           </p>
         </div>
       </div>
@@ -41,8 +41,8 @@
 
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Up Bank Token Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div class="bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] dark:from-[#E86646] dark:to-[#FF7A5A] px-6 py-5">
+    <div class="bg-gradient-to-br from-neutral-light to-white dark:from-gray-800 dark:to-secondary-dark rounded-2xl shadow-lg border-2 border-secondary/20 dark:border-secondary-dark overflow-hidden">
+      <div class="bg-gradient-to-r from-primary to-primary-light dark:from-primary-dark dark:to-primary px-6 py-5">
         <h2 class="text-2xl font-bold text-white">Up Bank Integration</h2>
         <p class="text-orange-100 text-sm mt-1">Securely connect your Up Bank account</p>
       </div>
@@ -86,7 +86,7 @@
               Personal Access Token
             </label>
             <%= f.text_field :up_bank_token,
-                class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#FF7A5A] focus:border-transparent transition-all font-mono",
+                class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-mono",
                 placeholder: Current.user.up_bank_token.present? ? "Token is saved - enter new token to update" : "up:yeah:xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
                 value: "",
                 autocomplete: "off",
@@ -116,7 +116,7 @@
 
           <div class="flex gap-3">
             <%= f.submit "Save & Sync", 
-                class: "flex-1 bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] hover:from-[#E86646] hover:to-[#FF7A5A] text-white px-6 py-3 rounded-xl transition-all font-semibold shadow-lg text-center",
+                class: "flex-1 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-6 py-3 rounded-xl transition-all font-semibold shadow-lg text-center",
                 data: { disable_with: "⚡ Validating token and syncing data..." } %>
             <%= link_to "Cancel", root_path, class: "px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold text-center" %>
           </div>
@@ -133,7 +133,7 @@
     </div>
 
     <!-- Danger Zone - Account Deletion -->
-    <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 border-red-200 dark:border-red-800 overflow-hidden">
+    <div class="mt-6 bg-gradient-to-br from-red-50 to-white dark:from-red-900/10 dark:to-gray-800 rounded-2xl shadow-lg border-2 border-red-200 dark:border-red-800 overflow-hidden">
       <div class="bg-red-50 dark:bg-red-900/20 px-6 py-4 border-b border-red-200 dark:border-red-800">
         <h2 class="text-xl font-bold text-red-900 dark:text-red-100 flex items-center">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,7 +184,7 @@
 
     <!-- Account Information -->
     <% if Current.user.accounts.any? %>
-      <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div class="mt-6 bg-gradient-to-br from-neutral-light to-white dark:from-gray-800 dark:to-secondary-dark rounded-2xl shadow-lg border-2 border-secondary/20 dark:border-secondary-dark p-6">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Connected Accounts</h2>
         <% Current.user.accounts.each do |account| %>
           <div class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
@@ -193,7 +193,7 @@
               <p class="text-sm text-gray-500 dark:text-gray-400"><%= account.account_type.humanize %></p>
             </div>
             <div class="text-right">
-              <p class="text-lg font-bold text-[#FF7A5A] dark:text-[#FF9478]">
+              <p class="text-lg font-bold text-primary dark:text-primary-light">
                 $<%= number_with_precision(account.current_balance, precision: 2) %>
               </p>
               <p class="text-xs text-gray-500 dark:text-gray-400">

@@ -1,32 +1,33 @@
 <!-- Transaction Modal -->
 <% if @account %>
-  <div id="transactionModal" class="hidden fixed inset-0 bg-gray-900/75 dark:bg-gray-900/90 z-50 flex items-center justify-center p-4" style="display: none;">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full">
-      <div class="bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] dark:from-[#E86646] dark:to-[#FF7A5A] px-6 py-5 rounded-t-2xl">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-xl font-bold text-white">Add Transaction</h3>
-            <p class="text-orange-100 text-sm mt-1">Plan future expenses or income</p>
+  <div id="transactionModal" data-modal-target="modal" data-action="click->modal#closeOnBackground" class="hidden fixed inset-0 bg-secondary-dark/75 dark:bg-secondary-dark/90 z-50 items-center justify-center p-4">
+      <div class="bg-gradient-to-br from-neutral-light to-white dark:from-gray-800 dark:to-secondary-dark rounded-2xl shadow-2xl max-w-md w-full border-2 border-primary/20 dark:border-primary-dark/30">
+        <div class="bg-gradient-to-r from-primary to-primary-light dark:from-primary-dark dark:to-primary px-6 py-5 rounded-t-2xl">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-white">Add Transaction</h3>
+              <p class="text-orange-100 text-sm mt-1">Plan future expenses or income</p>
+            </div>
+            <button type="button" data-action="click->modal#close" class="text-white hover:text-gray-200 transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
-          <button onclick="closeTransactionModal()" class="text-white hover:text-gray-200 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
         </div>
-      </div>
 
-      <%= form_with model: Transaction.new, url: transactions_path, method: :post, class: "p-6", id: "transactionForm" do |f| %>
+        <%= form_with model: Transaction.new, url: transactions_path, method: :post, class: "p-6", id: "transactionForm", data: { modal_target: "form" } do |f| %>
         <div class="space-y-4">
           <!-- Transaction Type -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Transaction Type</label>
+          <fieldset>
+            <legend class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Transaction Type</legend>
             <div class="grid grid-cols-2 gap-3">
-              <label class="transaction-type-option cursor-pointer">
+              <label for="transaction_type_expense" class="transaction-type-option cursor-pointer">
                 <%= f.radio_button :transaction_type, 'expense', 
                     checked: true, 
+                    id: "transaction_type_expense",
                     class: "hidden transaction-type-radio",
-                    onchange: "updateTransactionTypeUI()" %>
+                    data: { action: "change->modal#updateTransactionTypeUI" } %>
                 <div class="transaction-type-card border-2 border-red-500 dark:border-red-600 bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center transition-all">
                   <svg class="w-8 h-8 mx-auto mb-2 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
@@ -35,10 +36,11 @@
                 </div>
               </label>
               
-              <label class="transaction-type-option cursor-pointer">
+              <label for="transaction_type_income" class="transaction-type-option cursor-pointer">
                 <%= f.radio_button :transaction_type, 'income', 
+                    id: "transaction_type_income",
                     class: "hidden transaction-type-radio",
-                    onchange: "updateTransactionTypeUI()" %>
+                    data: { action: "change->modal#updateTransactionTypeUI" } %>
                 <div class="transaction-type-card border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-xl p-4 text-center hover:border-green-400 transition-all">
                   <svg class="w-8 h-8 mx-auto mb-2 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -47,131 +49,71 @@
                 </div>
               </label>
             </div>
-          </div>
+          </fieldset>
 
           <div>
-            <label for="transaction_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label for="transactionDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               <span id="descriptionLabel">What are you buying?</span>
             </label>
             <%= f.text_field :description, 
-                class: "w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#FF7A5A] focus:border-transparent transition-all",
+                class: "w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all",
                 placeholder: "e.g., New laptop, Restaurant dinner",
                 id: "transactionDescription",
+                autocomplete: "off",
                 required: true %>
           </div>
 
           <div>
-            <label for="transaction_amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label for="transactionAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               <span id="amountLabel">How much will it cost?</span>
             </label>
             <div class="relative">
               <span class="absolute left-4 top-2.5 text-gray-500 dark:text-gray-400 text-lg font-semibold">$</span>
               <%= f.number_field :amount, 
                   step: 0.01,
-                  class: "w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#FF7A5A] focus:border-transparent transition-all",
+                  class: "w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all",
                   placeholder: "0.00",
+                  id: "transactionAmount",
+                  autocomplete: "off",
                   required: true,
                   min: 0.01 %>
             </div>
           </div>
 
           <div>
-            <label for="transaction_transaction_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label for="transactionDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               <span id="dateLabel">When do you plan to buy it?</span>
             </label>
             <%= f.date_field :transaction_date, 
                 value: default_transaction_date,
-                class: "w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#FF7A5A] focus:border-transparent transition-all",
+                class: "w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all",
+                id: "transactionDate",
+                autocomplete: "off",
                 required: true %>
           </div>
 
           <div>
-            <label for="transaction_category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label for="transactionCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Category (optional)
             </label>
             <%= f.text_field :category, 
-                class: "w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#FF7A5A] focus:border-transparent transition-all",
-                placeholder: "e.g., shopping, entertainment, food" %>
+                class: "w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all",
+                placeholder: "e.g., shopping, entertainment, food",
+                id: "transactionCategory",
+                autocomplete: "off" %>
           </div>
         </div>
 
         <div class="mt-6 flex gap-3">
           <%= f.submit "Add Transaction", 
               id: "submitButton",
-              class: "flex-1 bg-gradient-to-r from-[#FF7A5A] to-[#FF9478] hover:from-[#E86646] hover:to-[#FF7A5A] text-white px-4 py-3 rounded-xl transition-all font-semibold shadow-lg" %>
-          <button type="button" onclick="closeTransactionModal()" 
+              class: "flex-1 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-4 py-3 rounded-xl transition-all font-semibold shadow-lg" %>
+          <button type="button" data-action="click->modal#close" 
                   class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold">
             Cancel
           </button>
         </div>
       <% end %>
+      </div>
     </div>
-  </div>
 <% end %>
-
-<script>
-  function openTransactionModal() {
-    const modal = document.getElementById('transactionModal');
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-    updateTransactionTypeUI(); // Initialize UI state
-  }
-
-  function closeTransactionModal() {
-    const modal = document.getElementById('transactionModal');
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
-    // Reset form
-    document.getElementById('transactionForm').reset();
-    updateTransactionTypeUI();
-  }
-
-  function updateTransactionTypeUI() {
-    const radios = document.querySelectorAll('.transaction-type-radio');
-    const cards = document.querySelectorAll('.transaction-type-card');
-    let selectedType = 'expense';
-    
-    radios.forEach((radio, index) => {
-      if (radio.checked) {
-        selectedType = radio.value;
-        cards[index].classList.remove('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700');
-        if (radio.value === 'expense') {
-          cards[index].classList.add('border-red-500', 'dark:border-red-600', 'bg-red-50', 'dark:bg-red-900/20');
-        } else {
-          cards[index].classList.add('border-green-500', 'dark:border-green-600', 'bg-green-50', 'dark:bg-green-900/20');
-        }
-      } else {
-        cards[index].classList.remove('border-red-500', 'dark:border-red-600', 'bg-red-50', 'dark:bg-red-900/20', 'border-green-500', 'dark:border-green-600', 'bg-green-50', 'dark:bg-green-900/20');
-        cards[index].classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700');
-      }
-    });
-
-    // Update labels based on transaction type
-    if (selectedType === 'expense') {
-      document.getElementById('descriptionLabel').textContent = 'What are you buying?';
-      document.getElementById('amountLabel').textContent = 'How much will it cost?';
-      document.getElementById('dateLabel').textContent = 'When do you plan to buy it?';
-      document.getElementById('transactionDescription').placeholder = 'e.g., New laptop, Restaurant dinner';
-    } else {
-      document.getElementById('descriptionLabel').textContent = 'What income are you receiving?';
-      document.getElementById('amountLabel').textContent = 'How much will you receive?';
-      document.getElementById('dateLabel').textContent = 'When do you expect to receive it?';
-      document.getElementById('transactionDescription').placeholder = 'e.g., Freelance work, Gift, Tax refund';
-    }
-  }
-
-  // Close modal on escape key
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-      closeTransactionModal();
-    }
-  });
-
-  // Close modal on background click
-  document.getElementById('transactionModal')?.addEventListener('click', function(event) {
-    if (event.target === this) {
-      closeTransactionModal();
-    }
-  });
-</script>
-

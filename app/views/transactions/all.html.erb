@@ -1,12 +1,12 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen bg-neutral-light dark:bg-secondary-dark">
   <!-- Header -->
-  <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+  <div class="bg-gradient-to-r from-neutral-light to-white dark:from-secondary-dark dark:to-gray-800 shadow-sm border-b border-primary/20 dark:border-primary-dark/30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white">All Transactions</h1>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <%= link_to "← Back to Dashboard", root_path, class: "text-[#FF7A5A] dark:text-[#FF9478] hover:text-[#E86646] dark:hover:text-[#FF7A5A] font-medium" %>
+            <%= link_to "← Back to Dashboard", root_path, class: "text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary font-medium" %>
           </p>
         </div>
 
@@ -41,7 +41,7 @@
 
   <!-- Month Navigation & Filter -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+    <div class="bg-gradient-to-br from-neutral-light to-white dark:from-gray-800 dark:to-secondary-dark rounded-lg shadow-sm border-2 border-secondary/20 dark:border-secondary-dark p-4">
       <div class="flex items-center justify-between">
         <!-- Month Navigation -->
         <div class="flex gap-3">
@@ -84,7 +84,7 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="bg-gradient-to-br from-neutral-light to-white dark:from-gray-800 dark:to-secondary-dark rounded-lg shadow-sm border-2 border-secondary/20 dark:border-secondary-dark">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">
           <%= case @filter_type
@@ -150,8 +150,13 @@
                         Remove
                       <% end %>
                     <% elsif !transaction.is_hypothetical && !transaction.recurring? %>
-                      <button onclick="openRecurringModal(<%= transaction.id %>, '<%= j transaction.description %>', <%= transaction.amount %>, '<%= transaction.transaction_date %>')" 
-                              class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-xs font-medium">
+                      <button type="button" 
+                              data-action="click->recurring-modal#open"
+                              data-transaction-id="<%= transaction.id %>"
+                              data-description="<%= transaction.description %>"
+                              data-amount="<%= transaction.amount %>"
+                              data-transaction-date="<%= transaction.transaction_date %>"
+                              class="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors text-xs font-medium">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
@@ -185,189 +190,6 @@
     </div>
   </div>
 
-  <!-- Recurring Transaction Modal -->
-  <div id="recurringModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4" style="display: none;">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-      <div class="bg-blue-600 px-6 py-4 rounded-t-lg">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xl font-bold text-white">Make Recurring</h3>
-          <button onclick="closeRecurringModal()" class="text-white hover:text-gray-200">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-        <p class="text-blue-100 text-sm mt-1">Automatically project this transaction into the future</p>
-      </div>
-
-      <%= form_with url: recurring_transactions_path, method: :post, class: "p-6", id: "recurringForm" do |f| %>
-        <%= f.hidden_field :transaction_id, id: "recurringTransactionId" %>
-        
-        <div class="space-y-4">
-          <!-- Transaction Preview -->
-          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <p class="text-sm font-medium text-gray-700 mb-2">Transaction:</p>
-            <p class="text-lg font-semibold text-gray-900" id="recurringDescription">-</p>
-            <p class="text-sm text-gray-600 mt-1">Amount: <span id="recurringAmount" class="font-medium">-</span></p>
-          </div>
-
-          <!-- Frequency Selection -->
-          <div>
-            <label for="frequency" class="block text-sm font-medium text-gray-700 mb-2">How often does this occur?</label>
-            <select name="frequency" id="frequency" required 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="">Select frequency...</option>
-              <option value="weekly">Weekly (every 7 days)</option>
-              <option value="fortnightly">Fortnightly (every 14 days)</option>
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly (every 3 months)</option>
-              <option value="yearly">Yearly</option>
-            </select>
-          </div>
-
-          <!-- Next Occurrence Date -->
-          <div>
-            <label for="next_occurrence_date" class="block text-sm font-medium text-gray-700 mb-1">
-              When is the next occurrence?
-            </label>
-            <%= f.date_field :next_occurrence_date, 
-                id: "nextOccurrenceDate",
-                class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                required: true %>
-            <p class="text-xs text-gray-500 mt-1">We'll project future occurrences from this date</p>
-          </div>
-
-          <!-- Projection Duration -->
-          <div>
-            <label for="projection_months" class="block text-sm font-medium text-gray-700 mb-1">
-              How far ahead to project?
-            </label>
-            <select name="projection_months" id="projection_months" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="indefinite" selected>Indefinite (recommended)</option>
-              <option value="3">3 months</option>
-              <option value="6">6 months</option>
-              <option value="12">12 months</option>
-              <option value="24">24 months</option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">Indefinite will continue projecting as you navigate future months</p>
-          </div>
-
-          <!-- Amount Tolerance -->
-          <div>
-            <label for="amount_tolerance" class="block text-sm font-medium text-gray-700 mb-1">
-              Amount matching tolerance
-            </label>
-            <div class="relative">
-              <span class="absolute left-4 top-2 text-gray-500">±$</span>
-              <%= f.number_field :amount_tolerance, 
-                  step: 0.01,
-                  value: 1.0,
-                  class: "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                  min: 0 %>
-            </div>
-            <p class="text-xs text-gray-500 mt-1">Allows matching transactions with slightly different amounts</p>
-          </div>
-
-          <!-- Info Box -->
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p class="text-xs text-blue-800">
-              <strong>How it works:</strong> We'll automatically add this transaction to future months in your calendar. 
-              When Up Bank syncs the real transaction, we'll match and replace it automatically.
-            </p>
-          </div>
-        </div>
-
-        <div class="mt-6 flex gap-3">
-          <%= f.submit "Create Recurring Pattern", 
-              class: "flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold" %>
-          <button type="button" onclick="closeRecurringModal()" 
-                  class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold">
-            Cancel
-          </button>
-        </div>
-      <% end %>
-    </div>
-  </div>
+  <%= render 'shared/recurring_modal' %>
 </div>
-
-<script>
-  let currentRecurringTransactionId = null;
-  let currentTransactionDate = null;
-  
-  function openRecurringModal(transactionId, description, amount, transactionDate) {
-    currentRecurringTransactionId = transactionId;
-    currentTransactionDate = transactionDate;
-    
-    document.getElementById('recurringTransactionId').value = transactionId;
-    document.getElementById('recurringDescription').textContent = description;
-    
-    const formattedAmount = (amount < 0 ? '-' : '+') + '$' + Math.abs(amount).toFixed(2);
-    const amountColor = amount < 0 ? 'text-red-600' : 'text-green-600';
-    document.getElementById('recurringAmount').textContent = formattedAmount;
-    document.getElementById('recurringAmount').className = 'font-medium ' + amountColor;
-    
-    // Update next occurrence date when frequency changes
-    updateNextOccurrenceDate();
-    
-    const modal = document.getElementById('recurringModal');
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-  }
-  
-  function updateNextOccurrenceDate() {
-    const frequency = document.getElementById('frequency').value;
-    if (!frequency || !currentTransactionDate) return;
-    
-    const txnDate = new Date(currentTransactionDate);
-    let nextDate = new Date(txnDate);
-    
-    switch(frequency) {
-      case 'weekly':
-        nextDate.setDate(nextDate.getDate() + 7);
-        break;
-      case 'fortnightly':
-        nextDate.setDate(nextDate.getDate() + 14);
-        break;
-      case 'monthly':
-        nextDate.setMonth(nextDate.getMonth() + 1);
-        break;
-      case 'quarterly':
-        nextDate.setMonth(nextDate.getMonth() + 3);
-        break;
-      case 'yearly':
-        nextDate.setFullYear(nextDate.getFullYear() + 1);
-        break;
-    }
-    
-    // Format as YYYY-MM-DD for date input
-    const formatted = nextDate.toISOString().split('T')[0];
-    document.getElementById('nextOccurrenceDate').value = formatted;
-  }
-  
-  // Add event listener for frequency change
-  document.getElementById('frequency')?.addEventListener('change', updateNextOccurrenceDate);
-  
-  function closeRecurringModal() {
-    const modal = document.getElementById('recurringModal');
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
-    document.getElementById('recurringForm').reset();
-    currentRecurringTransactionId = null;
-  }
-  
-  // Close modal on escape key
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-      closeRecurringModal();
-    }
-  });
-  
-  // Close modal on background click
-  document.getElementById('recurringModal')?.addEventListener('click', function(event) {
-    if (event.target === this) {
-      closeRecurringModal();
-    }
-  });
-</script>
 

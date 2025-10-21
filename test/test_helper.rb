@@ -21,9 +21,9 @@ module ActionDispatch
       session_record = sessions(user.to_sym)
       # For integration tests, we need to use signed cookies via post request
       # Simulate what happens when a user logs in
-      post session_url, params: { 
-        email_address: users(user.to_sym).email_address, 
-        password: "password" 
+      post session_url, params: {
+        email_address: users(user.to_sym).email_address,
+        password: "password"
       }
     end
   end

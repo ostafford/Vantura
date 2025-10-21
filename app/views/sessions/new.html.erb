@@ -1,37 +1,37 @@
-<div class="mx-auto md:w-2/3 w-full">
+<div class="mx-auto md:w-2/3 w-full bg-gradient-to-br from-neutral-light to-white dark:from-gray-800 dark:to-secondary-dark p-8 rounded-2xl shadow-lg border-2 border-secondary/20 dark:border-secondary-dark">
   <% if alert = flash[:alert] %>
-    <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
+    <p class="py-2 px-3 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-900/10 mb-5 text-red-600 dark:text-red-400 font-medium rounded-lg inline-block border-2 border-red-200 dark:border-red-800" id="alert"><%= alert %></p>
   <% end %>
 
   <% if notice = flash[:notice] %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+    <p class="py-2 px-3 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/10 mb-5 text-green-600 dark:text-green-400 font-medium rounded-lg inline-block border-2 border-green-200 dark:border-green-800" id="notice"><%= notice %></p>
   <% end %>
 
-  <h1 class="font-bold text-4xl">Sign in</h1>
+  <h1 class="font-bold text-4xl text-gray-900 dark:text-white mb-6">Sign in</h1>
 
   <%= form_with url: session_url, class: "contents" do |form| %>
     <div class="my-5">
-      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "block shadow-sm rounded-xl border-2 border-secondary/30 dark:border-secondary/20 focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
     </div>
 
     <div class="my-5">
-      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "block shadow-sm rounded-md border border-gray-400 focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "block shadow-sm rounded-xl border-2 border-secondary/30 dark:border-secondary/20 focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
     </div>
 
     <div class="col-span-6 sm:flex sm:items-center sm:gap-4">
       <div class="inline">
-        <%= form.submit "Sign in", class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+        <%= form.submit "Sign in", class: "w-full sm:w-auto text-center rounded-xl px-6 py-3 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white inline-block font-semibold cursor-pointer shadow-lg transition-all" %>
       </div>
 
-      <div class="mt-4 text-sm text-gray-500 sm:mt-0">
-        <%= link_to "Forgot password?", new_password_path, class: "text-gray-700 underline hover:no-underline" %>
+      <div class="mt-4 text-sm text-gray-600 dark:text-gray-400 sm:mt-0">
+        <%= link_to "Forgot password?", new_password_path, class: "text-primary dark:text-primary-light hover:text-primary-dark underline hover:no-underline font-medium" %>
       </div>
     </div>
 
     <div class="mt-6 text-center">
-      <p class="text-sm text-gray-600">
+      <p class="text-sm text-gray-600 dark:text-gray-400">
         Don't have an account?
-        <%= link_to "Sign up", sign_up_path, class: "text-blue-600 hover:text-blue-500 font-medium underline" %>
+        <%= link_to "Sign up", sign_up_path, class: "text-primary dark:text-primary-light hover:text-primary-dark font-medium underline" %>
       </p>
     </div>
   <% end %>
