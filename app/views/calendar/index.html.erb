@@ -41,7 +41,7 @@
       <%= render 'shared/month_navigation', 
           prev_path: calendar_month_path(@date.prev_month.year, @date.prev_month.month),
           next_path: calendar_month_path(@date.next_month.year, @date.next_month.month) do %>
-        <button type="button" data-action="click->modal#open" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium">
+        <button type="button" data-action="click->modal#open" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
@@ -85,7 +85,7 @@
                   %>
 
                   <td class="<%= cell_class %> px-4 py-6 text-center border-r border-gray-200 dark:border-gray-700 <%= has_trans ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer' : '' %> transition-all"
-                      <%= "data-day-id=\"#{day_id}\" data-action=\"click->calendar#toggleDay\"" if has_trans %>>
+                      <% if has_trans %>data-day-id="<%= day_id %>" data-action="click->calendar#toggleDay"<% end %>>
                     <% if day[:in_current_month] %>
                       <div class="text-xs text-gray-500 dark:text-gray-400 mb-1"><%= day[:date].day %></div>
                       <div class="text-lg font-semibold <%= total < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
@@ -128,7 +128,7 @@
                   <h3 class="text-xl font-bold text-gray-900 dark:text-white">
                     <%= day[:date].strftime("%A, %B %d, %Y") %>
                   </h3>
-                  <button type="button" data-day-id="<%= day_id %>" data-action="click->calendar#toggleDay" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                  <button type="button" data-day-id="<%= day_id %>" data-action="click->calendar#toggleDay" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:scale-110 transition-all">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -165,9 +165,7 @@
                           <%= formatted_transaction_amount(transaction) %>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                          <div class="flex gap-2 justify-end">
-                            <%= transaction_action_buttons(transaction) %>
-                          </div>
+                          <%= transaction_action_buttons(transaction) %>
                         </td>
                       </tr>
                     <% end %>

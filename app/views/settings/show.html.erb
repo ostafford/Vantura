@@ -116,9 +116,9 @@
 
           <div class="flex gap-3">
             <%= f.submit "Save & Sync", 
-                class: "flex-1 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-6 py-3 rounded-xl transition-all font-semibold shadow-lg text-center",
+                class: "flex-1 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-6 py-3 rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg text-center",
                 data: { disable_with: "⚡ Validating token and syncing data..." } %>
-            <%= link_to "Cancel", root_path, class: "px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold text-center" %>
+            <%= link_to "Cancel", root_path, class: "px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 hover:shadow-md hover:scale-105 transition-all font-semibold text-center" %>
           </div>
         <% end %>
 
@@ -173,7 +173,7 @@
             data: { 
               turbo_confirm: "⚠️ Are you absolutely sure?\n\nThis will permanently delete:\n- Your Vantura account\n- All #{Current.user.accounts.count} synced bank account(s)\n- All transaction data\n- All recurring patterns\n\nThis action CANNOT be undone!\n\nType 'DELETE' to confirm:" 
             },
-            class: "inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all font-semibold shadow-lg" do %>
+            class: "inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg" do %>
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
           </svg>
