@@ -1,4 +1,16 @@
 <div class="min-h-screen bg-neutral-light dark:bg-dark-bg" data-modal-type-value="transaction">
+  <!-- WebSocket subscription for real-time dashboard updates -->
+  <%= turbo_stream_from Current.user %>
+  
+  <!-- Sync Complete Notification Container (updated via WebSocket after sync) -->
+  <div id="sync_notification">
+    <% if @sync_result&.dig("success") %>
+      <%= render 'shared/sync_complete_notification', 
+          new_transactions: @sync_result["new_transactions"],
+          accounts: [@account] %>
+    <% end %>
+  </div>
+  
   <!-- Header -->
   <div class="bg-gradient-to-r from-neutral-light to-white dark:from-dark-bg dark:to-dark-bg-secondary shadow-sm border-b border-primary/20 dark:border-primary-dark/30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -31,7 +43,9 @@
           <% end %>
           
           <!-- Sign Out -->
-          <%= button_to session_path, method: :delete, class: "inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-lg hover:scale-105 transition-all shadow-sm" do %>
+          <%= button_to session_path, method: :delete,
+              form: { data: { turbo_confirm: "Are you sure you want to sign out?" } },
+              class: "inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-lg hover:scale-105 transition-all shadow-sm" do %>
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
             </svg>
@@ -76,35 +90,22 @@
         <% end %>
 
         <!-- Expenses Card (1x2) - Using Reusable Partial -->
-        <%= render 'shared/bento_cards/stat_card',
-            title: "Expenses",
-            value: "$#{number_with_precision(@expense_total, precision: 2)}",
-            subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@expense_count}</span> transactions".html_safe,
-            detail: "This month",
-            icon: 'arrow-down',
-            color: 'red',
-            link: transactions_expenses_path(year: @current_date.year, month: @current_date.month) %>
+        <%= render 'dashboard/expenses_card',
+            expense_total: @expense_total,
+            expense_count: @expense_count,
+            current_date: @current_date %>
 
         <!-- Income Card (1x2) - Using Reusable Partial -->
-        <%= render 'shared/bento_cards/stat_card',
-            title: "Income",
-            value: "$#{number_with_precision(@income_total, precision: 2)}",
-            subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@income_count}</span> transactions".html_safe,
-            detail: "This month",
-            icon: 'arrow-up',
-            color: 'green',
-            link: transactions_income_path(year: @current_date.year, month: @current_date.month) %>
+        <%= render 'dashboard/income_card',
+            income_total: @income_total,
+            income_count: @income_count,
+            current_date: @current_date %>
 
         <!-- End of Month Projection (2x1) - Using Reusable Partial -->
-        <%
-          # Calculate net cash flow for the month (Income - Expenses)
-          monthly_net = @income_total - @expense_total
-        %>
-        <%= render 'shared/bento_cards/projection_card',
-            title: "End of Month Projection",
-            value: "$#{number_with_precision(@end_of_month_balance, precision: 2)}",
-            balance: @end_of_month_balance,
-            change: monthly_net %>
+        <%= render 'dashboard/projection_card',
+            income_total: @income_total,
+            expense_total: @expense_total,
+            end_of_month_balance: @end_of_month_balance %>
 
         <!-- Quick Actions Card (2x1) - Up Bank Orange -->
         <div class="bento-span-2 bento-row-span-1 bg-gradient-to-r from-primary to-primary-light dark:from-primary-dark dark:to-primary rounded-2xl shadow-lg p-6 text-white">
@@ -169,28 +170,9 @@
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody id="recent_transactions" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               <% @recent_transactions.each do |transaction| %>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                    <%= transaction.transaction_date.strftime("%b %d, %Y") %>
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-                    <%= transaction.description %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    <%= transaction.category&.humanize || "Uncategorized" %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex gap-1">
-                      <%= transaction_status_badge(transaction) %>
-                      <%= transaction_recurring_badge(transaction) %>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold">
-                    <%= formatted_transaction_amount(transaction) %>
-                  </td>
-                </tr>
+                <%= render 'dashboard/recent_transaction_row', transaction: transaction %>
               <% end %>
             </tbody>
           </table>

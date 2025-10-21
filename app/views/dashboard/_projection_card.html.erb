@@ -1,0 +1,12 @@
+<%
+  # Calculate net cash flow for the month (Income - Expenses)
+  monthly_net = income_total - expense_total
+%>
+<%= render 'shared/bento_cards/projection_card',
+    id: 'projection_card',
+    title: "End of Month Projection",
+    value: "$#{number_with_precision(end_of_month_balance, precision: 2)}",
+    balance: end_of_month_balance,
+    change: monthly_net,
+    size: 'bento-span-2 bento-row-span-1' %>
+

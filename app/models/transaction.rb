@@ -1,4 +1,6 @@
 class Transaction < ApplicationRecord
+  include Turbo::Broadcastable
+
   # Associations
   belongs_to :account
   belongs_to :recurring_transaction, optional: true
@@ -9,6 +11,11 @@ class Transaction < ApplicationRecord
   validates :transaction_date, presence: true
   validates :status, presence: true
   validates :is_hypothetical, inclusion: { in: [ true, false ] }
+
+  # Broadcast dashboard updates after creating/updating transactions
+  after_create_commit :broadcast_dashboard_update
+  after_update_commit :broadcast_dashboard_update
+  after_destroy_commit :broadcast_dashboard_update
 
   # Scopes for common queries
   scope :real, -> { where(is_hypothetical: false) }
@@ -36,5 +43,66 @@ class Transaction < ApplicationRecord
   def transaction_type
     return "expense" if amount.nil? # Default for new transactions
     amount < 0 ? "expense" : "income"
+  end
+
+  private
+
+  # Broadcast dashboard updates to the user's channel using Turbo Streams
+  def broadcast_dashboard_update
+    return unless account&.user # Ensure we have a user to broadcast to
+
+    # Calculate updated stats for current month
+    current_date = Date.today
+    current_month_start = current_date.beginning_of_month
+    current_month_end = current_date.end_of_month
+
+    # Calculate expenses
+    current_month_expenses = account.transactions.expenses
+                                    .where(transaction_date: current_month_start..current_month_end)
+    expense_count = current_month_expenses.count
+    expense_total = current_month_expenses.sum(:amount).abs
+
+    # Calculate income
+    current_month_income = account.transactions.income
+                                   .where(transaction_date: current_month_start..current_month_end)
+    income_count = current_month_income.count
+    income_total = current_month_income.sum(:amount)
+
+    # End of month balance
+    end_of_month_balance = account.end_of_month_balance(current_date)
+
+    # Broadcast Turbo Stream updates to user's channel
+    broadcast_replace_to(
+      account.user,
+      target: "expenses_card",
+      partial: "dashboard/expenses_card",
+      locals: {
+        expense_total: expense_total,
+        expense_count: expense_count,
+        current_date: current_date
+      }
+    )
+
+    broadcast_replace_to(
+      account.user,
+      target: "income_card",
+      partial: "dashboard/income_card",
+      locals: {
+        income_total: income_total,
+        income_count: income_count,
+        current_date: current_date
+      }
+    )
+
+    broadcast_replace_to(
+      account.user,
+      target: "projection_card",
+      partial: "dashboard/projection_card",
+      locals: {
+        income_total: income_total,
+        expense_total: expense_total,
+        end_of_month_balance: end_of_month_balance
+      }
+    )
   end
 end

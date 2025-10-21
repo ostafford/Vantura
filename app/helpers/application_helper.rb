@@ -41,8 +41,7 @@ module ApplicationHelper
     if transaction.is_hypothetical && !transaction.recurring?
       # Remove button for hypothetical transactions
       button_to transaction_path(transaction), method: :delete,
-          data: { confirm: "Remove this hypothetical transaction?" },
-          form: { class: "inline-block" },
+          form: { class: "inline-block", data: { turbo_confirm: "Remove this hypothetical transaction?" } },
           class: "inline-flex items-center px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 hover:shadow-md hover:scale-105 transition-all text-xs font-medium" do
         svg_icon = <<~HTML.html_safe
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

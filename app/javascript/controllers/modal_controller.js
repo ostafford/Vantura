@@ -16,6 +16,16 @@ export default class extends Controller {
     if (this.typeValue === "transaction") {
       this.updateTransactionTypeUI()
     }
+
+    // Listen for successful form submission (Turbo Streams)
+    if (this.hasFormTarget) {
+      this.formTarget.addEventListener('turbo:submit-end', (event) => {
+        if (event.detail.success) {
+          // Close the modal with animation after successful submission
+          this.close()
+        }
+      })
+    }
   }
 
   disconnect() {

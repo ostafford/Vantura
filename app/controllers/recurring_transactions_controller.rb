@@ -72,7 +72,16 @@ class RecurringTransactionsController < ApplicationController
       message = "Recurring transaction paused."
     end
 
-    redirect_back(fallback_location: root_path, notice: message)
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "recurring_transaction_#{@recurring.id}",
+          partial: "recurring_transactions/recurring_transaction",
+          locals: { recurring: @recurring }
+        )
+      end
+      format.html { redirect_back(fallback_location: root_path, notice: message) }
+    end
   end
 
   private

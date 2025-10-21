@@ -1,0 +1,11 @@
+<%= render 'shared/bento_cards/stat_card',
+    id: 'income_card',
+    title: "Income",
+    value: "$#{number_with_precision(income_total, precision: 2)}",
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{income_count}</span> transactions".html_safe,
+    detail: "This month",
+    icon: 'arrow-up',
+    color: 'green',
+    size: 'bento-span-1 bento-row-span-2',
+    link: transactions_income_path(year: current_date.year, month: current_date.month) %>
+

@@ -40,54 +40,7 @@
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <% @recurring_transactions.each do |recurring| %>
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 <%= recurring.is_active? ? '' : 'bg-gray-100 dark:bg-gray-700 opacity-60' %>">
-                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-                  <%= recurring.description %>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Pattern: "<%= recurring.merchant_pattern %>" (±$<%= recurring.amount_tolerance %>)
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium <%= recurring.amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
-                  <%= recurring.amount < 0 ? "-" : "+" %>$<%= number_with_precision(recurring.amount.abs, precision: 2) %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  <%= recurring.frequency.humanize %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  <%= recurring.next_occurrence_date.strftime("%b %d, %Y") %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <% if recurring.is_active? %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Active
-                    </span>
-                  <% else %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                      Paused
-                    </span>
-                  <% end %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                  <div class="flex gap-2 justify-end">
-                    <%= button_to toggle_active_recurring_transaction_path(recurring), method: :post,
-                        class: "inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 hover:shadow-md hover:scale-105 transition-all text-xs font-medium" do %>
-                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                      <%= recurring.is_active? ? 'Pause' : 'Resume' %>
-                    <% end %>
-                    
-                    <%= button_to recurring_transaction_path(recurring), method: :delete,
-                        data: { confirm: "Delete this recurring pattern? All future projected transactions will be removed." },
-                        class: "inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hover:shadow-md hover:scale-105 transition-all text-xs font-medium" do %>
-                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                      </svg>
-                      Delete
-                    <% end %>
-                  </div>
-                </td>
-              </tr>
+              <%= render "recurring_transaction", recurring: recurring %>
             <% end %>
           </tbody>
         </table>

@@ -33,6 +33,9 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
+# Private planning documents
+/ROADMAP.md
+
 # Ignore internal development documentation (keep local only)
 /QUICK_REFERENCE.md
 /TAILWIND_MIGRATION_GUIDE.md

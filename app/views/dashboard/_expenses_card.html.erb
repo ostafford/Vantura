@@ -1,0 +1,11 @@
+<%= render 'shared/bento_cards/stat_card',
+    id: 'expenses_card',
+    title: "Expenses",
+    value: "$#{number_with_precision(expense_total, precision: 2)}",
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{expense_count}</span> transactions".html_safe,
+    detail: "This month",
+    icon: 'arrow-down',
+    color: 'red',
+    size: 'bento-span-1 bento-row-span-2',
+    link: transactions_expenses_path(year: current_date.year, month: current_date.month) %>
+

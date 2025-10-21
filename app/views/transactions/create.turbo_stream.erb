@@ -1,0 +1,34 @@
+<%# Update the Expenses Card %>
+<%= turbo_stream.replace "expenses_card" do %>
+  <%= render "dashboard/expenses_card",
+      expense_total: @expense_total,
+      expense_count: @expense_count,
+      current_date: @current_date %>
+<% end %>
+
+<%# Update the Income Card %>
+<%= turbo_stream.replace "income_card" do %>
+  <%= render "dashboard/income_card",
+      income_total: @income_total,
+      income_count: @income_count,
+      current_date: @current_date %>
+<% end %>
+
+<%# Update the End of Month Projection %>
+<%= turbo_stream.replace "projection_card" do %>
+  <%= render "dashboard/projection_card",
+      income_total: @income_total,
+      expense_total: @expense_total,
+      end_of_month_balance: @end_of_month_balance %>
+<% end %>
+
+<%# Prepend the new transaction to Recent Transactions %>
+<%= turbo_stream.prepend "recent_transactions" do %>
+  <%= render "dashboard/recent_transaction_row", transaction: @transaction %>
+<% end %>
+
+<%# Close the modal drawer %>
+<%= turbo_stream.replace "transactionModal" do %>
+  <%= render "shared/transaction_drawer", default_transaction_date: Date.today %>
+<% end %>
+

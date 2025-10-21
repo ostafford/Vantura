@@ -32,8 +32,9 @@ module UpBank
       response = @client.accounts
       synced_accounts = []
       total_new_transactions = 0
+      total_accounts = response[:data].count
 
-      response[:data].each do |account_data|
+      response[:data].each_with_index do |account_data, index|
         account = sync_account(account_data)
         result = sync_transactions_for_account(account)
         total_new_transactions += result[:new]

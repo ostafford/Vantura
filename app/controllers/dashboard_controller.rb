@@ -30,6 +30,9 @@ class DashboardController < ApplicationController
 
     # Calculate End of Month balance using Account model method
     @end_of_month_balance = @account.end_of_month_balance(@current_date)
+
+    # Check if there's a sync result to display (shown after redirect from sync action)
+    @sync_result = session.delete(:sync_result)
   end
 
   def sync
@@ -42,6 +45,12 @@ class DashboardController < ApplicationController
       result = UpBank::SyncService.call(Current.user)
 
       if result[:success]
+        # Store sync result in session for after redirect
+        session[:sync_result] = {
+          success: true,
+          new_transactions: result[:new_transactions],
+          accounts: result[:accounts].count
+        }
         redirect_to root_path, notice: "Successfully synced! Added #{result[:new_transactions]} new transactions."
       else
         redirect_to root_path, alert: "Sync failed: #{result[:error]}"
