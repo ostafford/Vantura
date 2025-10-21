@@ -7,7 +7,7 @@ export default class extends Controller {
   // Add spinning animation when form is submitted
   submit() {
     if (this.hasIconTarget) {
-      this.iconTarget.classList.add('spinning')
+      this.iconTarget.classList.add('animate-spin')
     }
   }
 }

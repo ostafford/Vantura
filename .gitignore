@@ -36,3 +36,4 @@
 # Ignore internal development documentation (keep local only)
 /QUICK_REFERENCE.md
 /TAILWIND_MIGRATION_GUIDE.md
+/NOTIFICATIONS_GUIDE.md
