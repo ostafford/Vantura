@@ -17,7 +17,7 @@ class RecurringTransactionsController < ApplicationController
       description: @transaction.description,
       amount: @transaction.amount,
       category: @transaction.category,
-      merchant_pattern: extract_merchant_pattern(@transaction.description),
+      merchant_pattern: RecurringTransaction.extract_merchant_pattern(@transaction.description),
       amount_tolerance: params[:amount_tolerance] || 1.0,
       frequency: params[:frequency],
       next_occurrence_date: params[:next_occurrence_date],
@@ -82,19 +82,5 @@ class RecurringTransactionsController < ApplicationController
       end
       format.html { redirect_back(fallback_location: root_path, notice: message) }
     end
-  end
-
-  private
-
-  def extract_merchant_pattern(description)
-    # Extract the key part of the merchant name for matching
-    # Remove common patterns like numbers, dates, reference codes
-    pattern = description.gsub(/\d{4,}/, "") # Remove long numbers
-                        .gsub(/\s+\d+$/, "")  # Remove trailing numbers
-                        .strip
-
-    # Take the first significant word(s) as the pattern
-    words = pattern.split
-    words.first(2).join(" ") # Use first 1-2 words as pattern
   end
 end

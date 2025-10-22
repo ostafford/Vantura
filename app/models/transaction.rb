@@ -23,7 +23,7 @@ class Transaction < ApplicationRecord
   scope :expenses, -> { where("amount < 0") }
   scope :income, -> { where("amount > 0") }
   scope :for_date, ->(date) { where(transaction_date: date) }
-  scope :for_month, ->(month, year) { where("extract(month from transaction_date) = ? AND extract(year from transaction_date) = ?", month, year) }
+  scope :for_month, ->(date) { where(transaction_date: date.beginning_of_month..date.end_of_month) }
   scope :from_recurring, -> { where.not(recurring_transaction_id: nil) }
 
   # Enums for status
@@ -51,25 +51,15 @@ class Transaction < ApplicationRecord
   def broadcast_dashboard_update
     return unless account&.user # Ensure we have a user to broadcast to
 
-    # Calculate updated stats for current month
-    current_date = Date.today
-    current_month_start = current_date.beginning_of_month
-    current_month_end = current_date.end_of_month
+    # Calculate updated stats using service
+    stats = DashboardStatsCalculator.call(account)
 
-    # Calculate expenses
-    current_month_expenses = account.transactions.expenses
-                                    .where(transaction_date: current_month_start..current_month_end)
-    expense_count = current_month_expenses.count
-    expense_total = current_month_expenses.sum(:amount).abs
-
-    # Calculate income
-    current_month_income = account.transactions.income
-                                   .where(transaction_date: current_month_start..current_month_end)
-    income_count = current_month_income.count
-    income_total = current_month_income.sum(:amount)
-
-    # End of month balance
-    end_of_month_balance = account.end_of_month_balance(current_date)
+    current_date = stats[:current_date]
+    expense_count = stats[:expense_count]
+    expense_total = stats[:expense_total]
+    income_count = stats[:income_count]
+    income_total = stats[:income_total]
+    end_of_month_balance = stats[:end_of_month_balance]
 
     # Broadcast Turbo Stream updates to user's channel
     broadcast_replace_to(

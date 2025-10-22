@@ -2,6 +2,18 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
 
+# Suppress all Turbo broadcasts in test environment
+# This prevents broadcast rendering overhead and strict locals validation issues
+Rails.application.config.to_prepare do
+  if Rails.env.test?
+    Turbo::Broadcastable::ClassMethods.module_eval do
+      def suppressing_turbo_broadcasts?
+        true
+      end
+    end
+  end
+end
+
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers

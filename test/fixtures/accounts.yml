@@ -1,15 +1,17 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  up_account_id: MyString
-  display_name: MyString
-  account_type: MyString
-  current_balance: 9.99
-  last_synced_at: 2025-10-20 11:22:13
+  up_account_id: acc_one_123
+  display_name: Main Transaction Account
+  account_type: TRANSACTIONAL
+  current_balance: 1000.00
+  last_synced_at: <%= 1.day.ago %>
+  user: one
 
 two:
-  up_account_id: MyString
-  display_name: MyString
-  account_type: MyString
-  current_balance: 9.99
-  last_synced_at: 2025-10-20 11:22:13
+  up_account_id: acc_two_456
+  display_name: Savings Account
+  account_type: SAVER
+  current_balance: 5000.00
+  last_synced_at: <%= 2.days.ago %>
+  user: two

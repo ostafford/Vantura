@@ -60,4 +60,21 @@ class RecurringTransaction < ApplicationRecord
 
     description_match && amount_match
   end
+
+  # Extract merchant pattern from transaction description
+  # Removes common noise like numbers and reference codes
+  # @param description [String] The transaction description
+  # @return [String] Extracted merchant pattern (first 1-2 significant words)
+  def self.extract_merchant_pattern(description)
+    return "" if description.blank?
+
+    # Remove common patterns like numbers, dates, reference codes
+    pattern = description.gsub(/\d{4,}/, "") # Remove long numbers (e.g., transaction IDs)
+                        .gsub(/\s+\d+$/, "")  # Remove trailing numbers
+                        .strip
+
+    # Take the first significant word(s) as the pattern
+    words = pattern.split
+    words.first(2).join(" ") # Use first 1-2 words as pattern
+  end
 end

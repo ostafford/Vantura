@@ -1,7 +1,228 @@
 require "test_helper"
 
 class AccountTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  def setup
+    @account = accounts(:one)
+    @user = users(:one)
+  end
+
+  # Association tests
+  test "should belong to user" do
+    assert_respond_to @account, :user
+    assert_instance_of User, @account.user
+  end
+
+  test "should have many transactions" do
+    assert_respond_to @account, :transactions
+  end
+
+  test "should have many recurring_transactions" do
+    assert_respond_to @account, :recurring_transactions
+  end
+
+  test "should destroy dependent transactions when account is destroyed" do
+    account = @user.accounts.create!(
+      up_account_id: "test_acc_789",
+      display_name: "Test Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 100.0
+    )
+    transaction = account.transactions.create!(
+      description: "Test Transaction",
+      amount: -50.0,
+      transaction_date: Date.today,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    assert_difference "Transaction.count", -1 do
+      account.destroy
+    end
+  end
+
+  test "should destroy dependent recurring_transactions when account is destroyed" do
+    account = @user.accounts.create!(
+      up_account_id: "test_acc_789",
+      display_name: "Test Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 100.0
+    )
+    recurring = account.recurring_transactions.create!(
+      description: "Monthly Rent",
+      amount: -1500.0,
+      frequency: "monthly",
+      next_occurrence_date: Date.today,
+      transaction_type: "expense",
+      is_active: true
+    )
+
+    assert_difference "RecurringTransaction.count", -1 do
+      account.destroy
+    end
+  end
+
+  # Validation tests
+  test "should be valid with valid attributes" do
+    account = Account.new(
+      up_account_id: "new_account_123",
+      display_name: "New Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 500.0,
+      user: @user
+    )
+    assert account.valid?
+  end
+
+  test "should require up_account_id" do
+    @account.up_account_id = nil
+    assert_not @account.valid?
+    assert_includes @account.errors[:up_account_id], "can't be blank"
+  end
+
+  test "should require unique up_account_id" do
+    duplicate_account = Account.new(
+      up_account_id: @account.up_account_id,
+      display_name: "Duplicate",
+      account_type: "TRANSACTIONAL",
+      current_balance: 100.0,
+      user: @user
+    )
+    assert_not duplicate_account.valid?
+    assert_includes duplicate_account.errors[:up_account_id], "has already been taken"
+  end
+
+  test "should require display_name" do
+    @account.display_name = nil
+    assert_not @account.valid?
+    assert_includes @account.errors[:display_name], "can't be blank"
+  end
+
+  test "should require account_type" do
+    @account.account_type = nil
+    assert_not @account.valid?
+    assert_includes @account.errors[:account_type], "can't be blank"
+  end
+
+  test "should require current_balance" do
+    @account.current_balance = nil
+    assert_not @account.valid?
+    assert_includes @account.errors[:current_balance], "can't be blank"
+  end
+
+  test "should require numeric current_balance" do
+    @account.current_balance = "not a number"
+    assert_not @account.valid?
+    assert_includes @account.errors[:current_balance], "is not a number"
+  end
+
+  test "user can be optional for backward compatibility" do
+    account = Account.new(
+      up_account_id: "legacy_account_123",
+      display_name: "Legacy Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 100.0,
+      user: nil
+    )
+    assert account.valid?
+  end
+
+  # Enum tests
+  test "should define account_type enum" do
+    assert_respond_to Account, :account_types
+  end
+
+  test "should have transactional account_type" do
+    @account.account_type = "TRANSACTIONAL"
+    assert @account.account_type_transactional?
+  end
+
+  test "should have saver account_type" do
+    @account.account_type = "SAVER"
+    assert @account.account_type_saver?
+  end
+
+  test "should have home_loan account_type" do
+    @account.account_type = "HOME_LOAN"
+    assert @account.account_type_home_loan?
+  end
+
+  # Custom method tests - end_of_month_balance
+  test "end_of_month_balance should return current balance for current month with no transactions" do
+    account = @user.accounts.create!(
+      up_account_id: "test_balance_acc",
+      display_name: "Test Balance Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 1000.0
+    )
+
+    balance = account.end_of_month_balance(Date.today)
+    assert_equal 1000.0, balance
+  end
+
+  test "end_of_month_balance should include future transactions for current month" do
+    account = @user.accounts.create!(
+      up_account_id: "test_balance_acc",
+      display_name: "Test Balance Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 1000.0
+    )
+
+    # Add a future transaction (after today, before end of month)
+    future_date = Date.today + 5.days
+    account.transactions.create!(
+      description: "Future Income",
+      amount: 500.0,
+      transaction_date: future_date,
+      status: "HYPOTHETICAL",
+      is_hypothetical: true
+    )
+
+    balance = account.end_of_month_balance(Date.today)
+    assert_equal 1500.0, balance
+  end
+
+  test "end_of_month_balance should calculate past month balances correctly" do
+    account = @user.accounts.create!(
+      up_account_id: "test_balance_acc",
+      display_name: "Test Balance Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 1000.0
+    )
+
+    # Add transactions after the past month we're checking
+    last_month = Date.today - 1.month
+    account.transactions.create!(
+      description: "Recent Income",
+      amount: 200.0,
+      transaction_date: Date.today - 5.days,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    balance = account.end_of_month_balance(last_month)
+    # Should be current balance (1000) minus transactions after last month (200)
+    assert_equal 800.0, balance
+  end
+
+  test "end_of_month_balance should handle negative transactions" do
+    account = @user.accounts.create!(
+      up_account_id: "test_balance_acc",
+      display_name: "Test Balance Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 1000.0
+    )
+
+    # Add future expense
+    future_date = Date.today + 3.days
+    account.transactions.create!(
+      description: "Future Expense",
+      amount: -250.0,
+      transaction_date: future_date,
+      status: "HYPOTHETICAL",
+      is_hypothetical: true
+    )
+
+    balance = account.end_of_month_balance(Date.today)
+    assert_equal 750.0, balance
+  end
 end

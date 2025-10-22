@@ -58,16 +58,32 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = {
+    host: ENV.fetch("MAILER_HOST", "example.com"),
+    protocol: "https"
+  }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  # Enable email delivery in production
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.delivery_method = :smtp
+
+  # SMTP settings - configure via environment variables
+  # Set these in your deployment:
+  # - SMTP_ADDRESS (e.g., smtp.sendgrid.net, smtp.mailgun.org)
+  # - SMTP_PORT (typically 587)
+  # - SMTP_USERNAME (your SMTP username)
+  # - SMTP_PASSWORD (your SMTP password)
+  # - SMTP_DOMAIN (your sending domain)
+  config.action_mailer.smtp_settings = {
+    address: ENV.fetch("SMTP_ADDRESS", "smtp.sendgrid.net"),
+    port: ENV.fetch("SMTP_PORT", 587).to_i,
+    user_name: ENV["SMTP_USERNAME"],
+    password: ENV["SMTP_PASSWORD"],
+    domain: ENV.fetch("SMTP_DOMAIN", "vantura.app"),
+    authentication: :plain,
+    enable_starttls_auto: true
+  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

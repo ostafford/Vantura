@@ -1,8 +1,10 @@
+<% content_for :title, "Dashboard - Vantura" %>
+
 <div class="min-h-screen bg-neutral-light dark:bg-dark-bg" data-modal-type-value="transaction">
   <!-- WebSocket subscription for real-time dashboard updates -->
   <%= turbo_stream_from Current.user %>
   
-  <!-- Sync Complete Notification Container (updated via WebSocket after sync) -->
+  <!-- Sync Status Container (shows loading state and completion notification) -->
   <div id="sync_notification">
     <% if @sync_result&.dig("success") %>
       <%= render 'shared/sync_complete_notification', 
@@ -10,6 +12,9 @@
           accounts: [@account] %>
     <% end %>
   </div>
+  
+  <!-- Sync Loading Indicator (hidden by default, shown via Turbo Stream) -->
+  <div id="sync_loading"></div>
   
   <!-- Header -->
   <div class="bg-gradient-to-r from-neutral-light to-white dark:from-dark-bg dark:to-dark-bg-secondary shadow-sm border-b border-primary/20 dark:border-primary-dark/30">
@@ -61,11 +66,6 @@
       <!-- Bento Grid Layout -->
       <div class="bento-grid mb-6">
         <!-- Current Balance Hero Card (2x2) - Using Reusable Partial -->
-        <%
-          days_in_month = @current_date.end_of_month.day
-          current_day = @current_date.day
-          progress = (current_day.to_f / days_in_month * 100).round
-        %>
         <%= render 'shared/bento_cards/hero_card',
             title: "Current Balance",
             subtitle: "$#{number_with_precision(@account.current_balance, precision: 2)}",
@@ -81,11 +81,11 @@
             </p>
             <div class="flex items-center gap-2">
               <div class="h-2 flex-1 bg-white/20 rounded-full overflow-hidden">
-                <div class="h-full bg-white rounded-full transition-all w-[<%= progress %>%]"></div>
+                <div class="h-full bg-white rounded-full transition-all w-[<%= month_progress(@current_date) %>%]"></div>
               </div>
-              <span class="text-sm text-orange-100"><%= progress %>%</span>
+              <span class="text-sm text-orange-100"><%= month_progress(@current_date) %>%</span>
             </div>
-            <p class="text-orange-100/80 text-xs mt-1"><%= @current_date.strftime("%A") %> • Day <%= current_day %> of <%= days_in_month %></p>
+            <p class="text-orange-100/80 text-xs mt-1"><%= day_name(@current_date) %> • Day <%= @current_date.day %> of <%= @current_date.end_of_month.day %></p>
           </div>
         <% end %>
 

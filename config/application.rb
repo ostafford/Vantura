@@ -21,7 +21,11 @@ module Vantura
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # Set the default time zone to UTC for consistency
+    # User-facing times should be converted to user's timezone in views if needed
+    config.time_zone = "UTC"
+    config.active_record.default_timezone = :utc
+
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

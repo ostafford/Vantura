@@ -24,31 +24,17 @@ class TransactionsController < ApplicationController
 
       respond_to do |format|
         format.turbo_stream do
-          # Calculate updated dashboard stats for current month
-          @current_date = Date.today
-          current_month_start = @current_date.beginning_of_month
-          current_month_end = @current_date.end_of_month
+          # Calculate updated dashboard stats using service
+          stats = DashboardStatsCalculator.call(@account)
 
-          # Current month expenses
-          current_month_expenses = @account.transactions.expenses
-                                           .where(transaction_date: current_month_start..current_month_end)
-          @expense_count = current_month_expenses.count
-          @expense_total = current_month_expenses.sum(:amount).abs
-
-          # Current month income
-          current_month_income = @account.transactions.income
-                                         .where(transaction_date: current_month_start..current_month_end)
-          @income_count = current_month_income.count
-          @income_total = current_month_income.sum(:amount)
-
-          # End of month balance
-          @end_of_month_balance = @account.end_of_month_balance(@current_date)
-
-          # Get updated recent transactions
-          @recent_transactions = @account.transactions
-                                         .where(transaction_date: current_month_start..current_month_end)
-                                         .order(transaction_date: :desc)
-                                         .limit(10)
+          # Assign instance variables for Turbo Stream template
+          @current_date = stats[:current_date]
+          @recent_transactions = stats[:recent_transactions]
+          @expense_count = stats[:expense_count]
+          @expense_total = stats[:expense_total]
+          @income_count = stats[:income_count]
+          @income_total = stats[:income_total]
+          @end_of_month_balance = stats[:end_of_month_balance]
         end
         format.html { redirect_back(fallback_location: root_path, notice: "#{type_name.capitalize} transaction added! Check the calendar to see its impact.") }
       end
