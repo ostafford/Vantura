@@ -1,0 +1,55 @@
+<!-- Desktop Navigation (Top Bar) - Hidden on mobile -->
+<nav class="hidden md:block bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo and Main Navigation -->
+      <div class="flex items-center gap-8">
+        <!-- Logo -->
+        <%= link_to root_path, class: "flex items-center gap-2 text-primary dark:text-primary-light hover:opacity-80 transition-opacity" do %>
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.84-.95-6.5-4.5-6.5-8.5V8.3l6.5-3.11 6.5 3.11v3.2c0 4-2.66 7.55-6.5 8.5z"/>
+          </svg>
+          <span class="text-xl font-bold">Vantura</span>
+        <% end %>
+
+        <!-- Navigation Links -->
+        <div class="flex items-center gap-1">
+          <%= nav_link_to "Dashboard", root_path, icon: "home" %>
+          <%= nav_link_to "Calendar", calendar_path, icon: "calendar" %>
+          <%= nav_link_to "Trends", trends_path, icon: "chart" %>
+          <%= nav_link_to "Transactions", transactions_all_path, icon: "list" %>
+          <%= nav_link_to "Recurring", recurring_transactions_path, icon: "refresh" %>
+        </div>
+      </div>
+
+      <!-- Right Side Actions -->
+      <div class="flex items-center gap-3">
+        <%= render 'shared/theme_toggle' %>
+        <%= render 'shared/settings_button' %>
+        
+        <% if authenticated? %>
+          <%= button_to session_path, method: :delete,
+              form: { data: { turbo_confirm: "Are you sure you want to sign out?" } },
+              class: "inline-flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors",
+              title: "Sign Out" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Navigation (Bottom Bar) - Hidden on desktop -->
+<nav class="md:hidden fixed bottom-0 inset-x-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-50 shadow-lg">
+  <div class="flex justify-around items-center h-16 px-2">
+    <%= mobile_nav_link_to root_path, icon: "home", label: "Home" %>
+    <%= mobile_nav_link_to calendar_path, icon: "calendar", label: "Calendar" %>
+    <%= mobile_nav_link_to trends_path, icon: "chart", label: "Trends" %>
+    <%= mobile_nav_link_to transactions_all_path, icon: "list", label: "All" %>
+    <%= mobile_nav_link_to settings_path, icon: "settings", label: "Settings" %>
+  </div>
+</nav>
+

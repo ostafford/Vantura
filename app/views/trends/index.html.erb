@@ -1,10 +1,8 @@
 <% content_for :title, "Trends - Vantura" %>
 
-<div class="min-h-screen bg-neutral-light dark:bg-dark-bg">
+<div>
   <!-- Page Header -->
-  <%= render 'shared/page_header', title: "Trends & Insights", show_back_link: true do %>
-    <p class="text-gray-600 dark:text-gray-400 mt-1">Analyze your financial patterns and trends</p>
-  <% end %>
+  <%= render 'shared/page_header_simple', title: "Trends & Insights", subtitle: "Analyze your financial patterns and trends" %>
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <% if @account %>

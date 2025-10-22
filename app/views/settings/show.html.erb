@@ -1,19 +1,8 @@
 <% content_for :title, "Settings - Vantura" %>
 
-<div class="min-h-screen bg-neutral-light dark:bg-dark-bg">
+<div>
   <!-- Header -->
-  <div class="bg-gradient-to-r from-neutral-light to-white dark:from-dark-bg dark:to-dark-bg-secondary shadow-sm border-b border-primary/20 dark:border-primary-dark/30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            <%= link_to "← Back to Dashboard", root_path, class: "text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary font-medium" %>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+  <%= render 'shared/page_header_simple', title: "Settings", subtitle: "Manage your account and integrations" %>
 
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Up Bank Token Section -->

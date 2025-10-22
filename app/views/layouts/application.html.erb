@@ -23,10 +23,15 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-controller="theme modal recurring-modal calendar sync filter">
+  <body data-controller="theme modal recurring-modal calendar sync filter" class="bg-neutral-light dark:bg-dark-bg h-screen flex flex-col">
     <!-- WebSocket subscription for real-time updates (available on all pages) -->
     <% if authenticated? %>
       <%= turbo_stream_from Current.user %>
+    <% end %>
+    
+    <!-- Persistent Navigation (only show when authenticated) -->
+    <% if authenticated? %>
+      <%= render 'shared/navigation' %>
     <% end %>
     
     <!-- Sync notification container (available on all pages) -->
@@ -36,7 +41,7 @@
     <div id="mainContent" 
          data-modal-target="content" 
          data-recurring-modal-target="content"
-         class="transition-all duration-300 ease-in-out">
+         class="transition-all duration-300 ease-in-out flex-1 overflow-auto pb-16 md:pb-0">
       <%= yield %>
     </div>
     
