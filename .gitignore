@@ -33,12 +33,5 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-# Private planning documents
-/ROADMAP.md
-
 # Ignore internal development documentation (keep local only)
-/QUICK_REFERENCE.md
-/TAILWIND_MIGRATION_GUIDE.md
-/NOTIFICATIONS_GUIDE.md
-/BENTO_CARDS_GUIDE.md
-/ERROR_TRACKING_GUIDE.md
+/docs/

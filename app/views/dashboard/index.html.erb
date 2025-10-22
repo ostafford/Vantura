@@ -1,17 +1,18 @@
 <% content_for :title, "Dashboard - Vantura" %>
 
 <div class="min-h-screen bg-neutral-light dark:bg-dark-bg" data-modal-type-value="transaction">
-  <!-- WebSocket subscription for real-time dashboard updates -->
-  <%= turbo_stream_from Current.user %>
-  
   <!-- Sync Status Container (shows loading state and completion notification) -->
-  <div id="sync_notification">
-    <% if @sync_result&.dig("success") %>
-      <%= render 'shared/sync_complete_notification', 
-          new_transactions: @sync_result["new_transactions"],
-          accounts: [@account] %>
-    <% end %>
-  </div>
+  <!-- Note: The sync_notification div is now in the application layout for global access -->
+  <% if @sync_result&.dig("success") %>
+    <script>
+      // Show the sync result notification using JavaScript if it's from a redirect
+      setTimeout(() => {
+        if (window.showNotification) {
+          window.showNotification('success', '<%= j "#{@sync_result["new_transactions"]} new transaction#{'s' if @sync_result["new_transactions"] != 1} added" %>');
+        }
+      }, 100);
+    </script>
+  <% end %>
   
   <!-- Sync Loading Indicator (hidden by default, shown via Turbo Stream) -->
   <div id="sync_loading"></div>

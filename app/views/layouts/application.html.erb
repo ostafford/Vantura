@@ -24,6 +24,14 @@
   </head>
 
   <body data-controller="theme modal recurring-modal calendar sync filter">
+    <!-- WebSocket subscription for real-time updates (available on all pages) -->
+    <% if authenticated? %>
+      <%= turbo_stream_from Current.user %>
+    <% end %>
+    
+    <!-- Sync notification container (available on all pages) -->
+    <div id="sync_notification"></div>
+    
     <!-- Main content wrapper (shrinks when drawer opens) -->
     <div id="mainContent" 
          data-modal-target="content" 
