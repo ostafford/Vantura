@@ -1,7 +1,7 @@
 class AddLastActiveAtToSessions < ActiveRecord::Migration[8.0]
   def change
     add_column :sessions, :last_active_at, :datetime
-    
+
     # Set default for existing sessions to created_at or current time
     reversible do |dir|
       dir.up do
@@ -15,4 +15,3 @@ class AddLastActiveAtToSessions < ActiveRecord::Migration[8.0]
     end
   end
 end
-

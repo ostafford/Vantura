@@ -5,7 +5,7 @@ namespace :sentry do
   task test: :environment do
     puts "🔍 Testing Sentry error reporting..."
     puts ""
-    
+
     # Check if Sentry is configured
     if Sentry.configuration.dsn.blank?
       puts "❌ Sentry DSN not configured!"
@@ -14,18 +14,18 @@ namespace :sentry do
       puts "        dsn: YOUR_SENTRY_DSN"
       exit 1
     end
-    
+
     puts "✅ Sentry DSN configured"
     puts "📍 Environment: #{Rails.env}"
     puts "📍 Enabled: #{Sentry.configuration.enabled_environments.include?(Rails.env)}"
     puts ""
-    
+
     # Test 1: Simple message
     puts "Test 1: Sending test message..."
     Sentry.capture_message("Test message from Vantura rake task")
     puts "✅ Message sent"
     puts ""
-    
+
     # Test 2: Capture exception with context
     puts "Test 2: Sending test error with context..."
     begin
@@ -44,7 +44,7 @@ namespace :sentry do
       puts "❌ Failed to send error: #{e.message}"
     end
     puts ""
-    
+
     # Test 3: Rails.error.handle
     puts "Test 3: Testing Rails.error.handle..."
     result = Rails.error.handle(StandardError, context: { test: "handle_test" }) do
@@ -52,13 +52,13 @@ namespace :sentry do
     end
     puts "✅ Rails.error.handle test complete (error was swallowed)"
     puts ""
-    
+
     puts "🎉 All tests complete!"
     puts ""
     puts "Check your Sentry dashboard at: https://sentry.io"
     puts "You should see 3 new events (2 errors + 1 message)"
   end
-  
+
   desc "Show Sentry configuration"
   task config: :environment do
     puts "Sentry Configuration:"
@@ -72,4 +72,3 @@ namespace :sentry do
     puts "=" * 60
   end
 end
-

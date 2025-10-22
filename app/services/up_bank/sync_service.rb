@@ -14,7 +14,7 @@ module UpBank
       # Use Rails.error.handle to capture and report sync errors
       result = Rails.error.handle(
         StandardError,
-        context: { 
+        context: {
           user_id: @user.id,
           account_id: @account_id,
           service: "UpBank::SyncService"

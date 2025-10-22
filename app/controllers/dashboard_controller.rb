@@ -44,7 +44,7 @@ class DashboardController < ApplicationController
     # Use Rails.error.handle to capture sync errors with user context
     result = Rails.error.handle(
       StandardError,
-      context: { 
+      context: {
         user_id: Current.user.id,
         account_count: Current.user.accounts.count,
         action: "manual_sync"

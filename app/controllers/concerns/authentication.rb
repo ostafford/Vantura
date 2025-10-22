@@ -23,7 +23,7 @@ module Authentication
 
     def resume_session
       Current.session ||= find_session_by_cookie
-      
+
       # Check if session exists and is valid
       if Current.session
         if Current.session.expired?
@@ -53,7 +53,7 @@ module Authentication
 
     def start_new_session_for(user)
       user.sessions.create!(
-        user_agent: request.user_agent, 
+        user_agent: request.user_agent,
         ip_address: request.remote_ip,
         last_active_at: Time.current
       ).tap do |session|

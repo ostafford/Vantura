@@ -61,10 +61,10 @@ class SettingsController < ApplicationController
     is_valid
   rescue StandardError => e
     # Report validation errors to error tracker with context
-    Rails.error.report(e, 
+    Rails.error.report(e,
       handled: true,
       severity: :warning,
-      context: { 
+      context: {
         user_id: Current.user&.id,
         action: "validate_up_bank_token"
       }
