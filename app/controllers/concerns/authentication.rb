@@ -23,6 +23,19 @@ module Authentication
 
     def resume_session
       Current.session ||= find_session_by_cookie
+      
+      # Check if session exists and is valid
+      if Current.session
+        if Current.session.expired?
+          Rails.logger.info "[SECURITY] Session expired for user: #{Current.session.user.email_address}"
+          terminate_session
+          nil
+        else
+          # Update last activity timestamp
+          Current.session.touch_activity!
+          Current.session
+        end
+      end
     end
 
     def find_session_by_cookie
@@ -39,7 +52,11 @@ module Authentication
     end
 
     def start_new_session_for(user)
-      user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
+      user.sessions.create!(
+        user_agent: request.user_agent, 
+        ip_address: request.remote_ip,
+        last_active_at: Time.current
+      ).tap do |session|
         Current.session = session
         cookies.signed.permanent[:session_id] = { value: session.id, httponly: true, same_site: :lax }
       end

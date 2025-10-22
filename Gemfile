@@ -21,6 +21,10 @@ gem "httparty", "~> 0.23.2"
 gem "tailwindcss-rails", "~> 4.3"
 gem "tailwindcss-ruby", "~> 4.1", ">= 4.1.13"
 
+# Error tracking with Sentry [https://docs.sentry.io/platforms/ruby/guides/rails/]
+gem "sentry-ruby"
+gem "sentry-rails"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
 
@@ -49,7 +53,9 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-  gem "brakeman", require: false
+gem 'brakeman', '~> 7.1'
+
+gem 'bundler-audit', '~> 0.9.2'
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false

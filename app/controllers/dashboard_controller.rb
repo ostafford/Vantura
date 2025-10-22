@@ -41,22 +41,29 @@ class DashboardController < ApplicationController
       return
     end
 
-    begin
-      result = UpBank::SyncService.call(Current.user)
+    # Use Rails.error.handle to capture sync errors with user context
+    result = Rails.error.handle(
+      StandardError,
+      context: { 
+        user_id: Current.user.id,
+        account_count: Current.user.accounts.count,
+        action: "manual_sync"
+      },
+      fallback: -> { { success: false, error: "An unexpected error occurred during sync" } }
+    ) do
+      UpBank::SyncService.call(Current.user)
+    end
 
-      if result[:success]
-        # Store sync result in session for after redirect
-        session[:sync_result] = {
-          success: true,
-          new_transactions: result[:new_transactions],
-          accounts: result[:accounts].count
-        }
-        redirect_to root_path, notice: "Successfully synced! Added #{result[:new_transactions]} new transactions."
-      else
-        redirect_to root_path, alert: "Sync failed: #{result[:error]}"
-      end
-    rescue StandardError => e
-      redirect_to root_path, alert: "Sync failed: #{e.message}"
+    if result && result[:success]
+      # Store sync result in session for after redirect
+      session[:sync_result] = {
+        success: true,
+        new_transactions: result[:new_transactions],
+        accounts: result[:accounts].count
+      }
+      redirect_to root_path, notice: "Successfully synced! Added #{result[:new_transactions]} new transactions."
+    else
+      redirect_to root_path, alert: "Sync failed: #{result[:error] || 'An unexpected error occurred'}"
     end
   end
 end

@@ -8,7 +8,8 @@ class SettingsController < ApplicationController
 
     # Only validate if user is actually changing the token (not just dots)
     if token.present? && !token.match?(/^•+$/)
-      begin
+      # Use Rails.error.handle to capture errors and provide fallback behavior
+      Rails.error.handle(StandardError, context: { user_id: Current.user.id, action: "update_up_bank_token" }) do
         # Validate token by pinging Up Bank API
         unless validate_up_bank_token(token)
           redirect_to settings_path, alert: "❌ Invalid Up Bank token. Please check your token and try again."
@@ -17,6 +18,7 @@ class SettingsController < ApplicationController
 
         # Token is valid, save it
         if Current.user.update(up_bank_token: token)
+          Rails.logger.info "[SECURITY] UP Bank token updated for: #{Current.user.email_address} from IP: #{request.remote_ip}"
           # Automatically sync the user's data
           Rails.logger.info "Starting auto-sync for user #{Current.user.id} after token configuration"
           sync_result = UpBank::SyncService.call(Current.user)
@@ -29,11 +31,7 @@ class SettingsController < ApplicationController
         else
           render :show, status: :unprocessable_entity, alert: "Failed to save token: #{Current.user.errors.full_messages.join(', ')}"
         end
-      rescue StandardError => e
-        Rails.logger.error "Token save/sync error: #{e.message}"
-        Rails.logger.error e.backtrace.join("\n")
-        redirect_to settings_path, alert: "❌ Error: #{e.message}. Please check your token and try again."
-      end
+      end || redirect_to(settings_path, alert: "❌ An error occurred. Please try again.")
     else
       redirect_to settings_path, alert: "Please enter a valid Up Bank token."
     end
@@ -62,8 +60,16 @@ class SettingsController < ApplicationController
 
     is_valid
   rescue StandardError => e
+    # Report validation errors to error tracker with context
+    Rails.error.report(e, 
+      handled: true,
+      severity: :warning,
+      context: { 
+        user_id: Current.user&.id,
+        action: "validate_up_bank_token"
+      }
+    )
     Rails.logger.error "❌ Up Bank token validation failed: #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
     false
   end
 end

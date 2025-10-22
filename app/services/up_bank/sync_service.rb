@@ -11,17 +11,24 @@ module UpBank
         return { success: false, error: "Up Bank token not configured", new_transactions: 0 }
       end
 
-      begin
+      # Use Rails.error.handle to capture and report sync errors
+      result = Rails.error.handle(
+        StandardError,
+        context: { 
+          user_id: @user.id,
+          account_id: @account_id,
+          service: "UpBank::SyncService"
+        },
+        fallback: -> { { success: false, error: "Sync failed unexpectedly", new_transactions: 0 } }
+      ) do
         if @account_id
           sync_single_account(@account_id)
         else
           sync_all_accounts
         end
-      rescue StandardError => e
-        Rails.logger.error "Sync failed for user #{@user.id}: #{e.message}"
-        Rails.logger.error e.backtrace.join("\n")
-        { success: false, error: e.message, new_transactions: 0 }
       end
+
+      result || { success: false, error: "Sync failed unexpectedly", new_transactions: 0 }
     end
 
     private

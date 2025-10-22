@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# Security Check Script
+# Run security scans on Vantura application
+
+puts "🔒 Running Vantura Security Checks..."
+puts "=" * 60
+
+# Run Brakeman
+puts "\n📊 Running Brakeman security scan..."
+system("bundle exec brakeman --no-pager --format text")
+
+# Run Bundler Audit
+puts "\n📊 Checking for CVE vulnerabilities..."
+system("bundle exec bundle-audit check --update")
+
+puts "\n" + "=" * 60
+puts "✅ Security checks complete!"
+puts "\nFor detailed security information, see SECURITY_IMPROVEMENTS.md"
+
