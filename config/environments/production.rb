@@ -35,10 +35,10 @@ Rails.application.configure do
 
   # Security headers for additional protection
   config.action_dispatch.default_headers = {
-    'X-Frame-Options' => 'SAMEORIGIN',
-    'X-Content-Type-Options' => 'nosniff',
-    'X-XSS-Protection' => '0',
-    'Referrer-Policy' => 'strict-origin-when-cross-origin'
+    "X-Frame-Options" => "SAMEORIGIN",
+    "X-Content-Type-Options" => "nosniff",
+    "X-XSS-Protection" => "0",
+    "Referrer-Policy" => "strict-origin-when-cross-origin"
   }
 
   # Log to STDOUT with the current request id as a default log tag.

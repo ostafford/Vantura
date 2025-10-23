@@ -12,10 +12,10 @@ class TransactionWorkflowTest < ApplicationSystemTestCase
 
     # The dashboard should render
     assert_text "Dashboard"
-    
+
     # Navigate to transactions page directly to test form submission
     visit transactions_all_path
-    
+
     # Should be on transactions page
     assert_text "All Transactions"
   end
@@ -51,7 +51,7 @@ class TransactionWorkflowTest < ApplicationSystemTestCase
     fill_in "email_address", with: user.email_address
     fill_in "password", with: "password"
     click_button "Sign in"
-    
+
     # Wait for sign-in to complete
     assert_current_path root_path
   end
