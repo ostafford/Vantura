@@ -25,6 +25,12 @@ gem "tailwindcss-ruby", "~> 4.1", ">= 4.1.13"
 gem "sentry-ruby"
 gem "sentry-rails"
 
+# Application Performance Monitoring with OpenTelemetry [https://uptrace.dev/guides/opentelemetry-rails]
+gem "opentelemetry-sdk"
+gem "opentelemetry-exporter-otlp"
+gem "opentelemetry-instrumentation-all"
+gem "uptrace", "~> 1.8", ">= 1.8.1"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
 
@@ -59,6 +65,9 @@ gem "bundler-audit", "~> 0.9.2"
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Load testing tools
+  gem "concurrent-ruby", "~> 1.2"
 end
 
 group :development do

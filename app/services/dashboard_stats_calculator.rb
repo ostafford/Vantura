@@ -29,7 +29,8 @@ class DashboardStatsCalculator < ApplicationService
   def recent_transactions
     @recent_transactions ||= @account.transactions
                                      .where(transaction_date: month_range)
-                                     .order(transaction_date: :desc)
+                                     .includes(:recurring_transaction) # Prevent N+1 queries
+                                     .order(transaction_date: :desc, id: :desc)
                                      .limit(10)
   end
 

@@ -15,6 +15,12 @@ Rails.application.configure do
   # Enable server timing.
   config.server_timing = true
 
+  # Performance optimizations for development
+  # Based on Rails Performance Tuning Guide recommendations
+  config.assets.debug = false  # Disable asset debugging for better performance
+  config.assets.compile = true # Keep compilation enabled for development
+  config.cache_classes = false # Keep false for development flexibility
+
   # Enable/disable Action Controller caching. By default Action Controller caching is disabled.
   # Run rails dev:cache to toggle Action Controller caching.
   if Rails.root.join("tmp/caching-dev.txt").exist?

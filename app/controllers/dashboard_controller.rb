@@ -5,8 +5,12 @@ class DashboardController < ApplicationController
     load_account_or_return
     return unless @account
 
-    # Calculate all dashboard stats using service
-    stats = DashboardStatsCalculator.call(@account)
+    # Calculate all dashboard stats using service with caching
+    # Cache key includes account ID and current date for cache invalidation
+    cache_key = "dashboard_stats_#{@account.id}_#{Date.today.strftime('%Y-%m-%d')}"
+    stats = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      DashboardStatsCalculator.call(@account)
+    end
 
     # Assign instance variables for view
     @current_date = stats[:current_date]
