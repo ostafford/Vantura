@@ -43,20 +43,27 @@ preload_app!
 worker_timeout 30
 
 # Worker boot configuration
-# This runs before each worker process starts
-on_worker_boot do
-  # Reconnect to database after worker fork
-  if defined?(ActiveRecord::Base)
-    ActiveRecord::Base.establish_connection
+# This runs before each worker process starts (only in cluster mode with workers > 0)
+# In Puma v8+, use before_worker_boot instead of on_worker_boot
+# Only needed in production where we run multiple workers
+if ENV["RAILS_ENV"] == "production"
+  before_worker_boot do
+    # Reconnect to database after worker fork
+    if defined?(ActiveRecord::Base)
+      ActiveRecord::Base.establish_connection
+    end
   end
 end
 
 # Master process configuration
-# This runs when the master process starts
-before_fork do
-  # Disconnect from database in master process
-  if defined?(ActiveRecord::Base)
-    ActiveRecord::Base.connection_pool.disconnect!
+# This runs when the master process starts (only in cluster mode with workers > 0)
+# Note: This only executes in cluster mode. For single-worker setups, it won't run.
+if ENV["RAILS_ENV"] == "production"
+  before_fork do
+    # Disconnect from database in master process
+    if defined?(ActiveRecord::Base)
+      ActiveRecord::Base.connection_pool.disconnect!
+    end
   end
 end
 
