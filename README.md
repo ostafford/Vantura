@@ -4,7 +4,7 @@
 
 A modern Rails 8 application for managing personal finances with Up Bank integration, real-time sync, and intelligent balance projections.
 
-## 🌟 Features
+## Features
 
 - ✅ **Up Bank Integration** - Real-time transaction sync
 - ✅ **Transaction Management** - Track real and hypothetical transactions
@@ -15,7 +15,7 @@ A modern Rails 8 application for managing personal finances with Up Bank integra
 - ✅ **Progressive Web App** - Install on mobile devices
 - ✅ **Production Ready** - Security hardened, performance optimized, monitored
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -52,7 +52,7 @@ bin/rails test
 bin/rails test test/models/user_test.rb
 ```
 
-## 🛠️ Development
+## Development
 
 ### Tech Stack
 
@@ -89,12 +89,12 @@ bin/rubocop                     # Linting
 bin/rails test                  # Run tests
 ```
 
-## 📚 Documentation
+## Documentation
 
 - **[Public Roadmap](PUBLIC_ROADMAP.md)** - Upcoming features and development plans (public-facing)
 - **[Internal Documentation](docs/README.md)** - Development guides and technical reference (private)
 
-## 🔒 Security
+## Security
 
 - ✅ CSRF protection enabled
 - ✅ SQL injection protection (ActiveRecord parameterization)
@@ -105,7 +105,7 @@ bin/rails test                  # Run tests
 - ✅ Error tracking with Sentry
 - ✅ Regular security audits
 
-## 📊 Status
+## Status
 
 **Version 1.0** - Production Ready ✅
 
@@ -115,20 +115,7 @@ bin/rails test                  # Run tests
 - Security hardened
 - Monitoring and error tracking active
 
-## 🤝 Contributing
-
-This is a personal project, but contributions and feedback are welcome!
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📄 License
-
-Private - All rights reserved
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [Rails](https://rubyonrails.org/)
 - [Up Bank API](https://developer.up.com.au/)
@@ -138,4 +125,3 @@ Private - All rights reserved
 
 ---
 
-**Made with ❤️ for better financial management**

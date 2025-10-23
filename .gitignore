@@ -53,8 +53,6 @@
 
 # Ignore internal development documentation (keep local only)
 /docs/
-# But allow public roadmap
-!/docs/PUBLIC_ROADMAP.md
 
 # Ignore OS generated files
 .DS_Store
