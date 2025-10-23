@@ -6,12 +6,12 @@
 # so all errors captured by Rails.error will also be sent to Sentry.
 
 Sentry.init do |config|
-  # Sentry DSN - retrieve from Rails credentials
+  # Sentry DSN - retrieve from Rails credentials or environment variable
   # To set this, run: bin/rails credentials:edit
   # Then add:
   #   sentry:
   #     dsn: https://YOUR_DSN@o0.ingest.sentry.io/0
-  config.dsn = Rails.application.credentials.dig(:sentry, :dsn)
+  config.dsn = ENV['SENTRY_DSN'] || Rails.application.credentials.dig(:sentry, :dsn)
 
   # Only enable in production and staging (not development/test)
   config.enabled_environments = %w[production staging]
