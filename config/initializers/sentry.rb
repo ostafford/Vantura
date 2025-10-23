@@ -11,7 +11,7 @@ Sentry.init do |config|
   # Then add:
   #   sentry:
   #     dsn: https://YOUR_DSN@o0.ingest.sentry.io/0
-  config.dsn = ENV['SENTRY_DSN'] || Rails.application.credentials.dig(:sentry, :dsn)
+  config.dsn = ENV["SENTRY_DSN"] || Rails.application.credentials.dig(:sentry, :dsn)
 
   # Only enable in production and staging (not development/test)
   config.enabled_environments = %w[production staging]
