@@ -53,8 +53,8 @@ class DashboardTest < ApplicationSystemTestCase
 
     # Sign in as the new user
     visit new_session_path
-    fill_in "Email Address", with: new_user.email_address
-    fill_in "Password", with: "password123"
+    fill_in "email_address", with: new_user.email_address
+    fill_in "password", with: "password123"
     click_button "Sign in"
 
     # Should see setup guidance
@@ -66,8 +66,8 @@ class DashboardTest < ApplicationSystemTestCase
 
   def sign_in_user(user)
     visit new_session_path
-    fill_in "Email Address", with: user.email_address
-    fill_in "Password", with: "password"
+    fill_in "email_address", with: user.email_address
+    fill_in "password", with: "password"
     click_button "Sign in"
   end
 end
