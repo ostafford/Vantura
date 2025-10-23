@@ -5,7 +5,8 @@ export default class extends Controller {
   static targets = ["button"]
 
   connect() {
-    this.initTheme()
+    // Theme is already initialized in the <head> to prevent FOUC
+    // Just update the button UI and listen for system theme changes
     this.updateButton()
     
     // Listen for system theme changes when in auto mode
@@ -14,12 +15,6 @@ export default class extends Controller {
         this.applyTheme('auto')
       }
     })
-  }
-
-  // Initialize theme on page load
-  initTheme() {
-    const theme = localStorage.getItem('theme') || 'auto'
-    this.applyTheme(theme)
   }
 
   // Toggle between light, dark, and auto

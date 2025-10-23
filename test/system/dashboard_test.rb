@@ -71,7 +71,7 @@ class DashboardTest < ApplicationSystemTestCase
     fill_in "email_address", with: user.email_address
     fill_in "password", with: "password"
     click_button "Sign in"
-    
+
     # Wait for sign-in to complete
     assert_current_path root_path
   end

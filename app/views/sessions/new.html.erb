@@ -1,31 +1,31 @@
 <% content_for :title, "Sign In - Vantura" %>
 
-<div class="mx-auto md:w-2/3 w-full bg-gradient-to-br from-neutral-light to-white dark:from-dark-bg-elevated dark:to-dark-bg p-8 rounded-2xl shadow-lg border-2 border-secondary/20 dark:border-dark-bg-elevated/50">
+<div class="mx-auto md:w-2/3 w-full bg-gradient-to-br from-cream-100 to-white dark:from-primary-700 dark:to-primary-900 p-8 rounded-2xl shadow-lg border-2 border-secondary-500/20 dark:border-primary-700/50">
   <h1 class="font-bold text-4xl text-gray-900 dark:text-white mb-6">Sign in</h1>
 
   <%= form_with url: session_url, class: "contents" do |form| %>
     <div class="my-5">
-      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "block shadow-sm rounded-xl border-2 border-secondary/30 dark:border-secondary/20 focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "block shadow-sm rounded-xl border-2 border-secondary-500/30 dark:border-secondary-500/20 focus:ring-2 focus:ring-primary-700 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
     </div>
 
     <div class="my-5">
-      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "block shadow-sm rounded-xl border-2 border-secondary/30 dark:border-secondary/20 focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "block shadow-sm rounded-xl border-2 border-secondary-500/30 dark:border-secondary-500/20 focus:ring-2 focus:ring-primary-700 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
     </div>
 
     <div class="col-span-6 sm:flex sm:items-center sm:gap-4">
       <div class="inline">
-        <%= form.submit "Sign in", class: "w-full sm:w-auto text-center rounded-xl px-6 py-3 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white inline-block font-semibold cursor-pointer shadow-lg transition-all" %>
+        <%= form.submit "Sign in", class: "w-full sm:w-auto text-center rounded-xl px-6 py-3 bg-gradient-to-r from-primary-700 to-primary-500 hover:from-primary-900 hover:to-primary-700 text-white inline-block font-semibold cursor-pointer shadow-lg transition-all" %>
       </div>
 
       <div class="mt-4 text-sm text-gray-600 dark:text-gray-400 sm:mt-0">
-        <%= link_to "Forgot password?", new_password_path, class: "text-primary dark:text-primary-light hover:text-primary-dark underline hover:no-underline font-medium" %>
+        <%= link_to "Forgot password?", new_password_path, class: "text-primary-700 dark:text-primary-500 hover:text-primary-900 underline hover:no-underline font-medium" %>
       </div>
     </div>
 
     <div class="mt-6 text-center">
       <p class="text-sm text-gray-600 dark:text-gray-400">
         Don't have an account?
-        <%= link_to "Sign up", sign_up_path, class: "text-primary dark:text-primary-light hover:text-primary-dark font-medium underline" %>
+        <%= link_to "Sign up", sign_up_path, class: "text-primary-700 dark:text-primary-500 hover:text-primary-900 font-medium underline" %>
       </p>
     </div>
   <% end %>

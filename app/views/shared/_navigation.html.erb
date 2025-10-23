@@ -5,7 +5,7 @@
       <!-- Logo and Main Navigation -->
       <div class="flex items-center gap-8">
         <!-- Logo -->
-        <%= link_to root_path, class: "flex items-center gap-2 text-primary dark:text-primary-light hover:opacity-80 transition-opacity" do %>
+        <%= link_to root_path, class: "flex items-center gap-2 text-primary-700 dark:text-primary-500 hover:opacity-80 transition-opacity" do %>
           <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.84-.95-6.5-4.5-6.5-8.5V8.3l6.5-3.11 6.5 3.11v3.2c0 4-2.66 7.55-6.5 8.5z"/>
           </svg>
@@ -30,7 +30,7 @@
         <% if authenticated? %>
           <%= button_to session_path, method: :delete,
               form: { data: { turbo_confirm: "Are you sure you want to sign out?" } },
-              class: "inline-flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light transition-colors",
+              class: "inline-flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-primary-700 dark:hover:text-primary-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 active:scale-95 transition-all rounded-lg",
               title: "Sign Out" do %>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>

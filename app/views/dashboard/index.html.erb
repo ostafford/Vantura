@@ -18,7 +18,7 @@
   <div id="sync_loading"></div>
   
   <!-- Dashboard Header with Sync Action -->
-  <div class="bg-gradient-to-r from-neutral-light to-white dark:from-dark-bg dark:to-dark-bg-secondary shadow-sm border-b border-primary/20 dark:border-primary-dark/30">
+  <div class="bg-gradient-to-r from-cream-100 to-white dark:from-primary-900 dark:to-primary-950 shadow-sm border-b border-primary-700/20 dark:border-primary-900/30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div class="flex items-center justify-between flex-wrap gap-4">
         <div>
@@ -35,7 +35,7 @@
               </p>
             </div>
           
-            <%= button_to sync_path, method: :post, class: "inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark hover:shadow-lg hover:scale-105 transition-all shadow-sm font-medium", data: { controller: "sync", action: "submit->sync#submit", disable_with: "Syncing..." } do %>
+            <%= button_to sync_path, method: :post, class: "inline-flex items-center px-4 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all shadow-sm font-medium", data: { controller: "sync", action: "submit->sync#submit", disable_with: "Syncing..." } do %>
               <svg class="w-5 h-5 mr-2" data-sync-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
@@ -94,7 +94,7 @@
             end_of_month_balance: @end_of_month_balance %>
 
         <!-- Quick Actions Card (2x1) - Up Bank Orange -->
-        <div class="bento-span-2 bento-row-span-1 bg-gradient-to-r from-primary to-primary-light dark:from-primary-dark dark:to-primary rounded-2xl shadow-lg p-6 text-white">
+        <div class="bento-span-2 bento-row-span-1 bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-900 dark:to-primary-700 rounded-2xl shadow-lg p-6 text-white">
           <div class="flex items-center justify-between h-full gap-3">
             <div class="flex-1">
               <p class="text-orange-100 text-sm font-medium mb-1">Quick Actions</p>
@@ -137,7 +137,7 @@
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Your latest activity this month</p>
           </div>
           <%= link_to transactions_all_path(year: @current_date.year, month: @current_date.month), 
-                      class: "inline-flex items-center px-4 py-2 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light text-sm font-medium rounded-lg hover:bg-primary/20 dark:hover:bg-primary/30 hover:shadow-md hover:scale-105 transition-all" do %>
+                      class: "inline-flex items-center px-4 py-2 bg-primary-700/10 dark:bg-primary-700/20 text-primary-700 dark:text-primary-500 text-sm font-medium rounded-lg hover:bg-primary-700/20 dark:hover:bg-primary-700/30 hover:shadow-md hover:scale-105 transition-all" do %>
             View All
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -167,10 +167,10 @@
 
     <% else %>
       <!-- No Account Found - Guide User to Settings -->
-      <div class="bg-gradient-to-br from-neutral-light via-white to-neutral-light dark:from-gray-800 dark:via-secondary-dark dark:to-gray-800 rounded-2xl shadow-lg border-2 border-primary/30 dark:border-primary-dark/30 p-12 text-center">
+      <div class="bg-gradient-to-br from-cream-100 via-white to-cream-100 dark:from-gray-800 dark:via-secondary-700 dark:to-gray-800 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-900/30 p-12 text-center">
           <div class="max-w-md mx-auto">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-full mb-4">
-            <svg class="w-8 h-8 text-primary dark:text-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-700/10 dark:bg-primary-700/20 rounded-full mb-4">
+            <svg class="w-8 h-8 text-primary-700 dark:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
           </div>

@@ -16,7 +16,7 @@
         end
         
         # Add subtle border for today
-        today_class = day[:is_today] ? 'border-2 border-primary/40 dark:border-primary-light/40' : ''
+        today_class = day[:is_today] ? 'border-2 border-primary-700/40 dark:border-primary-500/40' : ''
         
         # Fade out-of-month days
         opacity_class = !day[:is_current_month] ? 'opacity-60' : ''
@@ -24,13 +24,13 @@
       
       <div class="<%= bg_class %> <%= today_class %> <%= opacity_class %> hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all">
         <!-- Day Header -->
-        <div class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 <%= day[:is_today] ? 'bg-primary/5 dark:bg-primary/10' : '' %>">
+        <div class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 <%= day[:is_today] ? 'bg-primary-700/5 dark:bg-primary-700/10' : '' %>">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"><%= day[:date].strftime("%a") %></p>
               <p class="mt-0.5 flex items-center justify-center">
                 <% if day[:is_today] %>
-                  <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
+                  <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary-700 text-xs font-semibold text-white">
                     <%= day[:day_number] %>
                   </span>
                 <% else %>
@@ -116,7 +116,7 @@
 </div>
 
 <!-- Week Summary -->
-<div class="mt-6 bg-gradient-to-r from-neutral-light to-white dark:from-dark-bg-elevated dark:to-dark-bg rounded-lg shadow-sm border-2 border-primary/20 dark:border-primary-dark/30 p-6">
+<div class="mt-6 bg-gradient-to-r from-cream-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-sm border-2 border-primary-700/20 dark:border-primary-900/30 p-6">
   <div class="flex items-center justify-between flex-wrap gap-4">
     <div>
       <h3 class="font-semibold text-gray-700 dark:text-gray-300 mb-1">Week of <%= @date.beginning_of_week(:monday).strftime("%B %d") %> - <%= @date.end_of_week(:monday).strftime("%B %d, %Y") %></h3>

@@ -17,13 +17,33 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
+    <%# Theme initialization - must run before stylesheet to prevent FOUC %>
+    <script>
+      // Initialize theme before page renders to prevent Flash of Unstyled Content (FOUC)
+      (function() {
+        const theme = localStorage.getItem('theme') || 'auto';
+        const root = document.documentElement;
+        
+        if (theme === 'dark') {
+          root.classList.add('dark');
+        } else if (theme === 'light') {
+          root.classList.remove('dark');
+        } else {
+          // Auto mode - use system preference
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            root.classList.add('dark');
+          }
+        }
+      })();
+    </script>
+
     <%# Includes Tailwind CSS (built) and application styles %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-controller="theme modal recurring-modal calendar sync filter" class="bg-neutral-light dark:bg-dark-bg h-screen flex flex-col">
+  <body data-controller="theme modal recurring-modal calendar sync filter" class="bg-cream-100 dark:bg-primary-900 h-screen flex flex-col">
     <!-- WebSocket subscription for real-time updates (available on all pages) -->
     <% if authenticated? %>
       <%= turbo_stream_from Current.user %>

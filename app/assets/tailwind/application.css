@@ -3,117 +3,118 @@
 /* Configure dark mode to use class strategy instead of media query */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Custom styles for Vantura */
-.vantura-container {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-/* Spinning animation for sync button */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.spinning {
-  animation: spin 1s linear infinite;
-}
-
-/* Prevent oversized elements */
-* {
-  max-width: 100vw;
-}
-
-/* Vantura Brand Colors - Warm & Natural Palette from Coolors.co - Optimized for Light & Dark Modes */
-@theme {
-  /* Primary Colors - Navy (main brand color) */
-  --color-primary: #3d405b;        /* Navy - buttons, headers, main actions */
-  --color-primary-dark: #2a2d3f;   /* Deep Navy - hover states */
-  --color-primary-light: #5a5e7a;  /* Light Navy - subtle highlights */
-  
-  /* Secondary Colors - Sage Green (success, positive states) */
-  --color-secondary: #81b29a;      /* Sage Green - success, income, positive actions */
-  --color-secondary-dark: #6b9a83; /* Medium Sage - dark mode accents (less vibrant) */
-  --color-secondary-light: #a8c9b8; /* Light Sage - subtle highlights */
-  
-  /* Neutral Colors - Cream & Navy for backgrounds */
-  --color-neutral-light: #f4f1de;  /* Cream - light mode backgrounds */
-  --color-neutral-dark: #e8e3ca;   /* Darker Cream - light mode borders */
-  
-  /* Dark Mode Backgrounds - Navy based (better contrast than green) */
-  --color-dark-bg: #2a2d3f;        /* Deep Navy - main dark mode background */
-  --color-dark-bg-secondary: #1f2230; /* Darker Navy - dark mode cards/panels */
-  --color-dark-bg-elevated: #3d405b;  /* Navy - dark mode elevated surfaces */
-  
-  /* Accent Colors - Coral & Gold */
-  --color-accent-coral: #e07a5f;   /* Coral - expenses, warnings, delete */
-  --color-accent-coral-light: #e89580; /* Light Coral - dark mode version (softer) */
-  --color-accent-coral-dark: #c96850; /* Deep Coral - hover states */
-  
-  --color-accent-gold: #f2cc8f;    /* Sandy Gold - income, highlights */
-  --color-accent-gold-light: #f5d8a8; /* Light Gold - dark mode version (softer) */
-  --color-accent-gold-dark: #e6b76d; /* Deep Gold - hover states */
-}
-
-/* Bento Grid Layout - Using native CSS Grid with Tailwind-friendly approach */
-.bento-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(140px, auto);
-  
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
+/* Base styles - applied at the foundation layer */
+@layer base {
+  /* Prevent oversized elements */
+  * {
+    max-width: 100vw;
   }
   
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
+  /* Add explicit heading styles for better semantic structure */
+  h1 {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-bold);
+  }
+  
+  h2 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-semibold);
+  }
+  
+  h3 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-semibold);
   }
 }
 
-/* Bento grid item spans */
-.bento-span-1 { grid-column: span 1; }
-.bento-span-2 { 
-  grid-column: span 2;
+/* Custom components - reusable component classes */
+@layer components {
+  /* Container utility */
+  .vantura-container {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Spinning animation for sync button */
+  .spinning {
+    animation: spin 1s linear infinite;
+  }
+
+  /* Bento Grid Layout - Using Tailwind's responsive variants */
+  .bento-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(1, 1fr);
+    grid-auto-rows: minmax(140px, auto);
+    
+    @variant sm {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @variant lg {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Bento grid item spans - Mobile-first responsive design */
+  .bento-span-1 { 
+    grid-column: span 1; 
+  }
   
-  @media (max-width: 640px) {
+  .bento-span-2 { 
     grid-column: span 1;
-  }
-}
-.bento-span-3 { 
-  grid-column: span 3;
-  
-  @media (max-width: 1024px) {
-    grid-column: span 2;
+    
+    @variant sm {
+      grid-column: span 2;
+    }
   }
   
-  @media (max-width: 640px) {
+  .bento-span-3 { 
     grid-column: span 1;
+    
+    @variant sm {
+      grid-column: span 2;
+    }
+    
+    @variant lg {
+      grid-column: span 3;
+    }
   }
-}
-.bento-span-4 { 
-  grid-column: span 4;
   
-  @media (max-width: 1024px) {
-    grid-column: span 2;
-  }
-  
-  @media (max-width: 640px) {
+  .bento-span-4 { 
     grid-column: span 1;
+    
+    @variant sm {
+      grid-column: span 2;
+    }
+    
+    @variant lg {
+      grid-column: span 4;
+    }
   }
+
+  .bento-row-span-1 { grid-row: span 1; }
+  .bento-row-span-2 { grid-row: span 2; }
+  .bento-row-span-3 { grid-row: span 3; }
 }
 
-.bento-row-span-1 { grid-row: span 1; }
-.bento-row-span-2 { grid-row: span 2; }
-.bento-row-span-3 { grid-row: span 3; }
-
-/* Customize Turbo's Progress Bar */
-.turbo-progress-bar {
+/* Custom utilities using @utility directive */
+@utility turbo-progress-bar {
   height: 5px !important;
   background: linear-gradient(to right, #ff6633, #ffb366) !important;
   box-shadow: 0 2px 4px rgba(255, 102, 51, 0.3) !important;
 }
 
-/* Slide-in animation for sync status notifications */
+@utility animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* Keyframe animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 @keyframes slide-in {
   from {
     opacity: 0;
@@ -125,6 +126,95 @@
   }
 }
 
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out;
+/* Vantura Brand Colors - Warm & Natural Palette Optimized for Light & Dark Modes */
+@theme {
+  /* Primary Colors - Navy (main brand color) - Standard Tailwind Color Scale */
+  --color-primary-50: oklch(0.95 0.01 255);
+  --color-primary-100: oklch(0.88 0.02 255);
+  --color-primary-200: oklch(0.78 0.03 255);
+  --color-primary-300: oklch(0.65 0.04 255);
+  --color-primary-400: oklch(0.52 0.05 255);
+  --color-primary-500: oklch(0.40 0.06 255);      /* Main brand color */
+  --color-primary-600: oklch(0.34 0.05 255);
+  --color-primary-700: oklch(0.28 0.05 255);       /* Main actions */
+  --color-primary-800: oklch(0.24 0.04 255);
+  --color-primary-900: oklch(0.20 0.03 255);       /* Deep navy hover states */
+  --color-primary-950: oklch(0.15 0.02 255);
+  
+  /* Secondary Colors - Sage Green (success, positive states) - Standard Tailwind Color Scale */
+  --color-secondary-50: oklch(0.95 0.01 165);
+  --color-secondary-100: oklch(0.90 0.02 165);
+  --color-secondary-200: oklch(0.86 0.04 165);
+  --color-secondary-300: oklch(0.82 0.06 165);     /* Light sage */
+  --color-secondary-400: oklch(0.76 0.07 165);
+  --color-secondary-500: oklch(0.70 0.08 165);      /* Main sage green */
+  --color-secondary-600: oklch(0.63 0.07 165);
+  --color-secondary-700: oklch(0.55 0.06 165);      /* Medium sage */
+  --color-secondary-800: oklch(0.48 0.05 165);
+  --color-secondary-900: oklch(0.40 0.04 165);
+  --color-secondary-950: oklch(0.30 0.03 165);
+  
+  /* Coral - Accent color for expenses - Standard Tailwind Color Scale */
+  --color-coral-50: oklch(0.95 0.02 35);
+  --color-coral-100: oklch(0.88 0.04 35);
+  --color-coral-200: oklch(0.81 0.07 35);
+  --color-coral-300: oklch(0.75 0.11 35);
+  --color-coral-400: oklch(0.72 0.13 35);
+  --color-coral-500: oklch(0.68 0.15 35);           /* Main coral */
+  --color-coral-600: oklch(0.63 0.15 35);
+  --color-coral-700: oklch(0.58 0.15 35);           /* Deep coral */
+  --color-coral-800: oklch(0.52 0.13 35);
+  --color-coral-900: oklch(0.45 0.11 35);
+  --color-coral-950: oklch(0.38 0.09 35);
+  
+  /* Gold - Accent color for income - Standard Tailwind Color Scale */
+  --color-gold-50: oklch(0.98 0.01 75);
+  --color-gold-100: oklch(0.95 0.02 75);
+  --color-gold-200: oklch(0.92 0.04 75);
+  --color-gold-300: oklch(0.90 0.06 75);
+  --color-gold-400: oklch(0.88 0.08 75);
+  --color-gold-500: oklch(0.85 0.10 75);            /* Main gold */
+  --color-gold-600: oklch(0.80 0.11 75);
+  --color-gold-700: oklch(0.75 0.12 75);            /* Deep gold */
+  --color-gold-800: oklch(0.70 0.11 75);
+  --color-gold-900: oklch(0.65 0.10 75);
+  --color-gold-950: oklch(0.58 0.08 75);
+  
+  /* Cream - Neutral backgrounds - Standard Tailwind Color Scale */
+  --color-cream-50: oklch(0.98 0.01 90);
+  --color-cream-100: oklch(0.96 0.02 90);           /* Neutral light */
+  --color-cream-200: oklch(0.93 0.02 90);           /* Neutral dark */
+  --color-cream-300: oklch(0.90 0.02 90);
+  --color-cream-400: oklch(0.85 0.02 90);
+  --color-cream-500: oklch(0.80 0.02 90);
+  --color-cream-600: oklch(0.75 0.02 90);
+  --color-cream-700: oklch(0.70 0.02 90);
+  --color-cream-800: oklch(0.65 0.02 90);
+  --color-cream-900: oklch(0.60 0.02 90);
+  --color-cream-950: oklch(0.50 0.02 90);
+  
+  /* Legacy compatibility - Keeping old color names for backward compatibility */
+  --color-primary: var(--color-primary-700);
+  --color-primary-dark: var(--color-primary-900);
+  --color-primary-light: var(--color-primary-500);
+  
+  --color-secondary: var(--color-secondary-500);
+  --color-secondary-dark: var(--color-secondary-700);
+  --color-secondary-light: var(--color-secondary-300);
+  
+  --color-neutral-light: var(--color-cream-100);
+  --color-neutral-dark: var(--color-cream-200);
+  
+  --color-dark-bg: var(--color-primary-900);
+  --color-dark-bg-secondary: var(--color-primary-950);
+  --color-dark-bg-elevated: var(--color-primary-700);
+  
+  --color-accent-coral: var(--color-coral-500);
+  --color-accent-coral-light: var(--color-coral-400);
+  --color-accent-coral-dark: var(--color-coral-700);
+  
+  --color-accent-gold: var(--color-gold-500);
+  --color-accent-gold-light: var(--color-gold-400);
+  --color-accent-gold-dark: var(--color-gold-700);
 }
+
