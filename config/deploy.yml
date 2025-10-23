@@ -7,7 +7,7 @@ image: ostafford/vantura
 # Deploy to these servers.
 servers:
   web:
-    - okky@192.168.1.18
+    - 192.168.1.18
   # job:
   #   hosts:
   #     - 192.168.0.1
