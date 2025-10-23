@@ -1,7 +1,7 @@
 # lib/tasks/incident_response.rake
 namespace :incident do
   desc "Run a comprehensive system health check for Vantura"
-  task :health_check => :environment do
+  task health_check: :environment do
     puts "🔍 Running Vantura System Health Check..."
     puts "=" * 50
     puts "Timestamp: #{Time.current.utc}"
@@ -61,7 +61,7 @@ namespace :incident do
   end
 
   desc "Check incident response readiness"
-  task :check_readiness => :environment do
+  task check_readiness: :environment do
     puts "🔍 Checking Incident Response Readiness..."
     puts "=" * 50
     puts "Timestamp: #{Time.current.utc}"
@@ -87,8 +87,8 @@ namespace :incident do
     # 2. Database Backup System
     puts "\n2. Database Backup System:"
     total_checks += 1
-    backup_path = Rails.root.join('backups')
-    if File.directory?(backup_path) && Dir.glob(backup_path.join('*.sqlite3*')).any?
+    backup_path = Rails.root.join("backups")
+    if File.directory?(backup_path) && Dir.glob(backup_path.join("*.sqlite3*")).any?
       puts "  ✅ Backup directory exists"
       readiness_score += 1
     else
@@ -100,7 +100,7 @@ namespace :incident do
     total_checks += 1
     # This assumes `security:validate_security` task exists and can be run
     # For a real check, you'd run it and parse its output or check specific configs
-    if Rake::Task.task_defined?('security:validate_security')
+    if Rake::Task.task_defined?("security:validate_security")
       puts "  ✅ Security validation tasks available"
       readiness_score += 1
     else
@@ -110,7 +110,7 @@ namespace :incident do
     # 4. Monitoring Setup
     puts "\n4. Monitoring Setup:"
     total_checks += 1
-    if ENV['UPTRACE_DSN'].present? || defined?(Sentry) && Sentry.initialized?
+    if ENV["UPTRACE_DSN"].present? || defined?(Sentry) && Sentry.initialized?
       puts "  ✅ Security monitoring configured"
       readiness_score += 1
     else
@@ -120,7 +120,7 @@ namespace :incident do
     # 5. Documentation
     puts "\n5. Documentation:"
     total_checks += 1
-    if File.exist?(Rails.root.join('docs', 'INCIDENT_RESPONSE_PLAN.md'))
+    if File.exist?(Rails.root.join("docs", "INCIDENT_RESPONSE_PLAN.md"))
       puts "  ✅ Incident response plan exists"
       readiness_score += 1
     else
@@ -152,38 +152,38 @@ namespace :incident do
   end
 
   desc "Simulate an incident response drill"
-  task :drill, [:scenario] => :environment do |t, args|
+  task :drill, [ :scenario ] => :environment do |t, args|
     puts "🎯 Incident Response Drill Simulation..."
     puts "=" * 50
     puts "Timestamp: #{Time.current.utc}"
 
-    scenario = args[:scenario] || 'Application Down' # Default scenario
+    scenario = args[:scenario] || "Application Down" # Default scenario
 
     scenarios = {
-      'Application Down' => {
-        description: 'Application is not responding to requests',
-        severity: 'P1 - Critical',
-        expected_response_time: '< 15 minutes'
+      "Application Down" => {
+        description: "Application is not responding to requests",
+        severity: "P1 - Critical",
+        expected_response_time: "< 15 minutes"
       },
-      'Database Connection Issues' => {
-        description: 'Database is unreachable or slow',
-        severity: 'P1 - Critical',
-        expected_response_time: '< 30 minutes'
+      "Database Connection Issues" => {
+        description: "Database is unreachable or slow",
+        severity: "P1 - Critical",
+        expected_response_time: "< 30 minutes"
       },
-      'Performance Degradation' => {
-        description: 'Application is slow, high latency/errors',
-        severity: 'P2 - High',
-        expected_response_time: '< 60 minutes'
+      "Performance Degradation" => {
+        description: "Application is slow, high latency/errors",
+        severity: "P2 - High",
+        expected_response_time: "< 60 minutes"
       },
-      'Security Incident' => {
-        description: 'Unauthorized access or data breach detected',
-        severity: 'P0 - Emergency',
-        expected_response_time: '< 5 minutes (initial containment)'
+      "Security Incident" => {
+        description: "Unauthorized access or data breach detected",
+        severity: "P0 - Emergency",
+        expected_response_time: "< 5 minutes (initial containment)"
       },
-      'Data Loss' => {
-        description: 'Critical data has been lost or corrupted',
-        severity: 'P0 - Emergency',
-        expected_response_time: '< 60 minutes (initial recovery)'
+      "Data Loss" => {
+        description: "Critical data has been lost or corrupted",
+        severity: "P0 - Emergency",
+        expected_response_time: "< 60 minutes (initial recovery)"
       }
     }
 

@@ -3,7 +3,7 @@
 
 namespace :arch_linux do
   desc "Test Arch Linux server connectivity"
-  task :test_connectivity => :environment do
+  task test_connectivity: :environment do
     puts "🔍 Testing Arch Linux Server Connectivity..."
     puts "=" * 50
     puts "Target Server: okky@192.168.1.18"
@@ -74,7 +74,7 @@ namespace :arch_linux do
   end
 
   desc "Test domain resolution"
-  task :test_domain => :environment do
+  task test_domain: :environment do
     puts "🔍 Testing Domain Resolution..."
     puts "=" * 50
     puts "Domain: vantura.app"
@@ -100,7 +100,7 @@ namespace :arch_linux do
     # Test HTTP connectivity
     puts "\n2. Testing HTTP Connectivity:"
     begin
-      response = Net::HTTP.get_response(URI('http://vantura.app'))
+      response = Net::HTTP.get_response(URI("http://vantura.app"))
       puts "  ✅ HTTP connection successful"
       puts "  📝 Status: HTTP #{response.code}"
     rescue => e
@@ -110,7 +110,7 @@ namespace :arch_linux do
     # Test HTTPS connectivity
     puts "\n3. Testing HTTPS Connectivity:"
     begin
-      response = Net::HTTP.get_response(URI('https://vantura.app'))
+      response = Net::HTTP.get_response(URI("https://vantura.app"))
       puts "  ✅ HTTPS connection successful"
       puts "  📝 Status: HTTP #{response.code}"
     rescue => e
@@ -122,7 +122,7 @@ namespace :arch_linux do
   end
 
   desc "Test deployment configuration"
-  task :test_deployment => :environment do
+  task test_deployment: :environment do
     puts "🔍 Testing Deployment Configuration..."
     puts "=" * 50
     puts "Timestamp: #{Time.current}"
@@ -145,7 +145,7 @@ namespace :arch_linux do
     # Test secrets configuration
     puts "\n2. Testing Secrets Configuration:"
     begin
-      secrets_file = Rails.root.join('.kamal', 'secrets')
+      secrets_file = Rails.root.join(".kamal", "secrets")
       if File.exist?(secrets_file)
         puts "  ✅ Secrets file exists"
         secrets_content = File.read(secrets_file)
@@ -166,11 +166,11 @@ namespace :arch_linux do
     # Test deployment configuration
     puts "\n3. Testing Deployment Configuration:"
     begin
-      deploy_config = Rails.root.join('config', 'deploy.yml')
+      deploy_config = Rails.root.join("config", "deploy.yml")
       if File.exist?(deploy_config)
         puts "  ✅ Deployment configuration exists"
         deploy_content = File.read(deploy_config)
-        if deploy_content.include?('okky@192.168.1.18')
+        if deploy_content.include?("okky@192.168.1.18")
           puts "  ✅ Server configuration correct"
         else
           puts "  ❌ Server configuration incorrect"
@@ -187,18 +187,18 @@ namespace :arch_linux do
   end
 
   desc "Test complete deployment setup"
-  task :test_setup => :environment do
+  task test_setup: :environment do
     puts "🔍 Testing Complete Arch Linux Deployment Setup..."
     puts "=" * 50
     puts "Timestamp: #{Time.current}"
     puts ""
 
     # Run all tests
-    Rake::Task['arch_linux:test_connectivity'].invoke
+    Rake::Task["arch_linux:test_connectivity"].invoke
     puts ""
-    Rake::Task['arch_linux:test_domain'].invoke
+    Rake::Task["arch_linux:test_domain"].invoke
     puts ""
-    Rake::Task['arch_linux:test_deployment'].invoke
+    Rake::Task["arch_linux:test_deployment"].invoke
 
     puts "\n" + "=" * 50
     puts "🎉 Complete Arch Linux deployment setup test completed"

@@ -1,18 +1,18 @@
 # lib/tasks/database_backup.rb
-require 'fileutils'
-require 'active_record'
-require 'active_support/core_ext/numeric/time'
-require 'zlib'
-require 'json'
+require "fileutils"
+require "active_record"
+require "active_support/core_ext/numeric/time"
+require "zlib"
+require "json"
 
 class DatabaseBackup
   attr_reader :env, :storage_path, :backup_path, :timestamp
 
   def initialize(env = Rails.env)
     @env = env.to_s
-    @storage_path = Rails.root.join('storage')
-    @backup_path = Rails.root.join('backups')
-    @timestamp = Time.now.strftime('%Y%m%d_%H%M%S')
+    @storage_path = Rails.root.join("storage")
+    @backup_path = Rails.root.join("backups")
+    @timestamp = Time.now.strftime("%Y%m%d_%H%M%S")
     FileUtils.mkdir_p(@backup_path) unless File.directory?(@backup_path)
   end
 
@@ -28,9 +28,9 @@ class DatabaseBackup
 
     backup_files = []
     database_configs.each do |db_name, config|
-      next unless config['database'] # Skip if database path is not defined
+      next unless config["database"] # Skip if database path is not defined
 
-      db_file = Pathname.new(config['database'])
+      db_file = Pathname.new(config["database"])
       # Ensure the database file path is absolute or relative to Rails.root
       db_file_path = db_file.absolute? ? db_file : Rails.root.join(db_file)
 
@@ -65,7 +65,7 @@ class DatabaseBackup
     puts "=" * 50
     puts "Backup Directory: #{backup_path}\n"
 
-    backup_files = Dir.glob(backup_path.join('*.sqlite3*')).sort_by { |f| File.mtime(f) }.reverse
+    backup_files = Dir.glob(backup_path.join("*.sqlite3*")).sort_by { |f| File.mtime(f) }.reverse
 
     if backup_files.empty?
       puts "No backups found."
@@ -98,7 +98,7 @@ class DatabaseBackup
     puts "⚠️  WARNING: This will overwrite your current database!"
     print "Are you sure you want to continue? (yes/no) "
     confirm = STDIN.gets.chomp
-    unless confirm.downcase == 'yes'
+    unless confirm.downcase == "yes"
       puts "Restoration cancelled."
       return
     end
@@ -126,12 +126,12 @@ class DatabaseBackup
     db_identifier = match[:db_name] # e.g., 'development', 'test', 'primary', 'cache', 'queue', 'cable'
 
     target_config = database_configs[db_identifier]
-    unless target_config && target_config['database']
+    unless target_config && target_config["database"]
       puts "❌ Could not find database configuration for identifier: #{db_identifier} in #{target_env} environment."
       return
     end
 
-    target_db_file = Pathname.new(target_config['database'])
+    target_db_file = Pathname.new(target_config["database"])
     target_db_filepath = target_db_file.absolute? ? target_db_file : Rails.root.join(target_db_file)
 
     puts "📊 Restoring #{db_identifier} database..."
@@ -148,7 +148,7 @@ class DatabaseBackup
     puts "📁 Restored to: #{target_db_filepath}"
 
     # Clean up decompressed file if it was gzipped
-    FileUtils.rm(backup_filepath) if backup_filepath.to_s.end_with?('.decompressed')
+    FileUtils.rm(backup_filepath) if backup_filepath.to_s.end_with?(".decompressed")
 
   rescue => e
     puts "❌ An error occurred during restoration: #{e.message}"
@@ -159,11 +159,11 @@ class DatabaseBackup
 
   def database_configs
     # Load database.yml and get configurations for the current environment
-    db_config_path = Rails.root.join('config', 'database.yml')
+    db_config_path = Rails.root.join("config", "database.yml")
     full_config = YAML.load_file(db_config_path, aliases: true)[env]
 
     # Handle multi-database configurations (e.g., production with primary, cache, queue, cable)
-    if full_config.is_a?(Hash) && full_config.keys.any? { |k| ['primary', 'cache', 'queue', 'cable'].include?(k.to_s) }
+    if full_config.is_a?(Hash) && full_config.keys.any? { |k| [ "primary", "cache", "queue", "cable" ].include?(k.to_s) }
       full_config # Return the hash of configurations
     else
       { env => full_config } # Wrap single database config in a hash for consistent iteration
@@ -186,9 +186,9 @@ class DatabaseBackup
 
   def decompress_file(filepath)
     return nil unless File.exist?(filepath)
-    decompressed_filepath = filepath.sub(/\.gz$/, '.decompressed')
+    decompressed_filepath = filepath.sub(/\.gz$/, ".decompressed")
     Zlib::GzipReader.open(filepath) do |gz|
-      File.open(decompressed_filepath, 'wb') do |f|
+      File.open(decompressed_filepath, "wb") do |f|
         f.write gz.read
       end
     end
@@ -202,7 +202,7 @@ class DatabaseBackup
   def cleanup_old_backups
     puts "\n🧹 Cleaning up old backups..."
     retention_days = 30 # Keep backups for 30 days
-    old_backups = Dir.glob(backup_path.join('*.sqlite3*')).select do |f|
+    old_backups = Dir.glob(backup_path.join("*.sqlite3*")).select do |f|
       File.mtime(f) < retention_days.days.ago
     end
 
@@ -237,7 +237,7 @@ class DatabaseBackup
 
   def format_file_size(size)
     size = size.to_i if size.is_a?(String)
-    units = ['B', 'KB', 'MB', 'GB']
+    units = [ "B", "KB", "MB", "GB" ]
     unit_index = 0
 
     while size >= 1024 && unit_index < units.length - 1
@@ -251,6 +251,6 @@ end
 
 # Run the backup if this script is executed directly
 if __FILE__ == $0
-  require_relative '../../config/environment'
+  require_relative "../../config/environment"
   DatabaseBackup.new.run
 end

@@ -1,7 +1,7 @@
 # lib/tasks/security.rake
 namespace :security do
   desc "Generate secure secrets for Rails application"
-  task :generate_secrets => :environment do
+  task generate_secrets: :environment do
     puts "🔐 Generating secure secrets for Vantura..."
     puts "=" * 50
     # Generate a strong secret key base
@@ -22,7 +22,7 @@ namespace :security do
   end
 
   desc "Audit environment variables for security"
-  task :audit_env_vars => :environment do
+  task audit_env_vars: :environment do
     puts "🔍 Auditing environment variables for security..."
     puts "=" * 50
 
@@ -59,7 +59,7 @@ namespace :security do
   end
 
   desc "Validate environment variable security"
-  task :validate_security => :environment do
+  task validate_security: :environment do
     puts "🔒 Validating environment variable security..."
     puts "=" * 50
 
@@ -71,7 +71,7 @@ namespace :security do
     end
 
     # Check for length of secrets (example)
-    if ENV['SECRET_KEY_BASE'].present? && ENV['SECRET_KEY_BASE'].length < 64
+    if ENV["SECRET_KEY_BASE"].present? && ENV["SECRET_KEY_BASE"].length < 64
       issues_found << "SECRET_KEY_BASE is too short (min 64 chars recommended)"
     end
 
@@ -91,7 +91,7 @@ namespace :security do
   end
 
   desc "Validate Rails security guide compliance"
-  task :validate_rails_security => :environment do
+  task validate_rails_security: :environment do
     puts "🔒 Validating Rails Security Guide compliance..."
     puts "=" * 50
     puts "Reference: https://guides.rubyonrails.org/security.html"

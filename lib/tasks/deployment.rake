@@ -3,7 +3,7 @@
 
 namespace :deploy do
   desc "Validate deployment configuration"
-  task :validate => :environment do
+  task validate: :environment do
     puts "🔍 Validating Vantura Deployment Configuration..."
     puts "=" * 50
     puts "Timestamp: #{Time.current}"
@@ -15,7 +15,7 @@ namespace :deploy do
     # Check Kamal configuration
     puts "1. Kamal Configuration:"
     total_checks += 1
-    deploy_config = Rails.root.join('config', 'deploy.yml')
+    deploy_config = Rails.root.join("config", "deploy.yml")
     if File.exist?(deploy_config)
       puts "  ✅ Kamal deployment configuration exists"
       validation_score += 1
@@ -26,7 +26,7 @@ namespace :deploy do
     # Check secrets configuration
     puts "\n2. Secrets Configuration:"
     total_checks += 1
-    secrets_file = Rails.root.join('.kamal', 'secrets')
+    secrets_file = Rails.root.join(".kamal", "secrets")
     if File.exist?(secrets_file)
       puts "  ✅ Kamal secrets configuration exists"
       validation_score += 1
@@ -105,7 +105,7 @@ namespace :deploy do
   end
 
   desc "Test deployment procedures"
-  task :test => :environment do
+  task test: :environment do
     puts "🧪 Testing Vantura Deployment Procedures..."
     puts "=" * 50
     puts "Timestamp: #{Time.current}"
@@ -114,7 +114,7 @@ namespace :deploy do
     # Test health check endpoint
     puts "1. Testing Health Check Endpoint:"
     begin
-      response = Net::HTTP.get_response(URI('http://localhost:3001/up'))
+      response = Net::HTTP.get_response(URI("http://localhost:3001/up"))
       puts "  ✅ Health check endpoint responding (HTTP #{response.code})"
     rescue => e
       puts "  ❌ Health check endpoint failed: #{e.message}"
@@ -132,8 +132,8 @@ namespace :deploy do
     # Test application functionality
     puts "\n3. Testing Application Functionality:"
     begin
-      response = Net::HTTP.get_response(URI('http://localhost:3001/'))
-      if response.code == '200'
+      response = Net::HTTP.get_response(URI("http://localhost:3001/"))
+      if response.code == "200"
         puts "  ✅ Application responding correctly"
       else
         puts "  ⚠️  Application responding with HTTP #{response.code}"
@@ -145,7 +145,7 @@ namespace :deploy do
     # Test security configuration
     puts "\n4. Testing Security Configuration:"
     begin
-      Rake::Task['security:validate_security'].invoke
+      Rake::Task["security:validate_security"].invoke
       puts "  ✅ Security configuration validated"
     rescue => e
       puts "  ❌ Security validation failed: #{e.message}"
@@ -156,7 +156,7 @@ namespace :deploy do
   end
 
   desc "Check deployment readiness"
-  task :readiness => :environment do
+  task readiness: :environment do
     puts "🔍 Checking Vantura Deployment Readiness..."
     puts "=" * 50
     puts "Timestamp: #{Time.current}"
@@ -168,12 +168,12 @@ namespace :deploy do
     # Check configuration files
     puts "1. Configuration Files:"
     config_files = [
-      'config/deploy.yml',
-      '.kamal/secrets',
-      'config/database.yml',
-      'config/environments/production.rb'
+      "config/deploy.yml",
+      ".kamal/secrets",
+      "config/database.yml",
+      "config/environments/production.rb"
     ]
-    
+
     config_files.each do |file|
       total_checks += 1
       if File.exist?(Rails.root.join(file))
@@ -187,11 +187,11 @@ namespace :deploy do
     # Check documentation
     puts "\n2. Documentation:"
     doc_files = [
-      'docs/PRODUCTION_DEPLOYMENT_CONFIGURATION.md',
-      'docs/INCIDENT_RESPONSE_PLAN.md',
-      'docs/ENVIRONMENT_VARIABLES_SECURITY.md'
+      "docs/PRODUCTION_DEPLOYMENT_CONFIGURATION.md",
+      "docs/INCIDENT_RESPONSE_PLAN.md",
+      "docs/ENVIRONMENT_VARIABLES_SECURITY.md"
     ]
-    
+
     doc_files.each do |file|
       total_checks += 1
       if File.exist?(Rails.root.join(file))
@@ -206,8 +206,8 @@ namespace :deploy do
     puts "\n3. Application Health:"
     total_checks += 1
     begin
-      response = Net::HTTP.get_response(URI('http://localhost:3001/up'))
-      if response.code == '200'
+      response = Net::HTTP.get_response(URI("http://localhost:3001/up"))
+      if response.code == "200"
         puts "  ✅ Application health check passing"
         readiness_score += 1
       else

@@ -1,7 +1,7 @@
 # app/controllers/health_controller.rb
 class HealthController < ApplicationController
   # Skip CSRF protection for health check endpoints
-  skip_before_action :verify_authenticity_token, only: [:show, :detailed]
+  skip_before_action :verify_authenticity_token, only: [ :show, :detailed ]
 
   # Basic health check endpoint
   def show
