@@ -3,13 +3,13 @@ module ApplicationHelper
   def transaction_status_badge(transaction)
     if transaction.is_hypothetical
       content_tag :span, "Hypothetical",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300"
+        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300"
     elsif transaction.status == "HELD"
       content_tag :span, "Pending",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
+        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300"
     else
       content_tag :span, "Settled",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 dark:bg-success-900/30 text-success-800 dark:text-success-300"
     end
   end
 
@@ -17,7 +17,7 @@ module ApplicationHelper
   def transaction_recurring_badge(transaction)
     return unless transaction.recurring?
 
-    content_tag :span, class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300" do
+    content_tag :span, class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300" do
       concat content_tag(:svg, class: "w-3 h-3 mr-1", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
         tag.path "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
       end
@@ -28,7 +28,7 @@ module ApplicationHelper
   # Format transaction amount with color
   def formatted_transaction_amount(transaction)
     amount = transaction.amount
-    color_class = amount < 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"
+    color_class = amount < 0 ? "text-expense-600 dark:text-expense-400" : "text-income-600 dark:text-income-400"
     sign = amount < 0 ? "-" : "+"
 
     content_tag :span, class: color_class do
@@ -42,7 +42,7 @@ module ApplicationHelper
       # Remove button for hypothetical transactions
       button_to transaction_path(transaction), method: :delete,
           form: { class: "inline-block", data: { turbo_confirm: "Remove this hypothetical transaction?" } },
-          class: "inline-flex items-center px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium" do
+          class: "inline-flex items-center px-3 py-1 bg-expense-100 dark:bg-expense-900/30 text-expense-700 dark:text-expense-300 rounded-lg hover:bg-expense-200 dark:hover:bg-expense-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-expense-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium" do
         svg_icon = <<~HTML.html_safe
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -60,7 +60,7 @@ module ApplicationHelper
             amount: transaction.amount,
             transaction_date: transaction.transaction_date
           },
-          class: "inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium" do
+          class: "inline-flex items-center px-3 py-1 bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-300 rounded-lg hover:bg-info-200 dark:hover:bg-info-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-info-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium" do
         svg_icon = <<~HTML.html_safe
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -70,7 +70,7 @@ module ApplicationHelper
       end
     elsif transaction.recurring?
       # Display Recurring badge for recurring transactions
-      content_tag :span, class: "inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-medium" do
+      content_tag :span, class: "inline-flex items-center px-3 py-1 bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-300 rounded-lg text-xs font-medium" do
         svg_icon = <<~HTML.html_safe
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -86,8 +86,8 @@ module ApplicationHelper
     active = current_page?(path) || (path == root_path && request.path == "/")
 
     base_classes = "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-    active_classes = "bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light border-b-2 border-primary dark:border-primary-light"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-primary-light focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+    active_classes = "bg-primary/10 dark:bg-primary/20 text-primary-700 dark:text-primary-400 border-b-2 border-primary-700 dark:border-primary-400"
+    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -101,8 +101,8 @@ module ApplicationHelper
     active = current_page?(path) || (path == root_path && request.path == "/")
 
     base_classes = "flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg transition-all min-w-0 flex-1"
-    active_classes = "text-primary dark:text-primary-light"
-    inactive_classes = "text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+    active_classes = "text-primary-700 dark:text-primary-400"
+    inactive_classes = "text-gray-500 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 

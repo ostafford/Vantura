@@ -10,8 +10,8 @@ Rails.application.configure do
     policy.font_src    :self, :https, :data
     policy.img_src     :self, :https, :data
     policy.object_src  :none
-    policy.script_src  :self, :https
-    policy.style_src   :self, :https
+    policy.script_src  :self, :https, :unsafe_inline
+    policy.style_src   :self, :https, :unsafe_inline
 
     # Allow connections to Up Bank API
     policy.connect_src :self, :https, "https://api.up.com.au"
@@ -21,8 +21,8 @@ Rails.application.configure do
   end
 
   # Generate session nonces for permitted importmap, inline scripts, and inline styles.
-  config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
-  config.content_security_policy_nonce_directives = %w[script-src style-src]
+  # config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
+  # config.content_security_policy_nonce_directives = %w[script-src style-src]
 
   # Report violations without enforcing the policy (for testing).
   # Uncomment to test CSP without breaking functionality, then comment out once verified.

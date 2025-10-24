@@ -8,7 +8,7 @@ export function showNotification(type, message, options = {}) {
   } = options
 
   // Find the notification container
-  const container = document.querySelector('[data-controller="notification"][data-notification-target="container"]')
+  const container = document.querySelector('[data-notification-target="container"]')
   
   if (!container) {
     console.error('Notification container not found. Make sure the notifications partial is rendered.')
@@ -31,32 +31,32 @@ function createNotificationElement(type, message, autoDismiss, dismissAfter) {
   
   const colors = {
     success: {
-      bg: 'bg-white/95 dark:bg-dark-bg-elevated/95 backdrop-blur-sm',
-      border: 'border-2 border-secondary/40 dark:border-secondary-dark',
-      icon: 'text-secondary dark:text-secondary-light',
-      text: 'text-secondary-dark dark:text-secondary-light',
-      button: 'text-secondary dark:text-secondary-light hover:text-secondary-dark dark:hover:text-secondary'
+      bg: 'bg-white/95 dark:bg-primary-700/95 backdrop-blur-sm',
+      border: 'border-2 border-success-500/40 dark:border-success-700',
+      icon: 'text-success-500 dark:text-success-300',
+      text: 'text-success-700 dark:text-success-300',
+      button: 'text-success-500 dark:text-success-300 hover:text-success-700 dark:hover:text-success-500'
     },
     error: {
-      bg: 'bg-white/95 dark:bg-dark-bg-elevated/95 backdrop-blur-sm',
-      border: 'border-2 border-accent-coral/40 dark:border-accent-coral',
-      icon: 'text-accent-coral dark:text-accent-coral-light',
-      text: 'text-accent-coral-dark dark:text-accent-coral-light',
-      button: 'text-accent-coral dark:text-accent-coral-light hover:text-accent-coral-dark dark:hover:text-accent-coral'
+      bg: 'bg-white/95 dark:bg-primary-700/95 backdrop-blur-sm',
+      border: 'border-2 border-expense-500/40 dark:border-expense-500',
+      icon: 'text-expense-500 dark:text-expense-400',
+      text: 'text-expense-700 dark:text-expense-400',
+      button: 'text-expense-500 dark:text-expense-400 hover:text-expense-700 dark:hover:text-expense-500'
     },
     warning: {
-      bg: 'bg-white/95 dark:bg-dark-bg-elevated/95 backdrop-blur-sm',
-      border: 'border-2 border-accent-gold/40 dark:border-accent-gold',
-      icon: 'text-accent-gold-dark dark:text-accent-gold-light',
-      text: 'text-accent-gold-dark dark:text-accent-gold-light',
-      button: 'text-accent-gold-dark dark:text-accent-gold-light hover:text-accent-gold-dark dark:hover:text-accent-gold'
+      bg: 'bg-white/95 dark:bg-primary-700/95 backdrop-blur-sm',
+      border: 'border-2 border-warning-500/40 dark:border-warning-500',
+      icon: 'text-warning-500 dark:text-warning-400',
+      text: 'text-warning-700 dark:text-warning-400',
+      button: 'text-warning-500 dark:text-warning-400 hover:text-warning-700 dark:hover:text-warning-500'
     },
     info: {
-      bg: 'bg-white/95 dark:bg-dark-bg-elevated/95 backdrop-blur-sm',
-      border: 'border-2 border-primary/40 dark:border-primary-light',
-      icon: 'text-primary dark:text-primary-light',
-      text: 'text-primary-dark dark:text-primary-light',
-      button: 'text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary'
+      bg: 'bg-white/95 dark:bg-primary-700/95 backdrop-blur-sm',
+      border: 'border-2 border-info-500/40 dark:border-info-500',
+      icon: 'text-info-500 dark:text-info-400',
+      text: 'text-info-700 dark:text-info-400',
+      button: 'text-info-500 dark:text-info-400 hover:text-info-700 dark:hover:text-info-500'
     }
   }
 
@@ -91,16 +91,16 @@ function createNotificationElement(type, message, autoDismiss, dismissAfter) {
 
 function getIcon(type) {
   const icons = {
-    success: `<svg class="h-6 w-6 text-secondary dark:text-secondary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    success: `<svg class="h-6 w-6 text-success-500 dark:text-success-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>`,
-    error: `<svg class="h-6 w-6 text-accent-coral dark:text-accent-coral-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    error: `<svg class="h-6 w-6 text-expense-500 dark:text-expense-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
     </svg>`,
-    warning: `<svg class="h-6 w-6 text-accent-gold-dark dark:text-accent-gold-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    warning: `<svg class="h-6 w-6 text-warning-500 dark:text-warning-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
     </svg>`,
-    info: `<svg class="h-6 w-6 text-primary dark:text-primary-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    info: `<svg class="h-6 w-6 text-info-500 dark:text-info-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>`
   }

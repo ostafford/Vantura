@@ -9,14 +9,14 @@
   
   # Icon color schemes
   case icon_color
-  when 'secondary'
-    icon_bg = 'bg-secondary-500/10 dark:bg-secondary-700/20'
-    icon_text = 'text-secondary-500 dark:text-secondary-300'
-    border_color = 'border-secondary-500/20 dark:border-secondary-700/30'
-  when 'gold'
-    icon_bg = 'bg-gold-500/10 dark:bg-gold-500/20'
-    icon_text = 'text-gold-700 dark:text-gold-400'
-    border_color = 'border-gold-500/20 dark:border-gold-500/30'
+  when 'success'
+    icon_bg = 'bg-success-500/10 dark:bg-success-700/20'
+    icon_text = 'text-success-500 dark:text-success-300'
+    border_color = 'border-success-500/20 dark:border-success-700/30'
+  when 'income'
+    icon_bg = 'bg-income-500/10 dark:bg-income-500/20'
+    icon_text = 'text-income-700 dark:text-income-400'
+    border_color = 'border-income-500/20 dark:border-income-500/30'
   else # primary
     icon_bg = 'bg-primary-700/10 dark:bg-primary-500/20'
     icon_text = 'text-primary-700 dark:text-primary-500'
@@ -37,7 +37,7 @@
   end
 %>
 
-<div class="<%= size %> bg-gradient-to-br from-cream-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-lg p-6 border-2 <%= border_color %>">
+<div class="<%= size %> bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-lg p-6 border-2 <%= border_color %>">
   <!-- Header -->
   <div class="flex items-center justify-between mb-4">
     <div>

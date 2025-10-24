@@ -1,5 +1,5 @@
 <!-- Week View Grid -->
-<div class="bg-gradient-to-br from-neutral-light to-white dark:from-dark-bg-elevated dark:to-dark-bg rounded-lg shadow-sm border-2 border-secondary/20 dark:border-dark-bg-elevated/50 overflow-hidden">
+<div class="bg-gradient-to-br from-neutral-light to-white dark:from-dark-bg-elevated dark:to-dark-bg rounded-lg shadow-sm border-2 border-success/20 dark:border-dark-bg-elevated/50 overflow-hidden">
   <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700">
     <% @week_days.each do |day| %>
       <% transactions = day_transactions(day[:date]) %>
@@ -116,7 +116,7 @@
 </div>
 
 <!-- Week Summary -->
-<div class="mt-6 bg-gradient-to-r from-cream-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-sm border-2 border-primary-700/20 dark:border-primary-900/30 p-6">
+<div class="mt-6 bg-gradient-to-r from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-sm border-2 border-primary-700/20 dark:border-primary-900/30 p-6">
   <div class="flex items-center justify-between flex-wrap gap-4">
     <div>
       <h3 class="font-semibold text-gray-700 dark:text-gray-300 mb-1">Week of <%= @date.beginning_of_week(:monday).strftime("%B %d") %> - <%= @date.end_of_week(:monday).strftime("%B %d, %Y") %></h3>

@@ -15,12 +15,12 @@
             subtitle: "#{@current_date.strftime('%B %Y')}",
             icon: 'chart',
             size: 'bento-span-2 bento-row-span-2',
-            color: 'secondary' do %>
+            color: 'success' do %>
           <div class="mt-6 space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-white/20">
               <span class="text-white/80 text-sm">Net Savings</span>
-              <%# White for positive, bright red for negative - both have good contrast on sage green background %>
-              <span class="text-2xl font-bold <%= @net_savings >= 0 ? 'text-white' : 'text-red-400' %>">
+              <%# White for positive, expense color for negative - both have good contrast on sage green background %>
+              <span class="text-2xl font-bold <%= @net_savings >= 0 ? 'text-white' : 'text-expense-400 dark:text-expense-200 drop-shadow-md' %>">
                 <%= @net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(@net_savings.abs, precision: 2) %>
               </span>
             </div>
@@ -65,7 +65,7 @@
             link: recurring_transactions_path %>
 
         <!-- 4. Month Comparison Card (1x2) - Custom Card -->
-        <div class="bento-span-1 bento-row-span-2 bg-gradient-to-br from-cream-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-900/30">
+        <div class="bento-span-1 bento-row-span-2 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-900/30">
           <div class="flex flex-col h-full">
             <!-- Header -->
             <div class="mb-4">
@@ -80,11 +80,11 @@
               <!-- Income Row -->
               <div class="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center gap-2">
-                  <div class="w-2 h-2 rounded-full bg-secondary-500 dark:bg-secondary-300"></div>
+                  <div class="w-2 h-2 rounded-full bg-success-500 dark:bg-success-300"></div>
                   <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Income</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-secondary-500 dark:text-secondary-300">
+                  <span class="text-sm font-semibold text-success-500 dark:text-success-300">
                     $<%= number_with_precision(@current_month_income, precision: 0) %>
                   </span>
                   <% if @income_change_pct != 0 %>
@@ -99,11 +99,11 @@
               <!-- Expenses Row -->
               <div class="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center gap-2">
-                  <div class="w-2 h-2 rounded-full bg-coral-500 dark:bg-coral-400"></div>
+                  <div class="w-2 h-2 rounded-full bg-expense-500 dark:bg-expense-400"></div>
                   <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Expenses</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-coral-500 dark:text-coral-400">
+                  <span class="text-sm font-semibold text-expense-500 dark:text-expense-400">
                     $<%= number_with_precision(@current_month_expenses, precision: 0) %>
                   </span>
                   <% if @expense_change_pct != 0 %>
@@ -122,7 +122,7 @@
                   <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Net</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold <%= @net_savings >= 0 ? 'text-secondary-500 dark:text-secondary-300' : 'text-coral-500 dark:text-coral-400' %>">
+                  <span class="text-sm font-semibold <%= @net_savings >= 0 ? 'text-success-500 dark:text-success-300' : 'text-expense-500 dark:text-expense-400' %>">
                     <%= @net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(@net_savings.abs, precision: 0) %>
                   </span>
                   <% if @net_change_pct != 0 %>
@@ -152,11 +152,11 @@
             subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{truncate(@top_merchant[:name], length: 20)}</span>".html_safe,
             detail: "Total spent this month",
             icon: 'chart',
-            color: 'gold',
+            color: 'income',
             size: 'bento-span-1 bento-row-span-1' %>
 
         <!-- 6. View Advanced Analysis Card (2x1) - CTA -->
-        <div class="bento-span-2 bento-row-span-1 bg-gradient-to-r from-primary-700/10 to-secondary-500/10 dark:from-primary-900/20 dark:to-secondary-700/20 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-500/20">
+        <div class="bento-span-2 bento-row-span-1 bg-gradient-to-r from-primary-700/10 to-success-500/10 dark:from-primary-900/20 dark:to-success-700/20 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-500/20">
           <div class="flex items-center justify-between h-full gap-4">
             <div class="flex-1">
               <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Advanced Analysis Coming Soon</h3>
@@ -175,11 +175,11 @@
       </div>
 
       <!-- Additional Info Section -->
-      <div class="bg-gradient-to-br from-cream-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-lg p-6 border-2 border-secondary-500/20 dark:border-secondary-700/30">
+      <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-lg p-6 border-2 border-success-500/20 dark:border-success-700/30">
         <div class="flex items-start gap-4">
           <div class="flex-shrink-0">
-            <div class="inline-flex items-center justify-center w-12 h-12 bg-secondary-500/10 dark:bg-secondary-700/20 rounded-xl">
-              <svg class="w-6 h-6 text-secondary-500 dark:text-secondary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="inline-flex items-center justify-center w-12 h-12 bg-success-500/10 dark:bg-success-700/20 rounded-xl">
+              <svg class="w-6 h-6 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -191,25 +191,25 @@
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-400">
               <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-secondary-500 dark:text-secondary-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-success-500 dark:text-success-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Month-over-month comparisons</span>
               </div>
               <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-secondary-500 dark:text-secondary-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-success-500 dark:text-success-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Real-time data from Up Bank</span>
               </div>
               <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-secondary-500 dark:text-secondary-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-success-500 dark:text-success-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Net savings tracking</span>
               </div>
               <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-secondary-500 dark:text-secondary-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-success-500 dark:text-success-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Top merchant analysis</span>
@@ -221,7 +221,7 @@
 
     <% else %>
       <!-- No Account Message -->
-      <div class="bg-gradient-to-br from-cream-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-sm border-2 border-primary-700/30 dark:border-primary-900/30 p-12 text-center">
+      <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-sm border-2 border-primary-700/30 dark:border-primary-900/30 p-12 text-center">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">No account found</h2>
         <p class="text-gray-600 dark:text-gray-400">Please sync your Up Bank account first.</p>
         <%= link_to "Go to Settings", settings_path, class: "inline-flex items-center mt-4 px-6 py-3 bg-primary-700 text-white rounded-lg hover:bg-primary-900 transition-colors" %>

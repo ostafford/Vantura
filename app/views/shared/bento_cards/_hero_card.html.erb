@@ -9,9 +9,9 @@
   
   # Color scheme mapping
   color_map = {
-    'primary' => 'from-primary to-primary-dark dark:from-primary dark:to-primary-dark',
-    'secondary' => 'from-secondary to-secondary-dark dark:from-secondary-dark dark:to-primary-dark',
-    'accent-coral' => 'from-accent-coral to-accent-coral-dark dark:from-accent-coral dark:to-accent-coral-dark'
+    'primary' => 'from-primary-700 to-primary-900 dark:from-primary-700 dark:to-primary-950',
+    'success' => 'from-success-500 to-success-700 dark:from-success-700 dark:to-success-900',
+    'expense' => 'from-expense-500 to-expense-700 dark:from-expense-700 dark:to-expense-900'
   }
   
   gradient_classes = color_map[color_scheme] || color_map['primary']
@@ -41,11 +41,11 @@
     </div>
     
     <!-- Title -->
-    <h2 class="text-3xl font-bold mb-3"><%= title %></h2>
+    <h2 class="text-3xl font-bold mb-3 drop-shadow-lg"><%= title %></h2>
     
     <!-- Subtitle -->
     <% if subtitle.present? %>
-      <p class="text-white/90 text-lg mb-6">
+      <p class="text-white/90 text-lg mb-6 drop-shadow-md">
         <%= subtitle %>
       </p>
     <% end %>
@@ -53,7 +53,7 @@
     <!-- Description -->
     <% if description.present? %>
       <div class="mt-8 pt-6 border-t border-white/20">
-        <p class="text-white/80 text-sm leading-relaxed">
+        <p class="text-white/80 text-sm leading-relaxed drop-shadow-sm">
           <%= description %>
         </p>
       </div>

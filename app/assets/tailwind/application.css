@@ -12,18 +12,15 @@
   
   /* Add explicit heading styles for better semantic structure */
   h1 {
-    font-size: var(--text-3xl);
-    font-weight: var(--font-weight-bold);
+    @apply text-3xl font-bold;
   }
   
   h2 {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-weight-semibold);
+    @apply text-2xl font-semibold;
   }
   
   h3 {
-    font-size: var(--text-xl);
-    font-weight: var(--font-weight-semibold);
+    @apply text-xl font-semibold;
   }
 }
 
@@ -93,16 +90,39 @@
     }
   }
 
+  /* Modal/Drawer responsive utilities */
+  .sm\:mr-96 {
+    @variant sm {
+      margin-right: 24rem; /* 384px - matches drawer width */
+    }
+  }
+
   .bento-row-span-1 { grid-row: span 1; }
   .bento-row-span-2 { grid-row: span 2; }
   .bento-row-span-3 { grid-row: span 3; }
 }
 
+/* Custom utilities layer */
+@layer utilities {
+  /* Text shadow utilities for better readability on gradients */
+  .drop-shadow-sm {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  }
+
+  .drop-shadow-md {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  }
+
+  .drop-shadow-lg {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  }
+}
+
 /* Custom utilities using @utility directive */
 @utility turbo-progress-bar {
   height: 5px !important;
-  background: linear-gradient(to right, #ff6633, #ffb366) !important;
-  box-shadow: 0 2px 4px rgba(255, 102, 51, 0.3) !important;
+  background: linear-gradient(to right, var(--color-coral-500), var(--color-coral-400)) !important;
+  box-shadow: 0 2px 4px color-mix(in oklab, var(--color-coral-500) 30%, transparent) !important;
 }
 
 @utility animate-slide-in {
@@ -126,9 +146,10 @@
   }
 }
 
-/* Vantura Brand Colors - Warm & Natural Palette Optimized for Light & Dark Modes */
+/* Vantura Brand Colors - Semantic Color System */
+/* Hex Colors: PRIMARY #2D3047, EXPENSE #C8553D, INCOME #588B8B, SUCCESS #7BA05B, WARNING #AA98A9, INFO #72A0C1, NEUTRAL #DBD7D2 */
 @theme {
-  /* Primary Colors - Navy (main brand color) - Standard Tailwind Color Scale */
+  /* PRIMARY - Main brand color, navigation, primary actions */
   --color-primary-50: oklch(0.95 0.01 255);
   --color-primary-100: oklch(0.88 0.02 255);
   --color-primary-200: oklch(0.78 0.03 255);
@@ -141,80 +162,81 @@
   --color-primary-900: oklch(0.20 0.03 255);       /* Deep navy hover states */
   --color-primary-950: oklch(0.15 0.02 255);
   
-  /* Secondary Colors - Sage Green (success, positive states) - Standard Tailwind Color Scale */
-  --color-secondary-50: oklch(0.95 0.01 165);
-  --color-secondary-100: oklch(0.90 0.02 165);
-  --color-secondary-200: oklch(0.86 0.04 165);
-  --color-secondary-300: oklch(0.82 0.06 165);     /* Light sage */
-  --color-secondary-400: oklch(0.76 0.07 165);
-  --color-secondary-500: oklch(0.70 0.08 165);      /* Main sage green */
-  --color-secondary-600: oklch(0.63 0.07 165);
-  --color-secondary-700: oklch(0.55 0.06 165);      /* Medium sage */
-  --color-secondary-800: oklch(0.48 0.05 165);
-  --color-secondary-900: oklch(0.40 0.04 165);
-  --color-secondary-950: oklch(0.30 0.03 165);
+  /* EXPENSE - Expenses, negative amounts, outgoing money */
+  --color-expense-50: oklch(0.95 0.02 35);
+  --color-expense-100: oklch(0.88 0.04 35);
+  --color-expense-200: oklch(0.81 0.07 35);
+  --color-expense-300: oklch(0.75 0.11 35);
+  --color-expense-400: oklch(0.72 0.13 35);
+  --color-expense-500: oklch(0.68 0.15 35);           /* Main expense color */
+  --color-expense-600: oklch(0.63 0.15 35);
+  --color-expense-700: oklch(0.58 0.15 35);           /* Deep expense */
+  --color-expense-800: oklch(0.52 0.13 35);
+  --color-expense-900: oklch(0.45 0.11 35);
+  --color-expense-950: oklch(0.38 0.09 35);
   
-  /* Coral - Accent color for expenses - Standard Tailwind Color Scale */
-  --color-coral-50: oklch(0.95 0.02 35);
-  --color-coral-100: oklch(0.88 0.04 35);
-  --color-coral-200: oklch(0.81 0.07 35);
-  --color-coral-300: oklch(0.75 0.11 35);
-  --color-coral-400: oklch(0.72 0.13 35);
-  --color-coral-500: oklch(0.68 0.15 35);           /* Main coral */
-  --color-coral-600: oklch(0.63 0.15 35);
-  --color-coral-700: oklch(0.58 0.15 35);           /* Deep coral */
-  --color-coral-800: oklch(0.52 0.13 35);
-  --color-coral-900: oklch(0.45 0.11 35);
-  --color-coral-950: oklch(0.38 0.09 35);
+  /* INCOME - Income, positive amounts, incoming money */
+  --color-income-50: oklch(0.97 0.01 185);
+  --color-income-100: oklch(0.94 0.02 185);
+  --color-income-200: oklch(0.87 0.04 185);
+  --color-income-300: oklch(0.79 0.06 185);
+  --color-income-400: oklch(0.71 0.08 185);
+  --color-income-500: oklch(0.62 0.09 185);            /* Main income color */
+  --color-income-600: oklch(0.54 0.08 185);
+  --color-income-700: oklch(0.46 0.07 185);            /* Deep income */
+  --color-income-800: oklch(0.38 0.06 185);
+  --color-income-900: oklch(0.30 0.05 185);
+  --color-income-950: oklch(0.22 0.04 185);
   
-  /* Gold - Accent color for income - Standard Tailwind Color Scale */
-  --color-gold-50: oklch(0.98 0.01 75);
-  --color-gold-100: oklch(0.95 0.02 75);
-  --color-gold-200: oklch(0.92 0.04 75);
-  --color-gold-300: oklch(0.90 0.06 75);
-  --color-gold-400: oklch(0.88 0.08 75);
-  --color-gold-500: oklch(0.85 0.10 75);            /* Main gold */
-  --color-gold-600: oklch(0.80 0.11 75);
-  --color-gold-700: oklch(0.75 0.12 75);            /* Deep gold */
-  --color-gold-800: oklch(0.70 0.11 75);
-  --color-gold-900: oklch(0.65 0.10 75);
-  --color-gold-950: oklch(0.58 0.08 75);
+  /* SUCCESS - Settled transactions, completed actions, success states */
+  --color-success-50: oklch(0.95 0.01 165);
+  --color-success-100: oklch(0.90 0.02 165);
+  --color-success-200: oklch(0.86 0.04 165);
+  --color-success-300: oklch(0.82 0.06 165);     /* Light success */
+  --color-success-400: oklch(0.76 0.07 165);
+  --color-success-500: oklch(0.70 0.08 165);      /* Main success green */
+  --color-success-600: oklch(0.63 0.07 165);
+  --color-success-700: oklch(0.55 0.06 165);      /* Medium success */
+  --color-success-800: oklch(0.48 0.05 165);
+  --color-success-900: oklch(0.40 0.04 165);
+  --color-success-950: oklch(0.30 0.03 165);
   
-  /* Cream - Neutral backgrounds - Standard Tailwind Color Scale */
-  --color-cream-50: oklch(0.98 0.01 90);
-  --color-cream-100: oklch(0.96 0.02 90);           /* Neutral light */
-  --color-cream-200: oklch(0.93 0.02 90);           /* Neutral dark */
-  --color-cream-300: oklch(0.90 0.02 90);
-  --color-cream-400: oklch(0.85 0.02 90);
-  --color-cream-500: oklch(0.80 0.02 90);
-  --color-cream-600: oklch(0.75 0.02 90);
-  --color-cream-700: oklch(0.70 0.02 90);
-  --color-cream-800: oklch(0.65 0.02 90);
-  --color-cream-900: oklch(0.60 0.02 90);
-  --color-cream-950: oklch(0.50 0.02 90);
+  /* WARNING - Pending/held transactions, caution states */
+  --color-warning-50: oklch(0.96 0.01 290);
+  --color-warning-100: oklch(0.92 0.02 290);
+  --color-warning-200: oklch(0.85 0.04 290);
+  --color-warning-300: oklch(0.77 0.06 290);
+  --color-warning-400: oklch(0.69 0.08 290);
+  --color-warning-500: oklch(0.61 0.10 290);            /* Main warning color */
+  --color-warning-600: oklch(0.53 0.09 290);
+  --color-warning-700: oklch(0.45 0.08 290);            /* Deep warning */
+  --color-warning-800: oklch(0.38 0.07 290);
+  --color-warning-900: oklch(0.31 0.06 290);
+  --color-warning-950: oklch(0.24 0.05 290);
   
-  /* Legacy compatibility - Keeping old color names for backward compatibility */
-  --color-primary: var(--color-primary-700);
-  --color-primary-dark: var(--color-primary-900);
-  --color-primary-light: var(--color-primary-500);
+  /* INFO - Recurring badges, informational items */
+  --color-info-50: oklch(0.97 0.01 230);
+  --color-info-100: oklch(0.93 0.02 230);
+  --color-info-200: oklch(0.87 0.04 230);
+  --color-info-300: oklch(0.79 0.06 230);
+  --color-info-400: oklch(0.71 0.08 230);
+  --color-info-500: oklch(0.63 0.10 230);            /* Main info color */
+  --color-info-600: oklch(0.55 0.09 230);
+  --color-info-700: oklch(0.47 0.08 230);            /* Deep info */
+  --color-info-800: oklch(0.40 0.07 230);
+  --color-info-900: oklch(0.33 0.06 230);
+  --color-info-950: oklch(0.26 0.05 230);
   
-  --color-secondary: var(--color-secondary-500);
-  --color-secondary-dark: var(--color-secondary-700);
-  --color-secondary-light: var(--color-secondary-300);
-  
-  --color-neutral-light: var(--color-cream-100);
-  --color-neutral-dark: var(--color-cream-200);
-  
-  --color-dark-bg: var(--color-primary-900);
-  --color-dark-bg-secondary: var(--color-primary-950);
-  --color-dark-bg-elevated: var(--color-primary-700);
-  
-  --color-accent-coral: var(--color-coral-500);
-  --color-accent-coral-light: var(--color-coral-400);
-  --color-accent-coral-dark: var(--color-coral-700);
-  
-  --color-accent-gold: var(--color-gold-500);
-  --color-accent-gold-light: var(--color-gold-400);
-  --color-accent-gold-dark: var(--color-gold-700);
+  /* NEUTRAL - Backgrounds, subtle separators */
+  --color-neutral-50: oklch(0.98 0.01 90);
+  --color-neutral-100: oklch(0.96 0.02 90);           /* Neutral light */
+  --color-neutral-200: oklch(0.93 0.02 90);           /* Neutral dark */
+  --color-neutral-300: oklch(0.90 0.02 90);
+  --color-neutral-400: oklch(0.85 0.02 90);
+  --color-neutral-500: oklch(0.80 0.02 90);
+  --color-neutral-600: oklch(0.75 0.02 90);
+  --color-neutral-700: oklch(0.70 0.02 90);
+  --color-neutral-800: oklch(0.65 0.02 90);
+  --color-neutral-900: oklch(0.60 0.02 90);
+  --color-neutral-950: oklch(0.50 0.02 90);
 }
-

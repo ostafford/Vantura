@@ -2,6 +2,13 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="notification"
 export default class extends Controller {
+  static targets = ["container"]
+  
+  static values = {
+    autoDismiss: Boolean,
+    dismissAfter: Number
+  }
+
   connect() {
     // Animate in (slide from right)
     setTimeout(() => {
@@ -9,10 +16,15 @@ export default class extends Controller {
       this.element.classList.add('translate-x-0', 'opacity-100')
     }, 50) // Small delay ensures transition is visible
 
-    // Auto-dismiss after 5 seconds
-    this.autoDismissTimeout = setTimeout(() => {
-      this.dismiss()
-    }, 5000)
+    // Auto-dismiss if enabled
+    const shouldAutoDismiss = this.hasAutoDismissValue ? this.autoDismissValue : true
+    const dismissDelay = this.hasDismissAfterValue ? this.dismissAfterValue : 5000
+    
+    if (shouldAutoDismiss) {
+      this.autoDismissTimeout = setTimeout(() => {
+        this.dismiss()
+      }, dismissDelay)
+    }
   }
 
   disconnect() {

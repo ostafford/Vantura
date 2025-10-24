@@ -23,27 +23,20 @@
   
   # Color classes based on color scheme
   case color
-  when 'red'
-    bg_gradient = 'from-red-50 to-white dark:from-red-900/10 dark:to-gray-800'
-    border_color = 'border-coral-500/30 dark:border-coral-500/20'
-    hover_border = 'hover:border-coral-500 dark:hover:border-coral-500'
-    icon_bg = 'bg-red-100 dark:bg-red-900/30'
-    icon_text = 'text-coral-500 dark:text-coral-400'
-    value_text = 'text-coral-500 dark:text-coral-400'
-  when 'green'
-    bg_gradient = 'from-green-50 to-white dark:from-green-900/10 dark:to-gray-800'
-    border_color = 'border-secondary-500/30 dark:border-secondary-500/20'
-    hover_border = 'hover:border-secondary-500 dark:hover:border-secondary-500'
-    icon_bg = 'bg-green-100 dark:bg-green-900/30'
-    icon_text = 'text-secondary-500 dark:text-secondary-300'
-    value_text = 'text-secondary-500 dark:text-secondary-300'
-  when 'gold'
-    bg_gradient = 'from-yellow-50 to-white dark:from-yellow-900/10 dark:to-gray-800'
-    border_color = 'border-gold-500/30 dark:border-gold-500/20'
-    hover_border = 'hover:border-gold-500 dark:hover:border-gold-500'
-    icon_bg = 'bg-yellow-100 dark:bg-yellow-900/30'
-    icon_text = 'text-gold-700 dark:text-gold-400'
-    value_text = 'text-gold-700 dark:text-gold-400'
+  when 'red', 'coral', 'expense'
+    bg_gradient = 'bg-expense-100 dark:bg-expense-900/20'
+    border_color = 'border-expense-500/30 dark:border-expense-500/20'
+    hover_border = 'hover:border-expense-500 dark:hover:border-expense-500'
+    icon_bg = 'bg-expense-200 dark:bg-expense-900/30'
+    icon_text = 'text-expense-500 dark:text-expense-400'
+    value_text = 'text-expense-500 dark:text-expense-400'
+  when 'green', 'gold', 'income'
+    bg_gradient = 'bg-income-200 dark:bg-income-900/20'
+    border_color = 'border-income-500/30 dark:border-income-500/20'
+    hover_border = 'hover:border-income-500 dark:hover:border-income-500'
+    icon_bg = 'bg-income-200 dark:bg-income-900/30'
+    icon_text = 'text-income-700 dark:text-income-400'
+    value_text = 'text-income-700 dark:text-income-400'
   else # blue
     bg_gradient = 'from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800'
     border_color = 'border-primary-700/30 dark:border-primary-500/20'
@@ -54,7 +47,7 @@
   end
   
   # Build CSS classes
-  base_classes = "#{size} bg-gradient-to-br #{bg_gradient} rounded-2xl shadow-lg p-6 border-2 #{border_color}"
+  base_classes = "#{size} #{bg_gradient} rounded-2xl shadow-lg p-6 border-2 #{border_color}"
   interactive_classes = clickable ? "#{hover_border} hover:shadow-xl transition-all cursor-pointer group" : ""
   card_classes = "#{base_classes} #{interactive_classes}"
 %>

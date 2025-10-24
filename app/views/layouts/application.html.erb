@@ -43,7 +43,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-controller="theme modal recurring-modal calendar sync filter" class="bg-cream-100 dark:bg-primary-900 h-screen flex flex-col">
+  <body data-controller="theme modal recurring-modal calendar sync filter" class="bg-neutral-100 dark:bg-primary-900 h-screen flex flex-col">
     <!-- WebSocket subscription for real-time updates (available on all pages) -->
     <% if authenticated? %>
       <%= turbo_stream_from Current.user %>
@@ -57,11 +57,11 @@
     <!-- Sync notification container (available on all pages) -->
     <div id="sync_notification"></div>
     
-    <!-- Main content wrapper (shrinks when drawer opens) -->
+    <!-- Main content wrapper (shrinks when drawer opens) - Pure Tailwind -->
     <div id="mainContent" 
          data-modal-target="content" 
          data-recurring-modal-target="content"
-         class="transition-all duration-300 ease-in-out flex-1 overflow-auto pb-16 md:pb-0">
+         class="transition-all duration-500 ease-in-out flex-1 overflow-auto pb-16 md:pb-0">
       <%= yield %>
     </div>
     

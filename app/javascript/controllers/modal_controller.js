@@ -38,13 +38,11 @@ export default class extends Controller {
     this.modalTarget.classList.remove('hidden')
     this.modalTarget.classList.add('flex')
     
-    // Shrink content and slide in drawer
+    // Pure Tailwind approach - no custom JavaScript for responsive behavior
     if (this.hasDrawerTarget && this.hasContentTarget) {
       setTimeout(() => {
-        // Add right margin to shrink content (responsive - only on desktop)
-        if (window.innerWidth >= 640) {
-          this.contentTarget.style.marginRight = '384px'
-        }
+        // Use Tailwind classes for responsive content shrinking
+        this.contentTarget.classList.add('sm:mr-96')
         this.drawerTarget.classList.remove('translate-x-full')
         this.drawerTarget.classList.add('translate-x-0')
       }, 10)
@@ -59,9 +57,9 @@ export default class extends Controller {
   close(event) {
     event?.preventDefault()
     
-    // Slide out drawer and restore content width
+    // Pure Tailwind approach - use classes instead of inline styles
     if (this.hasDrawerTarget && this.hasContentTarget) {
-      this.contentTarget.style.marginRight = '0'
+      this.contentTarget.classList.remove('sm:mr-96')
       this.drawerTarget.classList.remove('translate-x-0')
       this.drawerTarget.classList.add('translate-x-full')
       
@@ -111,12 +109,12 @@ export default class extends Controller {
         selectedType = radio.value
         cards[index].classList.remove('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
         if (radio.value === 'expense') {
-          cards[index].classList.add('border-accent-coral', 'dark:border-accent-coral', 'bg-red-50', 'dark:bg-red-900/20')
+          cards[index].classList.add('border-expense-500', 'dark:border-expense-500', 'bg-red-50', 'dark:bg-red-900/20')
         } else {
-          cards[index].classList.add('border-secondary', 'dark:border-secondary', 'bg-green-50', 'dark:bg-green-900/20')
+          cards[index].classList.add('border-success-500', 'dark:border-success-500', 'bg-green-50', 'dark:bg-green-900/20')
         }
       } else {
-        cards[index].classList.remove('border-accent-coral', 'dark:border-accent-coral', 'bg-red-50', 'dark:bg-red-900/20', 'border-secondary', 'dark:border-secondary', 'bg-green-50', 'dark:bg-green-900/20')
+        cards[index].classList.remove('border-expense-500', 'dark:border-expense-500', 'bg-red-50', 'dark:bg-red-900/20', 'border-success-500', 'dark:border-success-500', 'bg-green-50', 'dark:bg-green-900/20')
         cards[index].classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
       }
     })

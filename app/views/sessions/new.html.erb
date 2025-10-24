@@ -1,15 +1,15 @@
 <% content_for :title, "Sign In - Vantura" %>
 
-<div class="mx-auto md:w-2/3 w-full bg-gradient-to-br from-cream-100 to-white dark:from-primary-700 dark:to-primary-900 p-8 rounded-2xl shadow-lg border-2 border-secondary-500/20 dark:border-primary-700/50">
+<div class="mx-auto md:w-2/3 w-full bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 p-8 rounded-2xl shadow-lg border-2 border-success-500/20 dark:border-primary-700/50">
   <h1 class="font-bold text-4xl text-gray-900 dark:text-white mb-6">Sign in</h1>
 
   <%= form_with url: session_url, class: "contents" do |form| %>
     <div class="my-5">
-      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "block shadow-sm rounded-xl border-2 border-secondary-500/30 dark:border-secondary-500/20 focus:ring-2 focus:ring-primary-700 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "block shadow-sm rounded-xl border-2 border-success-500/30 dark:border-success-500/20 focus:ring-2 focus:ring-primary-700 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
     </div>
 
     <div class="my-5">
-      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "block shadow-sm rounded-xl border-2 border-secondary-500/30 dark:border-secondary-500/20 focus:ring-2 focus:ring-primary-700 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72, class: "block shadow-sm rounded-xl border-2 border-success-500/30 dark:border-success-500/20 focus:ring-2 focus:ring-primary-700 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 mt-2 w-full transition-all" %>
     </div>
 
     <div class="col-span-6 sm:flex sm:items-center sm:gap-4">

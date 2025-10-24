@@ -10,7 +10,7 @@
          data-recurring-modal-target="drawer">
       
       <!-- Drawer Header -->
-      <div class="bg-gradient-to-r from-secondary-500 to-secondary-700 dark:from-secondary-700 dark:to-primary-900 px-6 py-5 flex-shrink-0">
+      <div class="bg-gradient-to-r from-info-500 via-info-700 to-info-500 dark:from-info-700 dark:via-info-900 dark:to-info-700 px-6 py-5 flex-shrink-0">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="inline-flex items-center justify-center w-10 h-10 bg-white/20 rounded-lg">
@@ -40,10 +40,10 @@
           
           <div class="space-y-5">
             <!-- Transaction Preview -->
-            <div class="bg-secondary-500/5 dark:bg-secondary-700/10 border-2 border-secondary-500/20 dark:border-secondary-700 rounded-lg p-4">
+            <div class="bg-success-500/5 dark:bg-success-700/10 border-2 border-success-500/20 dark:border-success-700 rounded-lg p-4">
               <div class="flex items-center gap-3 mb-3">
-                <div class="inline-flex items-center justify-center w-9 h-9 bg-secondary-500/10 dark:bg-secondary-700/20 rounded-lg">
-                  <svg class="w-5 h-5 text-secondary-500 dark:text-secondary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="inline-flex items-center justify-center w-9 h-9 bg-success-500/10 dark:bg-success-700/20 rounded-lg">
+                  <svg class="w-5 h-5 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
@@ -59,7 +59,7 @@
               <select name="frequency" id="frequency" required 
                       data-recurring-modal-target="frequencySelect"
                       data-action="change->recurring-modal#updateNextOccurrenceDate"
-                      class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500 dark:focus:border-secondary-300 transition-all">
+                      class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all">
                 <option value="">Select frequency...</option>
                 <option value="weekly">Weekly (every 7 days)</option>
                 <option value="fortnightly">Fortnightly (every 14 days)</option>
@@ -77,7 +77,7 @@
               <%= f.date_field :next_occurrence_date, 
                   id: "nextOccurrenceDate",
                   data: { recurring_modal_target: "nextOccurrenceDate" },
-                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500 dark:focus:border-secondary-300 transition-all",
+                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all",
                   required: true %>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">We'll project future occurrences from this date</p>
             </div>
@@ -88,7 +88,7 @@
                 How far ahead to project?
               </label>
               <select name="projection_months" id="projection_months" 
-                      class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500 dark:focus:border-secondary-300 transition-all">
+                      class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all">
                 <option value="indefinite" selected>Indefinite (recommended)</option>
                 <option value="3">3 months</option>
                 <option value="6">6 months</option>
@@ -109,16 +109,16 @@
                     id: "recurring_transaction_amount_tolerance", 
                     step: 0.01,
                     value: 1.0,
-                    class: "w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500 dark:focus:border-secondary-300 transition-all",
+                    class: "w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all",
                     min: 0 %>
               </div>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Allows matching transactions with slightly different amounts</p>
             </div>
 
             <!-- Info Box -->
-            <div class="bg-secondary-500/10 dark:bg-secondary-700/10 border border-secondary-500/30 dark:border-secondary-700 rounded-lg p-4">
+            <div class="bg-success-500/10 dark:bg-success-700/10 border border-success-500/30 dark:border-success-700 rounded-lg p-4">
               <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-secondary-500 dark:text-secondary-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-success-500 dark:text-success-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
@@ -135,7 +135,7 @@
           <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div class="flex gap-3">
               <%= f.submit "Create Pattern", 
-                  class: "flex-1 bg-gradient-to-r from-secondary-500 to-secondary-700 dark:from-secondary-700 dark:to-secondary-500 hover:from-secondary-700 hover:to-secondary-500 text-white px-5 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all" %>
+                  class: "flex-1 bg-gradient-to-r from-success-500 to-success-700 dark:from-success-700 dark:to-success-500 hover:from-success-700 hover:to-success-500 text-white px-5 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all" %>
               <button type="button" 
                       data-action="click->recurring-modal#close" 
                       class="px-5 py-3 bg-white dark:bg-primary-950 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-primary-900 font-semibold transition-all">

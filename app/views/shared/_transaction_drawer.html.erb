@@ -1,16 +1,17 @@
-<!-- Transaction Drawer (Slide-in Panel) -->
+<!-- Transaction Drawer (Slide-in Panel) - Pure Tailwind -->
 <% if @account %>
   <!-- Drawer Container -->
   <div id="transactionModal" 
        data-modal-target="modal"
-       class="hidden z-50">
+       class="fixed inset-0 z-50 hidden">
+    
     
     <!-- Drawer Panel (slides in from right - responsive width) -->
-    <div class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-primary-700 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out border-l-2 border-gray-300 dark:border-gray-700 md:top-16 md:bottom-0"
+    <div class="absolute inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-primary-700 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-500 ease-in-out border-l-2 border-gray-300 dark:border-gray-700 md:top-16 md:bottom-0"
          data-modal-target="drawer">
       
       <!-- Drawer Header -->
-      <div class="bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-900 dark:to-primary-700 px-6 py-5 flex-shrink-0">
+      <div class="bg-gradient-to-r from-info-500 via-info-700 to-info-500 dark:from-info-700 dark:via-info-900 dark:to-info-700 px-6 py-5 flex-shrink-0">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="inline-flex items-center justify-center w-10 h-10 bg-white/20 rounded-lg">
@@ -47,11 +48,11 @@
                       id: "transaction_type_expense",
                       class: "hidden transaction-type-radio",
                       data: { action: "change->modal#updateTransactionTypeUI" } %>
-                  <div class="transaction-type-card border-2 border-coral-500 dark:border-coral-500 bg-red-50 dark:bg-red-900/20 rounded-lg p-4 text-center transition-all hover:shadow-md">
-                    <svg class="w-8 h-8 mx-auto mb-2 text-coral-500 dark:text-coral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="transaction-type-card border-2 border-expense-500 dark:border-expense-500 bg-red-50 dark:bg-red-900/20 rounded-lg p-4 text-center transition-all hover:shadow-md">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-expense-500 dark:text-expense-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                     </svg>
-                    <span class="font-semibold text-sm text-coral-700 dark:text-coral-400">Expense</span>
+                    <span class="font-semibold text-sm text-expense-700 dark:text-expense-400">Expense</span>
                   </div>
                 </label>
                 
@@ -60,11 +61,11 @@
                       id: "transaction_type_income",
                       class: "hidden transaction-type-radio",
                       data: { action: "change->modal#updateTransactionTypeUI" } %>
-                  <div class="transaction-type-card border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg p-4 text-center hover:border-secondary-500 hover:shadow-md transition-all">
-                    <svg class="w-8 h-8 mx-auto mb-2 text-secondary-500 dark:text-secondary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="transaction-type-card border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg p-4 text-center hover:border-success-500 hover:shadow-md transition-all">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
                     </svg>
-                    <span class="font-semibold text-sm text-secondary-700 dark:text-secondary-300">Income</span>
+                    <span class="font-semibold text-sm text-success-700 dark:text-success-300">Income</span>
                   </div>
                 </label>
               </div>
