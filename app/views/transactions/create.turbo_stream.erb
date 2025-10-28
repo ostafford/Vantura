@@ -1,17 +1,21 @@
 <%# Update the Expenses Card %>
 <%= turbo_stream.replace "expenses_card" do %>
-  <%= render "dashboard/expenses_card",
+  <%= render "dashboard/transaction_type_card",
+      type: 'expense',
       expense_total: @expense_total,
       expense_count: @expense_count,
-      current_date: @current_date %>
+      current_date: @current_date,
+      top_expense_merchants: [] %>
 <% end %>
 
 <%# Update the Income Card %>
 <%= turbo_stream.replace "income_card" do %>
-  <%= render "dashboard/income_card",
+  <%= render "dashboard/transaction_type_card",
+      type: 'income',
       income_total: @income_total,
       income_count: @income_count,
-      current_date: @current_date %>
+      current_date: @current_date,
+      top_income_merchants: [] %>
 <% end %>
 
 <%# Update the End of Month Projection %>
@@ -19,13 +23,73 @@
   <%= render "dashboard/projection_card",
       income_total: @income_total,
       expense_total: @expense_total,
-      end_of_month_balance: @end_of_month_balance %>
+      end_of_month_balance: @end_of_month_balance,
+      current_date: @current_date,
+      upcoming_recurring_expenses: @upcoming_recurring_expenses,
+      upcoming_recurring_income: @upcoming_recurring_income,
+      upcoming_recurring_total: @upcoming_recurring_total %>
 <% end %>
 
 <%# Prepend the new transaction to Recent Transactions %>
 <%= turbo_stream.prepend "recent_transactions" do %>
   <%= render "dashboard/recent_transaction_row", transaction: @transaction %>
 <% end %>
+
+<%# Show success notification %>
+<% transaction_type = @transaction.amount > 0 ? 'income' : 'expense' %>
+<%= turbo_stream.append "notifications" do %>
+  <div data-controller="notification" 
+       data-notification-type="success"
+       data-notification-auto-dismiss-value="true"
+       data-notification-dismiss-after-value="5000"
+       class="w-96 bg-white/95 dark:bg-primary-700/95 backdrop-blur-sm border-2 border-success-500/40 dark:border-success-700 rounded-xl shadow-xl pointer-events-auto overflow-hidden transform translate-x-full opacity-0 transition-all duration-300 ease-out">
+    <div class="p-4">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="h-6 w-6 text-success-500 dark:text-success-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="ml-3 w-0 flex-1 pt-0.5">
+          <p class="text-success-700 dark:text-success-300 text-sm font-medium">
+            <%= transaction_type.capitalize %> transaction added!
+          </p>
+          <p class="text-success-600 dark:text-success-400 text-xs mt-1">
+            <%= number_to_currency(@transaction.amount.abs) %> • <%= @transaction.description %>
+          </p>
+        </div>
+        <div class="ml-4 flex-shrink-0 flex">
+          <button type="button" 
+                  data-action="click->notification#dismiss"
+                  class="text-success-500 dark:text-success-300 hover:text-success-700 dark:hover:text-success-500">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%# Refresh calendar if it's open - dispatch a reload event %>
+<script>
+  console.log('Transaction created Turbo Stream executed');
+  // Refresh calendar if it's open
+  const calendarFrame = document.getElementById('calendar_content');
+  console.log('Calendar frame found:', calendarFrame);
+  if (calendarFrame) {
+    const currentUrl = window.location.href;
+    console.log('Current URL:', currentUrl);
+    if (currentUrl.includes('/calendar')) {
+      console.log('Dispatching transaction:created event');
+      // Dispatch a custom event that will trigger the calendar to reload
+      window.dispatchEvent(new CustomEvent('transaction:created', { 
+        detail: { transaction: { id: '<%= @transaction.id %>', date: '<%= @transaction.transaction_date %>' } } 
+      }));
+    }
+  }
+</script>
 
 <%# Close the modal drawer %>
 <%= turbo_stream.replace "transactionModal" do %>

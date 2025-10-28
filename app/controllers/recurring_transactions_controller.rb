@@ -1,10 +1,63 @@
 class RecurringTransactionsController < ApplicationController
   include AccountLoadable
 
+  before_action :set_recurring_transaction, only: [ :show, :edit, :update, :destroy, :toggle_active ]
+
   def index
     return unless load_account
 
     @recurring_transactions = @account.recurring_transactions.order(created_at: :desc)
+
+    # Calculate weekly and monthly breakdowns
+    calculate_breakdowns
+  end
+
+  def calculate_breakdowns
+    # Get active recurring transactions
+    active = @account.recurring_transactions.active
+
+    # Calculate weekly breakdown
+    week_start = Date.today.beginning_of_week(:monday)
+    week_end = Date.today.end_of_week(:monday)
+
+    # Get recurring transactions due this week
+    week_recurring = active.where("next_occurrence_date <= ? AND next_occurrence_date >= ?", week_end, week_start)
+
+    @week_income = week_recurring.where(transaction_type: "income").sum(:amount)
+    @week_expenses = week_recurring.where(transaction_type: "expense").sum(:amount).abs
+
+    # Calculate monthly breakdown
+    month_start = Date.today.beginning_of_month
+    month_end = Date.today.end_of_month
+
+    # Get recurring transactions due this month
+    month_recurring = active.where("next_occurrence_date <= ? AND next_occurrence_date >= ?", month_end, month_start)
+
+    @month_income = month_recurring.where(transaction_type: "income").sum(:amount)
+    @month_expenses = month_recurring.where(transaction_type: "expense").sum(:amount).abs
+
+    # Get next occurrence
+    next_occurrence = active.where("next_occurrence_date >= ?", Date.today).order(:next_occurrence_date).first
+    @next_occurrence_date = next_occurrence&.next_occurrence_date
+    @next_occurrence_amount = next_occurrence&.amount
+    @next_occurrence_desc = next_occurrence&.description
+  end
+  private :calculate_breakdowns
+
+  def show
+    # Recurring transaction is already loaded by before_action
+  end
+
+  def edit
+    # Recurring transaction is already loaded by before_action
+  end
+
+  def update
+    if @recurring.update(recurring_transaction_params)
+      redirect_to @recurring, notice: "Recurring transaction updated successfully."
+    else
+      render :edit, status: :unprocessable_entity
+    end
   end
 
   def create
@@ -44,8 +97,6 @@ class RecurringTransactionsController < ApplicationController
   end
 
   def destroy
-    @recurring = RecurringTransaction.find(params[:id])
-
     # Delete all generated hypothetical transactions
     @recurring.generated_transactions.hypothetical.destroy_all
 
@@ -59,7 +110,6 @@ class RecurringTransactionsController < ApplicationController
   end
 
   def toggle_active
-    @recurring = RecurringTransaction.find(params[:id])
     @recurring.update(is_active: !@recurring.is_active)
 
     if @recurring.is_active?
@@ -82,5 +132,15 @@ class RecurringTransactionsController < ApplicationController
       end
       format.html { redirect_back(fallback_location: root_path, notice: message) }
     end
+  end
+
+  private
+
+  def set_recurring_transaction
+    @recurring = @account.recurring_transactions.find(params[:id])
+  end
+
+  def recurring_transaction_params
+    params.require(:recurring_transaction).permit(:description, :amount, :frequency, :next_occurrence_date, :transaction_type, :category, :merchant_pattern, :amount_tolerance, :projection_months, :is_active)
   end
 end

@@ -72,25 +72,25 @@ class TransactionFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "view all transactions page" do
-    get transactions_all_path
+    get transactions_path
 
     assert_response :success
-    assert_select "h1", "All Transactions"
+    assert_select "h1", "Your Transactions"
     assert_select "table"
   end
 
   test "view expenses only" do
-    get transactions_expenses_path
+    get transactions_path, params: { filter: "expenses" }
 
     assert_response :success
-    assert_select "h1", text: /Expenses/
+    assert_select "h1", "Your Transactions"
   end
 
   test "view income only" do
-    get transactions_income_path
+    get transactions_path, params: { filter: "income" }
 
     assert_response :success
-    assert_select "h1", text: /Income/
+    assert_select "h1", "Your Transactions"
   end
 
   test "navigate calendar with month parameters" do

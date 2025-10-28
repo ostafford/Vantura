@@ -2,6 +2,61 @@ class TransactionsController < ApplicationController
   include AccountLoadable
   include DateParseable
 
+  before_action :load_account_for_index, only: [ :index ]
+  before_action :load_account, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_transaction, only: [ :show, :edit, :update, :destroy ]
+
+  def index
+    # Parse date parameters if provided
+    if params[:year].present? && params[:month].present?
+      parse_month_params
+      start_date, end_date = month_date_range
+      @date = Date.new(@year, @month, 1)
+    else
+      # Default to current month if no date params
+      @date = Date.today
+      @year = @date.year
+      @month = @date.month
+      start_date = @date.beginning_of_month
+      end_date = @date.end_of_month
+    end
+
+    # Get filter type from params, default to "all"
+    @filter_type = params[:filter] || "all"
+
+    # Filter transactions
+    @transactions = filter_transactions_by_type(@filter_type)
+                      .where(transaction_date: start_date..end_date)
+                      .order(transaction_date: :desc)
+
+    # Calculate totals and stats using service object
+    stats = TransactionStatsCalculator.call(@account, start_date, end_date)
+    @expense_total = stats[:expense_total]
+    @income_total = stats[:income_total]
+    @expense_count = stats[:expense_count]
+    @income_count = stats[:income_count]
+    @net_cash_flow = stats[:net_cash_flow]
+    @transaction_count = stats[:transaction_count]
+    @top_category = stats[:top_category]
+    @top_category_amount = stats[:top_category_amount]
+  end
+
+  def show
+    # Transaction is already loaded by before_action
+  end
+
+  def edit
+    # Transaction is already loaded by before_action
+  end
+
+  def update
+    if @transaction.update(transaction_params)
+      redirect_to @transaction, notice: "Transaction updated successfully."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def create
     return unless load_account
 
@@ -35,6 +90,12 @@ class TransactionsController < ApplicationController
           @income_count = stats[:income_count]
           @income_total = stats[:income_total]
           @end_of_month_balance = stats[:end_of_month_balance]
+
+          # Calculate upcoming recurring transactions for projection card
+          upcoming_recurring = get_upcoming_recurring_transactions
+          @upcoming_recurring_expenses = upcoming_recurring[:expenses]
+          @upcoming_recurring_income = upcoming_recurring[:income]
+          @upcoming_recurring_total = upcoming_recurring[:expense_total] + upcoming_recurring[:income_total]
         end
         format.html { redirect_back(fallback_location: root_path, notice: "#{type_name.capitalize} transaction added! Check the calendar to see its impact.") }
       end
@@ -46,76 +107,7 @@ class TransactionsController < ApplicationController
     end
   end
 
-  def all
-    return unless load_account
-
-    # Parse date parameters
-    parse_month_params
-
-    # Get filter type from params, default to "all"
-    @filter_type = params[:filter] || "all"
-
-    # Filter transactions for this month
-    start_date, end_date = month_date_range
-
-    @transactions = @account.transactions
-                            .where(transaction_date: start_date..end_date)
-
-    # Apply filter based on type
-    case @filter_type
-    when "expenses"
-      @transactions = @transactions.expenses
-    when "income"
-      @transactions = @transactions.income
-    when "hypothetical"
-      @transactions = @transactions.hypothetical
-      # "all" - no additional filter needed
-    end
-
-    @transactions = @transactions.order(transaction_date: :desc)
-
-    # Calculate totals
-    @expense_total = @account.transactions.expenses
-                             .where(transaction_date: start_date..end_date)
-                             .sum(:amount).abs
-    @income_total = @account.transactions.income
-                            .where(transaction_date: start_date..end_date)
-                            .sum(:amount)
-  end
-
-  def expenses
-    return unless load_account
-
-    # Parse date parameters
-    parse_month_params
-
-    # Filter transactions for this month
-    start_date, end_date = month_date_range
-
-    @transactions = @account.transactions.expenses
-                            .where(transaction_date: start_date..end_date)
-                            .order(transaction_date: :desc)
-    @total_amount = @transactions.sum(:amount).abs
-  end
-
-  def income
-    return unless load_account
-
-    # Parse date parameters
-    parse_month_params
-
-    # Filter transactions for this month
-    start_date, end_date = month_date_range
-
-    @transactions = @account.transactions.income
-                            .where(transaction_date: start_date..end_date)
-                            .order(transaction_date: :desc)
-    @total_amount = @transactions.sum(:amount)
-  end
-
   def destroy
-    @transaction = Transaction.find(params[:id])
-
     if @transaction.is_hypothetical
       @transaction.destroy
       redirect_back(fallback_location: root_path, notice: "Transaction removed.")
@@ -126,7 +118,51 @@ class TransactionsController < ApplicationController
 
   private
 
-  def transaction_params
-    params.require(:transaction).permit(:description, :amount, :transaction_date, :category)
+  def load_account_for_index
+    load_account_or_return
+    nil unless @account
   end
+
+  def set_transaction
+    @transaction = @account.transactions.find(params[:id])
+  end
+
+  def filter_transactions_by_type(type)
+    case type
+    when "expenses"
+      @account.transactions.expenses
+    when "income"
+      @account.transactions.income
+    when "hypothetical"
+      @account.transactions.hypothetical
+    else
+      @account.transactions
+    end
+  end
+
+  def transaction_params
+    params.require(:transaction).permit(:description, :amount, :transaction_date, :category, :merchant)
+  end
+
+  def get_upcoming_recurring_transactions
+    # Get active recurring transactions that will occur before end of month
+    end_of_month = Date.today.end_of_month
+
+    upcoming = @account.recurring_transactions
+                       .active
+                       .where("next_occurrence_date <= ?", end_of_month)
+                       .order(:next_occurrence_date)
+
+    # Separate by type
+    expenses = upcoming.select { |r| r.transaction_type_expense? }
+    income = upcoming.select { |r| r.transaction_type_income? }
+
+    {
+      expenses: expenses,
+      income: income,
+      expense_total: expenses.sum { |r| r.amount.abs },
+      income_total: income.sum { |r| r.amount }
+    }
+  end
+  private :get_upcoming_recurring_transactions
 end

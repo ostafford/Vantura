@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_23_004438) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_24_090002) do
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -22,6 +22,35 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_23_004438) do
     t.integer "user_id"
     t.index ["up_account_id"], name: "index_accounts_on_up_account_id", unique: true
     t.index ["user_id"], name: "index_accounts_on_user_id"
+  end
+
+  create_table "filters", force: :cascade do |t|
+    t.string "name"
+    t.text "filter_params"
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "filter_types"
+    t.text "date_range"
+    t.index ["user_id", "created_at"], name: "index_filters_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_filters_on_user_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "notification_type", null: false
+    t.string "title", null: false
+    t.text "message", null: false
+    t.datetime "read_at"
+    t.text "metadata"
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["is_active", "created_at"], name: "index_notifications_on_is_active_and_created_at"
+    t.index ["user_id", "created_at"], name: "index_notifications_on_user_id_and_created_at"
+    t.index ["user_id", "notification_type"], name: "index_notifications_on_user_id_and_notification_type"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "recurring_transactions", force: :cascade do |t|
@@ -71,8 +100,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_23_004438) do
     t.index ["account_id", "status"], name: "idx_transactions_account_status"
     t.index ["account_id", "transaction_date"], name: "idx_transactions_account_date"
     t.index ["account_id"], name: "index_transactions_on_account_id"
+    t.index ["category"], name: "index_transactions_on_category"
+    t.index ["merchant", "category"], name: "index_transactions_on_merchant_and_category"
+    t.index ["merchant"], name: "index_transactions_on_merchant"
     t.index ["recurring_transaction_id", "transaction_date"], name: "idx_transactions_recurring_date"
     t.index ["recurring_transaction_id"], name: "index_transactions_on_recurring_transaction_id"
+    t.index ["status", "transaction_date"], name: "index_transactions_on_status_and_date"
     t.index ["transaction_date", "amount"], name: "idx_transactions_date_amount"
     t.index ["transaction_date"], name: "idx_transactions_date"
   end
@@ -87,6 +120,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_23_004438) do
   end
 
   add_foreign_key "accounts", "users"
+  add_foreign_key "filters", "users"
+  add_foreign_key "notifications", "users"
   add_foreign_key "recurring_transactions", "accounts"
   add_foreign_key "recurring_transactions", "transactions", column: "template_transaction_id"
   add_foreign_key "sessions", "users"

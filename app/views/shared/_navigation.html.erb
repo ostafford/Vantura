@@ -17,13 +17,26 @@
           <%= nav_link_to "Dashboard", root_path, icon: "home" %>
           <%= nav_link_to "Calendar", calendar_path, icon: "calendar" %>
           <%= nav_link_to "Trends", trends_path, icon: "chart" %>
-          <%= nav_link_to "Transactions", transactions_all_path, icon: "list" %>
+          <%= nav_link_to "Transactions", transactions_path, icon: "list" %>
           <%= nav_link_to "Recurring", recurring_transactions_path, icon: "refresh" %>
         </div>
       </div>
 
       <!-- Right Side Actions -->
       <div class="flex items-center gap-3">
+        <!-- Sync Button (if account exists) -->
+        <% if Current.user&.accounts&.any? %>
+          <%= button_to sync_path, method: :post, 
+              class: "inline-flex items-center px-3 py-2 text-sm bg-primary-700 text-white rounded-lg hover:bg-primary-900 transition-all shadow-sm font-medium", 
+              data: { controller: "sync", action: "submit->sync#submit", disable_with: "Syncing..." },
+              title: "Sync with Up Bank" do %>
+            <svg class="w-5 h-5 mr-2" data-sync-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <span>Sync</span>
+          <% end %>
+        <% end %>
+        
         <%= render 'shared/theme_toggle' %>
         <%= render 'shared/settings_button' %>
         
@@ -48,7 +61,7 @@
     <%= mobile_nav_link_to root_path, icon: "home", label: "Home" %>
     <%= mobile_nav_link_to calendar_path, icon: "calendar", label: "Calendar" %>
     <%= mobile_nav_link_to trends_path, icon: "chart", label: "Trends" %>
-    <%= mobile_nav_link_to transactions_all_path, icon: "list", label: "All" %>
+    <%= mobile_nav_link_to transactions_path, icon: "list", label: "All" %>
     <%= mobile_nav_link_to settings_path, icon: "settings", label: "Settings" %>
   </div>
 </nav>

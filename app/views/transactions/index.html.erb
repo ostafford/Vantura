@@ -2,33 +2,80 @@
 
 <div>
   <!-- Header -->
-  <%= render 'shared/page_header_simple', title: "All Transactions", subtitle: "View and manage all your transactions" do %>
-    <div class="flex gap-3">
+  <%= render 'shared/page_header_simple', title: "All Transactions", subtitle: "View and manage all your transactions" %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <% if @account %>
+      <!-- Bento Grid Layout for Transaction Summary -->
+      <div class="bento-grid mb-6">
+        <!-- Hero Card (2x2) -->
+        <%= render 'shared/bento_cards/hero_card',
+            title: "Your Transactions",
+            subtitle: "#{@filter_type.humanize} for #{@date.strftime('%B %Y')}",
+            description: "Browse, filter, and analyze all your financial transactions. View income, expenses, and detailed breakdowns by category, merchant, and date. Easily track your spending patterns and financial activity.",
+            icon: 'chart',
+            size: 'bento-span-2 bento-row-span-2',
+            color: 'blue' do %>
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-blue-50 text-sm"><%= number_with_delimiter(@transaction_count) %> total transactions</p>
+            <p class="text-blue-100 text-xs">
+              Income: <%= number_to_currency(@income_total) %> • Expenses: <%= number_to_currency(@expense_total) %>
+            </p>
+          </div>
+          <p class="text-blue-50 text-xs">Quick Filters: Current Week • 3 Months • 6 Months • Custom Range (Coming Soon)</p>
+        <% end %>
       <!-- Expenses Card -->
-      <div class="bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 shadow-sm">
-        <p class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Expenses</p>
-        <p class="text-xl font-bold text-red-600 dark:text-red-400">
-          $<%= number_with_precision(@expense_total, precision: 2) %>
-        </p>
-      </div>
+      <%= render 'shared/bento_cards/stat_card',
+          title: "Expenses",
+          value: "$#{number_with_precision(@expense_total, precision: 0)}",
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions.expenses.count} transactions</span>".html_safe,
+          detail: @date.strftime('%B %Y'),
+          icon: 'arrow-down',
+          color: 'expense',
+          size: 'bento-span-1 bento-row-span-1' %>
       
       <!-- Income Card -->
-      <div class="bg-white dark:bg-gray-800 border border-green-200 dark:border-green-800 rounded-lg px-4 py-3 shadow-sm">
-        <p class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Income</p>
-        <p class="text-xl font-bold text-green-600 dark:text-green-400">
-          $<%= number_with_precision(@income_total, precision: 2) %>
-        </p>
-      </div>
+      <%= render 'shared/bento_cards/stat_card',
+          title: "Income",
+          value: "$#{number_with_precision(@income_total, precision: 0)}",
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions.income.count} transactions</span>".html_safe,
+          detail: @date.strftime('%B %Y'),
+          icon: 'arrow-up',
+          color: 'income',
+          size: 'bento-span-1 bento-row-span-1' %>
       
       <!-- Transaction Count -->
-      <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-3 flex items-center">
-        <div class="text-center">
-          <p class="text-xl font-bold text-gray-900 dark:text-white"><%= @transactions.count %></p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">transactions</p>
-        </div>
-      </div>
+      <%= render 'shared/bento_cards/stat_card',
+          title: "Total Transactions",
+          value: @transactions.count.to_s,
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@filter_type.humanize}</span>".html_safe,
+          detail: "Showing #{@date.strftime('%B %Y')}",
+          icon: 'chart',
+          color: 'blue',
+          size: 'bento-span-1 bento-row-span-1' %>
+      
+      <!-- Net Cash Flow -->
+      <%= render 'shared/bento_cards/stat_card',
+          title: "Net Cash Flow",
+          value: "#{@net_cash_flow >= 0 ? '+' : ''}$#{number_with_precision(@net_cash_flow.abs, precision: 0)}",
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@net_cash_flow >= 0 ? 'Positive' : 'Negative'}</span>".html_safe,
+          detail: "Income - Expenses",
+          icon: @net_cash_flow >= 0 ? 'arrow-up' : 'arrow-down',
+          color: @net_cash_flow >= 0 ? 'income' : 'expense',
+          size: 'bento-span-1 bento-row-span-1' %>
+      
+      <!-- Top Category -->
+      <%= render 'shared/bento_cards/stat_card',
+          title: "Top Category",
+          value: @top_category,
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{number_to_currency(@top_category_amount.abs)}</span>".html_safe,
+          detail: @date.strftime('%B %Y'),
+          icon: 'tag',
+          color: 'blue',
+          size: 'bento-span-1 bento-row-span-1' %>
     </div>
-  <% end %>
+    <% end %>
+  </div>
 
   <!-- Month Navigation & Filter -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

@@ -135,7 +135,7 @@ class DashboardStatsCalculatorTest < ActiveSupport::TestCase
     assert_equal 0, stats[:income_total]
   end
 
-  test "should return recent transactions limited to 10" do
+  test "should return all transactions for the month" do
     # Create 15 transactions
     15.times do |i|
       @account.transactions.create!(
@@ -148,7 +148,8 @@ class DashboardStatsCalculatorTest < ActiveSupport::TestCase
     end
 
     stats = DashboardStatsCalculator.call(@account, @today)
-    assert_equal 10, stats[:recent_transactions].length
+    # Note: Recent transactions are no longer limited to allow week-based pagination
+    assert_equal 15, stats[:recent_transactions].length
   end
 
   test "should order recent transactions by date descending" do
@@ -202,16 +203,22 @@ class DashboardStatsCalculatorTest < ActiveSupport::TestCase
   test "should calculate end of month balance" do
     @account.update!(current_balance: 1000.0)
 
-    # Add future transaction
-    @account.transactions.create!(
+    # Add future transaction within current month
+    future_date = [ @today + 5.days, @today.end_of_month ].min # Ensure it's within the month
+    transaction = @account.transactions.create!(
       description: "Future Expense",
       amount: -200.0,
-      transaction_date: @today + 5.days,
+      transaction_date: future_date,
       status: "HYPOTHETICAL",
       is_hypothetical: true
     )
 
+    # Ensure transaction was created
+    assert transaction.persisted?
+
     stats = DashboardStatsCalculator.call(@account, @today)
+    # The balance should be current_balance + sum of future transactions
+    # For an expense (-200), adding it means 1000 + (-200) = 800
     assert_equal 800.0, stats[:end_of_month_balance]
   end
 

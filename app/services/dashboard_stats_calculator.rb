@@ -16,7 +16,9 @@ class DashboardStatsCalculator < ApplicationService
       expense_total: expense_total,
       income_count: income_count,
       income_total: income_total,
-      end_of_month_balance: end_of_month_balance
+      end_of_month_balance: end_of_month_balance,
+      top_expense_merchants: top_expense_merchants,
+      top_income_merchants: top_income_merchants
     }
   end
 
@@ -31,7 +33,7 @@ class DashboardStatsCalculator < ApplicationService
                                      .where(transaction_date: month_range)
                                      .includes(:recurring_transaction) # Prevent N+1 queries
                                      .order(transaction_date: :desc, id: :desc)
-                                     .limit(10)
+    # Removed .limit(10) to allow week-based pagination to show all transactions
   end
 
   def expense_count
@@ -79,5 +81,25 @@ class DashboardStatsCalculator < ApplicationService
       count: stats["income"]&.count || 0,
       total: stats["income"]&.total || 0
     }
+  end
+
+  def top_expense_merchants
+    @top_expense_merchants ||= Transaction.top_merchants_by_type(
+      "expense",
+      account: @account,
+      start_date: month_range.first,
+      end_date: month_range.last,
+      limit: 3
+    )
+  end
+
+  def top_income_merchants
+    @top_income_merchants ||= Transaction.top_merchants_by_type(
+      "income",
+      account: @account,
+      start_date: month_range.first,
+      end_date: month_range.last,
+      limit: 3
+    )
   end
 end

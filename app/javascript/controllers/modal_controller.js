@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["modal", "form", "drawer", "content"]
   static values = {
-    type: String // "transaction" or "recurring"
+    type: String // "transaction", "recurring", or "filter"
   }
 
   connect() {

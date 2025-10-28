@@ -35,21 +35,108 @@
   end
 %>
 
-<div class="<%= size %> bg-gradient-to-r from-cream-100 via-white to-cream-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-900/30" <%= "id=\"#{element_id}\"" if element_id.present? %>>
-  <div class="flex items-center justify-between h-full">
-    <div class="flex-1">
-      <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1"><%= title %></p>
-      <p class="text-3xl font-bold <%= value_color %>"><%= value %></p>
-    </div>
-    <div class="text-right">
-      <div class="inline-flex items-center px-3 py-1 rounded-full <%= badge_bg %> <%= badge_text %>">
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <%= icon_path.html_safe %>
-        </svg>
-        <span class="font-semibold text-sm">
-          <%= change_is_positive ? '+' : '' %><%= change_display %>
-        </span>
+<%
+  # Additional details for enhanced card
+  days_remaining = local_assigns.fetch(:days_remaining, 0)
+  income_total = local_assigns.fetch(:income_total, 0)
+  expense_total = local_assigns.fetch(:expense_total, 0)
+  current_day = local_assigns.fetch(:current_day, 1)
+  upcoming_recurring_expenses = local_assigns.fetch(:upcoming_recurring_expenses, [])
+  upcoming_recurring_income = local_assigns.fetch(:upcoming_recurring_income, [])
+  upcoming_recurring_total = local_assigns.fetch(:upcoming_recurring_total, 0)
+  
+  # Calculate recurring totals
+  recurring_expense_total = upcoming_recurring_expenses.sum { |r| r.amount.abs }
+  recurring_income_total = upcoming_recurring_income.sum { |r| r.amount }
+  total_recurring_items = upcoming_recurring_expenses.count + upcoming_recurring_income.count
+  
+  # Show additional details if provided
+  show_details = days_remaining > 0
+%>
+
+<div class="projection-card <%= size %> bg-gradient-to-r from-cream-100 via-white to-cream-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-900/30" <%= "id=\"#{element_id}\"" if element_id.present? %>>
+  <div class="projection-card-container flex flex-col h-full">
+    <!-- Top Row: Title, Value, and Badge -->
+    <div class="flex items-center justify-between mb-3">
+      <!-- Left: Title and Value -->
+      <div class="projection-card-left flex-1">
+        <p class="projection-card-title text-sm font-medium text-gray-600 dark:text-gray-400 mb-1"><%= title %></p>
+        <p class="projection-card-value text-3xl font-bold <%= value_color %>"><%= value %></p>
+      </div>
+      <!-- Right: Badge with change indicator -->
+      <div class="projection-card-right text-right">
+        <div class="projection-card-badge inline-flex items-center px-3 py-1 rounded-full <%= badge_bg %> <%= badge_text %>">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <%= icon_path.html_safe %>
+          </svg>
+          <span class="projection-card-change font-semibold text-sm">
+            <%= change_is_positive ? '+' : '' %><%= change_display %>
+          </span>
+        </div>
       </div>
     </div>
+    
+    <% if show_details %>
+      <!-- Bottom Row: Upcoming Recurring Transactions -->
+      <div class="projection-card-details border-t border-gray-200 dark:border-gray-700 pt-3">
+        <div class="flex items-center justify-between text-xs mb-2">
+          <div class="flex items-center gap-4">
+            <span class="text-gray-600 dark:text-gray-400">
+              <span class="font-semibold text-gray-700 dark:text-gray-300"><%= days_remaining %></span> days remaining
+            </span>
+            <% if total_recurring_items > 0 %>
+              <span class="text-gray-600 dark:text-gray-400">
+                <span class="font-semibold text-gray-700 dark:text-gray-300"><%= total_recurring_items %></span> recurring <%= total_recurring_items == 1 ? 'item' : 'items' %> scheduled
+              </span>
+            <% end %>
+          </div>
+          <% if recurring_expense_total > 0 || recurring_income_total > 0 %>
+            <span class="text-gray-600 dark:text-gray-400">
+              Net: <span class="font-semibold <%= (recurring_income_total - recurring_expense_total) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-expense-600 dark:text-expense-400' %>">
+                $<%= number_with_precision(recurring_income_total - recurring_expense_total, precision: 2) %>
+              </span>
+            </span>
+          <% end %>
+        </div>
+        
+        <% if upcoming_recurring_expenses.any? || upcoming_recurring_income.any? %>
+          <div class="flex items-start gap-2 text-xs">
+            <!-- Upcoming Expenses -->
+            <% if upcoming_recurring_expenses.any? %>
+              <div class="flex-1">
+                <div class="flex items-center gap-1 mb-1">
+                  <span class="text-expense-600 dark:text-expense-400 font-semibold">↓ Upcoming Expenses:</span>
+                  <span class="text-expense-600 dark:text-expense-400 font-bold">$<%= number_with_precision(recurring_expense_total, precision: 2) %></span>
+                </div>
+                <% upcoming_recurring_expenses.first(2).each do |recurring| %>
+                  <div class="text-gray-500 dark:text-gray-400 truncate">
+                    <%= recurring.description %> <span class="font-semibold text-gray-700 dark:text-gray-300">($<%= number_with_precision(recurring.amount.abs, precision: 2) %>)</span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+            
+            <!-- Upcoming Income -->
+            <% if upcoming_recurring_income.any? %>
+              <div class="flex-1">
+                <div class="flex items-center gap-1 mb-1">
+                  <span class="text-income-600 dark:text-income-400 font-semibold">↑ Upcoming Income:</span>
+                  <span class="text-income-600 dark:text-income-400 font-bold">$<%= number_with_precision(recurring_income_total, precision: 2) %></span>
+                </div>
+                <% upcoming_recurring_income.first(2).each do |recurring| %>
+                  <div class="text-gray-500 dark:text-gray-400 truncate">
+                    <%= recurring.description %> <span class="font-semibold text-gray-700 dark:text-gray-300">($<%= number_with_precision(recurring.amount, precision: 2) %>)</span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-xs text-gray-400 dark:text-gray-500 italic">
+            No recurring transactions scheduled this month
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>

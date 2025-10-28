@@ -1,6 +1,14 @@
 <%
   # Calculate net cash flow for the month (Income - Expenses)
   monthly_net = income_total - expense_total
+  
+  # Calculate days remaining and days elapsed
+  days_in_month = current_date.end_of_month.day
+  current_day = current_date.day
+  days_remaining = days_in_month - current_day
+  
+  # Calculate projected daily change
+  daily_rate = days_remaining > 0 ? (monthly_net / days_remaining) : 0
 %>
 <%= render 'shared/bento_cards/projection_card',
     id: 'projection_card',
@@ -8,5 +16,12 @@
     value: "$#{number_with_precision(end_of_month_balance, precision: 2)}",
     balance: end_of_month_balance,
     change: monthly_net,
-    size: 'bento-span-2 bento-row-span-1' %>
+    size: 'bento-span-2 bento-row-span-1',
+    income_total: income_total,
+    expense_total: expense_total,
+    days_remaining: days_remaining,
+    current_day: current_day,
+    upcoming_recurring_expenses: upcoming_recurring_expenses,
+    upcoming_recurring_income: upcoming_recurring_income,
+    upcoming_recurring_total: upcoming_recurring_total %>
 

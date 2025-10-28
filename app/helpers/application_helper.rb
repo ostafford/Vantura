@@ -1,23 +1,31 @@
 module ApplicationHelper
   # Render transaction status badges (Hypothetical, Pending, Settled)
-  def transaction_status_badge(transaction)
+  def transaction_status_badge(transaction, compact: false)
     if transaction.is_hypothetical
       content_tag :span, "Hypothetical",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300"
+        class: compact ?
+          "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300" :
+          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300"
     elsif transaction.status == "HELD"
       content_tag :span, "Pending",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300"
+        class: compact ?
+          "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300" :
+          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300"
     else
       content_tag :span, "Settled",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 dark:bg-success-900/30 text-success-800 dark:text-success-300"
+        class: compact ?
+          "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300" :
+          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 dark:bg-success-900/30 text-success-800 dark:text-success-300"
     end
   end
 
   # Render recurring badge if transaction is recurring
-  def transaction_recurring_badge(transaction)
+  def transaction_recurring_badge(transaction, compact: false)
     return unless transaction.recurring?
 
-    content_tag :span, class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300" do
+    content_tag :span, class: compact ?
+      "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300" :
+      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300" do
       concat content_tag(:svg, class: "w-3 h-3 mr-1", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
         tag.path "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
       end
@@ -33,6 +41,16 @@ module ApplicationHelper
 
     content_tag :span, class: color_class do
       "#{sign}$#{number_with_precision(amount.abs, precision: 2)}"
+    end
+  end
+
+  # Format balance with green for positive, red for negative
+  def formatted_balance(balance)
+    color_class = balance >= 0 ? "text-success-300 dark:text-success-400" : "text-red-300 dark:text-red-400"
+    sign = balance >= 0 ? "" : "-"
+
+    content_tag :span, class: "text-3xl font-bold #{color_class} drop-shadow-md" do
+      "#{sign}$#{number_to_currency(balance, unit: '').strip}"
     end
   end
 

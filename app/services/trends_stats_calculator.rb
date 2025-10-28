@@ -122,18 +122,18 @@ class TrendsStatsCalculator < ApplicationService
   # Top merchant by total spend (current month, expenses only)
   def top_merchant
     @top_merchant ||= begin
-      result = @account.transactions
-        .real
-        .expenses
-        .where(transaction_date: @current_month_start..@current_month_end)
-        .where.not(merchant: [ nil, "" ])
-        .group(:merchant)
-        .sum(:amount)
-        .transform_values(&:abs)
-        .max_by { |_, amount| amount }
+      # Use shared query helper to get top merchants
+      merchants = Transaction.top_merchants_by_type(
+        "expense",
+        account: @account,
+        start_date: @current_month_start,
+        end_date: @current_month_end,
+        limit: 1
+      )
 
-      if result
-        { name: result[0], amount: result[1] }
+      if merchants.any?
+        merchant = merchants.first
+        { name: merchant[:merchant] || "No transactions", amount: merchant[:total] || 0.0 }
       else
         { name: "No transactions", amount: 0.0 }
       end

@@ -1,0 +1,44 @@
+<%
+  # Determine if this is expense or income
+  is_expense = local_assigns.fetch(:type) == 'expense'
+  
+  # Set variables based on type
+  total = is_expense ? expense_total : income_total
+  count = is_expense ? expense_count : income_count
+  top_merchants = is_expense ? top_expense_merchants : top_income_merchants
+  filter = is_expense ? 'expenses' : 'income'
+  color = is_expense ? 'expense' : 'income'
+  icon = is_expense ? 'arrow-down' : 'arrow-up'
+  card_id = is_expense ? 'expenses_card' : 'income_card'
+  title = is_expense ? 'Expenses' : 'Income'
+%>
+
+<%= render 'shared/bento_cards/stat_card',
+    id: card_id,
+    title: title,
+    value: "$#{number_with_precision(total, precision: 2)}",
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{count}</span> transactions".html_safe,
+    detail: local_assigns.fetch(:period, 'month') == 'week' ? "This week" : "This month",
+    icon: icon,
+    color: color,
+    size: 'bento-span-1 bento-row-span-2',
+    link: transactions_path(year: current_date.year, month: current_date.month, filter: filter) do %>
+  <div class="stat-card-merchants-list space-y-2">
+    <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Top Merchants</p>
+    <% if top_merchants.present? %>
+      <% top_merchants.first(3).each do |merchant| %>
+        <div class="stat-card-merchant-item flex items-center justify-between <%= merchant[:hypothetical] ? 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800' : '' %> rounded-lg px-2 py-1">
+          <span class="stat-card-merchant-name text-xs font-medium <%= merchant[:hypothetical] ? 'text-purple-700 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300' %> truncate max-w-[60%]">
+            <%= merchant[:merchant] || 'Unknown' %>
+          </span>
+          <span class="stat-card-merchant-value text-xs font-semibold <%= merchant[:hypothetical] ? 'text-purple-600 dark:text-purple-400' : (is_expense ? 'text-expense-600 dark:text-expense-400' : 'text-income-600 dark:text-income-400') %> whitespace-nowrap ml-2">
+            $<%= number_with_precision(merchant[:total], precision: 2) %>
+          </span>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-xs text-gray-400 dark:text-gray-500 italic">No merchant data available</p>
+    <% end %>
+  </div>
+<% end %>
+

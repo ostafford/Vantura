@@ -1,5 +1,5 @@
 <!-- Week View Grid -->
-<div class="bg-gradient-to-br from-neutral-light to-white dark:from-dark-bg-elevated dark:to-dark-bg rounded-lg shadow-sm border-2 border-success/20 dark:border-dark-bg-elevated/50 overflow-hidden">
+<div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 overflow-hidden">
   <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700">
     <% @week_days.each do |day| %>
       <% transactions = day_transactions(day[:date]) %>
@@ -18,8 +18,9 @@
         # Add subtle border for today
         today_class = day[:is_today] ? 'border-2 border-primary-700/40 dark:border-primary-500/40' : ''
         
-        # Fade out-of-month days
-        opacity_class = !day[:is_current_month] ? 'opacity-60' : ''
+        # Fade weekend days (Saturday and Sunday)
+        day_of_week = day[:date].wday
+        opacity_class = (day_of_week == 0 || day_of_week == 6) ? 'opacity-60' : ''
       %>
       
       <div class="<%= bg_class %> <%= today_class %> <%= opacity_class %> hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all">
@@ -77,25 +78,8 @@
                     
                     <!-- Status badges (compact) -->
                     <div class="flex gap-1 mt-1 flex-wrap">
-                      <% if transaction.is_hypothetical %>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
-                          Hypothetical
-                        </span>
-                      <% elsif transaction.status == "HELD" %>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
-                          Pending
-                        </span>
-                      <% else %>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-                          Settled
-                        </span>
-                      <% end %>
-                      
-                      <% if transaction.recurring? %>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
-                          Recurring
-                        </span>
-                      <% end %>
+                      <%= transaction_status_badge(transaction, compact: true) %>
+                      <%= transaction_recurring_badge(transaction, compact: true) %>
                     </div>
                     
                     <!-- Action button (shows on hover) -->

@@ -24,43 +24,48 @@
     'calendar' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />'
   }
   
+  # Add icon mapping for month progress
+  if icon == 'calendar'
+    icon_map['calendar'] = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />'
+  end
+  
   icon_path = icon_map[icon] || icon_map['chart']
 %>
 
-<div class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-lg p-8 text-white relative overflow-hidden">
+<div class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-lg px-8 pt-8 pb-6 text-white relative overflow-hidden">
   <!-- Decorative elements -->
   <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
   <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
   
-  <div class="relative z-10">
-    <!-- Icon -->
-    <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-6 backdrop-blur-sm">
-      <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <%= icon_path.html_safe %>
-      </svg>
+  <div class="relative z-10 flex flex-col h-full space-y-3">
+    <!-- Section 1: Header Row (Icon, Title, Subtitle) -->
+    <div class="hero-header flex items-center gap-4">
+      <div class="hero-icon inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-xl backdrop-blur-sm flex-shrink-0">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= icon_path.html_safe %>
+        </svg>
+      </div>
+      <h2 class="hero-title text-3xl font-bold flex-1"><%= title %></h2>
+      <% if subtitle.present? %>
+        <div class="hero-subtitle ml-auto"><%= subtitle %></div>
+      <% end %>
     </div>
     
-    <!-- Title -->
-    <h2 class="text-3xl font-bold mb-3 drop-shadow-lg"><%= title %></h2>
-    
-    <!-- Subtitle -->
-    <% if subtitle.present? %>
-      <p class="text-white/90 text-lg mb-6 drop-shadow-md">
-        <%= subtitle %>
-      </p>
-    <% end %>
-    
-    <!-- Description -->
-    <% if description.present? %>
-      <div class="mt-8 pt-6 border-t border-white/20">
-        <p class="text-white/80 text-sm leading-relaxed drop-shadow-sm">
+    <!-- Section 2: Description -->
+    <div class="hero-description flex-1 flex items-center">
+      <% if description.present? %>
+        <p class="text-white/80 text-sm leading-relaxed drop-shadow-sm w-full">
           <%= description %>
         </p>
+      <% end %>
+    </div>
+    
+    <!-- Section 3: Progress/Additional Content -->
+    <% if block_given? %>
+      <div class="hero-content">
+        <%= yield %>
       </div>
     <% end %>
-    
-    <!-- Optional custom content -->
-    <%= yield if block_given? %>
   </div>
 </div>
 

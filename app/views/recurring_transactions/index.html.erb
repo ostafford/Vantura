@@ -2,16 +2,101 @@
 
 <div>
   <!-- Header -->
-  <%= render 'shared/page_header_simple', title: "Manage Recurring Transactions", subtitle: "Manage your recurring transaction patterns" do %>
-    <div class="text-right">
-      <p class="text-sm text-gray-600 dark:text-gray-400">Active Patterns</p>
-      <p class="text-3xl font-bold text-primary-700 dark:text-primary-500">
-        <%= @recurring_transactions.active.count %>
-      </p>
-    </div>
-  <% end %>
+  <%= render 'shared/page_header_simple', title: "Manage Recurring Transactions", subtitle: "Manage your recurring transaction patterns" %>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <% active_recurring = @recurring_transactions.active %>
+    <% total_amount = active_recurring.sum(:amount) %>
+    
+    <!-- Bento Grid Layout for Recurring Transactions Summary -->
+    <div class="bento-grid mb-6">
+      <!-- Hero Card (2x2) -->
+      <%= render 'shared/bento_cards/hero_card',
+          title: "Recurring Patterns",
+          subtitle: "#{active_recurring.count} active patterns",
+          description: "Manage your recurring income and expense patterns with automatic transaction generation. Create recurring transactions from existing transactions, set frequencies (weekly, monthly, etc.), and project your future cash flow. Track income and expense patterns separately for better financial planning.",
+          icon: 'refresh',
+          size: 'bento-span-2 bento-row-span-2',
+          color: 'blue' do %>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-blue-50 text-sm">
+            <%= active_recurring.income_transactions.count %> income • <%= active_recurring.expense_transactions.count %> expense
+          </p>
+          <p class="text-blue-100 text-xs">
+            Week: <%= number_to_currency(@week_income - @week_expenses) %> • Month: <%= number_to_currency(@month_income - @month_expenses) %>
+          </p>
+        </div>
+        <p class="text-blue-50 text-xs">
+          <% if @next_occurrence_date %>
+            Next: <%= truncate(@next_occurrence_desc, length: 30) %> on <%= @next_occurrence_date.strftime('%b %d') %> • <%= number_to_currency(@next_occurrence_amount) %>
+          <% else %>
+            No upcoming occurrences
+          <% end %>
+        </p>
+      <% end %>
+      <!-- This Week - Income -->
+      <%= render 'shared/bento_cards/stat_card',
+          title: "This Week - Income",
+          value: number_to_currency(@week_income),
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>From #{active_recurring.income_transactions.count} patterns</span>".html_safe,
+          detail: "Recurring income",
+          icon: 'arrow-up',
+          color: 'income',
+          size: 'bento-span-1 bento-row-span-1' %>
+      
+      <!-- This Week - Expenses -->
+      <%= render 'shared/bento_cards/stat_card',
+          title: "This Week - Expenses",
+          value: number_to_currency(@week_expenses),
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>From #{active_recurring.expense_transactions.count} patterns</span>".html_safe,
+          detail: "Recurring expenses",
+          icon: 'arrow-down',
+          color: 'expense',
+          size: 'bento-span-1 bento-row-span-1' %>
+      
+      <!-- This Month - Income -->
+      <%= render 'shared/bento_cards/stat_card',
+          title: "This Month - Income",
+          value: number_to_currency(@month_income),
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Recurring patterns</span>".html_safe,
+          detail: "Projected income",
+          icon: 'arrow-up',
+          color: 'income',
+          size: 'bento-span-1 bento-row-span-1' %>
+      
+      <!-- This Month - Expenses -->
+      <%= render 'shared/bento_cards/stat_card',
+          title: "This Month - Expenses",
+          value: number_to_currency(@month_expenses),
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Recurring patterns</span>".html_safe,
+          detail: "Projected expenses",
+          icon: 'arrow-down',
+          color: 'expense',
+          size: 'bento-span-1 bento-row-span-1' %>
+      
+      <!-- Active Patterns Card -->
+      <%= render 'shared/bento_cards/stat_card',
+          title: "Active Patterns",
+          value: active_recurring.count.to_s,
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{active_recurring.income_transactions.count} income</span>".html_safe,
+          detail: "#{active_recurring.expense_transactions.count} expenses",
+          icon: 'refresh',
+          color: 'blue',
+          size: 'bento-span-1 bento-row-span-1' %>
+      
+      <!-- Most Common Frequency Card -->
+      <% frequencies = active_recurring.group(:frequency).count %>
+      <% most_common = frequencies.max_by { |_, count| count }&.first || 'N/A' %>
+      <%= render 'shared/bento_cards/stat_card',
+          title: "Most Common",
+          value: most_common.humanize,
+          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Frequency</span>".html_safe,
+          detail: "#{frequencies[most_common] || 0} patterns",
+          icon: 'chart',
+          color: 'blue',
+          size: 'bento-span-1 bento-row-span-1' %>
+    </div>
+    
     <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-gray-200 dark:border-gray-700">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recurring Patterns</h2>
@@ -45,7 +130,7 @@
           <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No recurring patterns</h3>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Mark transactions as recurring to see them here.</p>
           <div class="mt-4">
-            <%= link_to transactions_all_path, class: "inline-flex items-center px-4 py-2 bg-info-500 text-white rounded-lg hover:bg-info-700 hover:shadow-lg hover:scale-105 transition-all shadow-md" do %>
+            <%= link_to transactions_path, class: "inline-flex items-center px-4 py-2 bg-info-500 text-white rounded-lg hover:bg-info-700 hover:shadow-lg hover:scale-105 transition-all shadow-md" do %>
               Browse Transactions
               <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

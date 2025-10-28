@@ -1,6 +1,6 @@
 <!-- Calendar Grid -->
-<div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-success-500/20 dark:border-gray-700/50 chevron-fix p-1">
-  <table class="w-full">
+<div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 chevron-fix p-1">
+  <table class="w-full border-2 border-primary-700/30 dark:border-primary-500/20 border-collapse">
     <thead>
       <tr class="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <th class="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300 w-32">Monday</th>
@@ -90,7 +90,7 @@
     <% transactions = day_transactions(day[:date]) %>
     <% if transactions.any? && day[:in_current_month] %>
       <% day_id = "day-#{day[:date].to_s}" %>
-      <div id="<%= day_id %>" class="hidden mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div id="<%= day_id %>" class="hidden mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border-1 border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white">
@@ -152,27 +152,4 @@
     <% end %>
   <% end %>
 <% end %>
-
-<!-- Legend -->
-<div class="mt-6 bg-gradient-to-r from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-sm border-2 border-primary-700/20 dark:border-primary-900/30 p-6">
-  <h3 class="font-semibold text-gray-700 dark:text-gray-300 mb-3">How to read the calendar:</h3>
-  <div class="grid grid-cols-3 gap-4 text-sm">
-    <div class="flex items-center gap-2">
-      <div class="w-4 h-4 bg-green-50 border border-green-200 rounded"></div>
-      <span class="text-gray-600 dark:text-gray-400">Green = Income or $0</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <div class="w-4 h-4 bg-red-50 border border-red-200 rounded"></div>
-      <span class="text-gray-600 dark:text-gray-400">Red = Expenses (money out)</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <div class="w-4 h-4 bg-green-100 border border-green-200 rounded"></div>
-      <span class="text-gray-600 dark:text-gray-400">EOW Green = Positive balance</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <div class="w-4 h-4 bg-red-100 border border-red-200 rounded"></div>
-      <span class="text-gray-600 dark:text-gray-400">EOW Red = Negative balance</span>
-    </div>
-  </div>
-</div>
 

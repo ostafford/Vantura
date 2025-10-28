@@ -1,0 +1,50 @@
+<%
+  # Calculate net cash flow (income - expenses)
+  net_cash_flow = income_total - expense_total
+  savings_rate = income_total > 0 ? ((income_total - expense_total) / income_total * 100) : 0
+  
+  # Determine if positive or negative
+  is_positive = net_cash_flow >= 0
+  color = is_positive ? 'blue' : 'expense'
+  icon = is_positive ? 'arrow-up' : 'arrow-down'
+  
+  # Format the net cash flow
+  formatted_net = "$#{number_with_precision(net_cash_flow, precision: 2)}"
+  
+  # Calculate additional insights
+  total_transactions = expense_count + income_count
+  avg_transaction = total_transactions > 0 ? ((income_total - expense_total) / total_transactions) : 0
+%>
+
+<%
+  # For horizontal layout similar to projection card
+  detail_text = is_positive ? "Savings Rate: #{number_with_precision(savings_rate, precision: 1)}%" : "Deficit: $#{number_with_precision(expense_total - income_total, precision: 2)}"
+%>
+<%= render 'shared/bento_cards/stat_card',
+    id: 'net_cash_flow_card',
+    title: "Net Cash Flow",
+    value: formatted_net,
+    subtitle: nil,
+    detail: "#{total_transactions} transactions this month",
+    icon: icon,
+    color: color,
+    size: 'bento-span-2 bento-row-span-1',
+    link: transactions_path(year: current_date.year, month: current_date.month) do %>
+  <div class="flex flex-col gap-2 mt-2">
+    <div class="flex items-center justify-between text-sm">
+      <span class="text-gray-600 dark:text-gray-400">Savings Rate:</span>
+      <span class="font-semibold <%= is_positive ? 'text-green-600 dark:text-green-400' : 'text-expense-600 dark:text-expense-400' %>">
+        <%= number_with_precision(savings_rate, precision: 1) %>%
+      </span>
+    </div>
+    <% if avg_transaction != 0 %>
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-gray-600 dark:text-gray-400">Avg per Transaction:</span>
+        <span class="font-semibold <%= is_positive ? 'text-green-600 dark:text-green-400' : 'text-expense-600 dark:text-expense-400' %>">
+          $<%= number_with_precision(avg_transaction, precision: 2) %>
+        </span>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+

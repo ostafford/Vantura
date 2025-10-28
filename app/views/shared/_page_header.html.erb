@@ -13,9 +13,14 @@
         <% end %>
       </div>
 
-      <% if block_given? %>
-        <%= yield %>
-      <% end %>
+      <div class="flex items-center gap-3">
+        <% if block_given? %>
+          <%= yield %>
+        <% end %>
+        
+        <!-- Quick Actions in Header -->
+        <%= render 'shared/quick_actions' %>
+      </div>
     </div>
   </div>
 </div>

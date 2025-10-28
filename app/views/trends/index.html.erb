@@ -13,6 +13,7 @@
         <%= render 'shared/bento_cards/hero_card',
             title: "Financial Insights",
             subtitle: "#{@current_date.strftime('%B %Y')}",
+            description: "Track your financial trends, compare month-over-month changes, and gain insights into your spending patterns.",
             icon: 'chart',
             size: 'bento-span-2 bento-row-span-2',
             color: 'success' do %>
@@ -27,11 +28,6 @@
             <div class="flex items-center justify-between pb-3 border-b border-white/20">
               <span class="text-white/80 text-sm">Active Recurring</span>
               <span class="text-xl font-semibold text-white"><%= @active_recurring_count %> patterns</span>
-            </div>
-            <div class="pt-2">
-              <p class="text-white/70 text-xs leading-relaxed">
-                Track your financial trends, compare month-over-month changes, and gain insights into your spending patterns.
-              </p>
             </div>
           </div>
         <% end %>
@@ -64,113 +60,144 @@
             size: 'bento-span-1 bento-row-span-1',
             link: recurring_transactions_path %>
 
-        <!-- 4. Month Comparison Card (1x2) - Custom Card -->
-        <div class="bento-span-1 bento-row-span-2 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-900/30">
+        <!-- 4. Month Comparison Card (1x1) - Compact Version -->
+        <div class="bento-span-1 bento-row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-900/30">
           <div class="flex flex-col h-full">
             <!-- Header -->
-            <div class="mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Month Comparison</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                <%= @current_date.strftime('%B') %> vs <%= @current_date.prev_month.strftime('%B') %>
+            <div class="mb-3">
+              <h3 class="text-base font-semibold text-gray-900 dark:text-white">Month Comparison</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <%= @current_date.strftime('%b') %> vs <%= @current_date.prev_month.strftime('%b') %>
               </p>
             </div>
 
-            <!-- Comparison Rows -->
-            <div class="flex-1 space-y-4">
-              <!-- Income Row -->
-              <div class="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex items-center gap-2">
-                  <div class="w-2 h-2 rounded-full bg-success-500 dark:bg-success-300"></div>
-                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Income</span>
+            <!-- Compact Comparison -->
+            <div class="flex-1 space-y-2 text-sm">
+              <!-- Income -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-1.5 h-1.5 rounded-full bg-success-500 dark:bg-success-300"></div>
+                  <span class="text-xs text-gray-600 dark:text-gray-400">Income</span>
                 </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-success-500 dark:text-success-300">
+                <div class="flex items-center gap-1">
+                  <span class="text-xs font-semibold text-success-500 dark:text-success-300">
                     $<%= number_with_precision(@current_month_income, precision: 0) %>
                   </span>
                   <% if @income_change_pct != 0 %>
-                    <%# Income: Up arrow (earning more) = GREEN, Down arrow (earning less) = RED %>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= @income_change_pct > 0 ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' %>">
+                    <span class="text-xs <%= @income_change_pct > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
                       <%= @income_change_pct > 0 ? "↑" : "↓" %><%= @income_change_pct.abs %>%
                     </span>
                   <% end %>
                 </div>
               </div>
 
-              <!-- Expenses Row -->
-              <div class="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
-                <div class="flex items-center gap-2">
-                  <div class="w-2 h-2 rounded-full bg-expense-500 dark:bg-expense-400"></div>
-                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Expenses</span>
+              <!-- Expenses -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-1.5 h-1.5 rounded-full bg-expense-500 dark:bg-expense-400"></div>
+                  <span class="text-xs text-gray-600 dark:text-gray-400">Expenses</span>
                 </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-expense-500 dark:text-expense-400">
+                <div class="flex items-center gap-1">
+                  <span class="text-xs font-semibold text-expense-500 dark:text-expense-400">
                     $<%= number_with_precision(@current_month_expenses, precision: 0) %>
                   </span>
                   <% if @expense_change_pct != 0 %>
-                    <%# Expenses: Up arrow (spending more) = RED, Down arrow (spending less) = GREEN %>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= @expense_change_pct > 0 ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' %>">
+                    <span class="text-xs <%= @expense_change_pct > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
                       <%= @expense_change_pct > 0 ? "↑" : "↓" %><%= @expense_change_pct.abs %>%
                     </span>
                   <% end %>
                 </div>
               </div>
 
-              <!-- Net Row -->
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <div class="w-2 h-2 rounded-full bg-primary-700 dark:bg-primary-500"></div>
-                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Net</span>
+              <!-- Net -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-1.5 h-1.5 rounded-full bg-primary-700 dark:bg-primary-500"></div>
+                  <span class="text-xs font-semibold text-gray-900 dark:text-white">Net</span>
                 </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold <%= @net_savings >= 0 ? 'text-success-500 dark:text-success-300' : 'text-expense-500 dark:text-expense-400' %>">
+                <div class="flex items-center gap-1">
+                  <span class="text-xs font-bold <%= @net_savings >= 0 ? 'text-success-600 dark:text-success-400' : 'text-expense-600 dark:text-expense-400' %>">
                     <%= @net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(@net_savings.abs, precision: 0) %>
                   </span>
                   <% if @net_change_pct != 0 %>
-                    <%# Net: Up arrow (improving savings) = GREEN, Down arrow (declining savings) = RED %>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= @net_change_pct > 0 ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' %>">
+                    <span class="text-xs <%= @net_change_pct > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
                       <%= @net_change_pct > 0 ? "↑" : "↓" %><%= @net_change_pct.abs %>%
                     </span>
                   <% end %>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- 5. Top Merchant Card (1x2) - Expanded -->
+        <div class="bento-span-1 bento-row-span-2 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-900/30">
+          <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top Merchant</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <%= @current_date.strftime('%B %Y') %>
+              </p>
+            </div>
+
+            <!-- Merchant Details -->
+            <div class="flex-1 space-y-4">
+              <!-- Merchant Name -->
+              <div class="pb-3 border-b border-gray-200 dark:border-gray-700">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Merchant Name</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white">
+                  <%= truncate(@top_merchant[:name], length: 25) %>
+                </p>
+              </div>
+
+              <!-- Total Amount -->
+              <div class="pb-3 border-b border-gray-200 dark:border-gray-700">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Spent</p>
+                <p class="text-2xl font-bold text-income-500 dark:text-income-400">
+                  $<%= number_with_precision(@top_merchant[:amount], precision: 2) %>
+                </p>
+              </div>
+
+              <!-- Percentage -->
+              <% total_expenses = @current_month_expenses %>
+              <% if total_expenses > 0 %>
+                <% merchant_pct = ((@top_merchant[:amount] / total_expenses) * 100).round(1) %>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">of Total Expenses</p>
+                  <p class="text-3xl font-bold text-primary-700 dark:text-primary-400">
+                    <%= merchant_pct %>%
+                  </p>
+                </div>
+              <% else %>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">of Total Expenses</p>
+                  <p class="text-3xl font-bold text-primary-700 dark:text-primary-400">
+                    N/A
+                  </p>
+                </div>
+              <% end %>
+            </div>
 
             <!-- Footer -->
             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <p class="text-xs text-gray-500 dark:text-gray-400">
-                Comparing real transactions only
+                Based on real transactions
               </p>
             </div>
           </div>
         </div>
 
-        <!-- 5. Top Merchant Card (1x1) -->
-        <%# Shows total spend across ALL purchases from this merchant (grouped and summed) %>
+        <!-- 6. View Advanced Analysis Card (2x1) - Clickable -->
         <%= render 'shared/bento_cards/stat_card',
-            title: "Top Merchant",
-            value: "$#{number_with_precision(@top_merchant[:amount], precision: 2)}",
-            subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{truncate(@top_merchant[:name], length: 20)}</span>".html_safe,
-            detail: "Total spent this month",
+            title: "Advanced Analysis",
+            value: "View Details",
+            subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Deep insights</span>".html_safe,
+            detail: "Compare merchants, categories, and time periods",
             icon: 'chart',
-            color: 'income',
-            size: 'bento-span-1 bento-row-span-1' %>
-
-        <!-- 6. View Advanced Analysis Card (2x1) - CTA -->
-        <div class="bento-span-2 bento-row-span-1 bg-gradient-to-r from-primary-700/10 to-success-500/10 dark:from-primary-900/20 dark:to-success-700/20 rounded-2xl shadow-lg p-6 border-2 border-primary-700/20 dark:border-primary-500/20">
-          <div class="flex items-center justify-between h-full gap-4">
-            <div class="flex-1">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Advanced Analysis Coming Soon</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Compare merchants, categories, and time periods with custom filters and beautiful visualizations.
-              </p>
-            </div>
-            <div class="inline-flex items-center justify-center w-12 h-12 bg-primary-700/10 dark:bg-primary-500/20 rounded-xl">
-              <svg class="w-6 h-6 text-primary-700 dark:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </div>
-          </div>
-        </div>
+            color: 'blue',
+            size: 'bento-span-2 bento-row-span-1',
+            link: analysis_path %>
 
       </div>
 

@@ -14,16 +14,61 @@ class DashboardController < ApplicationController
 
     # Assign instance variables for view
     @current_date = stats[:current_date]
-    @recent_transactions = stats[:recent_transactions]
+
+    # Fetch all transactions for the current week only (Monday to Sunday)
+    @recent_transactions = get_current_week_transactions
+
     @expense_count = stats[:expense_count]
     @expense_total = stats[:expense_total]
     @income_count = stats[:income_count]
     @income_total = stats[:income_total]
     @end_of_month_balance = stats[:end_of_month_balance]
+    @top_expense_merchants = stats[:top_expense_merchants]
+    @top_income_merchants = stats[:top_income_merchants]
+
+    # Get upcoming recurring transactions for the rest of the month
+    @upcoming_recurring = get_upcoming_recurring_transactions
+    @upcoming_recurring_expenses = @upcoming_recurring[:expenses]
+    @upcoming_recurring_income = @upcoming_recurring[:income]
+    @upcoming_recurring_total = @upcoming_recurring[:expense_total] + @upcoming_recurring[:income_total]
 
     # Check if there's a sync result to display (shown after redirect from sync action)
     @sync_result = session.delete(:sync_result)
   end
+
+  def get_current_week_transactions
+    # Get all transactions for the current week only (Monday to Sunday)
+    week_start = Date.today.beginning_of_week(:monday)
+    week_end = Date.today.end_of_week(:monday)
+
+    @account.transactions
+            .where(transaction_date: week_start..week_end)
+            .includes(:recurring_transaction)
+            .order(transaction_date: :desc, id: :desc)
+  end
+  private :get_current_week_transactions
+
+  def get_upcoming_recurring_transactions
+    # Get active recurring transactions that will occur before end of month
+    end_of_month = Date.today.end_of_month
+
+    upcoming = @account.recurring_transactions
+                       .active
+                       .where("next_occurrence_date <= ?", end_of_month)
+                       .order(:next_occurrence_date)
+
+    # Separate by type
+    expenses = upcoming.select { |r| r.transaction_type_expense? }
+    income = upcoming.select { |r| r.transaction_type_income? }
+
+    {
+      expenses: expenses,
+      income: income,
+      expense_total: expenses.sum { |r| r.amount.abs },
+      income_total: income.sum { |r| r.amount }
+    }
+  end
+  private :get_upcoming_recurring_transactions
 
   def sync
     unless Current.user.up_bank_token.present?

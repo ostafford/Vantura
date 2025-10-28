@@ -168,7 +168,7 @@ class AccountTest < ActiveSupport::TestCase
     )
 
     # Add a future transaction (after today, before end of month)
-    future_date = Date.today + 5.days
+    future_date = [ Date.today + 5.days, Date.today.end_of_month ].min # Ensure it's within the month
     account.transactions.create!(
       description: "Future Income",
       amount: 500.0,
@@ -178,6 +178,7 @@ class AccountTest < ActiveSupport::TestCase
     )
 
     balance = account.end_of_month_balance(Date.today)
+    # Balance should be current_balance + sum of future transactions (1000 + 500 = 1500)
     assert_equal 1500.0, balance
   end
 

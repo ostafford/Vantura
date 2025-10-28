@@ -14,10 +14,10 @@ class TransactionWorkflowTest < ApplicationSystemTestCase
     assert_text "Dashboard"
 
     # Navigate to transactions page directly to test form submission
-    visit transactions_all_path
+    visit transactions_path
 
     # Should be on transactions page
-    assert_text "All Transactions"
+    assert_text "Your Transactions"
   end
 
   test "user can view all transactions" do
@@ -30,12 +30,12 @@ class TransactionWorkflowTest < ApplicationSystemTestCase
   end
 
   test "user can filter expenses" do
-    visit transactions_all_path
+    visit transactions_path
 
     # Click expenses filter (if available)
     # This test assumes filter UI exists
     # Adjust based on your actual UI
-    assert_text "All Transactions"
+    assert_text "Your Transactions"
   end
 
   test "user can navigate to calendar" do

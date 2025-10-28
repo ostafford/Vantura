@@ -1,108 +1,239 @@
 <% content_for :title, "Calendar - Vantura" %>
 
-<div data-modal-type-value="transaction">
+<%# Subscribe to Turbo Streams for real-time calendar updates %>
+<%= turbo_stream_from @account.user %>
+
+<div data-modal-type-value="transaction" data-controller="calendar">
   <!-- Calendar Header -->
-  <%= render 'shared/page_header_simple', title: "Vantura Calendar", subtitle: "View your transactions over time" do %>
-    <div class="flex items-center gap-4 flex-wrap">
-      <% if @account %>
-        <div class="flex gap-6">
-          <div class="text-right">
-            <p class="text-sm text-gray-600 dark:text-gray-400">Current Balance</p>
-            <p class="text-2xl font-bold text-primary-700 dark:text-primary-500">
-              $<%= number_with_precision(@account.current_balance, precision: 2) %>
-            </p>
-          </div>
-          <div class="text-right border-l border-gray-200 dark:border-gray-700 pl-6">
-            <p class="text-sm text-gray-600 dark:text-gray-400">EOM Projection</p>
-            <p class="text-2xl font-bold <%= @end_of_month_balance >= @account.current_balance ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400' %>">
-              $<%= number_with_precision(@end_of_month_balance, precision: 2) %>
-            </p>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+  <%= render 'shared/page_header_simple', title: "Vantura Calendar", subtitle: "View your transactions over time" %>
 
   <% if @account %>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <!-- Turbo Frame for changing content -->
+      <%= turbo_frame_tag "calendar_content" do %>
+        <!-- Bento Grid Layout -->
+        <div class="bento-grid mb-6">
+        <!-- Hero Card (2x2) -->
+        <%= render 'shared/bento_cards/hero_card',
+            title: "Calendar Overview",
+            subtitle: "#{@date.strftime('%B %Y')}",
+            description: "Visualize your transactions and cash flow with interactive calendar views. Switch between week and month views to see your financial activity spread across time. Track hypothetical transactions, recurring patterns, and actual activity all in one place.",
+            icon: 'calendar',
+            size: 'bento-span-2 bento-row-span-2',
+            color: 'blue' do %>
+          <div class="flex flex-col gap-4">
+            <!-- Line 1: Current Balance -->
+            <div class="flex items-center justify-between">
+              <span class="text-blue-50 text-base font-medium">Current Balance:</span>
+              <span class="text-3xl font-bold <%= @account.current_balance >= 0 ? 'text-green-400 dark:text-green-300' : 'text-red-400 dark:text-red-300' %>">
+                <%= number_to_currency(@account.current_balance) %>
+              </span>
+            </div>
+            
+            <!-- Line 2: End of Period -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-blue-50 text-base font-medium"><%= @view == 'week' ? 'End of Week' : 'End of Month' %>:</span>
+                <% 
+                  if @view == 'week'
+                    # Calculate end of week balance
+                    week_end = @date.end_of_week(:monday)
+                    week_transactions = @account.transactions.where(transaction_date: Date.today..week_end)
+                    end_value = @account.current_balance + week_transactions.sum(:amount)
+                    end_date = week_end
+                  else
+                    end_value = @end_of_month_balance
+                    end_date = @date.end_of_month
+                  end
+                %>
+                <span class="text-blue-100 text-xs">
+                  (<%= end_date.strftime('%b %d') %>)
+                </span>
+              </div>
+              <span class="text-3xl font-bold <%= end_value >= 0 ? 'text-green-400 dark:text-green-300' : 'text-red-400 dark:text-red-300' %>">
+                <%= number_to_currency(end_value) %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if @view == 'week' %>
+          <!-- Week View: 4 Vertical Stat Cards -->
+          
+          <!-- 1. Week Expenses - Using Dashboard Partial -->
+          <% week_start = @date.beginning_of_week(:monday) %>
+          <% week_end = @date.end_of_week(:monday) %>
+          <%= render partial: 'dashboard/transaction_type_card',
+              locals: {
+                type: 'expense',
+                expense_total: @week_expenses,
+                expense_count: @account.transactions.where(transaction_date: week_start..week_end).where("amount < 0").count,
+                current_date: @date,
+                top_expense_merchants: @week_top_expense_merchants,
+                period: 'week'
+              } %>
 
-      <!-- View Switcher -->
-      <div class="mb-4 flex items-center justify-between gap-3">
-        <div class="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-1 shadow-sm">
+          <!-- 2. Week Income - Using Dashboard Partial -->
+          <%= render partial: 'dashboard/transaction_type_card',
+              locals: {
+                type: 'income',
+                income_total: @week_income,
+                income_count: @account.transactions.where(transaction_date: week_start..week_end).where("amount > 0").count,
+                current_date: @date,
+                top_income_merchants: @week_top_income_merchants,
+                period: 'week'
+              } %>
+
+          <!-- 3. Week Range -->
+          <% week_start = @date.beginning_of_week(:monday) %>
+          <% week_end = @date.end_of_week(:monday) %>
+          <%= render 'shared/bento_cards/stat_card',
+              title: "Week Range",
+              value: "#{week_start.strftime('%b %d')} - #{week_end.strftime('%b %d')}".html_safe,
+              subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@week_transaction_count} transactions</span>".html_safe,
+              detail: "#{@date.year}",
+              icon: 'calendar',
+              color: 'blue',
+              size: 'bento-span-2 bento-row-span-1' %>
+          
+          <!-- 4. Week Hypothetical -->
+          <% hypothetical_total = @hypothetical_income - @hypothetical_expenses %>
+          <%= render 'shared/bento_cards/stat_card',
+              title: "Hypothetical",
+              value: "#{hypothetical_total < 0 ? '-' : ''}#{number_to_currency(hypothetical_total.abs)}",
+              subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Projected</span>".html_safe,
+              detail: "#{number_to_currency(@hypothetical_income)} income • #{number_to_currency(@hypothetical_expenses)} expenses",
+              icon: 'refresh',
+              color: 'blue',
+              size: 'bento-span-2 bento-row-span-1' %>
+          
+        <% else %>
+          <!-- Month View: 4 Vertical Stat Cards -->
+          
+          <!-- 1. Month Expenses - Using Dashboard Partial -->
+          <%= render partial: 'dashboard/transaction_type_card',
+              locals: {
+                type: 'expense',
+                expense_total: @actual_expenses,
+                expense_count: @account.transactions.where(transaction_date: @start_date..@end_date).where("amount < 0").where(is_hypothetical: false).count,
+                current_date: @date,
+                top_expense_merchants: @month_top_expense_merchants,
+                period: 'month'
+              } %>
+
+          <!-- 2. Month Income - Using Dashboard Partial -->
+          <%= render partial: 'dashboard/transaction_type_card',
+              locals: {
+                type: 'income',
+                income_total: @actual_income,
+                income_count: @account.transactions.where(transaction_date: @start_date..@end_date).where("amount > 0").where(is_hypothetical: false).count,
+                current_date: @date,
+                top_income_merchants: @month_top_income_merchants,
+                period: 'month'
+              } %>
+
+          <!-- 3. Month Progress -->
+          <%= render 'shared/bento_cards/stat_card',
+              title: "Month Progress",
+              value: "#{@progress_pct}%",
+              subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Day #{@month_day} of #{@total_days}</span>".html_safe,
+              detail: @date.strftime('%b %d, %Y'),
+              icon: 'calendar',
+              color: 'blue',
+              size: 'bento-span-2 bento-row-span-1' %>
+          
+          <!-- 4. Month Hypothetical -->
+          <% hypothetical_total = @hypothetical_income - @hypothetical_expenses %>
+          <%= render 'shared/bento_cards/stat_card',
+              title: "Hypothetical",
+              value: "#{hypothetical_total < 0 ? '-' : ''}#{number_to_currency(hypothetical_total.abs)}",
+              subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Projected</span>".html_safe,
+              detail: "#{number_to_currency(@hypothetical_income)} income • #{number_to_currency(@hypothetical_expenses)} expenses",
+              icon: 'refresh',
+              color: 'blue',
+              size: 'bento-span-2 bento-row-span-1' %>
+        <% end %>
+        </div>
+
+        <!-- View Switcher (Inside Turbo Frame, after Bento Grid) -->
+        <div class="mb-4 flex items-center justify-between gap-3">
+          <div class="inline-flex rounded-lg border-2 border-primary-700/30 dark:border-primary-500/20 bg-white dark:bg-gray-800 p-1 shadow-lg">
+            <% 
+              # When switching to week view, use today's date to show current week
+              # When in week view already, stay on the current date
+              week_switch_date = @view == 'week' ? @date : Date.today
+            %>
+            <%= link_to calendar_month_path(@date.year, @date.month, view: 'month'),
+                class: "px-4 py-2 rounded-md text-sm font-medium transition-all #{@view == 'month' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
+                data: { view: 'month', turbo_frame: 'calendar_content' } do %>
+              <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              Month
+            <% end %>
+            <%= link_to calendar_month_path(week_switch_date.year, week_switch_date.month, week_switch_date.day, view: 'week'),
+                class: "px-4 py-2 rounded-md text-sm font-medium transition-all #{@view == 'week' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
+                data: { view: 'week', turbo_frame: 'calendar_content' } do %>
+              <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              Week
+            <% end %>
+          </div>
+          
+          <!-- Today Button -->
           <% 
-            # When switching to week view, use today's date to show current week
-            # When in week view already, stay on the current date
-            week_switch_date = @view == 'week' ? @date : Date.today
+            today = Date.today
+            today_path = @view == 'week' ? 
+              calendar_month_path(today.year, today.month, today.day, view: 'week') : 
+              calendar_month_path(today.year, today.month, view: 'month')
           %>
-          <%= link_to calendar_month_path(@date.year, @date.month, view: 'month'),
-              class: "px-4 py-2 rounded-md text-sm font-medium transition-all #{@view == 'month' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
-              data: { view: 'month' } do %>
-            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          <%= link_to today_path,
+              class: "inline-flex items-center px-4 py-2 border-2 border-primary-700/30 dark:border-primary-500/20 rounded-2xl text-primary-700 dark:text-primary-500 bg-primary-700/5 dark:bg-primary-700/10 hover:bg-primary-700/10 dark:hover:bg-primary-700/20 hover:border-primary-700 dark:hover:border-primary-500 hover:shadow-lg hover:scale-105 transition-all font-medium",
+              title: "Jump to today",
+              data: { turbo_frame: 'calendar_content' } do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            Month
-          <% end %>
-          <%= link_to calendar_month_path(week_switch_date.year, week_switch_date.month, week_switch_date.day, view: 'week'),
-              class: "px-4 py-2 rounded-md text-sm font-medium transition-all #{@view == 'week' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
-              data: { view: 'week' } do %>
-            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            Week
+            Today
           <% end %>
         </div>
-        
-        <!-- Today Button -->
-        <% 
-          today = Date.today
-          today_path = @view == 'week' ? 
-            calendar_month_path(today.year, today.month, today.day, view: 'week') : 
-            calendar_month_path(today.year, today.month, view: 'month')
-        %>
-        <%= link_to today_path,
-            class: "inline-flex items-center px-4 py-2 border-2 border-primary-700/30 dark:border-primary-500/30 rounded-lg text-primary-700 dark:text-primary-500 bg-primary-700/5 dark:bg-primary-700/10 hover:bg-primary-700/10 dark:hover:bg-primary-700/20 hover:border-primary-700 dark:hover:border-primary-500 hover:shadow-md hover:scale-105 transition-all font-medium",
-            title: "Jump to today" do %>
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          Today
-        <% end %>
-      </div>
 
-      <!-- Month/Week Navigation -->
-      <% if @view == 'week' %>
-        <% prev_week_date = @date - 1.week %>
-        <% next_week_date = @date + 1.week %>
-        <%= render 'shared/month_navigation', 
-            title: "Week of #{@date.beginning_of_week(:monday).strftime('%b %d')} - #{@date.end_of_week(:monday).strftime('%b %d, %Y')}",
-            prev_path: calendar_month_path(prev_week_date.year, prev_week_date.month, prev_week_date.day, view: 'week'),
-            next_path: calendar_month_path(next_week_date.year, next_week_date.month, next_week_date.day, view: 'week') do %>
-          <button type="button" data-action="click->modal#open" class="inline-flex items-center px-4 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Add Transaction
-          </button>
+        <!-- Month/Week Navigation (Inside Turbo Frame, after Bento Grid) -->
+        <% if @view == 'week' %>
+          <% prev_week_date = @date - 1.week %>
+          <% next_week_date = @date + 1.week %>
+          <%= render 'shared/month_navigation', 
+              title: "Week of #{@date.beginning_of_week(:monday).strftime('%b %d')} - #{@date.end_of_week(:monday).strftime('%b %d, %Y')}",
+              prev_path: calendar_month_path(prev_week_date.year, prev_week_date.month, prev_week_date.day, view: 'week'),
+              next_path: calendar_month_path(next_week_date.year, next_week_date.month, next_week_date.day, view: 'week') do %>
+            <button type="button" data-action="click->modal#open" class="inline-flex items-center px-4 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add Transaction
+            </button>
+          <% end %>
+        <% else %>
+          <%= render 'shared/month_navigation', 
+              prev_path: calendar_month_path(@date.prev_month.year, @date.prev_month.month, view: 'month'),
+              next_path: calendar_month_path(@date.next_month.year, @date.next_month.month, view: 'month') do %>
+            <button type="button" data-action="click->modal#open" class="inline-flex items-center px-4 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add Transaction
+            </button>
+          <% end %>
         <% end %>
-      <% else %>
-        <%= render 'shared/month_navigation', 
-            prev_path: calendar_month_path(@date.prev_month.year, @date.prev_month.month, view: 'month'),
-            next_path: calendar_month_path(@date.next_month.year, @date.next_month.month, view: 'month') do %>
-          <button type="button" data-action="click->modal#open" class="inline-flex items-center px-4 py-2 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Add Transaction
-          </button>
-        <% end %>
-      <% end %>
 
-      <!-- Render Appropriate View -->
+        <!-- Render Appropriate View -->
       <% if @view == 'week' %>
         <%= render 'calendar/week_view' %>
       <% else %>
         <%= render 'calendar/month_view' %>
       <% end %>
+      <% end # Close turbo_frame_tag "calendar_content" %>
     </div>
 
   <% else %>

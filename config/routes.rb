@@ -24,17 +24,21 @@ Rails.application.routes.draw do
   # Trends (Analytics and Data Insights)
   get "trends", to: "trends#index"
 
+  # Analysis (Advanced Analytics)
+  get "analysis", to: "analysis#index"
+
+  # Custom Filters
+  resources :filters, only: [ :index, :show, :new, :create, :edit, :update, :destroy ]
+
   # Transactions (for hypothetical transactions)
-  resources :transactions, only: [ :create, :destroy ]
-  get "transactions/all", to: "transactions#all", as: :transactions_all
-  get "transactions/all/:year/:month", to: "transactions#all", as: :transactions_all_month
-  get "transactions/expenses", to: "transactions#expenses", as: :transactions_expenses
-  get "transactions/expenses/:year/:month", to: "transactions#expenses", as: :transactions_expenses_month
-  get "transactions/income", to: "transactions#income", as: :transactions_income
-  get "transactions/income/:year/:month", to: "transactions#income", as: :transactions_income_month
+  resources :transactions, only: [ :index, :show, :create, :edit, :update, :destroy ] do
+    collection do
+      get ":year/:month", to: "transactions#index", as: :month
+    end
+  end
 
   # Recurring transactions
-  resources :recurring_transactions, only: [ :index, :create, :destroy ] do
+  resources :recurring_transactions, only: [ :index, :show, :create, :edit, :update, :destroy ] do
     member do
       post :toggle_active
     end

@@ -21,14 +21,17 @@ class CalendarController < ApplicationController
     load_account_or_return
     return unless @account
 
+    # Set current_date alias for consistency with other controllers
+    @current_date = @date
+
     # Get appropriate date range based on view
-    start_date, end_date = date_range_for_view
+    @start_date, @end_date = date_range_for_view
 
     # Generate recurring transactions for this period if needed (for indefinite patterns)
-    generate_recurring_for_month(start_date, end_date)
+    generate_recurring_for_month(@start_date, @end_date)
 
     @transactions = @account.transactions
-                            .where(transaction_date: start_date..end_date)
+                            .where(transaction_date: @start_date..@end_date)
                             .order(:transaction_date)
 
     # Group transactions by date for easy lookup
@@ -47,7 +50,29 @@ class CalendarController < ApplicationController
 
     # Calculate End of Month balance using Account model method
     @end_of_month_balance = @account.end_of_month_balance(@date)
+
+    # Calculate additional stats for cards using service object
+    calendar_stats = CalendarStatsCalculator.call(@account, @date, @start_date, @end_date, @view)
+    @hypothetical_income = calendar_stats[:hypothetical_income]
+    @hypothetical_expenses = calendar_stats[:hypothetical_expenses]
+    @actual_income = calendar_stats[:actual_income]
+    @actual_expenses = calendar_stats[:actual_expenses]
+    @transaction_count = calendar_stats[:transaction_count]
+    @month_day = calendar_stats[:month_day]
+    @total_days = calendar_stats[:total_days]
+    @progress_pct = calendar_stats[:progress_pct]
+    @week_income = calendar_stats[:week_income]
+    @week_expenses = calendar_stats[:week_expenses]
+    @week_transaction_count = calendar_stats[:week_transaction_count]
+    @week_total = calendar_stats[:week_total]
+    @top_expense_merchants = calendar_stats[:top_expense_merchants]
+    @top_income_merchants = calendar_stats[:top_income_merchants]
+    @month_top_expense_merchants = calendar_stats[:top_expense_merchants]
+    @month_top_income_merchants = calendar_stats[:top_income_merchants]
+    @week_top_expense_merchants = calendar_stats[:top_expense_merchants]
+    @week_top_income_merchants = calendar_stats[:top_income_merchants]
   end
+
 
   private
 
