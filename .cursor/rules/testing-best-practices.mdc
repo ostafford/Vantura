@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+- Rails: model/service/request specs required for new logic.
+- System tests for key flows (dashboard, transactions CRUD, offline queue/sync).
+- React: Vitest + RTL; test behavior, not implementation details.
+- PWA: SW registration, offline fallback, background sync tests.
+- Aim >80% coverage on critical paths; add tests with every change.
+

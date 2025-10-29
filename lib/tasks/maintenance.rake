@@ -77,7 +77,13 @@ namespace :maintenance do
     puts "=" * 60
 
     # Get database size
-    if ActiveRecord::Base.connection.adapter_name == "SQLite"
+    adapter_name = ActiveRecord::Base.connection.adapter_name
+    if adapter_name == "PostgreSQL"
+      size_result = ActiveRecord::Base.connection.execute(
+        "SELECT pg_size_pretty(pg_database_size(current_database())) AS size"
+      ).first
+      puts "Database Size: #{size_result['size']}" if size_result
+    elsif adapter_name == "SQLite"
       db_path = Rails.root.join("storage", "#{Rails.env}.sqlite3")
       if File.exist?(db_path)
         size_mb = File.size(db_path).to_f / 1024 / 1024

@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+- tsconfig strict; no implicit any; isolatedModules.
+- Explicit props/state interfaces; avoid type assertions.
+- Prefer discriminated unions/enums for statuses/state machines.
+- Typed API client + response types; validate at boundaries if needed.
+- Use readonly where applicable; avoid mutable shared state.
+- No ambient types without justification; keep types close to usage.
+

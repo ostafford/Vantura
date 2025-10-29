@@ -147,3 +147,51 @@ module ApplicationHelper
     end
   end
 end
+
+# Add vite_ruby helpers manually if not automatically included
+# The gem should provide these via Railtie, but we add them as fallback
+if defined?(ViteRuby)
+  module ApplicationHelper
+    # Generate vite_javascript_tag using ViteRuby API
+    def vite_javascript_tag(name, **options)
+      if Rails.env.development? && ViteRuby.run_proxy?
+        # In development, use Vite dev server directly
+        vite_url = "/vite/#{name}.js"
+        javascript_include_tag vite_url, type: "module", **options
+      else
+        # In production, use manifest
+        begin
+          vite_asset_path = ViteRuby.manifest.path_for("#{name}.js")
+          javascript_include_tag vite_asset_path, **options
+        rescue ViteRuby::Manifest::MissingEntryError
+          raise "Vite asset '#{name}.js' not found in manifest"
+        end
+      end
+    end
+
+    # Generate vite_stylesheet_tag using ViteRuby API
+    def vite_stylesheet_tag(name, **options)
+      if Rails.env.development? && ViteRuby.run_proxy?
+        vite_url = "/vite/#{name}.css"
+        stylesheet_link_tag vite_url, **options
+      else
+        begin
+          vite_asset_path = ViteRuby.manifest.path_for("#{name}.css")
+          stylesheet_link_tag vite_asset_path, **options
+        rescue ViteRuby::Manifest::MissingEntryError
+          # Stylesheet might not exist - return empty string
+          "".html_safe
+        end
+      end
+    end
+
+    # Client tag for HMR in development
+    def vite_client_tag(**options)
+      if Rails.env.development? && ViteRuby.run_proxy?
+        javascript_include_tag "/vite/@vite/client", type: "module", **options
+      else
+        "".html_safe
+      end
+    end
+  end
+end

@@ -1,41 +1,68 @@
-# SQLite. Versions 3.8.0 and up are supported.
-#   gem install sqlite3
+# PostgreSQL adapter configuration
+#   Ensure the pg gem is defined in your Gemfile
+#   gem "pg", "~> 1.5"
 #
-#   Ensure the SQLite 3 gem is defined in your Gemfile
-#   gem "sqlite3"
+#   Local setup:
+#     createdb vantura_development
+#     createdb vantura_test
+#
+#   Environment variables (optional):
+#     DATABASE_URL or DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD
 #
 default: &default
-  adapter: sqlite3
+  adapter: postgresql
+  encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
 
 development:
   <<: *default
-  database: storage/development.sqlite3
+  database: vantura_development
+  username: <%= ENV.fetch("DB_USERNAME") { ENV["USER"] } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { "" } %>
+  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: storage/test.sqlite3
+  database: vantura_test
+  username: <%= ENV.fetch("DB_USERNAME") { ENV["USER"] } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { "" } %>
+  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
 
-
-# Store production database in the storage/ directory, which by default
-# is mounted as a persistent Docker volume in config/deploy.yml.
+# Production database configuration
+# Uses environment variables for connection details
 production:
   primary:
     <<: *default
-    database: storage/production.sqlite3
+    database: <%= ENV.fetch("DB_NAME") { "vantura_production" } %>
+    username: <%= ENV.fetch("DB_USERNAME") { "vantura" } %>
+    password: <%= ENV.fetch("DB_PASSWORD") { "" } %>
+    host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+    port: <%= ENV.fetch("DB_PORT") { 5432 } %>
   cache:
     <<: *default
-    database: storage/production_cache.sqlite3
+    database: <%= ENV.fetch("CACHE_DB_NAME") { "vantura_cache" } %>
+    username: <%= ENV.fetch("DB_USERNAME") { "vantura" } %>
+    password: <%= ENV.fetch("DB_PASSWORD") { "" } %>
+    host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+    port: <%= ENV.fetch("DB_PORT") { 5432 } %>
     migrations_paths: db/cache_migrate
   queue:
     <<: *default
-    database: storage/production_queue.sqlite3
+    database: <%= ENV.fetch("QUEUE_DB_NAME") { "vantura_queue" } %>
+    username: <%= ENV.fetch("DB_USERNAME") { "vantura" } %>
+    password: <%= ENV.fetch("DB_PASSWORD") { "" } %>
+    host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+    port: <%= ENV.fetch("DB_PORT") { 5432 } %>
     migrations_paths: db/queue_migrate
   cable:
     <<: *default
-    database: storage/production_cable.sqlite3
+    database: <%= ENV.fetch("CABLE_DB_NAME") { "vantura_cable" } %>
+    username: <%= ENV.fetch("DB_USERNAME") { "vantura" } %>
+    password: <%= ENV.fetch("DB_PASSWORD") { "" } %>
+    host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+    port: <%= ENV.fetch("DB_PORT") { 5432 } %>
     migrations_paths: db/cable_migrate

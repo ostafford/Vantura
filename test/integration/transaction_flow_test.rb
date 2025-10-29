@@ -100,4 +100,25 @@ class TransactionFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", "Vantura Calendar"
   end
+
+  test "search uses ILIKE for case-insensitive query" do
+    # Create transactions with mixed-case fields
+    @account.transactions.create!(
+      description: "Coffee at Local Shop",
+      amount: -5.50,
+      transaction_date: Date.today.beginning_of_month + 1.day,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Food & Drink",
+      merchant: "Local Cafe"
+    )
+
+    # Lowercase query should match mixed-case description/merchant via ILIKE
+    get search_transactions_path, params: { q: "coffee", month: Date.today.month, year: Date.today.year }, headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+    # Ensure at least one matching transaction rendered (soft assertion on content)
+    assert_select "body", /Coffee at Local Shop|
+Local Cafe/
+  end
 end

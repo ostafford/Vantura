@@ -1,0 +1,13 @@
+node_modules
+app/assets/builds
+tmp
+public
+storage
+log
+*.log
+Gemfile.lock
+package-lock.json
+yarn.lock
+.git
+.vscode
+

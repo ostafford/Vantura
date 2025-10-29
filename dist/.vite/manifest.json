@@ -1,0 +1,17 @@
+{
+  "app/javascript/application.ts": {
+    "file": "assets/application-DgZ87RbW.js",
+    "name": "application",
+    "src": "app/javascript/application.ts",
+    "isEntry": true,
+    "dynamicImports": [
+      "node_modules/@rails/actioncable/src/index.js"
+    ]
+  },
+  "node_modules/@rails/actioncable/src/index.js": {
+    "file": "assets/index-lVzqX2jn.js",
+    "name": "index",
+    "src": "node_modules/@rails/actioncable/src/index.js",
+    "isDynamicEntry": true
+  }
+}

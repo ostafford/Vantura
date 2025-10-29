@@ -1,0 +1,16 @@
+{
+  "all": {
+    "watchAdditionalPaths": [
+      "app/assets/**/*"
+    ]
+  },
+  "development": {
+    "autoBuild": true,
+    "publicOutputDir": "vite-dev",
+    "port": 3036
+  },
+  "production": {
+    "publicOutputDir": "vite"
+  }
+}
+

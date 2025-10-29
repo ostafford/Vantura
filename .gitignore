@@ -53,6 +53,11 @@
 
 # Ignore internal development documentation (keep local only)
 /docs/
+!/docs/PWA_MIGRATION_PLAN.md
+!/docs/ENGINEERING_STANDARDS.md
+!/docs/AGENT_OPERATING_AGREEMENTS.md
+!/docs/ROADMAP.md
+!/docs/PUBLIC_ROADMAP.md
 
 # Ignore OS generated files
 .DS_Store

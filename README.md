@@ -12,7 +12,8 @@ A modern Rails 8 application for managing personal finances with Up Bank integra
 - ✅ **Calendar View** - See balance projections for any date
 - ✅ **Real-time Updates** - WebSocket-powered live updates
 - ✅ **Dark Mode** - Beautiful dark theme support
-- ✅ **Progressive Web App** - Install on mobile devices
+- ✅ **Progressive Web App** - Install on mobile devices (manifest + service worker)
+- ✅ **TypeScript + Vite** - Fast development with HMR and strict type-checking
 - ✅ **Production Ready** - Security hardened, performance optimized, monitored
 
 ## Quick Start
@@ -20,8 +21,10 @@ A modern Rails 8 application for managing personal finances with Up Bank integra
 ### Prerequisites
 
 - Ruby 3.4.4
+- Node.js 20+ LTS
 - Bundler
-- SQLite3
+- npm
+- PostgreSQL 16+ (for local development)
 
 ### Installation
 
@@ -32,15 +35,20 @@ cd vantura
 
 # Install dependencies
 bundle install
+npm install
 
 # Setup database
 bin/rails db:create db:migrate
 
-# Start the development server
+# Start the development server (Rails + Vite dev server)
 bin/dev
 ```
 
 Visit http://localhost:3000
+
+Notes:
+- Vite HMR runs on http://localhost:3036 and is automatically proxied by the app; CSP allows dev connections.
+- PWA is enabled in all environments. Service worker registers on HTTPS or localhost. Offline page available at `/offline`.
 
 ### Testing
 
@@ -50,6 +58,11 @@ bin/rails test
 
 # Run specific test
 bin/rails test test/models/user_test.rb
+
+# TypeScript, ESLint, and formatting
+npm run type-check
+npm run lint
+npm run format:check
 ```
 
 ## Development
@@ -57,8 +70,9 @@ bin/rails test test/models/user_test.rb
 ### Tech Stack
 
 - **Framework:** Rails 8.0
-- **Database:** SQLite3
-- **Frontend:** Tailwind CSS, Stimulus.js, Turbo
+- **Database:** PostgreSQL 16+
+- **Frontend:** Tailwind CSS, Stimulus.js (TypeScript), Turbo, Vite
+- **TypeScript:** TypeScript with strict mode, ESLint, Prettier
 - **Caching:** Solid Cache
 - **Background Jobs:** Solid Queue
 - **WebSockets:** Solid Cable
@@ -71,6 +85,7 @@ bin/rails test test/models/user_test.rb
 - **Background Jobs** - Async operations
 - **Stimulus Controllers** - Frontend interactivity
 - **Turbo Streams** - Real-time updates
+- **PWA** - Manifest + Service Worker with cache-first/SWR strategies
 
 ### Key Commands
 
@@ -85,14 +100,20 @@ bin/brakeman                    # Security audit
 bin/bundle-audit                # Dependency vulnerabilities
 
 # Code quality
-bin/rubocop                     # Linting
+bin/rubocop                     # Linting (Ruby)
+npm run lint                    # Linting (TypeScript)
+npm run type-check              # Type checking
+npm run format                  # Format code (Prettier)
+
+# Tests
 bin/rails test                  # Run tests
 ```
 
-## Documentation
+## CI
 
-- **[Public Roadmap](PUBLIC_ROADMAP.md)** - Upcoming features and development plans (public-facing)
-- **[Internal Documentation](docs/README.md)** - Development guides and technical reference (private)
+- Ruby security scan with Brakeman
+- Node/TypeScript jobs: type-check, ESLint, Prettier, and Vite build (`build_js` job)
+- Rails tests run against PostgreSQL 16 service
 
 ## Security
 
@@ -100,8 +121,7 @@ bin/rails test                  # Run tests
 - ✅ SQL injection protection (ActiveRecord parameterization)
 - ✅ XSS protection (ERB auto-escaping)
 - ✅ Force SSL in production
-- ✅ Content Security Policy headers
-- ✅ Security headers configured
+- ✅ Content Security Policy headers (includes PWA + Vite dev allowances)
 - ✅ Error tracking with Sentry
 - ✅ Regular security audits
 

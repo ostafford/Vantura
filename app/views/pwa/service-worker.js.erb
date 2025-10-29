@@ -1,0 +1,197 @@
+// Vantura Service Worker
+// Version: injected via APP_BUILD or GIT_SHA env
+// Caching strategies:
+// - Static assets: cache-first with versioning
+// - HTML pages: network-first with offline fallback
+// - API/JSON: stale-while-revalidate for reads, network-first for mutations
+
+const CACHE_VERSION = 'vantura-<%= ENV.fetch('APP_BUILD', ENV.fetch('GIT_SHA', 'v1')) %>';
+const STATIC_CACHE = `${CACHE_VERSION}-static`;
+const PAGES_CACHE = `${CACHE_VERSION}-pages`;
+const API_CACHE = `${CACHE_VERSION}-api`;
+
+// App shell assets - critical files needed for offline functionality
+const APP_SHELL_ASSETS = [
+  '/offline',
+  '/icon-192.png',
+  '/icon-512.png'
+];
+
+// Install event - cache app shell
+self.addEventListener('install', (event) => {
+  console.log('[Service Worker] Installing...', CACHE_VERSION);
+  
+  event.waitUntil(
+    caches.open(STATIC_CACHE)
+      .then((cache) => {
+        console.log('[Service Worker] Caching app shell');
+        return cache.addAll(APP_SHELL_ASSETS);
+      })
+      .then(() => {
+        // Force activation of new service worker
+        return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('[Service Worker] Install failed:', error);
+      })
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  console.log('[Service Worker] Activating...');
+  
+  event.waitUntil(
+    caches.keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames
+            .filter((cacheName) => {
+              // Delete caches that don't match current version
+              return cacheName.startsWith('vantura-') && 
+                     !cacheName.startsWith(CACHE_VERSION);
+            })
+            .map((cacheName) => {
+              console.log('[Service Worker] Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            })
+        );
+      })
+      .then(() => {
+        // Take control of all pages immediately
+        return self.clients.claim();
+      })
+  );
+});
+
+// Fetch event - implement caching strategies
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+  
+  // Skip non-GET requests
+  if (request.method !== 'GET') {
+    return;
+  }
+  
+  // Skip cross-origin requests
+  if (url.origin !== location.origin) {
+    return;
+  }
+  
+  // Static assets: cache-first strategy
+  if (url.pathname.startsWith('/assets/') || 
+      url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/i)) {
+    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    return;
+  }
+  
+  // API endpoints: stale-while-revalidate for GET, network-first for mutations
+  if (url.pathname.startsWith('/api/')) {
+    if (request.method === 'GET') {
+      event.respondWith(staleWhileRevalidate(request, API_CACHE));
+    } else {
+      event.respondWith(networkFirst(request, API_CACHE));
+    }
+    return;
+  }
+  
+  // HTML pages: network-first with offline fallback
+  if (request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(networkFirstWithFallback(request, PAGES_CACHE));
+    return;
+  }
+  
+  // Default: network-first
+  event.respondWith(networkFirst(request));
+});
+
+// Cache-first strategy: check cache, fallback to network
+async function cacheFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  
+  if (cached) {
+    return cached;
+  }
+  
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    console.error('[Service Worker] Cache-first fetch failed:', error);
+    throw error;
+  }
+}
+
+// Network-first strategy: try network, fallback to cache
+async function networkFirst(request, cacheName = null) {
+  try {
+    const response = await fetch(request);
+    
+    // Cache successful responses
+    if (response.ok && cacheName) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, response.clone());
+    }
+    
+    return response;
+  } catch (error) {
+    // Network failed, try cache
+    if (cacheName) {
+      const cache = await caches.open(cacheName);
+      const cached = await cache.match(request);
+      if (cached) {
+        return cached;
+      }
+    }
+    
+    // No cache available, rethrow error
+    throw error;
+  }
+}
+
+// Stale-while-revalidate: return cached, update in background
+async function staleWhileRevalidate(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  
+  // Start network fetch in background
+  const fetchPromise = fetch(request).then((response) => {
+    if (response.ok) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  });
+  
+  // Return cached immediately if available, otherwise wait for network
+  return cached || fetchPromise;
+}
+
+// Network-first with offline page fallback
+async function networkFirstWithFallback(request, cacheName) {
+  try {
+    const response = await networkFirst(request, cacheName);
+    return response;
+  } catch (error) {
+    // Network failed, check cache
+    const cache = await caches.open(cacheName);
+    const cached = await cache.match(request);
+    
+    if (cached) {
+      return cached;
+    }
+    
+    // No cache, serve offline page
+    const offlinePage = await cache.match('/offline');
+    if (offlinePage) {
+      return offlinePage;
+    }
+    
+    // Even offline page not available, rethrow
+    throw error;
+  }
+}

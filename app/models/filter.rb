@@ -4,10 +4,8 @@ class Filter < ApplicationRecord
   validates :name, presence: true, uniqueness: { scope: :user_id }
   validates :filter_types, presence: true
 
-  # Serialize filter_params, filter_types, and date_range as JSON
-  serialize :filter_params, coder: JSON
-  serialize :filter_types, coder: JSON
-  serialize :date_range, coder: JSON
+  # PostgreSQL jsonb columns handle JSON automatically - no serialization needed
+  # filter_params, filter_types, and date_range are jsonb columns
 
   # Filter types
   FILTER_TYPES = %w[category merchant status recurring_transactions].freeze

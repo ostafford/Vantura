@@ -159,12 +159,12 @@ class TransactionsController < ApplicationController
     end
 
     if query.length >= 3
-      # Use LIKE with COLLATE NOCASE for case-insensitive search in SQLite
+      # Use ILIKE for case-insensitive search in PostgreSQL
       # Search within the selected month
       search_pattern = "%#{query}%"
       @transactions = @account.transactions
                                .where(transaction_date: start_date..end_date)
-                               .where("description LIKE ? COLLATE NOCASE OR category LIKE ? COLLATE NOCASE OR merchant LIKE ? COLLATE NOCASE",
+                               .where("description ILIKE ? OR category ILIKE ? OR merchant ILIKE ?",
                                       search_pattern, search_pattern, search_pattern)
                                .order(transaction_date: :desc)
                                .limit(10)

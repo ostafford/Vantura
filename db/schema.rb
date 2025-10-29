@@ -10,7 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_24_090002) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_29_000000) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -26,12 +29,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_24_090002) do
 
   create_table "filters", force: :cascade do |t|
     t.string "name"
-    t.text "filter_params"
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.text "filter_types"
-    t.text "date_range"
+    t.jsonb "filter_params"
+    t.jsonb "filter_types"
+    t.jsonb "date_range"
+    t.index ["filter_params"], name: "index_filters_on_filter_params", using: :gin
+    t.index ["filter_types"], name: "index_filters_on_filter_types", using: :gin
     t.index ["user_id", "created_at"], name: "index_filters_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_filters_on_user_id"
   end

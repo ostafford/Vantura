@@ -88,11 +88,28 @@ namespace :incident do
     puts "\n2. Database Backup System:"
     total_checks += 1
     backup_path = Rails.root.join("backups")
-    if File.directory?(backup_path) && Dir.glob(backup_path.join("*.sqlite3*")).any?
-      puts "  ✅ Backup directory exists"
-      readiness_score += 1
+    adapter_name = ActiveRecord::Base.connection.adapter_name
+
+    if adapter_name == "PostgreSQL"
+      # Check for PostgreSQL backup files (.sql or .dump)
+      backup_files = Dir.glob(backup_path.join("*.{sql,dump,pg_dump}"))
+      if File.directory?(backup_path) && backup_files.any?
+        puts "  ✅ Backup directory exists with #{backup_files.count} PostgreSQL backup(s)"
+        readiness_score += 1
+      else
+        puts "  ⚠️  Backup directory not found or empty"
+      end
+    elsif adapter_name == "SQLite"
+      # Check for SQLite backup files (for rollback scenarios)
+      backup_files = Dir.glob(backup_path.join("*.sqlite3*"))
+      if File.directory?(backup_path) && backup_files.any?
+        puts "  ✅ Backup directory exists with #{backup_files.count} SQLite backup(s)"
+        readiness_score += 1
+      else
+        puts "  ⚠️  Backup directory not found or empty"
+      end
     else
-      puts "  ⚠️  Backup directory not found or empty"
+      puts "  ⚠️  Unknown database adapter: #{adapter_name}"
     end
 
     # 3. Security Validation

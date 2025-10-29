@@ -4,12 +4,10 @@ source "https://rubygems.org"
 gem "rails", "~> 8.0.3"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
-# Use sqlite3 as the database for Active Record
-gem "sqlite3", ">= 2.1"
+# Use PostgreSQL as the database for Active Record
+gem "pg", "~> 1.5"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
-# Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
-gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
 gem "turbo-rails"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
@@ -20,6 +18,8 @@ gem "jbuilder"
 gem "httparty", "~> 0.23.2"
 gem "tailwindcss-rails", "~> 4.3"
 gem "tailwindcss-ruby", "~> 4.1", ">= 4.1.13"
+gem "vite_ruby", "~> 3.9", ">= 3.9.2"
+
 
 # Error tracking with Sentry [https://docs.sentry.io/platforms/ruby/guides/rails/]
 gem "sentry-ruby"
@@ -59,9 +59,9 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
 # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-gem "brakeman", "~> 7.1"
+# gem "brakeman", "~> 7.1"
 
-gem "bundler-audit", "~> 0.9.2"
+  gem "bundler-audit", "~> 0.9.2"
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
@@ -73,6 +73,8 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  # Process manager for running multiple processes concurrently
+  gem "foreman"
 end
 
 group :test do

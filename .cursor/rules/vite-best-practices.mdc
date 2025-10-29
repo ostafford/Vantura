@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+- Use Vite + vite_ruby for TS/React bundling.
+- Define env via .env.* and explicit prefixes; no secrets in client.
+- Keep tsconfig paths aligned with Vite resolve.alias.
+- Code-split routes/components; prefetch critical chunks carefully.
+- Add PWA plugin when service worker/manifest are ready.
+

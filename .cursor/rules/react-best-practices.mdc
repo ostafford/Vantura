@@ -1,0 +1,11 @@
+---
+alwaysApply: true
+---
+- Use function components + hooks; avoid class components.
+- React Query for server state; no Redux unless necessary.
+- Co-locate components/hooks/tests; keep components small.
+- Memoize with React.memo/useMemo/useCallback based on profiling.
+- Prefer controlled inputs; avoid unnecessary local state.
+- Error boundaries around complex/render-heavy sections.
+- Code-split heavy routes/components; lazy-load charts/analytics.
+

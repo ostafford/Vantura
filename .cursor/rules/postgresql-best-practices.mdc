@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+- Prefer jsonb over serialized text for structured data.
+- Add FKs and composite indexes for hot paths; validate uniqueness at DB.
+- Use ILIKE for case-insensitive search; review SQLite vs PG differences.
+- Wrap batch writes in transactions; reversible, additive migrations.
+- Eliminate N+1 with includes/preload; use explain/analyze for hotspots.
+

@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+- RESTful `/api/v1` resources; consistent naming and status codes.
+- Responses: { data, meta } or { error: { code, message, details } }.
+- Pagination in meta.pagination with deterministic ordering.
+- Session-based auth; enforce per-user authorization everywhere.
+- Strong params; clear validation errors; do not leak internal fields.
+

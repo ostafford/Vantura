@@ -1,0 +1,3 @@
+web: bundle exec rails server -p 3000
+vite: npm run dev
+

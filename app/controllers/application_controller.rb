@@ -6,6 +6,13 @@ class ApplicationController < ActionController::Base
   # Set global error context for all requests
   before_action :set_error_context
 
+  # PWA offline page - skip authentication and layout
+  allow_unauthenticated_access only: [ :offline ]
+
+  def offline
+    render "offline", layout: false
+  end
+
   private
 
   def set_error_context

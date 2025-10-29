@@ -203,4 +203,28 @@ class FilterTest < ActiveSupport::TestCase
     @filter.valid?
     assert_equal([ "category", "merchant" ], @filter.filter_types)
   end
+
+  # JSONB round-trip persistence
+
+  test "jsonb columns persist and cast to correct Ruby types" do
+    params_hash = { "categories" => [ "Food", "Transport" ], "flags" => { "important" => true } }
+    types_array = [ "category", "status" ]
+
+    filter = Filter.create!(
+      name: "JSONB Round Trip",
+      user: @user,
+      filter_types: types_array,
+      filter_params: params_hash,
+      date_range: { "from" => "2025-01-01", "to" => "2025-01-31" }
+    )
+
+    reloaded = Filter.find(filter.id)
+    assert_kind_of Hash, reloaded.filter_params
+    assert_kind_of Array, reloaded.filter_types
+    assert_kind_of Hash, reloaded.date_range
+
+    assert_equal params_hash, reloaded.filter_params
+    assert_equal types_array, reloaded.filter_types
+    assert_equal({ "from" => "2025-01-01", "to" => "2025-01-31" }, reloaded.date_range)
+  end
 end

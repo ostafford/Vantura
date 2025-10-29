@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+- Utility-first classes; extract repeated patterns into components.
+- Dark mode via .dark class; avoid inline styles for layout.
+- Use design tokens/approved palette only; no arbitrary colors unless documented.
+- Ensure a11y: visible focus, semantic HTML, ARIA as needed.
+

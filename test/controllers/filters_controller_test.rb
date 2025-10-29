@@ -13,12 +13,14 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
 
   # Index action
 
-  test "should get index", skip: SKIP_ALL do
+  test "should get index" do
+    skip if SKIP_ALL
     get filters_url
     assert_response :success
   end
 
-  test "should show only current user's filters", skip: SKIP_ALL do
+  test "should show only current user's filters" do
+    skip if SKIP_ALL
     get filters_url
     assert_response :success
     # Add assertions based on your view structure
@@ -26,12 +28,14 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
 
   # Show action
 
-  test "should get show", skip: SKIP_ALL do
+  test "should get show" do
+    skip if SKIP_ALL
     get filter_url(@filter)
     assert_response :success
   end
 
-  test "should not show other user's filter", skip: SKIP_ALL do
+  test "should not show other user's filter" do
+    skip if SKIP_ALL
     other_user = users(:two)
     other_filter = Filter.create!(
       name: "Other User Filter",
@@ -46,14 +50,16 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
 
   # New action
 
-  test "should get new", skip: SKIP_ALL do
+  test "should get new" do
+    skip if SKIP_ALL
     get new_filter_url
     assert_response :success
   end
 
   # Create action
 
-  test "should create filter", skip: SKIP_ALL do
+  test "should create filter" do
+    skip if SKIP_ALL
     assert_difference("Filter.count") do
       post filters_url, params: {
         filter: {
@@ -70,7 +76,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to analysis_path
   end
 
-  test "should create filter with date range", skip: SKIP_ALL do
+  test "should create filter with date range" do
+    skip if SKIP_ALL
     assert_difference("Filter.count") do
       post filters_url, params: {
         filter: {
@@ -90,7 +97,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "start_date" => "2025-01-01", "end_date" => "2025-12-31" }, filter.date_range)
   end
 
-  test "should not create filter with invalid attributes", skip: SKIP_ALL do
+  test "should not create filter with invalid attributes" do
+    skip if SKIP_ALL
     assert_no_difference("Filter.count") do
       post filters_url, params: {
         filter: {
@@ -101,7 +109,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should not create filter with duplicate name for same user", skip: SKIP_ALL do
+  test "should not create filter with duplicate name for same user" do
+    skip if SKIP_ALL
     Filter.create!(
       name: "Duplicate Filter",
       user: @user,
@@ -120,12 +129,14 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
 
   # Edit action
 
-  test "should get edit", skip: SKIP_ALL do
+  test "should get edit" do
+    skip if SKIP_ALL
     get edit_filter_url(@filter)
     assert_response :success
   end
 
-  test "should not edit other user's filter", skip: SKIP_ALL do
+  test "should not edit other user's filter" do
+    skip if SKIP_ALL
     other_user = users(:two)
     other_filter = Filter.create!(
       name: "Other User Filter",
@@ -140,7 +151,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
 
   # Update action
 
-  test "should update filter", skip: SKIP_ALL do
+  test "should update filter" do
+    skip if SKIP_ALL
     patch filter_url(@filter), params: {
       filter: {
         name: "Updated Filter Name",
@@ -155,7 +167,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to analysis_path
   end
 
-  test "should not update filter with invalid attributes", skip: SKIP_ALL do
+  test "should not update filter with invalid attributes" do
+    skip if SKIP_ALL
     original_name = @filter.name
     patch filter_url(@filter), params: {
       filter: {
@@ -168,7 +181,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
     assert_equal original_name, @filter.name
   end
 
-  test "should not update other user's filter", skip: SKIP_ALL do
+  test "should not update other user's filter" do
+    skip if SKIP_ALL
     other_user = users(:two)
     other_filter = Filter.create!(
       name: "Other User Filter",
@@ -185,7 +199,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
 
   # Destroy action
 
-  test "should destroy filter", skip: SKIP_ALL do
+  test "should destroy filter" do
+    skip if SKIP_ALL
     filter = Filter.create!(
       name: "To Be Deleted",
       user: @user,
@@ -199,7 +214,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to analysis_path
   end
 
-  test "should not destroy other user's filter", skip: SKIP_ALL do
+  test "should not destroy other user's filter" do
+    skip if SKIP_ALL
     other_user = users(:two)
     other_filter = Filter.create!(
       name: "Other User Filter",
@@ -216,7 +232,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
 
   # JSON responses
 
-  test "should create filter and respond with JSON", skip: SKIP_ALL do
+  test "should create filter and respond with JSON" do
+    skip if SKIP_ALL
     post filters_url, params: {
       filter: {
         name: "JSON Filter",
@@ -230,7 +247,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
     assert json_response["filter"]
   end
 
-  test "should update filter and respond with JSON", skip: SKIP_ALL do
+  test "should update filter and respond with JSON" do
+    skip if SKIP_ALL
     patch filter_url(@filter), params: {
       filter: {
         name: "Updated JSON Filter",
@@ -243,7 +261,8 @@ class FiltersControllerTest < ActionDispatch::IntegrationTest
     assert json_response["success"]
   end
 
-  test "should return error JSON for invalid filter", skip: SKIP_ALL do
+  test "should return error JSON for invalid filter" do
+    skip if SKIP_ALL
     post filters_url, params: {
       filter: {
         name: "",

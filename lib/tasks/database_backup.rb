@@ -26,31 +26,92 @@ class DatabaseBackup
     FileUtils.mkdir_p(backup_path) unless File.directory?(backup_path)
     puts "✅ Created backup directory: #{backup_path}"
 
+    adapter_name = ActiveRecord::Base.connection.adapter_name
+
     backup_files = []
-    database_configs.each do |db_name, config|
-      next unless config["database"] # Skip if database path is not defined
 
-      db_file = Pathname.new(config["database"])
-      # Ensure the database file path is absolute or relative to Rails.root
-      db_file_path = db_file.absolute? ? db_file : Rails.root.join(db_file)
+    if adapter_name == "PostgreSQL"
+      # PostgreSQL backup using pg_dump
+      database_configs.each do |db_name, config|
+        next unless config["database"]
 
-      if File.exist?(db_file_path)
-        puts "📊 Backing up #{db_name}..."
-        backup_filename = "#{env}_#{db_name}_#{timestamp}.sqlite3"
+        puts "📊 Backing up #{db_name} database..."
+
+        backup_filename = "#{env}_#{db_name}_#{timestamp}.sql"
         backup_filepath = backup_path.join(backup_filename)
-        FileUtils.cp(db_file_path, backup_filepath)
-        puts "  ✅ Success: #{backup_filename} (#{format_file_size(File.size(backup_filepath))})"
-        backup_files << backup_filepath
 
-        # Compress the backup
-        compressed_filepath = compress_file(backup_filepath)
-        if compressed_filepath
-          puts "  📦 Compressed: #{File.basename(compressed_filepath)} (#{format_file_size(File.size(compressed_filepath))})"
-          backup_files << compressed_filepath
+        # Build pg_dump command
+        db_name_pg = config["database"]
+        host = config["host"] || "localhost"
+        port = config["port"] || 5432
+        username = config["username"] || ENV["USER"]
+        password = config["password"] || ""
+
+        # Use PGPASSWORD environment variable for password
+        env_vars = { "PGPASSWORD" => password } unless password.empty?
+
+        pg_dump_cmd = [
+          "pg_dump",
+          "-h", host,
+          "-p", port.to_s,
+          "-U", username,
+          "-d", db_name_pg,
+          "-F", "p", # plain text format
+          "-f", backup_filepath.to_s
+        ]
+
+        begin
+          success = system(env_vars || {}, *pg_dump_cmd, out: File::NULL, err: File::NULL)
+
+          if success && File.exist?(backup_filepath)
+            puts "  ✅ Success: #{backup_filename} (#{format_file_size(File.size(backup_filepath))})"
+            backup_files << backup_filepath
+
+            # Compress the backup
+            compressed_filepath = compress_file(backup_filepath)
+            if compressed_filepath
+              puts "  📦 Compressed: #{File.basename(compressed_filepath)} (#{format_file_size(File.size(compressed_filepath))})"
+              backup_files << compressed_filepath
+            end
+          else
+            puts "  ❌ Backup failed for #{db_name}"
+            puts "     Command: #{pg_dump_cmd.join(' ')}"
+            puts "     Make sure pg_dump is installed and database credentials are correct"
+          end
+        rescue => e
+          puts "  ❌ Error backing up #{db_name}: #{e.message}"
         end
-      else
-        puts "  ❌ Warning: Database file not found for #{db_name} at #{db_file_path}"
       end
+    elsif adapter_name == "SQLite"
+      # SQLite backup (for rollback scenarios)
+      database_configs.each do |db_name, config|
+        next unless config["database"]
+
+        db_file = Pathname.new(config["database"])
+        db_file_path = db_file.absolute? ? db_file : Rails.root.join(db_file)
+
+        if File.exist?(db_file_path)
+          puts "📊 Backing up #{db_name}..."
+          backup_filename = "#{env}_#{db_name}_#{timestamp}.sqlite3"
+          backup_filepath = backup_path.join(backup_filename)
+          FileUtils.cp(db_file_path, backup_filepath)
+          puts "  ✅ Success: #{backup_filename} (#{format_file_size(File.size(backup_filepath))})"
+          backup_files << backup_filepath
+
+          # Compress the backup
+          compressed_filepath = compress_file(backup_filepath)
+          if compressed_filepath
+            puts "  📦 Compressed: #{File.basename(compressed_filepath)} (#{format_file_size(File.size(compressed_filepath))})"
+            backup_files << compressed_filepath
+          end
+        else
+          puts "  ❌ Warning: Database file not found for #{db_name} at #{db_file_path}"
+        end
+      end
+    else
+      puts "❌ Unsupported database adapter: #{adapter_name}"
+      puts "   Supported adapters: PostgreSQL, SQLite"
+      return
     end
 
     cleanup_old_backups
@@ -65,7 +126,18 @@ class DatabaseBackup
     puts "=" * 50
     puts "Backup Directory: #{backup_path}\n"
 
-    backup_files = Dir.glob(backup_path.join("*.sqlite3*")).sort_by { |f| File.mtime(f) }.reverse
+    adapter_name = ActiveRecord::Base.connection.adapter_name
+
+    if adapter_name == "PostgreSQL"
+      # PostgreSQL backups (.sql, .dump, .gz)
+      backup_files = Dir.glob(backup_path.join("*.{sql,dump,pg_dump}*")).sort_by { |f| File.mtime(f) }.reverse
+    elsif adapter_name == "SQLite"
+      # SQLite backups
+      backup_files = Dir.glob(backup_path.join("*.sqlite3*")).sort_by { |f| File.mtime(f) }.reverse
+    else
+      # Fallback: check for both
+      backup_files = Dir.glob(backup_path.join("*.{sql,dump,pg_dump,sqlite3}*")).sort_by { |f| File.mtime(f) }.reverse
+    end
 
     if backup_files.empty?
       puts "No backups found."
@@ -202,7 +274,17 @@ class DatabaseBackup
   def cleanup_old_backups
     puts "\n🧹 Cleaning up old backups..."
     retention_days = 30 # Keep backups for 30 days
-    old_backups = Dir.glob(backup_path.join("*.sqlite3*")).select do |f|
+
+    adapter_name = ActiveRecord::Base.connection.adapter_name
+    glob_pattern = if adapter_name == "PostgreSQL"
+      "*.{sql,dump,pg_dump}*"
+    elsif adapter_name == "SQLite"
+      "*.sqlite3*"
+    else
+      "*.{sql,dump,pg_dump,sqlite3}*"
+    end
+
+    old_backups = Dir.glob(backup_path.join(glob_pattern)).select do |f|
       File.mtime(f) < retention_days.days.ago
     end
 

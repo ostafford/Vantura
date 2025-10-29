@@ -10,8 +10,8 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+    <%# Enable PWA manifest for installable apps %>
+    <%= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -39,11 +39,12 @@
 
     <%# Includes Tailwind CSS (built) and application styles %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%= stylesheet_link_tag :application, "data-turbo-track": "reload" %>
+    <%= vite_client_tag if Rails.env.development? %>
+    <%= vite_javascript_tag "application" %>
   </head>
 
-  <body data-controller="theme modal recurring-modal calendar sync filter" class="bg-neutral-100 dark:bg-primary-900 h-screen flex flex-col">
+  <body data-controller="theme modal recurring-modal calendar sync filter connectivity" class="bg-neutral-100 dark:bg-primary-900 h-screen flex flex-col">
     <!-- WebSocket subscription for real-time updates (available on all pages) -->
     <% if authenticated? %>
       <%= turbo_stream_from Current.user %>

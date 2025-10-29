@@ -14,7 +14,7 @@ threads threads_count, threads_count
 
 # Worker configuration
 # In production: Set to number of CPU cores for optimal utilization
-# Development: Keep at 1 for easier debugging
+# Development: Set to 0 (single mode, no forking) to avoid macOS fork safety issues
 if ENV["RAILS_ENV"] == "production"
   # Auto-detect CPU cores or use WEB_CONCURRENCY env var
   # Use sysctl for macOS compatibility
@@ -27,8 +27,9 @@ if ENV["RAILS_ENV"] == "production"
   end
   workers cpu_cores
 else
-  # Development: Single worker for easier debugging
-  workers ENV.fetch("WEB_CONCURRENCY", 1)
+  # Development: Zero workers (single mode) to avoid macOS fork() issues
+  # Single mode doesn't fork, so it avoids Objective-C initialization problems
+  workers ENV.fetch("WEB_CONCURRENCY", 0)
 end
 
 # Port configuration
@@ -36,11 +37,18 @@ port ENV.fetch("PORT", 3000)
 
 # Preload application for better memory efficiency in production
 # This reduces memory usage through copy-on-write optimization
-preload_app!
+# Only preload in production where we use multiple workers
+# In development, single mode doesn't need preloading
+if ENV["RAILS_ENV"] == "production"
+  preload_app!
+end
 
 # Worker timeout configuration
 # Kill workers that hang for more than 30 seconds
-worker_timeout 30
+# Only needed in production where we use multiple workers
+if ENV["RAILS_ENV"] == "production"
+  worker_timeout 30
+end
 
 # Worker boot configuration
 # This runs before each worker process starts (only in cluster mode with workers > 0)
@@ -82,9 +90,10 @@ if ENV["RAILS_ENV"] == "production"
   stdout_redirect nil, nil, true
 end
 
-# Performance optimizations
-# Enable worker timeout for better stability
-worker_timeout 30
+# Development: Silence single worker warning (we intentionally use 0 workers)
+if ENV["RAILS_ENV"] != "production"
+  silence_single_worker_warning
+end
 
 # Configure worker memory limits (optional)
 # worker_memory_limit 512 # MB per worker
