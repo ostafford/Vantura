@@ -1,191 +1,142 @@
 <% content_for :title, "All Transactions - Vantura" %>
 
-<div>
+<main data-controller="filter">
   <!-- Header -->
   <%= render 'shared/page_header_simple', title: "All Transactions", subtitle: "View and manage all your transactions" %>
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <% if @account %>
-      <!-- Bento Grid Layout for Transaction Summary -->
-      <div class="bento-grid mb-6">
-        <!-- Hero Card (2x2) -->
-        <%= render 'shared/bento_cards/hero_card',
-            title: "Your Transactions",
-            subtitle: "#{@filter_type.humanize} for #{@date.strftime('%B %Y')}",
-            description: "Browse, filter, and analyze all your financial transactions. View income, expenses, and detailed breakdowns by category, merchant, and date. Easily track your spending patterns and financial activity.",
-            icon: 'chart',
-            size: 'bento-span-2 bento-row-span-2',
-            color: 'blue' do %>
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-blue-50 text-sm"><%= number_with_delimiter(@transaction_count) %> total transactions</p>
-            <p class="text-blue-100 text-xs">
-              Income: <%= number_to_currency(@income_total) %> • Expenses: <%= number_to_currency(@expense_total) %>
-            </p>
+    <%# Turbo Frame for partial updates %>
+    <%= turbo_frame_tag "transactions_content" do %>
+      <% if @account %>
+        <!-- Transaction Summary Section -->
+        <section class="mb-6" aria-label="Transaction summary statistics">
+          <div id="bento_cards_container" class="bento-grid">
+            <%= render partial: "transactions/bento_cards" %>
           </div>
-          <p class="text-blue-50 text-xs">Quick Filters: Current Week • 3 Months • 6 Months • Custom Range (Coming Soon)</p>
-        <% end %>
-      <!-- Expenses Card -->
-      <%= render 'shared/bento_cards/stat_card',
-          title: "Expenses",
-          value: "$#{number_with_precision(@expense_total, precision: 0)}",
-          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions.expenses.count} transactions</span>".html_safe,
-          detail: @date.strftime('%B %Y'),
-          icon: 'arrow-down',
-          color: 'expense',
-          size: 'bento-span-1 bento-row-span-1' %>
-      
-      <!-- Income Card -->
-      <%= render 'shared/bento_cards/stat_card',
-          title: "Income",
-          value: "$#{number_with_precision(@income_total, precision: 0)}",
-          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions.income.count} transactions</span>".html_safe,
-          detail: @date.strftime('%B %Y'),
-          icon: 'arrow-up',
-          color: 'income',
-          size: 'bento-span-1 bento-row-span-1' %>
-      
-      <!-- Transaction Count -->
-      <%= render 'shared/bento_cards/stat_card',
-          title: "Total Transactions",
-          value: @transactions.count.to_s,
-          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@filter_type.humanize}</span>".html_safe,
-          detail: "Showing #{@date.strftime('%B %Y')}",
-          icon: 'chart',
-          color: 'blue',
-          size: 'bento-span-1 bento-row-span-1' %>
-      
-      <!-- Net Cash Flow -->
-      <%= render 'shared/bento_cards/stat_card',
-          title: "Net Cash Flow",
-          value: "#{@net_cash_flow >= 0 ? '+' : ''}$#{number_with_precision(@net_cash_flow.abs, precision: 0)}",
-          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@net_cash_flow >= 0 ? 'Positive' : 'Negative'}</span>".html_safe,
-          detail: "Income - Expenses",
-          icon: @net_cash_flow >= 0 ? 'arrow-up' : 'arrow-down',
-          color: @net_cash_flow >= 0 ? 'income' : 'expense',
-          size: 'bento-span-1 bento-row-span-1' %>
-      
-      <!-- Top Category -->
-      <%= render 'shared/bento_cards/stat_card',
-          title: "Top Category",
-          value: @top_category,
-          subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{number_to_currency(@top_category_amount.abs)}</span>".html_safe,
-          detail: @date.strftime('%B %Y'),
-          icon: 'tag',
-          color: 'blue',
-          size: 'bento-span-1 bento-row-span-1' %>
-    </div>
-    <% end %>
-  </div>
+        </section>
 
-  <!-- Month Navigation & Filter -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4">
-      <div class="flex items-center justify-between">
-        <!-- Month Navigation -->
-        <div class="flex gap-3">
-          <%= link_to transactions_path(year: @date.prev_month.year, month: @date.prev_month.month, filter: @filter_type),
-                      class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" do %>
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Previous
+        <!-- Month Navigation & Filter -->
+        <nav class="mb-4" aria-label="Transaction navigation and filters">
+          <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center justify-between">
+              <!-- Month Navigation -->
+              <div id="month_navigation" class="flex gap-3" data-controller="transactions-nav">
+                <%= link_to transactions_path(year: @date.prev_month.year, month: @date.prev_month.month, filter: @filter_type),
+                            class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                            data: { action: 'click->transactions-nav#navigate' } do %>
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                  Previous
+                <% end %>
+
+                <%= link_to transactions_path(year: @date.next_month.year, month: @date.next_month.month, filter: @filter_type),
+                            class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                            data: { action: 'click->transactions-nav#navigate' } do %>
+                  Next
+                  <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                <% end %>
+              </div>
+
+              <!-- Month Display -->
+              <h2 id="current_month_heading" class="text-2xl font-bold text-gray-900 dark:text-white">
+                <%= @date.strftime("%B %Y") %>
+              </h2>
+
+              <!-- Filter Dropdown -->
+              <div class="relative">
+                <label for="filter" class="sr-only">Filter transactions</label>
+                <select id="filter" name="filter" 
+                        data-action="change->filter#change"
+                        data-filter-url-value="<%= transactions_path(year: @year, month: @month) %>"
+                        data-filter-turbo-frame-value="transactions_content"
+                        class="block px-4 py-2 pr-10 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
+                  <option value="all" <%= 'selected' if @filter_type == 'all' %>>All Transactions</option>
+                  <option value="expenses" <%= 'selected' if @filter_type == 'expenses' %>>Expenses Only</option>
+                  <option value="income" <%= 'selected' if @filter_type == 'income' %>>Income Only</option>
+                  <option value="hypothetical" <%= 'selected' if @filter_type == 'hypothetical' %>>Hypothetical Only</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Search Bar -->
+        <div class="mb-4" data-controller="autocomplete" 
+             data-autocomplete-url-value="<%= search_transactions_path %>"
+             data-autocomplete-min-length-value="3"
+             data-autocomplete-month-value="<%= @month %>"
+             data-autocomplete-year-value="<%= @year %>">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input 
+              type="text" 
+              data-autocomplete-target="input"
+              placeholder="Search transactions by description, category, or merchant..."
+              class="block w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+            />
+          </div>
+          
+          <!-- Results Dropdown -->
+          <div data-autocomplete-target="results" 
+               class="hidden mt-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-96 overflow-y-auto z-10">
+            <ul class="py-2">
+              <!-- Results will be dynamically inserted here -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Transaction Table -->
+        <section class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-gray-200 dark:border-gray-700" aria-label="Transaction list">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+              <%= case @filter_type
+                  when "expenses" then "Expense Transactions"
+                  when "income" then "Income Transactions"
+                  when "hypothetical" then "Hypothetical Transactions"
+                  else "All Transactions"
+                  end %>
+            </h2>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-900">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="transactions_table_body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <%= render partial: "transactions/table_body", locals: { transactions: @transactions } %>
+              </tbody>
+            </table>
+          </div>
+
+          <% if @transactions.empty? %>
+            <div class="px-6 py-12 text-center">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No transactions</h3>
+              <p class="mt-1 text-sm text-gray-500">No transactions found for the selected filter.</p>
+            </div>
           <% end %>
-
-          <%= link_to transactions_path(year: @date.next_month.year, month: @date.next_month.month, filter: @filter_type),
-                      class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" do %>
-            Next
-            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          <% end %>
-        </div>
-
-        <!-- Month Display -->
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          <%= @date.strftime("%B %Y") %>
-        </h2>
-
-        <!-- Filter Dropdown -->
-        <div class="relative">
-          <label for="filter" class="sr-only">Filter transactions</label>
-          <select id="filter" name="filter" 
-                  data-action="change->filter#change"
-                  data-filter-url-value="<%= transactions_path(year: @year, month: @month) %>"
-                  class="block px-4 py-2 pr-10 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
-            <option value="all" <%= 'selected' if @filter_type == 'all' %>>All Transactions</option>
-            <option value="expenses" <%= 'selected' if @filter_type == 'expenses' %>>Expenses Only</option>
-            <option value="income" <%= 'selected' if @filter_type == 'income' %>>Income Only</option>
-            <option value="hypothetical" <%= 'selected' if @filter_type == 'hypothetical' %>>Hypothetical Only</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-gray-200 dark:border-gray-700">
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-          <%= case @filter_type
-              when "expenses" then "Expense Transactions"
-              when "income" then "Income Transactions"
-              when "hypothetical" then "Hypothetical Transactions"
-              else "All Transactions"
-              end %>
-        </h2>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <% @transactions.each do |transaction| %>
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 <%= transaction.is_hypothetical ? 'bg-purple-50 dark:bg-purple-900/20' : '' %>">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                  <%= transaction.transaction_date.strftime("%b %d, %Y") %>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-                  <%= transaction.description %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  <%= transaction.category&.humanize || "Uncategorized" %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <%= transaction_status_badge(transaction) %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                  <%= formatted_transaction_amount(transaction) %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                  <%= transaction_action_buttons(transaction) %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-
-      <% if @transactions.empty? %>
-        <div class="px-6 py-12 text-center">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No transactions</h3>
-          <p class="mt-1 text-sm text-gray-500">No transactions found for the selected filter.</p>
-        </div>
+        </section>
       <% end %>
-    </div>
+    <% end # Close turbo_frame_tag "transactions_content" %>
   </div>
 
   <%= render 'shared/recurring_drawer' %>
-</div>
+</main>
 

@@ -3,7 +3,7 @@
 <%# Subscribe to Turbo Streams for real-time calendar updates %>
 <%= turbo_stream_from @account.user %>
 
-<div data-modal-type-value="transaction" data-controller="calendar">
+<main data-modal-type-value="transaction" data-controller="calendar" aria-label="Calendar page">
   <!-- Calendar Header -->
   <%= render 'shared/page_header_simple', title: "Vantura Calendar", subtitle: "View your transactions over time" %>
 
@@ -11,8 +11,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- Turbo Frame for changing content -->
       <%= turbo_frame_tag "calendar_content" do %>
-        <!-- Bento Grid Layout -->
-        <div class="bento-grid mb-6">
+        <!-- Calendar Overview Section -->
+        <section class="bento-grid mb-6" aria-label="Calendar overview statistics">
         <!-- Hero Card (2x2) -->
         <%= render 'shared/bento_cards/hero_card',
             title: "Calendar Overview",
@@ -153,10 +153,10 @@
               color: 'blue',
               size: 'bento-span-2 bento-row-span-1' %>
         <% end %>
-        </div>
+        </section>
 
         <!-- View Switcher (Inside Turbo Frame, after Bento Grid) -->
-        <div class="mb-4 flex items-center justify-between gap-3">
+        <nav class="mb-4 flex items-center justify-between gap-3" aria-label="Calendar view switcher">
           <div class="inline-flex rounded-lg border-2 border-primary-700/30 dark:border-primary-500/20 bg-white dark:bg-gray-800 p-1 shadow-lg">
             <% 
               # When switching to week view, use today's date to show current week
@@ -197,7 +197,7 @@
             </svg>
             Today
           <% end %>
-        </div>
+        </nav>
 
         <!-- Month/Week Navigation (Inside Turbo Frame, after Bento Grid) -->
         <% if @view == 'week' %>
@@ -248,4 +248,4 @@
 
   <%= render 'shared/transaction_drawer', default_transaction_date: Date.today %>
   <%= render 'shared/recurring_drawer' %>
-</div>
+</main>

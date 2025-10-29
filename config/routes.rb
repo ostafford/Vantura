@@ -34,6 +34,7 @@ Rails.application.routes.draw do
   resources :transactions, only: [ :index, :show, :create, :edit, :update, :destroy ] do
     collection do
       get ":year/:month", to: "transactions#index", as: :month
+      get :search
     end
   end
 

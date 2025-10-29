@@ -1,0 +1,24 @@
+<% transactions = local_assigns[:transactions] || @transactions %>
+<% transactions.each do |transaction| %>
+  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 <%= transaction.is_hypothetical ? 'bg-purple-50 dark:bg-purple-900/20' : '' %>">
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+      <%= transaction.transaction_date.strftime("%b %d, %Y") %>
+    </td>
+    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
+      <%= transaction.description %>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+      <%= transaction.category&.humanize || "Uncategorized" %>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap">
+      <%= transaction_status_badge(transaction) %>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
+      <%= formatted_transaction_amount(transaction) %>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+      <%= transaction_action_buttons(transaction) %>
+    </td>
+  </tr>
+<% end %>
+

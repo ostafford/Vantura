@@ -1,0 +1,118 @@
+<%# Hero Card (2x2) - Dynamic Insights %>
+<%= render 'shared/bento_cards/hero_card',
+    title: "Transaction Insights",
+    subtitle: "<span class='text-blue-100'>#{@date.strftime('%B %Y')}</span>".html_safe,
+    description: "Key financial insights at a glance",
+    icon: 'chart',
+    size: 'bento-span-2 bento-row-span-2',
+    color: 'blue' do %>
+  <div class="space-y-4">
+    <% if @filter_type == 'search' %>
+      <%# Search Results Mode: Show largest transaction %>
+      <% largest = @transactions.max_by { |t| t.amount.abs } %>
+      <% if largest %>
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+          <p class="text-xs text-blue-200 mb-1">Largest Transaction</p>
+          <div class="flex items-center justify-between">
+            <p class="text-blue-50 font-semibold truncate"><%= largest.description %></p>
+            <p class="text-white text-lg font-bold ml-2 whitespace-nowrap <%= largest.amount < 0 ? 'text-red-300' : 'text-green-300' %>">
+              <%= formatted_transaction_amount(largest) %>
+            </p>
+          </div>
+          <% if largest.merchant.present? %>
+            <p class="text-xs text-blue-200 mt-1">from <%= largest.merchant %></p>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <%# Normal Month View: Show spending pace and insights %>
+      <% 
+        days_elapsed = @date == Date.today.beginning_of_month ? Date.today.day : @date.end_of_month.day 
+        days_in_month = @date.end_of_month.day
+        month_progress = (days_elapsed.to_f / days_in_month * 100).round(1)
+        
+        # Calculate if spending pace is on track
+        expected_expenses = @date == Date.today.beginning_of_month ? (@expense_total / days_elapsed * days_in_month) : @expense_total
+        spending_rate = expected_expenses > 0 ? (@expense_total / expected_expenses * 100) : 0
+      %>
+      
+      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 mb-3">
+        <p class="text-xs text-blue-200 mb-2">Spending Pace</p>
+        <div class="flex items-center gap-3 mb-2">
+          <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
+            <div class="h-full <%= spending_rate > 100 ? 'bg-red-400' : spending_rate > 75 ? 'bg-yellow-400' : 'bg-green-400' %> rounded-full transition-all duration-300" style="width: <%= [spending_rate, 100].min %>%"></div>
+          </div>
+          <span class="text-white text-sm font-semibold whitespace-nowrap"><%= spending_rate.round(0) %>%</span>
+        </div>
+        <p class="text-xs text-blue-200">
+          <% if spending_rate > 100 %>
+            ⚠️ Spending ahead of pace
+          <% elsif spending_rate > 75 %>
+            ⚡ Spending on track
+          <% else %>
+            ✅ Spending under pace
+          <% end %>
+        </p>
+      </div>
+      
+      <% if @transactions.any? %>
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+          <p class="text-xs text-blue-200 mb-1">Average Transaction</p>
+          <p class="text-white text-2xl font-bold">
+            <%= number_to_currency(@expense_total / @expense_count) if @expense_count > 0 %> / transaction
+          </p>
+          <p class="text-xs text-blue-200 mt-1">
+            <% if @net_cash_flow >= 0 %>
+              <span class="inline-flex items-center">✓ Positive cash flow this month</span>
+            <% else %>
+              <span class="inline-flex items-center">⚠ Cash flow negative this month</span>
+            <% end %>
+          </p>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- Expenses Card with Top 3 Merchants -->
+<%= render partial: 'dashboard/transaction_type_card',
+    locals: {
+      type: 'expense',
+      expense_total: @expense_total,
+      expense_count: @expense_count,
+      top_expense_merchants: @top_expense_merchants,
+      current_date: @date,
+      period: @filter_type == 'search' ? 'search' : 'month'
+    } %>
+
+<!-- Income Card with Top 3 Merchants -->
+<%= render partial: 'dashboard/transaction_type_card',
+    locals: {
+      type: 'income',
+      income_total: @income_total,
+      income_count: @income_count,
+      top_income_merchants: @top_income_merchants,
+      current_date: @date,
+      period: @filter_type == 'search' ? 'search' : 'month'
+    } %>
+
+<!-- Transaction Count -->
+<%= render 'shared/bento_cards/stat_card',
+    title: "Total Transactions",
+    value: @transactions.count.to_s,
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@filter_type.humanize}</span>".html_safe,
+    detail: @filter_type == 'search' ? 'Search Results' : "Showing #{@date.strftime('%B %Y')}",
+    icon: 'chart',
+    color: 'blue',
+    size: 'bento-span-2 bento-row-span-1' %>
+
+<!-- Top Category -->
+<%= render 'shared/bento_cards/stat_card',
+    title: "Top Category",
+    value: @top_category,
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{number_to_currency(@top_category_amount.abs)}</span>".html_safe,
+    detail: @filter_type == 'search' ? 'Search Results' : @date.strftime('%B %Y'),
+    icon: 'tag',
+    color: 'blue',
+    size: 'bento-span-2 bento-row-span-1' %>
+

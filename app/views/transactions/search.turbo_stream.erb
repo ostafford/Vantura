@@ -1,0 +1,12 @@
+<%# Update the Bento Cards with search results %>
+<%= turbo_stream.update "bento_cards_container" do %>
+  <%= render partial: "transactions/bento_cards" %>
+<% end %>
+
+<%# Update the table body with search results %>
+<%= turbo_stream.replace "transactions_table_body" do %>
+  <tbody id="transactions_table_body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+    <%= render partial: "transactions/table_body", locals: { transactions: @transactions } %>
+  </tbody>
+<% end %>
+

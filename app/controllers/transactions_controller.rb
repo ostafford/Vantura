@@ -3,7 +3,7 @@ class TransactionsController < ApplicationController
   include DateParseable
 
   before_action :load_account_for_index, only: [ :index ]
-  before_action :load_account, only: [ :show, :edit, :update, :destroy ]
+  before_action :load_account, only: [ :show, :edit, :update, :destroy, :search ]
   before_action :set_transaction, only: [ :show, :edit, :update, :destroy ]
 
   def index
@@ -39,6 +39,27 @@ class TransactionsController < ApplicationController
     @transaction_count = stats[:transaction_count]
     @top_category = stats[:top_category]
     @top_category_amount = stats[:top_category_amount]
+
+    # Calculate top merchants for the selected month
+    @top_expense_merchants = Transaction.top_merchants_by_type(
+      "expense",
+      account: @account,
+      start_date: start_date,
+      end_date: end_date,
+      limit: 3
+    )
+    @top_income_merchants = Transaction.top_merchants_by_type(
+      "income",
+      account: @account,
+      start_date: start_date,
+      end_date: end_date,
+      limit: 3
+    )
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def show
@@ -116,6 +137,104 @@ class TransactionsController < ApplicationController
     end
   end
 
+  def search
+    return unless load_account
+
+    query = params[:q].to_s.strip
+
+    # Get the month/year from params (from query string ?month=X&year=Y)
+    if params[:year].present? && params[:month].present?
+      @year = params[:year].to_i
+      @month = params[:month].to_i
+      @date = Date.new(@year, @month, 1)
+      start_date = @date.beginning_of_month
+      end_date = @date.end_of_month
+    else
+      # Default to current month
+      @date = Date.today
+      @year = @date.year
+      @month = @date.month
+      start_date = @date.beginning_of_month
+      end_date = @date.end_of_month
+    end
+
+    if query.length >= 3
+      # Use LIKE with COLLATE NOCASE for case-insensitive search in SQLite
+      # Search within the selected month
+      search_pattern = "%#{query}%"
+      @transactions = @account.transactions
+                               .where(transaction_date: start_date..end_date)
+                               .where("description LIKE ? COLLATE NOCASE OR category LIKE ? COLLATE NOCASE OR merchant LIKE ? COLLATE NOCASE",
+                                      search_pattern, search_pattern, search_pattern)
+                               .order(transaction_date: :desc)
+                               .limit(10)
+
+      # Calculate stats from search results
+      expense_transactions = @transactions.select { |t| t.amount < 0 }
+      income_transactions = @transactions.select { |t| t.amount > 0 }
+
+      @expense_total = expense_transactions.sum { |t| t.amount.abs }
+      @income_total = income_transactions.sum { |t| t.amount }
+      @expense_count = expense_transactions.count
+      @income_count = income_transactions.count
+      @net_cash_flow = @income_total - @expense_total
+      @transaction_count = @transactions.count
+
+      # Top category from search results
+      category_totals = @transactions.group_by(&:category).transform_values do |transactions|
+        transactions.sum(&:amount).abs
+      end
+      top_category_data = category_totals.max_by { |_, total| total }
+      @top_category = top_category_data&.first || "N/A"
+      @top_category_amount = top_category_data&.last || 0
+
+      # Calculate top merchants from search results
+      @top_expense_merchants = calculate_top_merchants(expense_transactions)
+      @top_income_merchants = calculate_top_merchants(income_transactions)
+
+      @filter_type = "search" # Indicate this is a search result
+    else
+      # Return transactions for the selected month
+      @transactions = @account.transactions
+                               .where(transaction_date: start_date..end_date)
+                               .order(transaction_date: :desc)
+
+      # Calculate stats for the selected month
+      stats = TransactionStatsCalculator.call(@account, start_date, end_date)
+      @expense_total = stats[:expense_total]
+      @income_total = stats[:income_total]
+      @expense_count = stats[:expense_count]
+      @income_count = stats[:income_count]
+      @net_cash_flow = stats[:net_cash_flow]
+      @transaction_count = stats[:transaction_count]
+      @top_category = stats[:top_category]
+      @top_category_amount = stats[:top_category_amount]
+
+      # Calculate top merchants for the selected month
+      @top_expense_merchants = Transaction.top_merchants_by_type(
+        "expense",
+        account: @account,
+        start_date: start_date,
+        end_date: end_date,
+        limit: 3
+      )
+      @top_income_merchants = Transaction.top_merchants_by_type(
+        "income",
+        account: @account,
+        start_date: start_date,
+        end_date: end_date,
+        limit: 3
+      )
+
+      @filter_type = params[:filter] || "all"
+    end
+
+    respond_to do |format|
+      format.turbo_stream
+      format.json { render json: @transactions }
+    end
+  end
+
   private
 
   def load_account_for_index
@@ -163,6 +282,25 @@ class TransactionsController < ApplicationController
       expense_total: expenses.sum { |r| r.amount.abs },
       income_total: income.sum { |r| r.amount }
     }
+  end
+
+  def calculate_top_merchants(transactions)
+    return [] if transactions.empty?
+
+    merchants = transactions.group_by(&:merchant).transform_values do |txs|
+      { total: txs.sum(&:amount).abs, count: txs.count }
+    end
+
+    merchants.sort_by { |_, data| -data[:total] }
+             .first(3)
+             .map do |merchant_name, data|
+               {
+                 merchant: merchant_name || "Unknown",
+                 total: data[:total],
+                 count: data[:count],
+                 hypothetical: transactions.any? { |t| t.is_hypothetical? && t.merchant == merchant_name }
+               }
+             end
   end
   private :get_upcoming_recurring_transactions
 end

@@ -1,4 +1,16 @@
 <%
+  # Helper method to generate period text
+  def period_text(period)
+    case period
+    when 'week'
+      "This week"
+    when 'search'
+      "Search Results"
+    else
+      "This month"
+    end
+  end
+  
   # Determine if this is expense or income
   is_expense = local_assigns.fetch(:type) == 'expense'
   
@@ -18,7 +30,7 @@
     title: title,
     value: "$#{number_with_precision(total, precision: 2)}",
     subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{count}</span> transactions".html_safe,
-    detail: local_assigns.fetch(:period, 'month') == 'week' ? "This week" : "This month",
+    detail: period_text(local_assigns.fetch(:period, 'month')),
     icon: icon,
     color: color,
     size: 'bento-span-1 bento-row-span-2',
