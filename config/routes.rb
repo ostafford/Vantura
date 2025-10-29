@@ -45,6 +45,28 @@ Rails.application.routes.draw do
     end
   end
 
+  # API v1 endpoints
+  namespace :api do
+    namespace :v1 do
+      resources :transactions, only: [:index, :show, :create, :update, :destroy] do
+        collection do
+          get :search
+          get ":year/:month", action: :index, as: :month
+        end
+      end
+      resources :recurring_transactions, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          post :toggle_active
+        end
+      end
+      resources :filters, only: [:index, :show, :create, :update, :destroy]
+      get "dashboard/stats", to: "dashboard#stats"
+      get "calendar/events", to: "calendar#events"
+      get "trends/data", to: "trends#data"
+      get "analysis/data", to: "analysis#data"
+    end
+  end
+
   # Health check and PWA routes...
   get "up" => "rails/health#show", as: :rails_health_check
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker

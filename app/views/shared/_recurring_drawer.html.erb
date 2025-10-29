@@ -35,6 +35,12 @@
 
       <!-- Drawer Content (Scrollable) -->
       <div class="flex-1 overflow-y-auto">
+        <!-- React RecurringTransactionForm mount (progressively enhances and will replace the Rails form) -->
+        <div
+          data-react-mount="RecurringTransactionForm"
+          data-props='{}'
+        ></div>
+
         <%= form_with url: recurring_transactions_path, method: :post, class: "p-6", id: "recurringForm", data: { recurring_modal_target: "form" } do |f| %>
           <%= f.hidden_field :transaction_id, id: "recurringTransactionId", data: { recurring_modal_target: "transactionId" } %>
           

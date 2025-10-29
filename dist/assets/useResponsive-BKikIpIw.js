@@ -1,0 +1,2 @@
+import{r as s}from"./application-BYD5QzVF.js";const t={mobile:768,tablet:1024};function a(){const[e,r]=s.useState(typeof window<"u"?window.innerWidth:1024);return s.useEffect(()=>{const o=()=>{r(window.innerWidth)};let i;const n=()=>{clearTimeout(i),i=setTimeout(o,150)};return window.addEventListener("resize",n),o(),()=>{window.removeEventListener("resize",n),clearTimeout(i)}},[]),{isMobile:e<t.mobile,isTablet:e>=t.mobile&&e<t.tablet,isDesktop:e>=t.tablet}}export{a as u};
+//# sourceMappingURL=useResponsive-BKikIpIw.js.map

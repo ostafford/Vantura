@@ -14,7 +14,8 @@ Object.entries(controllerModules).forEach(([path, module]) => {
     .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
   
   // Get the default export (the controller class)
-  const ControllerClass = (module as { default: typeof import('@hotwired/stimulus').Controller }).default
+  const moduleExports = module as { default?: typeof import('@hotwired/stimulus').Controller }
+  const ControllerClass = moduleExports.default
   
   if (ControllerClass) {
     application.register(controllerName, ControllerClass)

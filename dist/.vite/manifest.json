@@ -1,11 +1,152 @@
 {
+  "_endpoints-s3-HOZU7.js": {
+    "file": "assets/endpoints-s3-HOZU7.js",
+    "name": "endpoints",
+    "imports": [
+      "app/javascript/application.ts"
+    ]
+  },
+  "_react-apexcharts.min-CISYt8SF.js": {
+    "file": "assets/react-apexcharts.min-CISYt8SF.js",
+    "name": "react-apexcharts.min",
+    "imports": [
+      "app/javascript/application.ts"
+    ]
+  },
+  "_recurring-C8Szns6G.js": {
+    "file": "assets/recurring-C8Szns6G.js",
+    "name": "recurring",
+    "imports": [
+      "_endpoints-s3-HOZU7.js"
+    ]
+  },
+  "_useFilters-BQjZ5U-6.js": {
+    "file": "assets/useFilters-BQjZ5U-6.js",
+    "name": "useFilters",
+    "imports": [
+      "_endpoints-s3-HOZU7.js"
+    ]
+  },
+  "_useResponsive-BKikIpIw.js": {
+    "file": "assets/useResponsive-BKikIpIw.js",
+    "name": "useResponsive",
+    "imports": [
+      "app/javascript/application.ts"
+    ]
+  },
+  "_useTrendsData-Gv1SEVWE.js": {
+    "file": "assets/useTrendsData-Gv1SEVWE.js",
+    "name": "useTrendsData",
+    "imports": [
+      "_endpoints-s3-HOZU7.js"
+    ]
+  },
   "app/javascript/application.ts": {
-    "file": "assets/application-DgZ87RbW.js",
+    "file": "assets/application-BYD5QzVF.js",
     "name": "application",
     "src": "app/javascript/application.ts",
     "isEntry": true,
     "dynamicImports": [
-      "node_modules/@rails/actioncable/src/index.js"
+      "node_modules/@rails/actioncable/src/index.js",
+      "app/javascript/components/charts/IncomeExpenseChart.tsx",
+      "app/javascript/components/charts/CategoryBreakdownChart.tsx",
+      "app/javascript/components/charts/MerchantAnalysisChart.tsx",
+      "app/javascript/components/tables/TransactionTable.tsx",
+      "app/javascript/components/tables/RecurringTransactionTable.tsx",
+      "app/javascript/components/forms/FilterForm.tsx",
+      "app/javascript/components/forms/RecurringTransactionForm.tsx",
+      "app/javascript/components/analysis/FilterDeleteBinder.tsx"
+    ]
+  },
+  "app/javascript/components/analysis/FilterDeleteBinder.tsx": {
+    "file": "assets/FilterDeleteBinder-ofG0e45l.js",
+    "name": "FilterDeleteBinder",
+    "src": "app/javascript/components/analysis/FilterDeleteBinder.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_endpoints-s3-HOZU7.js",
+      "app/javascript/application.ts",
+      "_useFilters-BQjZ5U-6.js"
+    ]
+  },
+  "app/javascript/components/charts/CategoryBreakdownChart.tsx": {
+    "file": "assets/CategoryBreakdownChart-CxukZnn4.js",
+    "name": "CategoryBreakdownChart",
+    "src": "app/javascript/components/charts/CategoryBreakdownChart.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_endpoints-s3-HOZU7.js",
+      "_react-apexcharts.min-CISYt8SF.js",
+      "_useTrendsData-Gv1SEVWE.js",
+      "app/javascript/application.ts"
+    ]
+  },
+  "app/javascript/components/charts/IncomeExpenseChart.tsx": {
+    "file": "assets/IncomeExpenseChart-BuOFWwvx.js",
+    "name": "IncomeExpenseChart",
+    "src": "app/javascript/components/charts/IncomeExpenseChart.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_endpoints-s3-HOZU7.js",
+      "_react-apexcharts.min-CISYt8SF.js",
+      "_useTrendsData-Gv1SEVWE.js",
+      "app/javascript/application.ts"
+    ]
+  },
+  "app/javascript/components/charts/MerchantAnalysisChart.tsx": {
+    "file": "assets/MerchantAnalysisChart-Dk8xMjK_.js",
+    "name": "MerchantAnalysisChart",
+    "src": "app/javascript/components/charts/MerchantAnalysisChart.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_endpoints-s3-HOZU7.js",
+      "_react-apexcharts.min-CISYt8SF.js",
+      "app/javascript/application.ts"
+    ]
+  },
+  "app/javascript/components/forms/FilterForm.tsx": {
+    "file": "assets/FilterForm-uTZavvFp.js",
+    "name": "FilterForm",
+    "src": "app/javascript/components/forms/FilterForm.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_endpoints-s3-HOZU7.js",
+      "app/javascript/application.ts",
+      "_useFilters-BQjZ5U-6.js"
+    ]
+  },
+  "app/javascript/components/forms/RecurringTransactionForm.tsx": {
+    "file": "assets/RecurringTransactionForm-D4fdEXW_.js",
+    "name": "RecurringTransactionForm",
+    "src": "app/javascript/components/forms/RecurringTransactionForm.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_endpoints-s3-HOZU7.js",
+      "app/javascript/application.ts",
+      "_recurring-C8Szns6G.js"
+    ]
+  },
+  "app/javascript/components/tables/RecurringTransactionTable.tsx": {
+    "file": "assets/RecurringTransactionTable-DX-UNrgR.js",
+    "name": "RecurringTransactionTable",
+    "src": "app/javascript/components/tables/RecurringTransactionTable.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_endpoints-s3-HOZU7.js",
+      "app/javascript/application.ts",
+      "_recurring-C8Szns6G.js",
+      "_useResponsive-BKikIpIw.js"
+    ]
+  },
+  "app/javascript/components/tables/TransactionTable.tsx": {
+    "file": "assets/TransactionTable-B-6AntY5.js",
+    "name": "TransactionTable",
+    "src": "app/javascript/components/tables/TransactionTable.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_endpoints-s3-HOZU7.js",
+      "app/javascript/application.ts",
+      "_useResponsive-BKikIpIw.js"
     ]
   },
   "node_modules/@rails/actioncable/src/index.js": {

@@ -9,6 +9,7 @@ export default defineConfig({
       // Importmap-style aliases for backward compatibility
       'controllers': fileURLToPath(new URL('./app/javascript/controllers', import.meta.url)),
       'helpers': fileURLToPath(new URL('./app/javascript/helpers', import.meta.url)),
+      'utils': fileURLToPath(new URL('./app/javascript/utils', import.meta.url)),
       'pwa': fileURLToPath(new URL('./app/javascript/pwa.ts', import.meta.url)),
     },
   },

@@ -1,0 +1,2 @@
+import{c as s,e as r,f as a,d as u,b as n}from"./endpoints-s3-HOZU7.js";async function i(e){return s(r.filters.create(),e)}async function c(e,t){return a(r.filters.update(e),t)}async function o(e){return u(r.filters.destroy(e))}function f(){return n(e=>i(e),{onSuccess:()=>{}})}function p(){return n(({id:e,params:t})=>c(e,t),{onSuccess:()=>{}})}function d(){return n(e=>o(e),{onSuccess:()=>{}})}export{p as a,d as b,f as u};
+//# sourceMappingURL=useFilters-BQjZ5U-6.js.map

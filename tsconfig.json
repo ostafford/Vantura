@@ -33,7 +33,8 @@
       "helpers/*": ["./helpers/*"],
       "types/*": ["./types/*"]
     },
-    "types": ["node"]
+    "types": ["node"],
+    "jsx": "react-jsx"
   },
   "include": [
     "app/javascript/**/*"

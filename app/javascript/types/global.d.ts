@@ -13,6 +13,11 @@ declare global {
   interface Window {
     Stimulus: import('@hotwired/stimulus').Application
   }
+
+  // Vite import.meta.glob
+  interface ImportMeta {
+    glob: (pattern: string, options?: { eager?: boolean }) => Record<string, () => Promise<unknown>>
+  }
 }
 
 export {}

@@ -1,0 +1,2 @@
+import{a as e,c as a,d as t,e as r}from"./endpoints-s3-HOZU7.js";async function i(){return e(r.recurringTransactions.index())}async function s(n){return a(r.recurringTransactions.create(),n)}async function o(n){return t(r.recurringTransactions.destroy(n))}async function u(n){return a(r.recurringTransactions.toggleActive(n))}export{s as c,o as d,i as g,u as t};
+//# sourceMappingURL=recurring-C8Szns6G.js.map
