@@ -17,7 +17,7 @@ gem "jbuilder"
 
 gem "httparty", "~> 0.23.2"
 gem "tailwindcss-rails", "~> 4.3"
-gem "tailwindcss-ruby", "~> 4.1", ">= 4.1.13"
+gem "tailwindcss-ruby", "~> 4.1"
 gem "vite_ruby", "~> 3.9", ">= 3.9.2"
 
 
