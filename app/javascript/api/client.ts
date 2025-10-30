@@ -1,9 +1,12 @@
 /**
  * Centralized API client for all API requests
  * Handles CSRF tokens, error parsing, and standard response formatting
+ * Queues mutations when offline for later sync
  */
 
-import type { ApiResponse, ApiError } from '../types/api';
+import type { ApiResponse, ApiError } from '../types/api'
+import { enqueueMutation } from '../offline/queue-manager'
+import { serializeMutation } from '../offline/mutation-serializer'
 
 /**
  * Get CSRF token from meta tag
@@ -110,13 +113,73 @@ export async function apiRequest<T>(
     credentials: 'same-origin' // Include session cookies
   };
 
+  // Check if offline and this is a mutation
+  const isMutation = ['POST', 'PATCH', 'PUT', 'DELETE'].includes(
+    fetchOptions.method || 'GET'
+  )
+
+  // If offline and mutation, queue it instead of making request
+  if (!navigator.onLine && isMutation) {
+    try {
+      const mutationId = await enqueueMutation(
+        serializeMutation(finalUrl, fetchOptions.method || 'POST', body ? JSON.parse(body as string) : {})
+      )
+      // Return a queued response
+      return {
+        data: {
+          queued: true,
+          mutation_id: mutationId,
+          message: 'Mutation queued for sync when online',
+        } as T,
+        meta: {
+          timestamp: new Date().toISOString(),
+          version: 'v1',
+        },
+      } as ApiResponse<T>
+    } catch (error) {
+      // Queue full or other error
+      throw error
+    }
+  }
+
   // Make request
-  const response = await fetch(finalUrl, fetchConfig);
+  let response: Response
+  try {
+    response = await fetch(finalUrl, fetchConfig)
+  } catch (error) {
+    // Network error - if mutation, queue it
+    if (isMutation && error instanceof TypeError && error.message.includes('fetch')) {
+      try {
+        const mutationId = await enqueueMutation(
+          serializeMutation(
+            finalUrl,
+            fetchOptions.method || 'POST',
+            body ? JSON.parse(body as string) : {}
+          )
+        )
+        return {
+          data: {
+            queued: true,
+            mutation_id: mutationId,
+            message: 'Mutation queued for sync when online',
+          } as T,
+          meta: {
+            timestamp: new Date().toISOString(),
+            version: 'v1',
+          },
+        } as ApiResponse<T>
+      } catch (queueError) {
+        // Queue failed, throw original network error
+        throw error
+      }
+    }
+    throw error
+  }
 
   // Handle non-2xx responses
   if (!response.ok) {
-    const error = await parseError(response);
-    throw error;
+    const error = await parseError(response)
+    throw error
   }
 
   // Parse successful response

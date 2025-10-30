@@ -1,6 +1,7 @@
 /**
  * Universal React island mounting utility
  * Mounts React components from data-react-mount attributes in ERB views
+ * Automatically wraps components with QueryProvider and OfflineProvider
  *
  * Usage in ERB:
  *   <div data-react-mount="ComponentName" data-props='{"prop": "value"}'></div>
@@ -10,6 +11,8 @@
 
 import React from 'react'
 import { createRoot, Root } from 'react-dom/client'
+import { QueryProvider } from '../providers/QueryProvider'
+import { OfflineProvider } from '../providers/OfflineProvider'
 
 // Component registry - maps component names to their imports
 const componentRegistry = new Map<string, () => Promise<{ default: React.ComponentType<any> }>>()
@@ -51,10 +54,21 @@ async function mountComponent(
     const module = await loader()
     const Component = module.default
 
-    // Create React root and render
+    // Create React root and render with providers
     const root = createRoot(element)
-    // eslint-disable-next-line react/react-in-jsx-scope
-    root.render(React.createElement(Component, props))
+    
+    // Wrap component with QueryProvider and OfflineProvider
+    root.render(
+      React.createElement(
+        QueryProvider,
+        {},
+        React.createElement(
+          OfflineProvider,
+          {},
+          React.createElement(Component, props)
+        )
+      )
+    )
 
     // Track root for cleanup
     rootRegistry.set(element, root)
@@ -120,6 +134,8 @@ registerReactComponent('TransactionTable', () => import('../components/tables/Tr
 registerReactComponent('RecurringTransactionTable', () => import('../components/tables/RecurringTransactionTable'))
 registerReactComponent('FilterForm', () => import('../components/forms/FilterForm'))
 registerReactComponent('RecurringTransactionForm', () => import('../components/forms/RecurringTransactionForm'))
+registerReactComponent('QueueStatusBadge', () => import('../components/offline/QueueStatusBadge'))
+registerReactComponent('SyncIndicator', () => import('../components/offline/SyncIndicator'))
 
 // Auto-initialize on DOM ready
 if (document.readyState === 'loading') {

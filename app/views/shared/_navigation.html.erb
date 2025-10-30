@@ -24,6 +24,11 @@
 
       <!-- Right Side Actions -->
       <div class="flex items-center gap-3">
+        <!-- Queue Status Badge (offline mutations) -->
+        <% if authenticated? %>
+          <div data-react-mount="QueueStatusBadge"></div>
+        <% end %>
+        
         <!-- Sync Button (if account exists) -->
         <% if Current.user&.accounts&.any? %>
           <%= button_to sync_path, method: :post, 

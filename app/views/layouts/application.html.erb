@@ -67,5 +67,10 @@
     </div>
     
     <%= render 'shared/notifications' %>
+    
+    <!-- Sync Indicator (floating) -->
+    <% if authenticated? %>
+      <div data-react-mount="SyncIndicator"></div>
+    <% end %>
   </body>
 </html>

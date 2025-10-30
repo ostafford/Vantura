@@ -22,6 +22,7 @@ export function useApiQuery<T>(
 
 /**
  * Generic hook for mutations (POST, PATCH, PUT, DELETE)
+ * Now supports offline queuing automatically via API client
  */
 export function useApiMutation<TData, TVariables>(
   mutationFn: (variables: TVariables) => Promise<ApiResponse<TData>>,
@@ -40,13 +41,24 @@ export function useApiMutation<TData, TVariables>(
       }
     },
     onSuccess: (data: ApiResponse<TData>, variables: TVariables, context: unknown, _mutation: unknown) => {
-      // Invalidate relevant queries on success
-      queryClient.invalidateQueries({ queryKey: [] })
+      // Check if mutation was queued (offline mode)
+      const wasQueued =
+        data.data &&
+        typeof data.data === 'object' &&
+        'queued' in data.data &&
+        (data.data as { queued?: boolean }).queued === true
+
+      if (!wasQueued) {
+        // Only invalidate if mutation actually succeeded (not queued)
+        // Invalidate relevant queries on success
+        queryClient.invalidateQueries({ queryKey: [] })
+      }
+
       if (options?.onSuccess) {
         // @ts-expect-error - React Query v5 type mismatch workaround
         options.onSuccess(data, variables, context)
       }
-    }
+    },
   }
 
   return useMutation(mutationOptions as UseMutationOptions<ApiResponse<TData>, ApiError, TVariables, unknown>)

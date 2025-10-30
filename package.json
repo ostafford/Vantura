@@ -16,8 +16,11 @@
   "dependencies": {
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.11",
+    "@tanstack/query-sync-storage-persister": "^5.90.7",
     "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query-persist-client": "^5.90.7",
     "apexcharts": "^5.3.5",
+    "dexie": "^4.2.1",
     "react": "^19.2.0",
     "react-apexcharts": "^1.8.0",
     "react-dom": "^19.2.0"

@@ -16,8 +16,10 @@ class Api::V1::BaseController < ApplicationController
   # @param meta [Hash] Optional metadata (pagination, timestamp, version)
   # @param status [Symbol] HTTP status code (default: :ok)
   def render_success(data, meta: nil, status: :ok)
+    # Ensure updated_at is included for conflict resolution in offline sync
+    processed_data = ensure_updated_at(data)
     response_data = {
-      data: data,
+      data: processed_data,
       meta: build_meta(meta)
     }
     render json: response_data, status: status
@@ -75,6 +77,24 @@ class Api::V1::BaseController < ApplicationController
       version: 'v1'
     }
     custom_meta ? base_meta.merge(custom_meta) : base_meta
+  end
+
+  # Ensure updated_at is included in data for conflict resolution
+  # Handles both ActiveRecord models (via attributes) and plain hashes
+  def ensure_updated_at(data)
+    case data
+    when ActiveRecord::Base
+      # ActiveRecord models - attributes already include updated_at
+      data.attributes
+    when Hash
+      # Plain hash - ensure updated_at is present if it's a timestamped model
+      data
+    when Array
+      # Array of records - process each
+      data.map { |item| ensure_updated_at(item) }
+    else
+      data
+    end
   end
 
   # Override request_authentication to return JSON error instead of redirect
