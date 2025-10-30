@@ -7,5 +7,3 @@ module ProjectsHelper
     contribution.user_id == Current.user&.id
   end
 end
-
-

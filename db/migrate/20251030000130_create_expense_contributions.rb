@@ -10,8 +10,6 @@ class CreateExpenseContributions < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_index :expense_contributions, [:project_expense_id, :user_id], unique: true, name: "index_contributions_on_expense_and_user"
+    add_index :expense_contributions, [ :project_expense_id, :user_id ], unique: true, name: "index_contributions_on_expense_and_user"
   end
 end
-
-

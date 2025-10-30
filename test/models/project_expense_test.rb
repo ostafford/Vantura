@@ -25,5 +25,3 @@ class ProjectExpenseTest < ActiveSupport::TestCase
     assert_equal 50, member_contrib.share_cents
   end
 end
-
-

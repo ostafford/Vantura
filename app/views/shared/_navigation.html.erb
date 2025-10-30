@@ -19,6 +19,7 @@
           <%= nav_link_to "Trends", trends_path, icon: "chart" %>
           <%= nav_link_to "Transactions", transactions_path, icon: "list" %>
           <%= nav_link_to "Recurring", recurring_transactions_path, icon: "refresh" %>
+          <%= nav_link_to "Projects", projects_path, icon: "folder" %>
         </div>
       </div>
 
@@ -62,6 +63,7 @@
     <%= mobile_nav_link_to calendar_path, icon: "calendar", label: "Calendar" %>
     <%= mobile_nav_link_to trends_path, icon: "chart", label: "Trends" %>
     <%= mobile_nav_link_to transactions_path, icon: "list", label: "All" %>
+    <%= mobile_nav_link_to projects_path, icon: "folder", label: "Projects" %>
     <%= mobile_nav_link_to settings_path, icon: "settings", label: "Settings" %>
   </div>
 </nav>

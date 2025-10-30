@@ -19,11 +19,11 @@
     <p class="text-xs text-gray-500 mb-2">Start typing to filter users by name or email. Select multiple.</p>
     <input type="text" id="member-search" placeholder="Search users..." class="w-full border rounded px-3 py-2 mb-2">
     <div class="max-h-48 overflow-auto border rounded">
-      <% User.order(:name, :email_address).limit(100).each do |user| %>
+      <% User.order(:email_address).limit(100).each do |user| %>
         <% next if user.id == Current.user.id %>
         <label class="flex items-center gap-2 px-3 py-2 border-b last:border-b-0">
           <input type="checkbox" name="member_user_ids[]" value="<%= user.id %>" class="member-option">
-          <span class="text-sm"><%= user.name.presence || user.email_address %> (<%= user.email_address %>)</span>
+          <span class="text-sm"><%= user_display_name(user) %> (<%= user.email_address %>)</span>
         </label>
       <% end %>
     </div>

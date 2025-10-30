@@ -33,5 +33,3 @@ class ProjectMembershipsController < ApplicationController
       head :forbidden
     end
 end
-
-

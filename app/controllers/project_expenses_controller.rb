@@ -1,8 +1,8 @@
 class ProjectExpensesController < ApplicationController
   before_action :set_project
   before_action :authorize_member!
-  before_action :authorize_owner!, only: [:new, :create, :edit, :update, :destroy]
-  before_action :set_expense, only: [:edit, :update, :destroy]
+  before_action :authorize_owner!, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action :set_expense, only: [ :edit, :update, :destroy ]
 
   def new
     @expense = @project.project_expenses.new
@@ -58,5 +58,3 @@ class ProjectExpensesController < ApplicationController
       params.require(:project_expense).permit(:merchant, :category, :total_cents, :due_on, :notes)
     end
 end
-
-

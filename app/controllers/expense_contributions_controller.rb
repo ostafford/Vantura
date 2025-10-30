@@ -37,5 +37,3 @@ class ExpenseContributionsController < ApplicationController
       head :forbidden
     end
 end
-
-
