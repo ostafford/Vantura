@@ -49,11 +49,6 @@ export const endpoints = {
   // Trends
   trends: {
     data: () => `${API_BASE}/trends/data`
-  },
-
-  // Analysis
-  analysis: {
-    data: () => `${API_BASE}/analysis/data`
   }
 } as const;
 

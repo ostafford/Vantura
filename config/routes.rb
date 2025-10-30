@@ -24,12 +24,6 @@ Rails.application.routes.draw do
   # Trends (Analytics and Data Insights)
   get "trends", to: "trends#index"
 
-  # Analysis (Advanced Analytics)
-  get "analysis", to: "analysis#index"
-
-  # Custom Filters
-  resources :filters, only: [ :index, :show, :new, :create, :edit, :update, :destroy ]
-
   # Transactions (for hypothetical transactions)
   resources :transactions, only: [ :index, :show, :create, :edit, :update, :destroy ] do
     collection do
@@ -63,7 +57,6 @@ Rails.application.routes.draw do
       get "dashboard/stats", to: "dashboard#stats"
       get "calendar/events", to: "calendar#events"
       get "trends/data", to: "trends#data"
-      get "analysis/data", to: "analysis#data"
     end
   end
 

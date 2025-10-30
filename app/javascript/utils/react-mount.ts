@@ -116,12 +116,10 @@ export function reinitializeReactMounts(): void {
 // Import components lazily to enable code-splitting
 registerReactComponent('IncomeExpenseChart', () => import('../components/charts/IncomeExpenseChart'))
 registerReactComponent('CategoryBreakdownChart', () => import('../components/charts/CategoryBreakdownChart'))
-registerReactComponent('MerchantAnalysisChart', () => import('../components/charts/MerchantAnalysisChart'))
 registerReactComponent('TransactionTable', () => import('../components/tables/TransactionTable'))
 registerReactComponent('RecurringTransactionTable', () => import('../components/tables/RecurringTransactionTable'))
 registerReactComponent('FilterForm', () => import('../components/forms/FilterForm'))
 registerReactComponent('RecurringTransactionForm', () => import('../components/forms/RecurringTransactionForm'))
-registerReactComponent('FilterDeleteBinder', () => import('../components/analysis/FilterDeleteBinder'))
 
 // Auto-initialize on DOM ready
 if (document.readyState === 'loading') {
