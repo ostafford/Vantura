@@ -1,0 +1,86 @@
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-semibold"><%= @project.name %></h1>
+  <% if @project.owner_id == Current.user.id %>
+    <div class="flex gap-2">
+      <%= link_to "Add expense", new_project_expense_path(@project), class: "px-3 py-2 bg-primary-600 text-white rounded" %>
+      <%= link_to "Edit", edit_project_path(@project), class: "px-3 py-2 border rounded" %>
+      <%= button_to "Delete", project_path(@project), method: :delete, form: { data: { turbo_confirm: "Delete this project?" } }, class: "px-3 py-2 border rounded" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="mb-6">
+  <h2 class="text-lg font-medium mb-2">Participants</h2>
+  <div class="text-sm text-gray-700 dark:text-gray-300">
+    Owner: <strong><%= @project.owner.name.presence || @project.owner.email_address %></strong>
+    <% if @project.members.any? %>
+      <span class="ml-2">Members: <%= @project.members.map { |u| u.name.presence || u.email_address }.join(", ") %></span>
+    <% end %>
+  </div>
+</div>
+
+<div class="bg-white dark:bg-gray-900 shadow rounded">
+  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+    <thead class="bg-gray-50 dark:bg-gray-800">
+      <tr>
+        <th class="px-4 py-2 text-left text-sm font-medium">Merchant</th>
+        <th class="px-4 py-2 text-left text-sm font-medium">Category</th>
+        <th class="px-4 py-2 text-left text-sm font-medium">Total</th>
+        <th class="px-4 py-2 text-left text-sm font-medium">Due</th>
+        <th class="px-4 py-2 text-left text-sm font-medium">Notes</th>
+        <th class="px-4 py-2"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+      <% @expenses.each do |expense| %>
+        <tr>
+          <td class="px-4 py-2"><%= expense.merchant %></td>
+          <td class="px-4 py-2"><%= expense.category %></td>
+          <td class="px-4 py-2"><%= format_cents(expense.total_cents) %></td>
+          <td class="px-4 py-2"><%= expense.due_on&.strftime('%Y-%m-%d') %></td>
+          <td class="px-4 py-2"><%= expense.notes %></td>
+          <td class="px-4 py-2 text-right">
+            <% if @project.owner_id == Current.user.id %>
+              <%= link_to "Edit", edit_project_expense_path(@project, expense), class: "text-sm text-primary-700 dark:text-primary-400" %>
+              <%= button_to "Delete", project_expense_path(@project, expense), method: :delete, class: "text-sm ml-2" %>
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="6" class="px-4 pb-4">
+            <div class="rounded border p-3 bg-gray-50 dark:bg-gray-800">
+              <div class="font-medium mb-2">Contributions</div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <% expense.expense_contributions.includes(:user).each do |contrib| %>
+                  <div class="flex items-center justify-between bg-white dark:bg-gray-900 border rounded px-3 py-2">
+                    <div>
+                      <div class="text-sm font-medium"><%= contrib.user.name.presence || contrib.user.email_address %></div>
+                      <div class="text-xs text-gray-500"><%= format_cents(contrib.share_cents) %></div>
+                    </div>
+                    <div>
+                      <% if can_toggle_paid?(contrib) %>
+                        <%= form_with(model: [@project, expense, contrib], url: project_expense_contribution_path(@project, expense, contrib), method: :patch) do |ff| %>
+                          <label class="inline-flex items-center gap-2 text-sm">
+                            <%= ff.check_box :paid, { checked: contrib.paid, onchange: 'this.form.submit()' }, true, false %>
+                            <span>Paid</span>
+                          </label>
+                        <% end %>
+                      <% else %>
+                        <span class="text-sm"><%= contrib.paid ? 'Paid' : 'Not paid' %></span>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      <% if @expenses.empty? %>
+        <tr><td colspan="6" class="px-4 py-4 text-gray-500">No expenses yet.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+

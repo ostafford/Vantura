@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_24_090002) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_30_000130) do
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -22,6 +22,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_24_090002) do
     t.integer "user_id"
     t.index ["up_account_id"], name: "index_accounts_on_up_account_id", unique: true
     t.index ["user_id"], name: "index_accounts_on_user_id"
+  end
+
+  create_table "expense_contributions", force: :cascade do |t|
+    t.integer "project_expense_id", null: false
+    t.integer "user_id", null: false
+    t.integer "share_cents", default: 0, null: false
+    t.boolean "paid", default: false, null: false
+    t.datetime "paid_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_expense_id", "user_id"], name: "index_contributions_on_expense_and_user", unique: true
+    t.index ["project_expense_id"], name: "index_expense_contributions_on_project_expense_id"
+    t.index ["user_id"], name: "index_expense_contributions_on_user_id"
   end
 
   create_table "filters", force: :cascade do |t|
@@ -51,6 +64,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_24_090002) do
     t.index ["user_id", "notification_type"], name: "index_notifications_on_user_id_and_notification_type"
     t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "project_expenses", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.string "merchant", null: false
+    t.string "category"
+    t.integer "total_cents", default: 0, null: false
+    t.date "due_on"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_project_expenses_on_project_id"
+  end
+
+  create_table "project_memberships", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "user_id"], name: "index_project_memberships_on_project_id_and_user_id", unique: true
+    t.index ["project_id"], name: "index_project_memberships_on_project_id"
+    t.index ["user_id"], name: "index_project_memberships_on_user_id"
+  end
+
+  create_table "projects", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "owner_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id"], name: "index_projects_on_owner_id"
   end
 
   create_table "recurring_transactions", force: :cascade do |t|
@@ -120,8 +163,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_24_090002) do
   end
 
   add_foreign_key "accounts", "users"
+  add_foreign_key "expense_contributions", "project_expenses"
+  add_foreign_key "expense_contributions", "users"
   add_foreign_key "filters", "users"
   add_foreign_key "notifications", "users"
+  add_foreign_key "project_expenses", "projects"
+  add_foreign_key "project_memberships", "projects"
+  add_foreign_key "project_memberships", "users"
+  add_foreign_key "projects", "users", column: "owner_id"
   add_foreign_key "recurring_transactions", "accounts"
   add_foreign_key "recurring_transactions", "transactions", column: "template_transaction_id"
   add_foreign_key "sessions", "users"

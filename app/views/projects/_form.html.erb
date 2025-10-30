@@ -1,0 +1,52 @@
+<%= form_with(model: @project, local: true) do |f| %>
+  <% if @project.errors.any? %>
+    <div class="mb-4 text-red-600">
+      <ul>
+        <% @project.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-4">
+    <%= f.label :name, class: "block text-sm font-medium mb-1" %>
+    <%= f.text_field :name, class: "w-full border rounded px-3 py-2" %>
+  </div>
+
+  <div class="mb-4">
+    <label class="block text-sm font-medium mb-1">Members (owner included automatically)</label>
+    <p class="text-xs text-gray-500 mb-2">Start typing to filter users by name or email. Select multiple.</p>
+    <input type="text" id="member-search" placeholder="Search users..." class="w-full border rounded px-3 py-2 mb-2">
+    <div class="max-h-48 overflow-auto border rounded">
+      <% User.order(:name, :email_address).limit(100).each do |user| %>
+        <% next if user.id == Current.user.id %>
+        <label class="flex items-center gap-2 px-3 py-2 border-b last:border-b-0">
+          <input type="checkbox" name="member_user_ids[]" value="<%= user.id %>" class="member-option">
+          <span class="text-sm"><%= user.name.presence || user.email_address %> (<%= user.email_address %>)</span>
+        </label>
+      <% end %>
+    </div>
+    <script>
+      document.addEventListener('turbo:load', function(){
+        var input = document.getElementById('member-search');
+        if(!input) return;
+        input.addEventListener('input', function(){
+          var q = this.value.toLowerCase();
+          document.querySelectorAll('.member-option').forEach(function(cb){
+            var label = cb.closest('label');
+            var text = label.textContent.toLowerCase();
+            label.style.display = text.indexOf(q) >= 0 ? '' : 'none';
+          });
+        });
+      });
+    </script>
+  </div>
+
+  <div class="flex gap-2">
+    <%= f.submit class: "px-4 py-2 bg-primary-600 text-white rounded" %>
+    <%= link_to "Cancel", projects_path, class: "px-4 py-2 border rounded" %>
+  </div>
+<% end %>
+
+

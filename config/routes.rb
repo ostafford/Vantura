@@ -30,6 +30,14 @@ Rails.application.routes.draw do
   # Custom Filters
   resources :filters, only: [ :index, :show, :new, :create, :edit, :update, :destroy ]
 
+  # Projects
+  resources :projects do
+    resources :expenses, controller: "project_expenses" do
+      resources :contributions, only: [ :update ], controller: "expense_contributions"
+    end
+    resources :memberships, only: [ :create, :destroy ], controller: "project_memberships"
+  end
+
   # Transactions (for hypothetical transactions)
   resources :transactions, only: [ :index, :show, :create, :edit, :update, :destroy ] do
     collection do
