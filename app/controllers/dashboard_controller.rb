@@ -27,7 +27,7 @@ class DashboardController < ApplicationController
     @top_income_merchants = stats[:top_income_merchants]
 
     # Get upcoming recurring transactions for the rest of the month
-    @upcoming_recurring = get_upcoming_recurring_transactions
+    @upcoming_recurring = RecurringTransaction.upcoming_for_account(@account, Date.today.end_of_month)
     @upcoming_recurring_expenses = @upcoming_recurring[:expenses]
     @upcoming_recurring_income = @upcoming_recurring[:income]
     @upcoming_recurring_total = @upcoming_recurring[:expense_total] + @upcoming_recurring[:income_total]
@@ -48,27 +48,7 @@ class DashboardController < ApplicationController
   end
   private :get_current_week_transactions
 
-  def get_upcoming_recurring_transactions
-    # Get active recurring transactions that will occur before end of month
-    end_of_month = Date.today.end_of_month
-
-    upcoming = @account.recurring_transactions
-                       .active
-                       .where("next_occurrence_date <= ?", end_of_month)
-                       .order(:next_occurrence_date)
-
-    # Separate by type
-    expenses = upcoming.select { |r| r.transaction_type_expense? }
-    income = upcoming.select { |r| r.transaction_type_income? }
-
-    {
-      expenses: expenses,
-      income: income,
-      expense_total: expenses.sum { |r| r.amount.abs },
-      income_total: income.sum { |r| r.amount }
-    }
-  end
-  private :get_upcoming_recurring_transactions
+  # upcoming recurring handled by RecurringTransaction.upcoming_for_account
 
   def sync
     unless Current.user.up_bank_token.present?

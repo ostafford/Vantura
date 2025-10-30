@@ -30,7 +30,9 @@ class TransactionStatsCalculator < ApplicationService
       net_cash_flow: net_cash_flow,
       transaction_count: transaction_count,
       top_category: top_category,
-      top_category_amount: top_category_amount
+      top_category_amount: top_category_amount,
+      top_expense_merchants: top_expense_merchants,
+      top_income_merchants: top_income_merchants
     }
   end
 
@@ -78,5 +80,25 @@ class TransactionStatsCalculator < ApplicationService
                            .group(:category)
                            .sum(:amount)
                            .max_by { |_, v| v.abs }
+  end
+
+  def top_expense_merchants
+    @top_expense_merchants ||= Transaction.top_merchants_by_type(
+      "expense",
+      account: @account,
+      start_date: @start_date,
+      end_date: @end_date,
+      limit: 3
+    )
+  end
+
+  def top_income_merchants
+    @top_income_merchants ||= Transaction.top_merchants_by_type(
+      "income",
+      account: @account,
+      start_date: @start_date,
+      end_date: @end_date,
+      limit: 3
+    )
   end
 end

@@ -24,11 +24,12 @@ class CalendarController < ApplicationController
     # Set current_date alias for consistency with other controllers
     @current_date = @date
 
-    # Get appropriate date range based on view
-    @start_date, @end_date = date_range_for_view
+    # Build calendar structure and date range via shared service
+    builder = Calendar::StructureBuilder.new(date: @date, month: @month, week_start: :monday)
+    @start_date, @end_date = builder.date_range_for_view(@view)
 
-    # Generate recurring transactions for this period if needed (for indefinite patterns)
-    generate_recurring_for_month(@start_date, @end_date)
+    # Ensure recurring projection sourced from a single place
+    RecurringTransactions::Projector.call(account: @account, start_date: @start_date, end_date: @end_date)
 
     @transactions = @account.transactions
                             .where(transaction_date: @start_date..@end_date)
@@ -38,11 +39,11 @@ class CalendarController < ApplicationController
     @transactions_by_date = @transactions.group_by(&:transaction_date)
 
     if @view == "week"
-      # Build week days for week view
-      @week_days = build_week_days
+      # Build week days for week view (shared builder)
+      @week_days = builder.week_days
     else
-      # Build calendar weeks for month view
-      @weeks = build_calendar_weeks
+      # Build calendar weeks for month view (shared builder)
+      @weeks = builder.month_weeks
 
       # Calculate EOW amounts (only for month view)
       @eow_amounts = calculate_eow_amounts
@@ -76,56 +77,6 @@ class CalendarController < ApplicationController
 
   private
 
-  def date_range_for_view
-    case @view
-    when "week"
-      # Get the week containing the current date
-      week_start = @date.beginning_of_week(:monday)
-      week_end = @date.end_of_week(:monday)
-      [ week_start, week_end ]
-    else
-      # Default to month view
-      month_date_range
-    end
-  end
-
-  def build_week_days
-    week_days = []
-    current_date = @date.beginning_of_week(:monday)
-
-    7.times do
-      week_days << {
-        date: current_date,
-        day_name: current_date.strftime("%A"),
-        day_number: current_date.day,
-        is_today: current_date == Date.today,
-        is_current_month: current_date.month == @month
-      }
-      current_date += 1.day
-    end
-
-    week_days
-  end
-
-  def build_calendar_weeks
-    weeks = []
-    current_date = @date.beginning_of_month.beginning_of_week(:monday)
-    end_date = @date.end_of_month.end_of_week(:monday)
-
-    while current_date <= end_date
-      week = []
-      7.times do
-        week << {
-          date: current_date,
-          in_current_month: current_date.month == @month
-        }
-        current_date += 1.day
-      end
-      weeks << week
-    end
-
-    weeks
-  end
 
   def calculate_eow_amounts
     return [] unless @account

@@ -3,12 +3,14 @@
  * Displays transactions in a sortable table (desktop) or card layout (mobile)
  */
 
-import React, { useState, useMemo } from 'react'
+import React from 'react'
 import { QueryProvider } from '../../providers/QueryProvider'
 import { ErrorBoundary } from '../shared/ErrorBoundary'
 import { useTransactions } from '../../hooks/useTransactions'
-import { useResponsive } from '../../hooks/useResponsive'
 import type { Transaction } from '../../types/models'
+import { ResponsiveTable, type Column } from '../shared/ResponsiveTable'
+import useTableSort from '../../hooks/useTableSort'
+import { formatAmount, formatDate } from '../../utils/formatting'
 
 interface TransactionTableProps {
   year?: number
@@ -17,9 +19,6 @@ interface TransactionTableProps {
   initialTransactions?: Transaction[]
 }
 
-type SortColumn = 'date' | 'description' | 'category' | 'amount'
-type SortDirection = 'asc' | 'desc'
-
 function TransactionTableContent({
   year,
   month,
@@ -27,60 +26,19 @@ function TransactionTableContent({
   initialTransactions
 }: TransactionTableProps): React.JSX.Element {
   const { data, isLoading, error } = useTransactions({ year, month, filterType })
-  const [sortColumn, setSortColumn] = useState<SortColumn>('date')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
-  const { isMobile } = useResponsive()
 
   const transactions = data?.data?.transactions || initialTransactions || []
   const meta = data?.meta
 
-  // Sort transactions client-side
-  const sortedTransactions = useMemo(() => {
-    const sorted = [...transactions].sort((a, b) => {
-      let aVal: string | number
-      let bVal: string | number
-
-      switch (sortColumn) {
-        case 'date':
-          aVal = new Date(a.transaction_date).getTime()
-          bVal = new Date(b.transaction_date).getTime()
-          break
-        case 'description':
-          aVal = a.description.toLowerCase()
-          bVal = b.description.toLowerCase()
-          break
-        case 'category':
-          aVal = (a.category || 'Uncategorized').toLowerCase()
-          bVal = (b.category || 'Uncategorized').toLowerCase()
-          break
-        case 'amount':
-          aVal = a.amount
-          bVal = b.amount
-          break
-        default:
-          return 0
-      }
-
-      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1
-      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1
-      return 0
-    })
-    return sorted
-  }, [transactions, sortColumn, sortDirection])
-
-  const handleSort = (column: SortColumn) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortColumn(column)
-      setSortDirection('desc')
+  const { sortedRows: sortedTransactions, sortState, sortBy } = useTableSort<Transaction>({
+    rows: transactions,
+    defaultSort: { key: 'transaction_date', direction: 'desc' },
+    accessor: (row, key) => {
+      if (key === 'transaction_date') return new Date(row.transaction_date)
+      if (key === 'category') return row.category || 'Uncategorized'
+      return (row as any)[key]
     }
-  }
-
-  const formatAmount = (amount: number): string => {
-    const sign = amount < 0 ? '-' : '+'
-    return `${sign}$${Math.abs(amount).toFixed(2)}`
-  }
+  })
 
   const getStatusBadge = (transaction: Transaction): React.JSX.Element => {
     if (transaction.is_hypothetical) {
@@ -104,11 +62,11 @@ function TransactionTableContent({
     }
   }
 
-  const SortIcon = ({ column }: { column: SortColumn }): React.JSX.Element | null => {
-    if (sortColumn !== column) return null
+  const SortIcon = ({ column }: { column: keyof Transaction }): React.JSX.Element | null => {
+    if (sortState.key !== column) return null
     return (
       <svg
-        className={`w-4 h-4 ml-1 ${sortDirection === 'asc' ? '' : 'transform rotate-180'}`}
+        className={`w-4 h-4 ml-1 ${sortState.direction === 'asc' ? '' : 'transform rotate-180'}`}
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -147,142 +105,37 @@ function TransactionTableContent({
     )
   }
 
-  // Mobile card layout
-  if (isMobile) {
-    return (
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        {sortedTransactions.map((transaction) => (
-          <div
-            key={transaction.id}
-            className={`p-4 ${
-              transaction.is_hypothetical ? 'bg-purple-50 dark:bg-purple-900/20' : ''
-            } hover:bg-gray-50 dark:hover:bg-gray-700`}
-          >
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {transaction.description}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {new Date(transaction.transaction_date).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </p>
-              </div>
-              <span
-                className={`text-sm font-medium ${
-                  transaction.amount < 0
-                    ? 'text-expense-600 dark:text-expense-400'
-                    : 'text-income-600 dark:text-income-400'
-                }`}
-              >
-                {formatAmount(transaction.amount)}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              {transaction.category && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {(transaction.category || 'Uncategorized').replace(/_/g, ' ')}
-                </span>
-              )}
-              {getStatusBadge(transaction)}
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
+  const columns: readonly Column<Transaction>[] = [
+    { id: 'transaction_date', header: 'Date', sortable: true, accessor: (r) => new Date(r.transaction_date) },
+    { id: 'description', header: 'Description', sortable: true },
+    { id: 'category', header: 'Category', sortable: true, accessor: (r) => (r.category || 'Uncategorized').replace(/_/g, ' ') },
+    { id: 'status', header: 'Status' },
+    { id: 'amount', header: 'Amount', sortable: true },
+    { id: 'id', header: 'Actions' }
+  ]
 
-  // Desktop table layout
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead className="bg-gray-50 dark:bg-gray-900">
-          <tr>
-            <th
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => handleSort('date')}
-            >
-              <div className="flex items-center">
-                Date
-                <SortIcon column="date" />
-              </div>
-            </th>
-            <th
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => handleSort('description')}
-            >
-              <div className="flex items-center">
-                Description
-                <SortIcon column="description" />
-              </div>
-            </th>
-            <th
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => handleSort('category')}
-            >
-              <div className="flex items-center">
-                Category
-                <SortIcon column="category" />
-              </div>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Status
-            </th>
-            <th
-              className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => handleSort('amount')}
-            >
-              <div className="flex items-center justify-end">
-                Amount
-                <SortIcon column="amount" />
-              </div>
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          {sortedTransactions.map((transaction) => (
-            <tr
-              key={transaction.id}
-              className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${
-                transaction.is_hypothetical ? 'bg-purple-50 dark:bg-purple-900/20' : ''
-              }`}
-            >
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                {new Date(transaction.transaction_date).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-              </td>
-              <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-                {transaction.description}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                {(transaction.category || 'Uncategorized').replace(/_/g, ' ')}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(transaction)}</td>
-              <td
-                className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${
-                  transaction.amount < 0
-                    ? 'text-expense-600 dark:text-expense-400'
-                    : 'text-income-600 dark:text-income-400'
-                }`}
-              >
-                {formatAmount(transaction.amount)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                {/* Action buttons will be added via server-side rendering or another component */}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <ResponsiveTable<Transaction>
+        ariaLabel="Transactions"
+        columns={columns}
+        rows={sortedTransactions}
+        getRowId={(row) => String(row.id)}
+        rowClassName={(row) => `${row.is_hypothetical ? 'bg-purple-50 dark:bg-purple-900/20' : ''}`}
+        sortState={{ key: sortState.key, direction: sortState.direction }}
+        onSortChange={(key) => sortBy(key)}
+        renderCell={(row, col) => {
+          if (col.id === 'transaction_date') return formatDate(row.transaction_date)
+          if (col.id === 'category') return (row.category || 'Uncategorized').replace(/_/g, ' ')
+          if (col.id === 'status') return getStatusBadge(row)
+          if (col.id === 'amount') {
+            const cls = row.amount < 0 ? 'text-expense-600 dark:text-expense-400' : 'text-income-600 dark:text-income-400'
+            return <span className={`font-medium ${cls}`}>{formatAmount(row.amount)}</span>
+          }
+          if (col.id === 'id') return <span className="text-right block" />
+          return (row as any)[col.id]
+        }}
+      />
       {meta?.pagination && (
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-500 dark:text-gray-400">

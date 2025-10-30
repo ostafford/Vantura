@@ -10,3 +10,22 @@
  */
 
 /* Tailwind CSS is built separately and loaded via the layout */
+
+/* Accessible focus styles for keyboard users */
+:where(a, button, [role="button"], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 3px solid #1f2937; /* neutral-800 fallback */
+  outline-offset: 2px;
+}
+
+.dark :where(a, button, [role="button"], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline-color: #f3f4f6; /* gray-100 fallback for dark */
+}
+
+/* Skip link visibility when focused */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+.skip-link:focus {
+  left: auto;
+}

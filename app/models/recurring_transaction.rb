@@ -34,6 +34,24 @@ class RecurringTransaction < ApplicationRecord
   scope :due_soon, ->(days = 7) { where("next_occurrence_date <= ?", Date.today + days.days) }
 
   # Methods
+  # Return upcoming recurring transactions for an account up to end_date, split by type
+  # and with precomputed totals.
+  def self.upcoming_for_account(account, end_date = Date.today.end_of_month)
+    upcoming = account.recurring_transactions
+                      .active
+                      .where("next_occurrence_date <= ?", end_date)
+                      .order(:next_occurrence_date)
+
+    expenses = upcoming.select { |r| r.transaction_type_expense? }
+    income = upcoming.select { |r| r.transaction_type_income? }
+
+    {
+      expenses: expenses,
+      income: income,
+      expense_total: expenses.sum { |r| r.amount.abs },
+      income_total: income.sum { |r| r.amount }
+    }
+  end
   def calculate_next_occurrence(from_date = next_occurrence_date)
     case frequency
     when "weekly"

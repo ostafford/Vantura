@@ -1,0 +1,18 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "wait": 500,
+    "screenCapture": false,
+    "includeWarnings": true,
+    "timeout": 60000
+  },
+  "urls": [
+    "http://localhost:3000/",
+    "http://localhost:3000/transactions",
+    "http://localhost:3000/recurring_transactions",
+    "http://localhost:3000/calendar",
+    "http://localhost:3000/trends",
+    "http://localhost:3000/settings"
+  ]
+}
+

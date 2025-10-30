@@ -1,4 +1,17 @@
 ENV["RAILS_ENV"] ||= "test"
+
+# Start SimpleCov before Rails loads
+begin
+  require "simplecov"
+  SimpleCov.start "rails" do
+    enable_coverage :branch
+    minimum_coverage 70
+    add_filter %w[/config/ /bin/ /db/ /vendor/]
+  end
+rescue LoadError
+  # simplecov not available in some environments
+end
+
 require_relative "../config/environment"
 require "rails/test_help"
 

@@ -54,10 +54,24 @@ class TransactionStatsCalculatorTest < ActiveSupport::TestCase
     stats = TransactionStatsCalculator.call(@account, Date.today.beginning_of_month, Date.today.end_of_month)
 
     expected_keys = [ :expense_total, :income_total, :expense_count, :income_count,
-                     :net_cash_flow, :transaction_count, :top_category, :top_category_amount ]
+                     :net_cash_flow, :transaction_count, :top_category, :top_category_amount,
+                     :top_expense_merchants, :top_income_merchants ]
 
     expected_keys.each do |key|
       assert stats.key?(key), "Expected key #{key} to be present"
+    end
+  end
+
+  test "top merchants arrays have expected shape" do
+    stats = TransactionStatsCalculator.call(@account, Date.today.beginning_of_month, Date.today.end_of_month)
+    assert stats[:top_expense_merchants].is_a?(Array)
+    assert stats[:top_income_merchants].is_a?(Array)
+
+    if stats[:top_expense_merchants].any?
+      m = stats[:top_expense_merchants].first
+      assert m.key?(:merchant)
+      assert m.key?(:total)
+      assert m.key?(:count)
     end
   end
 end

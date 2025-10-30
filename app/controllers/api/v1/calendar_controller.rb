@@ -15,11 +15,12 @@ class Api::V1::CalendarController < Api::V1::BaseController
     # Set view (month or week)
     view = params[:view] || "month"
 
-    # Get appropriate date range based on view
-    start_date, end_date = date_range_for_view(view)
+    # Get appropriate date range and structure via shared services
+    builder = Calendar::StructureBuilder.new(date: @date, month: @month, week_start: :monday)
+    start_date, end_date = builder.date_range_for_view(view)
 
-    # Generate recurring transactions for this period if needed
-    generate_recurring_for_month(start_date, end_date)
+    # Ensure recurring projection is centralized
+    RecurringTransactions::Projector.call(account: @account, start_date: start_date, end_date: end_date)
 
     transactions = @account.transactions
                            .where(transaction_date: start_date..end_date)
@@ -31,11 +32,11 @@ class Api::V1::CalendarController < Api::V1::BaseController
     # Calculate stats using service
     calendar_stats = CalendarStatsCalculator.call(@account, @date, start_date, end_date, view)
 
-    # Build calendar structure based on view
+    # Build calendar structure based on view (shared builder)
     calendar_structure = if view == "week"
-      build_week_days_for_api(@date)
+      builder.week_days
     else
-      build_calendar_weeks_for_api(@date)
+      builder.month_weeks
     end
 
     render_success({
@@ -55,84 +56,5 @@ class Api::V1::CalendarController < Api::V1::BaseController
 
   private
 
-  def date_range_for_view(view)
-    case view
-    when "week"
-      week_start = @date.beginning_of_week(:monday)
-      week_end = @date.end_of_week(:monday)
-      [week_start, week_end]
-    else
-      month_date_range
-    end
-  end
-
-  def build_week_days_for_api(date)
-    week_days = []
-    current_date = date.beginning_of_week(:monday)
-
-    7.times do
-      week_days << {
-        date: current_date,
-        day_name: current_date.strftime("%A"),
-        day_number: current_date.day,
-        is_today: current_date == Date.today,
-        is_current_month: current_date.month == @month
-      }
-      current_date += 1.day
-    end
-
-    week_days
-  end
-
-  def build_calendar_weeks_for_api(date)
-    weeks = []
-    current_date = date.beginning_of_month.beginning_of_week(:monday)
-    end_date = date.end_of_month.end_of_week(:monday)
-
-    while current_date <= end_date
-      week = []
-      7.times do
-        week << {
-          date: current_date,
-          in_current_month: current_date.month == @month
-        }
-        current_date += 1.day
-      end
-      weeks << week
-    end
-
-    weeks
-  end
-
-  def generate_recurring_for_month(start_date, end_date)
-    @account.recurring_transactions.active.where(projection_months: "indefinite").each do |recurring|
-      current_date = recurring.next_occurrence_date
-
-      while current_date <= end_date
-        break if current_date < start_date && recurring.calculate_next_occurrence(current_date) > end_date
-
-        existing = @account.transactions
-                           .where(recurring_transaction_id: recurring.id)
-                           .where(transaction_date: current_date)
-                           .exists?
-
-        unless existing
-          if current_date >= start_date && current_date <= end_date && current_date > Date.today
-            @account.transactions.create!(
-              description: recurring.description,
-              amount: recurring.amount,
-              category: recurring.category,
-              transaction_date: current_date,
-              status: "HYPOTHETICAL",
-              is_hypothetical: true,
-              recurring_transaction_id: recurring.id
-            )
-          end
-        end
-
-        current_date = recurring.calculate_next_occurrence(current_date)
-      end
-    end
-  end
 end
 

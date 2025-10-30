@@ -1,6 +1,6 @@
 <% content_for :title, "Sign Up - Vantura" %>
 
-<div class="min-h-screen bg-neutral-100 dark:bg-primary-900 flex items-center justify-center px-4 py-12">
+<main id="main" aria-label="Sign up page" class="min-h-screen bg-neutral-100 dark:bg-primary-900 flex items-center justify-center px-4 py-12">
   <div class="max-w-md w-full">
     <!-- Sign Up Card -->
     <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-2xl border-2 border-success-500/20 dark:border-primary-700/50 overflow-hidden">
@@ -13,11 +13,11 @@
       <!-- Form -->
       <%= form_with model: @user, url: sign_up_path, class: "p-8 space-y-6" do |form| %>
         <% if @user.errors.any? %>
-          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-            <h3 class="font-semibold text-red-900 dark:text-red-100 mb-2">
+          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4" role="alert" aria-live="polite">
+            <h3 class="font-semibold text-red-900 dark:text-red-100 mb-2" id="registration_errors_heading">
               <%= pluralize(@user.errors.count, "error") %> prevented this account from being created:
             </h3>
-            <ul class="list-disc list-inside text-sm text-red-800 dark:text-red-200 space-y-1">
+            <ul class="list-disc list-inside text-sm text-red-800 dark:text-red-200 space-y-1" aria-describedby="registration_errors_heading">
               <% @user.errors.full_messages.each do |message| %>
                 <li><%= message %></li>
               <% end %>
@@ -35,7 +35,12 @@
               autofocus: true,
               autocomplete: "username",
               placeholder: "you@example.com",
+              aria-describedby=("user_email_address_error" if @user.errors[:email_address].any?),
+              aria-invalid=("true" if @user.errors[:email_address].any?),
               class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-all" %>
+          <% if @user.errors[:email_address].any? %>
+            <p id="user_email_address_error" class="text-sm text-red-700 dark:text-red-300 mt-1"><%= @user.errors[:email_address].first %></p>
+          <% end %>
         </div>
 
         <!-- Password -->
@@ -48,7 +53,12 @@
               autocomplete: "new-password",
               placeholder: "Create a secure password",
               maxlength: 72,
+              aria-describedby=("user_password_error" if @user.errors[:password].any?),
+              aria-invalid=("true" if @user.errors[:password].any?),
               class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-all" %>
+          <% if @user.errors[:password].any? %>
+            <p id="user_password_error" class="text-sm text-red-700 dark:text-red-300 mt-1"><%= @user.errors[:password].first %></p>
+          <% end %>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Must be at least 8 characters
           </p>
@@ -64,7 +74,12 @@
               autocomplete: "new-password",
               placeholder: "Re-enter your password",
               maxlength: 72,
+              aria-describedby=("user_password_confirmation_error" if @user.errors[:password_confirmation].any?),
+              aria-invalid=("true" if @user.errors[:password_confirmation].any?),
               class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-all" %>
+          <% if @user.errors[:password_confirmation].any? %>
+            <p id="user_password_confirmation_error" class="text-sm text-red-700 dark:text-red-300 mt-1"><%= @user.errors[:password_confirmation].first %></p>
+          <% end %>
         </div>
 
         <!-- Submit Button -->
@@ -92,5 +107,5 @@
       </p>
     </div>
   </div>
-</div>
+</main>
 

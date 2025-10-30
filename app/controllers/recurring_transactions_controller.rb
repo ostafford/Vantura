@@ -64,26 +64,16 @@ class RecurringTransactionsController < ApplicationController
     @transaction = Transaction.find(params[:transaction_id])
     @account = @transaction.account
 
-    # Create recurring transaction based on the selected transaction
-    @recurring = @account.recurring_transactions.new(
-      template_transaction_id: @transaction.id,
-      description: @transaction.description,
-      amount: @transaction.amount,
-      category: @transaction.category,
-      merchant_pattern: RecurringTransaction.extract_merchant_pattern(@transaction.description),
-      amount_tolerance: params[:amount_tolerance] || 1.0,
+    result = RecurringTransactions::CreateFromTemplateService.call(
+      transaction: @transaction,
       frequency: params[:frequency],
       next_occurrence_date: params[:next_occurrence_date],
-      transaction_type: @transaction.transaction_type,
-      projection_months: params[:projection_months] || "indefinite",
-      is_active: true
+      amount_tolerance: params[:amount_tolerance],
+      projection_months: params[:projection_months]
     )
 
-    if @recurring.save
-      # Generate future hypothetical transactions
-      months_ahead = @recurring.projection_months == "indefinite" ? 12 : @recurring.projection_months.to_i
-      RecurringTransactions::GenerateService.call(@recurring, months_ahead: months_ahead)
-
+    if result.success?
+      @recurring = result.recurring
       redirect_back(
         fallback_location: root_path,
         notice: "Recurring transaction created! Future occurrences have been added to your calendar."
@@ -91,7 +81,7 @@ class RecurringTransactionsController < ApplicationController
     else
       redirect_back(
         fallback_location: root_path,
-        alert: "Error creating recurring transaction: #{@recurring.errors.full_messages.join(', ')}"
+        alert: "Error creating recurring transaction: #{result.errors.full_messages.join(', ')}"
       )
     end
   end

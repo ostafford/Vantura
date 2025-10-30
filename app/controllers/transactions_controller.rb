@@ -1,6 +1,7 @@
 class TransactionsController < ApplicationController
   include AccountLoadable
   include DateParseable
+  include TransactionFilterable
 
   before_action :load_account_for_index, only: [ :index ]
   before_action :load_account, only: [ :show, :edit, :update, :destroy, :search ]
@@ -25,11 +26,11 @@ class TransactionsController < ApplicationController
     @filter_type = params[:filter] || "all"
 
     # Filter transactions
-    @transactions = filter_transactions_by_type(@filter_type)
+    @transactions = transaction_scope_for(@account, @filter_type)
                       .where(transaction_date: start_date..end_date)
                       .order(transaction_date: :desc)
 
-    # Calculate totals and stats using service object
+    # Calculate totals and stats using service object (includes top merchants)
     stats = TransactionStatsCalculator.call(@account, start_date, end_date)
     @expense_total = stats[:expense_total]
     @income_total = stats[:income_total]
@@ -39,22 +40,8 @@ class TransactionsController < ApplicationController
     @transaction_count = stats[:transaction_count]
     @top_category = stats[:top_category]
     @top_category_amount = stats[:top_category_amount]
-
-    # Calculate top merchants for the selected month
-    @top_expense_merchants = Transaction.top_merchants_by_type(
-      "expense",
-      account: @account,
-      start_date: start_date,
-      end_date: end_date,
-      limit: 3
-    )
-    @top_income_merchants = Transaction.top_merchants_by_type(
-      "income",
-      account: @account,
-      start_date: start_date,
-      end_date: end_date,
-      limit: 3
-    )
+    @top_expense_merchants = stats[:top_expense_merchants]
+    @top_income_merchants = stats[:top_income_merchants]
 
     respond_to do |format|
       format.html
@@ -80,22 +67,15 @@ class TransactionsController < ApplicationController
 
   def create
     return unless load_account
+    result = Transactions::CreateService.call(
+      account: @account,
+      params: transaction_params.merge(transaction_type: params.dig(:transaction, :transaction_type)),
+      transaction_type: params.dig(:transaction, :transaction_type)
+    )
 
-    @transaction = @account.transactions.build(transaction_params)
-    @transaction.is_hypothetical = true
-    @transaction.status = :hypothetical
-
-    # Handle transaction type (expense or income)
-    transaction_type = params[:transaction][:transaction_type]
-    if transaction_type == "expense"
-      # Expenses are negative
-      @transaction.amount = -@transaction.amount.abs if @transaction.amount
-    else
-      # Income is positive
-      @transaction.amount = @transaction.amount.abs if @transaction.amount
-    end
-
-    if @transaction.save
+    if result.success?
+      @transaction = result.transaction
+      transaction_type = params.dig(:transaction, :transaction_type)
       type_name = transaction_type == "expense" ? "expense" : "income"
 
       respond_to do |format|
@@ -113,7 +93,7 @@ class TransactionsController < ApplicationController
           @end_of_month_balance = stats[:end_of_month_balance]
 
           # Calculate upcoming recurring transactions for projection card
-          upcoming_recurring = get_upcoming_recurring_transactions
+          upcoming_recurring = RecurringTransaction.upcoming_for_account(@account, Date.today.end_of_month)
           @upcoming_recurring_expenses = upcoming_recurring[:expenses]
           @upcoming_recurring_income = upcoming_recurring[:income]
           @upcoming_recurring_total = upcoming_recurring[:expense_total] + upcoming_recurring[:income_total]
@@ -123,7 +103,7 @@ class TransactionsController < ApplicationController
     else
       respond_to do |format|
         format.turbo_stream { render turbo_stream: turbo_stream.replace("transactionModal", partial: "shared/transaction_drawer", locals: { default_transaction_date: Date.today }) }
-        format.html { redirect_back(fallback_location: root_path, alert: "Error adding transaction: #{@transaction.errors.full_messages.join(', ')}") }
+        format.html { redirect_back(fallback_location: root_path, alert: "Error adding transaction: #{result.errors.full_messages.join(', ')}") }
       end
     end
   end
@@ -140,94 +120,27 @@ class TransactionsController < ApplicationController
   def search
     return unless load_account
 
-    query = params[:q].to_s.strip
+    result = Transactions::SearchService.call(
+      account: @account,
+      query: params[:q],
+      year: params[:year],
+      month: params[:month]
+    )
 
-    # Get the month/year from params (from query string ?month=X&year=Y)
-    if params[:year].present? && params[:month].present?
-      @year = params[:year].to_i
-      @month = params[:month].to_i
-      @date = Date.new(@year, @month, 1)
-      start_date = @date.beginning_of_month
-      end_date = @date.end_of_month
-    else
-      # Default to current month
-      @date = Date.today
-      @year = @date.year
-      @month = @date.month
-      start_date = @date.beginning_of_month
-      end_date = @date.end_of_month
-    end
+    @transactions = result.transactions
+    stats = result.stats
+    @expense_total = stats[:expense_total]
+    @income_total = stats[:income_total]
+    @expense_count = stats[:expense_count]
+    @income_count = stats[:income_count]
+    @net_cash_flow = stats[:net_cash_flow]
+    @transaction_count = stats[:transaction_count]
+    @top_category = stats[:top_category]
+    @top_category_amount = stats[:top_category_amount]
+    @top_expense_merchants = stats[:top_expense_merchants]
+    @top_income_merchants = stats[:top_income_merchants]
 
-    if query.length >= 3
-      # Use ILIKE for case-insensitive search in PostgreSQL
-      # Search within the selected month
-      search_pattern = "%#{query}%"
-      @transactions = @account.transactions
-                               .where(transaction_date: start_date..end_date)
-                               .where("description ILIKE ? OR category ILIKE ? OR merchant ILIKE ?",
-                                      search_pattern, search_pattern, search_pattern)
-                               .order(transaction_date: :desc)
-                               .limit(10)
-
-      # Calculate stats from search results
-      expense_transactions = @transactions.select { |t| t.amount < 0 }
-      income_transactions = @transactions.select { |t| t.amount > 0 }
-
-      @expense_total = expense_transactions.sum { |t| t.amount.abs }
-      @income_total = income_transactions.sum { |t| t.amount }
-      @expense_count = expense_transactions.count
-      @income_count = income_transactions.count
-      @net_cash_flow = @income_total - @expense_total
-      @transaction_count = @transactions.count
-
-      # Top category from search results
-      category_totals = @transactions.group_by(&:category).transform_values do |transactions|
-        transactions.sum(&:amount).abs
-      end
-      top_category_data = category_totals.max_by { |_, total| total }
-      @top_category = top_category_data&.first || "N/A"
-      @top_category_amount = top_category_data&.last || 0
-
-      # Calculate top merchants from search results
-      @top_expense_merchants = calculate_top_merchants(expense_transactions)
-      @top_income_merchants = calculate_top_merchants(income_transactions)
-
-      @filter_type = "search" # Indicate this is a search result
-    else
-      # Return transactions for the selected month
-      @transactions = @account.transactions
-                               .where(transaction_date: start_date..end_date)
-                               .order(transaction_date: :desc)
-
-      # Calculate stats for the selected month
-      stats = TransactionStatsCalculator.call(@account, start_date, end_date)
-      @expense_total = stats[:expense_total]
-      @income_total = stats[:income_total]
-      @expense_count = stats[:expense_count]
-      @income_count = stats[:income_count]
-      @net_cash_flow = stats[:net_cash_flow]
-      @transaction_count = stats[:transaction_count]
-      @top_category = stats[:top_category]
-      @top_category_amount = stats[:top_category_amount]
-
-      # Calculate top merchants for the selected month
-      @top_expense_merchants = Transaction.top_merchants_by_type(
-        "expense",
-        account: @account,
-        start_date: start_date,
-        end_date: end_date,
-        limit: 3
-      )
-      @top_income_merchants = Transaction.top_merchants_by_type(
-        "income",
-        account: @account,
-        start_date: start_date,
-        end_date: end_date,
-        limit: 3
-      )
-
-      @filter_type = params[:filter] || "all"
-    end
+    @filter_type = params[:q].to_s.strip.length >= 3 ? "search" : (params[:filter] || "all")
 
     respond_to do |format|
       format.turbo_stream
@@ -246,61 +159,11 @@ class TransactionsController < ApplicationController
     @transaction = @account.transactions.find(params[:id])
   end
 
-  def filter_transactions_by_type(type)
-    case type
-    when "expenses"
-      @account.transactions.expenses
-    when "income"
-      @account.transactions.income
-    when "hypothetical"
-      @account.transactions.hypothetical
-    else
-      @account.transactions
-    end
-  end
+  # filtering handled by TransactionFilterable
 
   def transaction_params
     params.require(:transaction).permit(:description, :amount, :transaction_date, :category, :merchant)
   end
 
-  def get_upcoming_recurring_transactions
-    # Get active recurring transactions that will occur before end of month
-    end_of_month = Date.today.end_of_month
-
-    upcoming = @account.recurring_transactions
-                       .active
-                       .where("next_occurrence_date <= ?", end_of_month)
-                       .order(:next_occurrence_date)
-
-    # Separate by type
-    expenses = upcoming.select { |r| r.transaction_type_expense? }
-    income = upcoming.select { |r| r.transaction_type_income? }
-
-    {
-      expenses: expenses,
-      income: income,
-      expense_total: expenses.sum { |r| r.amount.abs },
-      income_total: income.sum { |r| r.amount }
-    }
-  end
-
-  def calculate_top_merchants(transactions)
-    return [] if transactions.empty?
-
-    merchants = transactions.group_by(&:merchant).transform_values do |txs|
-      { total: txs.sum(&:amount).abs, count: txs.count }
-    end
-
-    merchants.sort_by { |_, data| -data[:total] }
-             .first(3)
-             .map do |merchant_name, data|
-               {
-                 merchant: merchant_name || "Unknown",
-                 total: data[:total],
-                 count: data[:count],
-                 hypothetical: transactions.any? { |t| t.is_hypothetical? && t.merchant == merchant_name }
-               }
-             end
-  end
-  private :get_upcoming_recurring_transactions
+  # upcoming recurring handled by RecurringTransaction.upcoming_for_account
 end

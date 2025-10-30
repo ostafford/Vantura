@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title><%= content_for(:title) || "Vantura" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -45,6 +45,7 @@
   </head>
 
   <body data-controller="theme modal recurring-modal calendar sync filter connectivity" class="bg-neutral-100 dark:bg-primary-900 h-screen flex flex-col">
+    <a href="#main" class="skip-link sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-black dark:focus:bg-gray-800 dark:focus:text-white focus:px-4 focus:py-2 focus:rounded focus:shadow">Skip to main content</a>
     <!-- WebSocket subscription for real-time updates (available on all pages) -->
     <% if authenticated? %>
       <%= turbo_stream_from Current.user %>

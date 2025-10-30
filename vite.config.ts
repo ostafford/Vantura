@@ -26,5 +26,18 @@ export default defineConfig({
     host: true,
     port: 3036,
   },
+  test: {
+    environment: 'jsdom',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      statements: 65,
+      branches: 55,
+      functions: 60,
+      lines: 65,
+      include: ['app/javascript/**/*.{ts,tsx}'],
+      exclude: ['**/__tests__/**', 'node_modules/**']
+    }
+  }
 })
 
