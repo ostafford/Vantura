@@ -5,7 +5,7 @@ module ApplicationHelper
       content_tag :span, "Hypothetical",
         class: compact ?
           "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300" :
-          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300"
+          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300"
     elsif transaction.status == "HELD"
       content_tag :span, "Pending",
         class: compact ?

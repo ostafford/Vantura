@@ -10,7 +10,7 @@ class ProjectsFlowTest < ActionDispatch::IntegrationTest
 
   test "member can view project but cannot edit" do
     project = Project.create!(name: "Shared House", owner: @owner)
-    ProjectMembership.create!(project: project, user: @member)
+    ProjectMembership.create!(project: project, user: @member) # limited by default
 
     # Owner can access
     get project_url(project)
@@ -24,6 +24,31 @@ class ProjectsFlowTest < ActionDispatch::IntegrationTest
 
     # Member cannot create expense
     get new_project_expense_url(project)
+    assert_response :forbidden
+  end
+
+  test "full-access member can manage project and expenses (except delete)" do
+    project = Project.create!(name: "Road Trip", owner: @owner)
+    ProjectMembership.create!(project: project, user: @member, access_level: :full)
+
+    # Switch to member session
+    delete session_url
+    post session_url, params: { email_address: @member.email_address, password: "password" }
+
+    # Can view
+    get project_url(project)
+    assert_response :success
+
+    # Can open new expense
+    get new_project_expense_url(project)
+    assert_response :success
+
+    # Can access edit project
+    get edit_project_url(project)
+    assert_response :success
+
+    # Cannot delete project
+    delete project_url(project)
     assert_response :forbidden
   end
 

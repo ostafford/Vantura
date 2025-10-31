@@ -23,11 +23,18 @@
       <% User.order(:email_address).limit(100).each do |user| %>
         <% next if user.id == Current.user.id %>
         <% is_checked = @project.persisted? && @project.members.include?(user) %>
+        <% membership = @project.persisted? ? @project.project_memberships.find { |m| m.user_id == user.id } : nil %>
         <label class="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors">
           <input type="checkbox" name="member_user_ids[]" value="<%= user.id %>" class="member-option w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 focus:ring-2" <%= 'checked' if is_checked %>>
           <div class="flex-1">
             <span class="text-sm font-medium text-gray-900 dark:text-gray-100"><%= user_display_name(user) %></span>
             <span class="text-xs text-gray-500 dark:text-gray-400 ml-2"><%= user.email_address %></span>
+          </div>
+          <div class="w-48">
+            <select name="member_access_levels[<%= user.id %>]" class="member-role block w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-xs px-2 py-1.5 focus:ring-primary-500 focus:border-primary-500 <%= is_checked ? '' : 'hidden' %>">
+              <option value="limited" <%= membership&.limited? ? 'selected' : '' %>>Limited access</option>
+              <option value="full" <%= membership&.full? ? 'selected' : '' %>>Full access</option>
+            </select>
           </div>
         </label>
       <% end %>
@@ -42,6 +49,21 @@
             var label = cb.closest('label');
             var text = label.textContent.toLowerCase();
             label.style.display = text.indexOf(q) >= 0 ? '' : 'none';
+          });
+        });
+
+        // Toggle role select visibility based on checkbox state
+        document.querySelectorAll('.member-option').forEach(function(cb){
+          var label = cb.closest('label');
+          var select = label.querySelector('.member-role');
+          cb.addEventListener('change', function(){
+            if (select) {
+              if (cb.checked) {
+                select.classList.remove('hidden');
+              } else {
+                select.classList.add('hidden');
+              }
+            }
           });
         });
       });

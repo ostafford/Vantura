@@ -1,27 +1,45 @@
 class ProjectsController < ApplicationController
   before_action :set_project, only: [ :show, :edit, :update, :destroy ]
   before_action :authorize_member!, only: [ :show ]
-  before_action :authorize_owner!, only: [ :edit, :update, :destroy ]
+  before_action :authorize_owner_or_editor!, only: [ :edit, :update ]
+  before_action :authorize_owner!, only: [ :destroy ]
 
   def index
     calculate_project_statistics
   end
 
   def show
-    @expenses = @project.project_expenses.order(due_on: :asc, created_at: :desc).includes(:expense_contributions)
+    # Date context for global month navigation
+    if params[:year].present? && params[:month].present?
+      y = params[:year].to_i
+      m = params[:month].to_i
+      @date = (m >= 1 && m <= 12) ? (Date.new(y, m, 1) rescue Date.today) : Date.today
+    else
+      @date = Date.today
+    end
+
+    # Date range for filtering (selected month)
+    month_start = @date.beginning_of_month
+    month_end = @date.end_of_month
+
+    # All expenses (for table, can be filtered later)
+    @all_expenses = @project.project_expenses.order(due_on: :asc, created_at: :desc).includes(:expense_contributions)
+    # Month-filtered expenses for stats
+    @expenses_in_month = @project.project_expenses.where(due_on: month_start..month_end)
+    @expenses = @expenses_in_month.order(due_on: :asc, created_at: :desc).includes(:expense_contributions)
     
-    # Calculate project-specific statistics
-    @total_expenses_cents = @expenses.sum(:total_cents)
-    @expense_count = @expenses.count
+    # Calculate project-specific statistics (month-filtered)
+    @total_expenses_cents = @expenses_in_month.sum(:total_cents)
+    @expense_count = @expenses_in_month.count
     @total_participants = @project.participants.count
     
-    # Find largest expense
-    @largest_expense = @expenses.order(total_cents: :desc).first
+    # Find largest expense (month-filtered)
+    @largest_expense = @expenses_in_month.order(total_cents: :desc).first
     
-    # Calculate unpaid contributions count
+    # Calculate unpaid contributions count (month-filtered)
     @unpaid_contributions_count = ExpenseContribution
       .joins(:project_expense)
-      .where(project_expenses: { project_id: @project.id }, paid: false)
+      .where(project_expenses: { project_id: @project.id, due_on: month_start..month_end }, paid: false)
       .count
   end
 
@@ -89,6 +107,14 @@ class ProjectsController < ApplicationController
       head :forbidden
     end
 
+    def authorize_owner_or_editor!
+      return if @project.owner_id == Current.user.id
+      if @project.project_memberships.where(user_id: Current.user.id, access_level: ProjectMembership.access_levels[:full]).exists?
+        return
+      end
+      head :forbidden
+    end
+
     def project_params
       params.require(:project).permit(:name)
     end
@@ -98,9 +124,12 @@ class ProjectsController < ApplicationController
       @project.project_memberships.destroy_all
 
       # Create new memberships from submitted list (excluding owner if included)
+      access_levels = params[:member_access_levels] || {}
       Array(member_user_ids).map(&:to_i).uniq.each do |uid|
         next if uid == Current.user.id
-        @project.project_memberships.create(user_id: uid)
+        raw_level = access_levels[uid.to_s]
+        level = %w[full limited].include?(raw_level) ? raw_level : 'limited'
+        @project.project_memberships.create(user_id: uid, access_level: ProjectMembership.access_levels[level])
       end
     end
 

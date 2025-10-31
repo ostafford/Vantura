@@ -1,0 +1,51 @@
+<%
+  title = local_assigns.fetch(:title, 'Monthly Expenses')
+  project = local_assigns.fetch(:project)
+  initial_year = local_assigns[:year]
+  initial_month = local_assigns[:month]
+  group_by_options = [
+    ['All expenses', 'none'],
+    ['By category', 'category'],
+    ['By merchant', 'merchant'],
+    ['By contributor', 'contributor']
+  ]
+%>
+
+<div class="bento-span-2 bento-row-span-2 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 bg-white dark:bg-gray-800 p-4"
+     data-controller="bento-bar-chart"
+     data-bento-bar-chart-endpoint-value="<%= stats_bars_project_path(project) %>"
+     <%= "data-bento-bar-chart-year-value=\"#{initial_year}\"" if initial_year.present? %>
+     <%= "data-bento-bar-chart-month-value=\"#{initial_month}\"" if initial_month.present? %>>
+  <div class="flex items-center justify-between gap-3">
+    <h3 class="text-sm font-semibold text-gray-900 dark:text-white"><%= title %></h3>
+    <div class="inline-flex rounded-lg border-2 border-primary-700/30 dark:border-primary-500/20 bg-white dark:bg-gray-800 p-1 shadow-lg">
+      <button type="button"
+              data-bento-bar-chart-target="yearBtn"
+              data-action="click->bento-bar-chart#showYear"
+              class="px-3 py-1 rounded-md text-sm">Year</button>
+      <button type="button"
+              data-bento-bar-chart-target="monthBtn"
+              data-action="click->bento-bar-chart#showMonth"
+              class="px-3 py-1 rounded-md text-sm">Month</button>
+    </div>
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2">
+    <label class="text-xs text-gray-500 dark:text-gray-400">View:</label>
+    <select class="text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-2 py-1"
+            data-bento-bar-chart-target="entity"
+            data-action="change->bento-bar-chart#render">
+      <% group_by_options.each do |label, value| %>
+        <option value="<%= value %>"><%= label %></option>
+      <% end %>
+    </select>
+  </div>
+
+  <!-- Global header handles navigation; label not needed here -->
+
+  <div class="mt-4 relative">
+    <div data-bento-bar-chart-target="canvas"></div>
+  </div>
+</div>
+
+

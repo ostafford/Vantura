@@ -32,6 +32,9 @@ Rails.application.routes.draw do
 
   # Projects
   resources :projects do
+    member do
+      get "stats/bars", to: "projects/stats#bars", as: :stats_bars
+    end
     resources :expenses, controller: "project_expenses" do
       resources :contributions, only: [ :update ], controller: "expense_contributions"
     end
