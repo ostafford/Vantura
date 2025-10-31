@@ -1,0 +1,131 @@
+<%# Update projects index stats if on projects page, otherwise redirect %>
+<% referer_path = request.referer.present? ? URI.parse(request.referer).path rescue nil %>
+<% if referer_path == projects_path || referer_path == '/projects' %>
+  <%# We're coming from projects index, update the stats %>
+  <%= turbo_stream.replace "projects_hero_card" do %>
+    <div id="projects_hero_card">
+      <%= render 'shared/bento_cards/hero_card',
+          title: "Projects Hub",
+          subtitle: @total_expenses_cents > 0 ? format_cents(@total_expenses_cents) : "No expenses yet",
+          description: "Track and manage shared expense projects. Collaborate with team members, split costs equally, and monitor project spending across all your active projects.",
+          icon: 'chart',
+          size: 'bento-span-2 bento-row-span-2',
+          color: 'primary' do %>
+        <div class="mt-6 space-y-4">
+          <% if @total_projects > 0 %>
+            <div class="flex items-center justify-between pb-3 border-b border-white/20">
+              <span class="text-white/80 text-sm">Total Projects</span>
+              <span class="text-2xl font-bold text-white"><%= @total_projects %></span>
+            </div>
+            <div class="flex items-center justify-between pb-3 border-b border-white/20">
+              <span class="text-white/80 text-sm">Active Projects</span>
+              <span class="text-xl font-semibold text-white"><%= @active_projects %></span>
+            </div>
+            <% if @largest_expense %>
+              <div class="flex items-center justify-between pb-3 border-b border-white/20">
+                <span class="text-white/80 text-sm">Largest Expense</span>
+                <span class="text-xl font-semibold text-white"><%= format_cents(@largest_expense.total_cents) %></span>
+              </div>
+            <% end %>
+            <% if @most_active_project %>
+              <div class="flex items-center justify-between">
+                <span class="text-white/80 text-sm">Most Active</span>
+                <span class="text-lg font-semibold text-white truncate ml-2"><%= @most_active_project.name %></span>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4">
+              <p class="text-white/80 text-sm">Get started by creating your first project</p>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= turbo_stream.replace "total_projects_card" do %>
+    <%= render 'shared/bento_cards/stat_card',
+        id: 'total_projects_card',
+        title: "Total Projects",
+        value: @total_projects.to_s,
+        subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@active_projects}</span> active".html_safe,
+        detail: "Across all projects",
+        icon: 'chart',
+        color: 'blue',
+        size: 'bento-span-1 bento-row-span-2' %>
+  <% end %>
+
+  <%= turbo_stream.replace "total_expenses_card" do %>
+    <%= render 'shared/bento_cards/stat_card',
+        id: 'total_expenses_card',
+        title: "Total Expenses",
+        value: format_cents(@total_expenses_cents),
+        subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@total_projects}</span> projects".html_safe,
+        detail: "All time",
+        icon: 'dollar',
+        color: 'red',
+        size: 'bento-span-1 bento-row-span-2' %>
+  <% end %>
+
+  <%= turbo_stream.replace "total_participants_card" do %>
+    <%= render 'shared/bento_cards/stat_card',
+        id: 'total_participants_card',
+        title: "Total Participants",
+        value: @total_participants.to_s,
+        subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@total_projects}</span> projects".html_safe,
+        detail: "Unique members",
+        icon: 'chart',
+        color: 'blue',
+        size: 'bento-span-1 bento-row-span-2' %>
+  <% end %>
+
+  <%= turbo_stream.replace "active_projects_card" do %>
+    <%= render 'shared/bento_cards/stat_card',
+        id: 'active_projects_card',
+        title: "Active Projects",
+        value: @active_projects.to_s,
+        subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@total_projects - @active_projects}</span> inactive".html_safe,
+        detail: "With expenses",
+        icon: 'arrow-up',
+        color: 'green',
+        size: 'bento-span-1 bento-row-span-2' %>
+  <% end %>
+<% else %>
+  <%# Redirect to project show page %>
+  <%= turbo_stream.visit project_path(@project) %>
+<% end %>
+
+<%# Show success notification %>
+<% success_message = local_assigns.fetch(:success_message, 'Operation completed successfully!') %>
+<%= turbo_stream.append "notifications" do %>
+  <div data-controller="notification"
+       data-notification-type-value="success"
+       data-notification-auto-dismiss-value="true"
+       data-notification-dismiss-after-value="5000"
+       class="w-96 bg-white/95 dark:bg-primary-700/95 backdrop-blur-sm border-2 border-success-500/40 dark:border-success-700 rounded-xl shadow-xl pointer-events-auto overflow-hidden transform translate-x-full opacity-0 transition-all duration-300 ease-out">
+    <div class="p-4">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="h-6 w-6 text-success-500 dark:text-success-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="ml-3 w-0 flex-1 pt-0.5">
+          <p class="text-success-700 dark:text-success-300 text-sm font-medium">
+            <%= success_message %>
+          </p>
+        </div>
+        <div class="ml-4 flex-shrink-0 flex">
+          <button type="button" 
+                  data-action="click->notification#dismiss"
+                  class="text-success-500 dark:text-success-300 hover:text-success-700 dark:hover:text-success-500">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+

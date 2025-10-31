@@ -58,4 +58,19 @@ module CalendarHelper
       "#{start_date.strftime('%B %d, %Y')} - #{end_date.strftime('%B %d, %Y')}"
     end
   end
+
+  def calendar_day_bg_class(total:, in_current_month: true, is_today: false)
+    return "bg-gray-50 dark:bg-gray-900" unless in_current_month
+
+    base = if total > 0
+      "bg-green-50 dark:bg-green-900/15"
+    elsif total < 0
+      "bg-red-50 dark:bg-red-900/15"
+    else
+      "bg-white dark:bg-gray-800"
+    end
+
+    today_class = is_today ? " border-2 border-primary-700/40 dark:border-primary-500/40" : ""
+    base + today_class
+  end
 end

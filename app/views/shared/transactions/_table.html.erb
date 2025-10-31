@@ -1,0 +1,38 @@
+<%# Shared transaction table. Locals: transactions:, compact: false, show_date: false, show_footer_total: false, total_value: nil %>
+<% transactions = local_assigns.fetch(:transactions, []) %>
+<% compact = local_assigns.fetch(:compact, false) %>
+<% show_date = local_assigns.fetch(:show_date, false) %>
+<% show_footer_total = local_assigns.fetch(:show_footer_total, false) %>
+<% computed_total = total_value.nil? ? transactions.sum(&:amount) : total_value %>
+
+<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+  <thead class="bg-gray-50 dark:bg-gray-900">
+    <tr>
+      <% if show_date %>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+      <% end %>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+      <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+    </tr>
+  </thead>
+  <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+    <% transactions.each do |transaction| %>
+      <%= render partial: 'shared/transactions/row', locals: { transaction: transaction, compact: compact, show_date: show_date } %>
+    <% end %>
+  </tbody>
+  <% if show_footer_total %>
+    <tfoot class="bg-gray-50">
+      <tr>
+        <td colspan="<%= show_date ? 5 : 4 %>" class="px-6 py-4 text-sm font-semibold text-gray-900 text-right">Total:</td>
+        <td class="px-6 py-4 text-sm font-bold text-right <%= computed_total < 0 ? 'text-red-600' : 'text-green-600' %>">
+          <%= computed_total < 0 ? '-' : '+' %>$<%= number_with_precision(computed_total.abs, precision: 2) %>
+        </td>
+      </tr>
+    </tfoot>
+  <% end %>
+</table>
+
+

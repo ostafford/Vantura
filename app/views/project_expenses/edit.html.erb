@@ -1,5 +1,28 @@
-<h1 class="text-2xl font-semibold mb-4">Edit Expense</h1>
+<% content_for :title, "Edit Expense - #{@project.name} - Projects - Vantura" %>
 
-<%= render "form" %>
+<main>
+  <!-- Breadcrumb Navigation -->
+  <div class="bg-gradient-to-r from-cream-100 to-white dark:from-primary-900 dark:to-primary-950 border-b border-primary-700/20 dark:border-primary-900/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+      <div class="flex items-center gap-2">
+        <%= link_to projects_path, class: "text-sm text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 font-medium transition-colors" do %>
+          Projects
+        <% end %>
+        <span class="text-sm text-gray-400 dark:text-gray-500">/</span>
+        <%= link_to @project.name, project_path(@project), class: "text-sm text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 font-medium transition-colors" %>
+        <span class="text-sm text-gray-400 dark:text-gray-500">/</span>
+        <span class="text-sm text-gray-900 dark:text-white font-medium">Edit Expense</span>
+      </div>
+    </div>
+  </div>
 
+  <!-- Page Header -->
+  <%= render 'shared/page_header_simple', title: "Edit Expense", subtitle: "Update expense details for #{@project.name}", hide_quick_actions: true %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-gray-200 dark:border-gray-700 p-6">
+      <%= render "form" %>
+    </div>
+  </div>
+</main>
 

@@ -15,7 +15,9 @@
         <% end %>
         
         <!-- Quick Actions in Header -->
-        <%= render 'shared/quick_actions' %>
+        <% unless local_assigns[:hide_quick_actions] %>
+          <%= render 'shared/quick_actions' %>
+        <% end %>
       </div>
     </div>
   </div>

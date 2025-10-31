@@ -67,7 +67,7 @@
               locals: {
                 type: 'expense',
                 expense_total: @week_expenses,
-                expense_count: @account.transactions.where(transaction_date: week_start..week_end).where("amount < 0").count,
+                expense_count: @week_expense_count,
                 current_date: @date,
                 top_expense_merchants: @week_top_expense_merchants,
                 period: 'week'
@@ -78,7 +78,7 @@
               locals: {
                 type: 'income',
                 income_total: @week_income,
-                income_count: @account.transactions.where(transaction_date: week_start..week_end).where("amount > 0").count,
+                income_count: @week_income_count,
                 current_date: @date,
                 top_income_merchants: @week_top_income_merchants,
                 period: 'week'
@@ -115,7 +115,7 @@
               locals: {
                 type: 'expense',
                 expense_total: @actual_expenses,
-                expense_count: @account.transactions.where(transaction_date: @start_date..@end_date).where("amount < 0").where(is_hypothetical: false).count,
+                expense_count: @month_expense_count,
                 current_date: @date,
                 top_expense_merchants: @month_top_expense_merchants,
                 period: 'month'
@@ -126,7 +126,7 @@
               locals: {
                 type: 'income',
                 income_total: @actual_income,
-                income_count: @account.transactions.where(transaction_date: @start_date..@end_date).where("amount > 0").where(is_hypothetical: false).count,
+                income_count: @month_income_count,
                 current_date: @date,
                 top_income_merchants: @month_top_income_merchants,
                 period: 'month'
@@ -248,4 +248,5 @@
 
   <%= render 'shared/transaction_drawer', default_transaction_date: Date.today %>
   <%= render 'shared/recurring_drawer' %>
+  <%= render 'shared/details_drawer' %>
 </main>

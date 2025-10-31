@@ -81,36 +81,99 @@ export default class extends Controller {
   // Toggle day details (for month view expandable details)
   toggleDay(event) {
     const dayId = event.currentTarget.dataset.dayId
-    const element = document.getElementById(dayId)
-    
-    if (!element) return
-    
-    // Cache the query selector result for better performance
+    const detailsEl = document.getElementById(dayId)
+    if (!detailsEl) return
+
+    // Mobile: open in drawer/modal instead of inline
+    const isMobile = window.matchMedia('(max-width: 640px)').matches
+    if (isMobile) {
+      // Inject details into the mobile drawer and open it
+      try {
+        const drawer = document.getElementById('detailsDrawer')
+        const panel = document.getElementById('detailsDrawerPanel')
+        const content = document.getElementById('detailsDrawerContent')
+        const mainContent = document.getElementById('mainContent')
+        const closeBtn = document.getElementById('detailsDrawerClose')
+
+        if (drawer && panel && content && mainContent) {
+          // Insert cloned HTML so desktop inline panel can remain hidden/independent
+          const clone = detailsEl.cloneNode(true)
+          clone.classList.remove('hidden', 'mt-6')
+          content.innerHTML = ''
+          content.appendChild(clone)
+
+          // Open drawer
+          drawer.classList.remove('hidden')
+          drawer.classList.add('flex')
+          // shrink main content on desktop only; on mobile it's full width already
+          if (window.innerWidth >= 640) {
+            mainContent.classList.add('sm:mr-96')
+          }
+          // slide in
+          panel.classList.remove('translate-x-full')
+          panel.classList.add('translate-x-0')
+
+          // Wire close behavior (idempotent)
+          if (closeBtn && !this._detailsCloseBound) {
+            closeBtn.addEventListener('click', () => {
+              // slide out
+              panel.classList.remove('translate-x-0')
+              panel.classList.add('translate-x-full')
+              // restore content
+              mainContent.classList.remove('sm:mr-96')
+              setTimeout(() => {
+                drawer.classList.add('hidden')
+                drawer.classList.remove('flex')
+                content.innerHTML = ''
+              }, 300)
+            })
+            this._detailsCloseBound = true
+          }
+        } else {
+          // fallback: reveal in place
+          detailsEl.classList.remove('hidden')
+        }
+      } catch (e) {
+        // fallback: reveal in place
+        detailsEl.classList.remove('hidden')
+      }
+      return
+    }
+
+    // Desktop: inject into this week's inline slot
+    const weekContainer = event.currentTarget.closest('[data-week-index]')
+    if (!weekContainer) return
+    const weekIndex = weekContainer.getAttribute('data-week-index')
+    const slot = document.getElementById(`week-details-${weekIndex}`)
+    if (!slot) return
+
+    // Ensure we have a cache of all detail elements to hide when needed
     if (!this.allDayElements) {
       this.allDayElements = document.querySelectorAll('[id^="day-"]')
     }
-    
-    const isHidden = element.classList.contains('hidden')
-    
-    if (isHidden) {
-      // Hide all other day details first
-      this.allDayElements.forEach(el => {
-        if (el.id !== dayId) {
-          el.classList.add('hidden')
-        }
-      })
-      // Show this day's details
-      element.classList.remove('hidden')
-      // Smooth scroll to the details using requestAnimationFrame for better performance
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          element.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-        })
-      })
-    } else {
-      // Hide this day's details
-      element.classList.add('hidden')
+
+    // If this detailsEl is already shown inside slot, toggle it closed
+    const alreadyInSlot = slot.contains(detailsEl) && !detailsEl.classList.contains('hidden')
+    if (alreadyInSlot) {
+      detailsEl.classList.add('hidden')
+      return
     }
+
+    // Hide any currently shown details in this slot
+    Array.from(slot.children).forEach(child => child.classList.add('hidden'))
+
+    // Move the selected details element into the slot (keeps a single DOM instance)
+    // Normalize spacing when moved inline
+    detailsEl.classList.remove('mt-6')
+    slot.appendChild(detailsEl)
+    detailsEl.classList.remove('hidden')
+
+    // Smooth scroll to the inline details
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        detailsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      })
+    })
   }
 }
 

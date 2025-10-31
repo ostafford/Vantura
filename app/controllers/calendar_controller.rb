@@ -65,6 +65,10 @@ class CalendarController < ApplicationController
     @week_expenses = calendar_stats[:week_expenses]
     @week_transaction_count = calendar_stats[:week_transaction_count]
     @week_total = calendar_stats[:week_total]
+    @week_expense_count = calendar_stats[:week_expense_count]
+    @week_income_count = calendar_stats[:week_income_count]
+    @month_expense_count = calendar_stats[:month_expense_count]
+    @month_income_count = calendar_stats[:month_income_count]
     @top_expense_merchants = calendar_stats[:top_expense_merchants]
     @top_income_merchants = calendar_stats[:top_income_merchants]
     @month_top_expense_merchants = calendar_stats[:top_expense_merchants]
@@ -130,34 +134,44 @@ class CalendarController < ApplicationController
   def calculate_eow_amounts
     return [] unless @account
 
-    eow_amounts = []
     today = Date.today
     current_balance = @account.current_balance
 
-    @weeks.each do |week|
-      # Get the last day of the week (Sunday)
-      week_end_date = week.last[:date]
+    # Determine span we need cumulative sums for
+    week_end_dates = @weeks.map { |w| w.last[:date] }
+    min_date = [week_end_dates.min, today].min
+    max_date = [week_end_dates.max, today].max
 
-      # Calculate balance at end of this week
-      if week_end_date < today
-        # For past weeks: current balance minus all transactions from week_end_date to today
-        transactions_after_week = @account.transactions
-                                          .where("transaction_date > ? AND transaction_date <= ?",
-                                                 week_end_date, today)
-        balance_at_eow = current_balance - transactions_after_week.sum(:amount)
-      else
-        # For current/future weeks: current balance plus all FUTURE transactions (after today)
-        # This includes hypothetical transactions created for future dates
-        transactions_until_week = @account.transactions
-                                          .where("transaction_date > ? AND transaction_date <= ?",
-                                                 today, week_end_date)
-        balance_at_eow = current_balance + transactions_until_week.sum(:amount)
-      end
+    # Single grouped query for sums per date across the full span
+    sums_by_date = @account.transactions
+                           .where(transaction_date: min_date..max_date)
+                           .group(:transaction_date)
+                           .sum(:amount)
 
-      eow_amounts << balance_at_eow
+    # Build cumulative sums for each date in the span
+    cumulative_by_date = {}
+    running_total = 0
+    (min_date..max_date).each do |date|
+      running_total += (sums_by_date[date] || 0)
+      cumulative_by_date[date] = running_total
     end
 
-    eow_amounts
+    # Helper to get total sum between (a, b]
+    get_sum_between = lambda do |a_date, b_date|
+      return 0 if b_date <= a_date
+      (cumulative_by_date[b_date] || 0) - (cumulative_by_date[a_date] || 0)
+    end
+
+    @weeks.map do |week|
+      week_end_date = week.last[:date]
+      if week_end_date < today
+        # Past week: current balance minus sums from (week_end_date, today]
+        current_balance - get_sum_between.call(week_end_date, today)
+      else
+        # Current/future week: current balance plus sums from (today, week_end_date]
+        current_balance + get_sum_between.call(today, week_end_date)
+      end
+    end
   end
 
   def day_total(date)
@@ -173,6 +187,13 @@ class CalendarController < ApplicationController
 
   def generate_recurring_for_month(start_date, end_date)
     # Only generate for active, indefinite recurring patterns
+    existing_hypotheticals = @account.transactions
+                                     .hypothetical
+                                     .where(transaction_date: start_date..end_date)
+                                     .where.not(recurring_transaction_id: nil)
+                                     .pluck(:recurring_transaction_id, :transaction_date)
+                                     .to_set
+
     @account.recurring_transactions.active.where(projection_months: "indefinite").each do |recurring|
       # Check if we need to generate transactions for this month
       current_date = recurring.next_occurrence_date
@@ -181,13 +202,8 @@ class CalendarController < ApplicationController
         # Skip if already past
         break if current_date < start_date && recurring.calculate_next_occurrence(current_date) > end_date
 
-        # Check if transaction already exists for this date
-        existing = @account.transactions
-                           .where(recurring_transaction_id: recurring.id)
-                           .where(transaction_date: current_date)
-                           .exists?
-
-        unless existing
+        # Check if transaction already exists for this date (in-memory set)
+        unless existing_hypotheticals.include?([recurring.id, current_date])
           # Generate transaction for this occurrence
           if current_date >= start_date && current_date <= end_date && current_date > Date.today
             @account.transactions.create!(
@@ -199,6 +215,7 @@ class CalendarController < ApplicationController
               is_hypothetical: true,
               recurring_transaction_id: recurring.id
             )
+            existing_hypotheticals.add([recurring.id, current_date])
           end
         end
 

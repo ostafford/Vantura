@@ -6,6 +6,7 @@
   icon = local_assigns.fetch(:icon, 'chart')
   size = local_assigns.fetch(:size, 'bento-span-2 bento-row-span-2')
   color_scheme = local_assigns.fetch(:color, 'primary')
+  element_id = local_assigns.fetch(:id, nil)
   
   # Color scheme mapping
   color_map = {
@@ -32,7 +33,7 @@
   icon_path = icon_map[icon] || icon_map['chart']
 %>
 
-<div class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-lg px-8 pt-8 pb-6 text-white relative overflow-hidden">
+<div <%= "id=\"#{element_id}\"" if element_id.present? %> class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-lg px-8 pt-8 pb-6 text-white relative overflow-hidden">
   <!-- Decorative elements -->
   <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
   <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>

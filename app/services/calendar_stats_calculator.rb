@@ -36,6 +36,12 @@ class CalendarStatsCalculator < ApplicationService
       week_transaction_count: week_transaction_count,
       week_total: week_total,
 
+      # Counts for views
+      week_expense_count: week_expense_count,
+      week_income_count: week_income_count,
+      month_expense_count: month_expense_count,
+      month_income_count: month_income_count,
+
       # Top merchants (week or month depending on view)
       top_expense_merchants: top_expense_merchants,
       top_income_merchants: top_income_merchants
@@ -118,6 +124,26 @@ class CalendarStatsCalculator < ApplicationService
   def week_total
     return 0 unless @view == "week"
     week_transactions.sum(:amount)
+  end
+
+  # Counts for week view
+  def week_expense_count
+    return 0 unless @view == "week"
+    week_transactions.where("amount < 0").count
+  end
+
+  def week_income_count
+    return 0 unless @view == "week"
+    week_transactions.where("amount > 0").count
+  end
+
+  # Counts for month view
+  def month_expense_count
+    actual_transactions.where("amount < 0").count
+  end
+
+  def month_income_count
+    actual_transactions.where("amount > 0").count
   end
 
   # Top merchants calculation

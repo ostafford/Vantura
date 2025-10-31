@@ -147,7 +147,7 @@ module ApplicationHelper
       icons[icon_name].html_safe
     end
   end
-  
+
   def user_display_name(user)
     return user&.email_address if user.nil?
     user.respond_to?(:name) && user.name.present? ? user.name : user.email_address

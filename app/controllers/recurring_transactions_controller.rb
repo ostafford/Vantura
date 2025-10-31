@@ -1,6 +1,7 @@
 class RecurringTransactionsController < ApplicationController
   include AccountLoadable
 
+  before_action :load_account, except: [ :create ]
   before_action :set_recurring_transaction, only: [ :show, :edit, :update, :destroy, :toggle_active ]
 
   def index

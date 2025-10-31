@@ -5,8 +5,9 @@
   local: true
 ) do |f| %>
   <% if @expense.errors.any? %>
-    <div class="mb-4 text-red-600">
-      <ul>
+    <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+      <h3 class="text-sm font-medium text-red-800 dark:text-red-300 mb-2">Please fix the following errors:</h3>
+      <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400">
         <% @expense.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
         <% end %>
@@ -14,33 +15,77 @@
     </div>
   <% end %>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div>
-      <%= f.label :merchant, class: "block text-sm font-medium mb-1" %>
-      <%= f.text_field :merchant, class: "w-full border rounded px-3 py-2" %>
+      <%= f.label :merchant, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= f.text_field :merchant, class: "w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" %>
     </div>
     <div>
-      <%= f.label :category, class: "block text-sm font-medium mb-1" %>
-      <%= f.text_field :category, class: "w-full border rounded px-3 py-2" %>
+      <%= f.label :category, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= f.text_field :category, class: "w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" %>
     </div>
     <div>
-      <%= f.label :total_cents, "Total (in cents)", class: "block text-sm font-medium mb-1" %>
-      <%= f.number_field :total_cents, min: 0, step: 1, class: "w-full border rounded px-3 py-2" %>
+      <%= f.label :total_cents, "Total (in cents)", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= f.number_field :total_cents, min: 0, step: 1, class: "w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" %>
     </div>
     <div>
-      <%= f.label :due_on, class: "block text-sm font-medium mb-1" %>
-      <%= f.date_field :due_on, class: "w-full border rounded px-3 py-2" %>
+      <%= f.label :due_on, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= f.date_field :due_on, class: "w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" %>
     </div>
   </div>
 
-  <div class="mt-4">
-    <%= f.label :notes, class: "block text-sm font-medium mb-1" %>
-    <%= f.text_area :notes, rows: 3, class: "w-full border rounded px-3 py-2" %>
+  <div class="mt-6">
+    <%= f.label :notes, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+    <%= f.text_area :notes, rows: 3, class: "w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" %>
   </div>
 
-  <div class="flex gap-2 mt-4">
-    <%= f.submit class: "px-4 py-2 bg-primary-600 text-white rounded" %>
-    <%= link_to "Cancel", project_path(@project), class: "px-4 py-2 border rounded" %>
+  <div class="mt-6">
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Participants</label>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Select who contributes to this expense. Amount will be split equally among selected participants. Owner receives any remainder.</p>
+    <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-800/50">
+      <% 
+        participants = @project.participants
+        existing_contributor_ids = @expense.persisted? ? @expense.expense_contributions.pluck(:user_id) : []
+      %>
+      <% participants.each do |participant| %>
+        <% 
+          is_checked = if @expense.persisted?
+            existing_contributor_ids.include?(participant.id)
+          else
+            true # Default to all checked for new expenses
+          end
+          
+          # Calculate preview share if expense has total_cents
+          preview_share = nil
+          if @expense.total_cents.present? && @expense.total_cents > 0
+            selected_count = participants.size # Simplified preview - actual count handled by JS or server
+            base_share = @expense.total_cents / participants.size
+            remainder = @expense.total_cents % participants.size
+            preview_share = base_share
+            preview_share += remainder if participant.id == @project.owner_id
+          end
+        %>
+        <label class="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700 last:border-b-0 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors">
+          <input type="checkbox" name="contributor_user_ids[]" value="<%= participant.id %>" class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 focus:ring-2" <%= 'checked' if is_checked %>>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <%= user_display_name(participant) %>
+              <% if participant.id == @project.owner_id %>
+                <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">(Owner)</span>
+              <% end %>
+            </div>
+            <% if preview_share.present? %>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Share: <%= format_cents(preview_share) %></div>
+            <% end %>
+          </div>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex gap-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+    <%= f.submit (@expense.persisted? ? "Update Expense" : "Create Expense"), class: "px-6 py-2.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2" %>
+    <%= link_to "Cancel", project_path(@project), class: "px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" %>
   </div>
 <% end %>
 

@@ -9,8 +9,9 @@ class ExpenseContributionsController < ApplicationController
       head :forbidden and return
     end
 
-    permitted = params.require(:expense_contribution).permit(:paid)
+    permitted = params.fetch(:expense_contribution, {}).permit(:paid)
     paid = ActiveModel::Type::Boolean.new.cast(permitted[:paid])
+    paid = false if permitted[:paid].nil?
 
     if contribution.update(paid: paid, paid_at: paid ? Time.current : nil)
       respond_to do |format|

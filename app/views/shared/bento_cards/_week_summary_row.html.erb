@@ -1,0 +1,20 @@
+<%# Week Summary Row (Option B): thin inline row under each week spanning all 7 columns
+    Locals: week_index, eow_amount, week_start_date, week_end_date %>
+<% eow_amount = local_assigns[:eow_amount] || 0 %>
+<% week_start = local_assigns[:week_start_date] %>
+<% week_end = local_assigns[:week_end_date] %>
+<% is_negative = eow_amount < 0 %>
+
+<div class="grid grid-cols-7 gap-2 mt-1">
+  <div class="col-span-7 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-1.5">
+    <div class="flex items-center gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+      <span class="font-medium uppercase tracking-wide">Week end</span>
+      <span class="text-gray-500 dark:text-gray-500"><%= week_start.strftime('%b %d') %> - <%= week_end.strftime('%b %d') %></span>
+    </div>
+    <div class="font-bold <%= is_negative ? 'text-red-700 dark:text-red-200' : 'text-green-700 dark:text-green-200' %> text-xl">
+      <%= is_negative ? '-' : '' %>$<%= number_with_precision(eow_amount.abs, precision: 2) %>
+    </div>
+  </div>
+</div>
+
+

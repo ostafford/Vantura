@@ -23,4 +23,29 @@ class ProjectExpense < ApplicationRecord
       expense_contributions.create!(user: participant, share_cents: share, paid: false, paid_at: nil)
     end
   end
+
+  # Helper to recompute equal split across selected participants only
+  def rebuild_contributions_for_participants!(participant_ids)
+    return if participant_ids.blank?
+
+    # Convert to integers and filter to valid project participants
+    selected_ids = Array(participant_ids).map(&:to_i).uniq
+    all_participants = project.participants
+    selected_participants = all_participants.select { |p| selected_ids.include?(p.id) }
+
+    return if selected_participants.empty?
+
+    base_share = total_cents / selected_participants.size
+    remainder = total_cents % selected_participants.size
+
+    expense_contributions.destroy_all
+
+    selected_participants.each do |participant|
+      share = base_share
+      if participant.id == project.owner_id
+        share += remainder
+      end
+      expense_contributions.create!(user: participant, share_cents: share, paid: false, paid_at: nil)
+    end
+  end
 end
