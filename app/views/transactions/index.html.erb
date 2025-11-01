@@ -17,7 +17,7 @@
 
         <!-- Month Navigation & Filter -->
         <nav class="mb-4" aria-label="Transaction navigation and filters">
-          <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-gray-200 dark:border-gray-700 p-4">
+          <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep p-4">
             <div class="flex items-center justify-between">
               <!-- Month Navigation -->
               <div id="month_navigation" class="flex gap-3" data-controller="transactions-nav">
@@ -93,7 +93,7 @@
         </div>
 
         <!-- Transaction Table -->
-        <section class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-gray-200 dark:border-gray-700" aria-label="Transaction list">
+        <section class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep" aria-label="Transaction list">
           <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white">
               <%= case @filter_type

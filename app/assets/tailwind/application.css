@@ -129,6 +129,23 @@
   .drop-shadow-lg {
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
   }
+
+  /* Deep shadow for floating effect - deeper than shadow-2xl */
+  /* Light mode: Deeper, darker shadows for pronounced floating effect */
+  .shadow-deep {
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.35), 
+                0 15px 30px -8px rgba(0, 0, 0, 0.25),
+                0 5px 15px -4px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Dark mode: Deep black shadows for pronounced floating effect */
+  .dark .shadow-deep {
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 
+                0 15px 30px -8px rgba(0, 0, 0, 0.45),
+                0 5px 15px -4px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(0, 0, 0, 0.15);
+  }
 }
 
 /* Custom utilities using @utility directive */

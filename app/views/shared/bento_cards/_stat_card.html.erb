@@ -28,30 +28,24 @@
   case color
   when 'red', 'coral', 'expense'
     bg_gradient = 'bg-expense-100 dark:bg-expense-900/20'
-    border_color = 'border-expense-500/30 dark:border-expense-500/20'
-    hover_border = 'hover:border-expense-500 dark:hover:border-expense-500'
     icon_bg = 'bg-expense-200 dark:bg-expense-900/30'
     icon_text = 'text-expense-500 dark:text-expense-400'
     value_text = 'text-expense-500 dark:text-expense-400'
   when 'green', 'gold', 'income'
     bg_gradient = 'bg-income-200 dark:bg-income-900/20'
-    border_color = 'border-income-500/30 dark:border-income-500/20'
-    hover_border = 'hover:border-income-500 dark:hover:border-income-500'
     icon_bg = 'bg-income-400 dark:bg-income-900/30'
     icon_text = 'text-income-700 dark:text-income-400'
     value_text = 'text-income-700 dark:text-income-400'
   else # blue
     bg_gradient = 'from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800'
-    border_color = 'border-primary-700/30 dark:border-primary-500/20'
-    hover_border = 'hover:border-primary-700 dark:hover:border-primary-500'
     icon_bg = 'bg-blue-100 dark:bg-blue-900/30'
     icon_text = 'text-primary-700 dark:text-primary-500'
     value_text = 'text-primary-700 dark:text-primary-500'
   end
   
   # Build CSS classes
-  base_classes = "#{size} #{bg_gradient} rounded-2xl shadow-lg p-6 border-2 #{border_color}"
-  interactive_classes = clickable ? "#{hover_border} hover:shadow-xl transition-all cursor-pointer group" : ""
+  base_classes = "#{size} #{bg_gradient} rounded-2xl shadow-deep p-6"
+  interactive_classes = clickable ? "hover:shadow-deep transition-all cursor-pointer group" : ""
   card_classes = "#{base_classes} #{interactive_classes}"
 %>
 

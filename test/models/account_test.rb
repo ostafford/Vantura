@@ -197,7 +197,7 @@ class AccountTest < ActiveSupport::TestCase
     # Transaction must be after Sep 30 but <= today. Use today's date or a date in current month
     # that's definitely after September
     today = Date.today
-    transaction_date = [today, target_month.end_of_month + 1.day].min # First day after month or today, whichever is earlier
+    transaction_date = [ today, target_month.end_of_month + 1.day ].min # First day after month or today, whichever is earlier
 
     # Add transaction after the past month we're checking
     account.transactions.create!(

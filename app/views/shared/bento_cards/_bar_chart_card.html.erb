@@ -37,7 +37,7 @@
   ]
 %>
 
-<div class="bento-span-4 bento-row-span-2 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 bg-white dark:bg-gray-800 p-4"
+<div class="bento-span-4 bento-row-span-2 rounded-2xl shadow-deep bg-white dark:bg-gray-800 p-4"
      data-controller="bento-bar-chart month-nav"
      data-bento-bar-chart-endpoint-value="<%= stats_bars_project_path(project) %>"
      data-month-nav-url-pattern-value="<%= url_pattern %>"
@@ -63,7 +63,7 @@
 
       <!-- Month/Year Picker Dropdown -->
       <div data-month-nav-target="dropdown"
-           class="hidden absolute left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border-2 border-gray-200 dark:border-gray-700 z-50 p-4"
+           class="hidden absolute left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-deep z-50 p-4"
            data-transition-enter="transition ease-out duration-200"
            data-transition-enter-from="opacity-0 transform scale-95"
            data-transition-enter-to="opacity-100 transform scale-100"
@@ -102,7 +102,7 @@
       </div>
     </div>
     
-    <div class="inline-flex rounded-lg border-2 border-primary-700/30 dark:border-primary-500/20 bg-white dark:bg-gray-800 p-1 shadow-lg">
+    <div class="inline-flex rounded-lg bg-white dark:bg-gray-800 p-1 shadow-lg">
       <button type="button"
               data-bento-bar-chart-target="yearBtn"
               data-action="click->bento-bar-chart#showYear"
