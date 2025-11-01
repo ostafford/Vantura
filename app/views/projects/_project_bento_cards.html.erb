@@ -1,0 +1,131 @@
+<!-- Hero Card (2x2) -->
+<%= render 'shared/bento_cards/hero_card',
+    title: @project.name,
+    subtitle: @total_expenses_cents > 0 ? format_cents(@total_expenses_cents) : "No expenses yet",
+    description: "Overview of project expenses, participants, and activity. Track shared costs and monitor contributions across all project expenses.",
+    icon: 'chart',
+    size: 'bento-span-2 bento-row-span-2',
+    color: 'primary' do %>
+  <div class="mt-6 space-y-4">
+    <!-- Owner Section -->
+    <div class="pb-3 border-b border-white/20">
+      <div class="text-white/80 text-xs font-medium mb-2 uppercase tracking-wider">Owner</div>
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+        <div class="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center text-white font-semibold text-sm">
+          <%= user_display_name(@project.owner).first.upcase %>
+        </div>
+        <span class="text-white font-semibold"><%= user_display_name(@project.owner) %></span>
+      </div>
+    </div>
+    
+    <!-- Members Section -->
+    <% if @project.members.any? %>
+      <div>
+        <div class="text-white/80 text-xs font-medium mb-2 uppercase tracking-wider">Members</div>
+        <div class="flex flex-wrap gap-2">
+          <% membership_by_user = @project.project_memberships.index_by(&:user_id) %>
+          <% @project.members.each do |member| %>
+            <% level = membership_by_user[member.id]&.access_level || 'limited' %>
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/15 backdrop-blur-sm rounded-lg border border-white/25">
+              <div class="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center text-white font-medium text-xs">
+                <%= user_display_name(member).first.upcase %>
+              </div>
+              <span class="text-white/90 text-sm"><%= user_display_name(member) %></span>
+              <span class="ml-2 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded bg-white/20 text-white/90 border border-white/30">
+                <%= level == 'full' ? 'Full' : 'Limited' %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-white/60 text-sm italic">
+        No additional members
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- Current Month Total Card -->
+<%= render 'shared/bento_cards/stat_card',
+    id: 'project_current_month_card',
+    title: "This Month",
+    value: format_cents(@project_stats[:current_month_total_cents]),
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@expense_count}</span> #{'expense'.pluralize(@expense_count)}".html_safe,
+    detail: @date.strftime("%B %Y"),
+    icon: 'dollar',
+    color: 'red',
+    size: 'bento-span-1 bento-row-span-1' do %>
+  <%= render_top_categories(@project_stats[:top_categories_current_month], @project_stats[:current_month_total_cents]) %>
+<% end %>
+
+<!-- Month Over Month Card -->
+<% 
+  mom_change_pct = @project_stats[:mom_change_pct]
+  mom_is_positive = mom_change_pct >= 0
+  mom_icon = mom_is_positive ? 'arrow-up' : 'arrow-down'
+  mom_color = mom_is_positive ? 'green' : 'red'
+  mom_change_display = format_percentage_change(mom_change_pct)
+%>
+<%= render 'shared/bento_cards/stat_card',
+    id: 'project_mom_card',
+    title: "Month Over Month",
+    value: mom_change_display,
+    subtitle: "vs Last Month: <span class='font-semibold text-gray-900 dark:text-white'>#{format_cents(@project_stats[:last_month_total_cents])}</span>".html_safe,
+    detail: format_cents(@project_stats[:mom_change_cents].abs) + (mom_is_positive ? " increase" : " decrease"),
+    icon: mom_icon,
+    color: mom_color,
+    size: 'bento-span-1 bento-row-span-1' do %>
+  <%= render_top_categories(@project_stats[:top_categories_current_month], @project_stats[:current_month_total_cents]) %>
+<% end %>
+
+<!-- Year Over Year Card -->
+<% 
+  yoy_change_pct = @project_stats[:yoy_change_pct]
+  yoy_is_positive = yoy_change_pct >= 0
+  yoy_icon = yoy_is_positive ? 'arrow-up' : 'arrow-down'
+  yoy_color = 'blue'
+  yoy_change_display = format_percentage_change(yoy_change_pct)
+  ytd_period = "Jan-#{@date.strftime('%b')}"
+%>
+<%= render 'shared/bento_cards/stat_card',
+    id: 'project_yoy_card',
+    title: "Year Over Year",
+    value: yoy_change_display,
+    subtitle: "YTD vs Last Year: <span class='font-semibold text-gray-900 dark:text-white'>#{format_cents(@project_stats[:ytd_last_year_cents])}</span>".html_safe,
+    detail: "#{ytd_period} comparison",
+    icon: 'calendar',
+    color: yoy_color,
+    size: 'bento-span-1 bento-row-span-1' do %>
+  <%= render_top_categories(@project_stats[:top_categories_ytd_this_year], @project_stats[:ytd_this_year_cents]) %>
+<% end %>
+
+<!-- Next Month Projection Card -->
+<% 
+  projection_cents = @project_stats[:projected_next_month_cents]
+  next_month_name = @date.next_month.strftime("%B")
+%>
+<%= render 'shared/bento_cards/stat_card',
+    id: 'project_projection_card',
+    title: "Next Month Projection",
+    value: format_cents(projection_cents),
+    subtitle: "Based on last 3 months",
+    detail: "Weighted average for #{next_month_name}",
+    icon: 'chart',
+    color: 'blue',
+    size: 'bento-span-1 bento-row-span-1' do %>
+  <%= render_top_categories(@project_stats[:top_categories_last_month], @project_stats[:last_month_total_cents]) %>
+<% end %>
+    
+<!-- Monthly Bar Chart Card (bento 4x2) -->
+<%= render 'shared/bento_cards/bar_chart_card', 
+    project: @project, 
+    title: 'Monthly Expenses', 
+    year: @date.year, 
+    month: @date.month,
+    current_date: @date,
+    month_title: @date.strftime("%B %Y"),
+    prev_path: project_path(@project, year: (@date.prev_month.year), month: (@date.prev_month.month)),
+    turbo_frame: 'calendar_content' %>
+
+

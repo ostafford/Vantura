@@ -1,132 +1,102 @@
-<!-- Week View Grid -->
-<div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 overflow-hidden">
-  <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700">
-    <% @week_days.each do |day| %>
-      <% transactions = day_transactions(day[:date]) %>
-      <% total = day_total(day[:date]) %>
-      <% day_id = "day-#{day[:date].to_s}" %>
-      <%
-        # Color coding based on total (same as month view)
-        bg_class = if total > 0
-          "bg-green-50 dark:bg-green-900/20"
-        elsif total < 0
-          "bg-red-50 dark:bg-red-900/20"
-        else
-          "bg-white dark:bg-gray-800"
-        end
-        
-        # Add subtle border for today
-        today_class = day[:is_today] ? 'border-2 border-primary-700/40 dark:border-primary-500/40' : ''
-        
-        # Fade weekend days (Saturday and Sunday)
-        day_of_week = day[:date].wday
-        opacity_class = (day_of_week == 0 || day_of_week == 6) ? 'opacity-60' : ''
-      %>
-      
-      <div class="<%= bg_class %> <%= today_class %> <%= opacity_class %> hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all">
-        <!-- Day Header -->
-        <div class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 <%= day[:is_today] ? 'bg-primary-700/5 dark:bg-primary-700/10' : '' %>">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"><%= day[:date].strftime("%a") %></p>
-              <p class="mt-0.5 flex items-center justify-center">
-                <% if day[:is_today] %>
-                  <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary-700 text-xs font-semibold text-white">
-                    <%= day[:day_number] %>
-                  </span>
-                <% else %>
-                  <span class="text-lg font-semibold text-gray-900 dark:text-white">
-                    <%= day[:day_number] %>
-                  </span>
-                <% end %>
-              </p>
+<!-- Week View Grid - Matching Month View Layout -->
+<div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 chevron-fix p-4">
+  <!-- Weekday Header -->
+  <div class="grid grid-cols-7 gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-3">
+    <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Monday</div>
+    <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Tuesday</div>
+    <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Wednesday</div>
+    <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Thursday</div>
+    <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Friday</div>
+    <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Saturday</div>
+    <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Sunday</div>
+  </div>
+
+  <!-- Week Days Grid -->
+  <div class="mb-4" data-week-index="0">
+    <div class="grid grid-cols-7 gap-2 mb-3">
+      <% @week_days.each do |day| %>
+        <% total = day_total(day[:date]) %>
+        <% transactions = day_transactions(day[:date]) %>
+        <% day_id = "day-#{day[:date].to_s}" %>
+        <% has_trans = transactions.any? %>
+        <% is_today = day[:is_today] %>
+
+        <div class="<%= calendar_day_bg_class(total: total, in_current_month: day[:is_current_month], is_today: is_today) %> rounded-lg px-2 py-2 min-h-[100px] border border-gray-200 dark:border-gray-700 <%= has_trans ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer' : '' %> transition-all"
+             <% if has_trans %>data-day-id="<%= day_id %>" data-action="click->calendar#toggleDay"<% end %>>
+          <!-- Day number in top-left corner -->
+          <div class="flex items-start justify-between mb-2">
+            <% if is_today %>
+              <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-700 text-xs font-semibold text-white">
+                <%= day[:day_number] %>
+              </span>
+            <% else %>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-400">
+                <%= day[:day_number] %>
+              </span>
+            <% end %>
+          </div>
+          
+          <!-- Transaction total (centered) -->
+          <div class="text-center">
+            <div class="text-lg font-semibold <%= total < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+              <% if total != 0 %>
+                <%= total < 0 ? "-" : "+" %>$<%= number_with_precision(total.abs, precision: 2) %>
+              <% else %>
+                $0.00
+              <% end %>
             </div>
+            <% if transactions.any? %>
+              <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                <%= transactions.count %> <%= transactions.count == 1 ? 'item' : 'items' %>
+              </div>
+              <div class="text-xs text-blue-500 dark:text-blue-400 mt-1">Click for details</div>
+            <% end %>
           </div>
         </div>
-        
-        <!-- Day Total -->
-        <div class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 <%= total > 0 ? 'bg-green-50 dark:bg-green-900/20' : total < 0 ? 'bg-red-50 dark:bg-red-900/20' : '' %>">
-          <p class="text-center text-sm font-bold <%= total < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
-            <% if total != 0 %>
-              <%= total < 0 ? "-" : "+" %>$<%= number_with_precision(total.abs, precision: 2) %>
-            <% else %>
-              $0.00
-            <% end %>
-          </p>
-        </div>
-        
-        <!-- Transactions List -->
-        <div class="px-2 py-2 min-h-[200px] max-h-[400px] overflow-y-auto">
-          <% if transactions.any? %>
-            <ul class="space-y-1">
-              <% transactions.each do |transaction| %>
-                <li class="group">
-                  <div class="rounded-lg p-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors <%= transaction.is_hypothetical ? 'bg-purple-50 dark:bg-purple-900/20' : '' %>">
-                    <div class="flex items-start justify-between gap-1">
-                      <div class="flex-1 min-w-0">
-                        <p class="text-xs font-medium text-gray-900 dark:text-white truncate" title="<%= transaction.description %>">
-                          <%= transaction.description %>
-                        </p>
-                        <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">
-                          <%= transaction.category&.humanize || "Uncategorized" %>
-                        </p>
-                      </div>
-                      <p class="text-xs font-semibold <%= transaction.amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %> whitespace-nowrap">
-                        <%= transaction.amount < 0 ? "-" : "+" %>$<%= number_with_precision(transaction.amount.abs, precision: 2) %>
-                      </p>
-                    </div>
-                    
-                    <!-- Status badges (compact) -->
-                    <div class="flex gap-1 mt-1 flex-wrap">
-                      <%= transaction_status_badge(transaction, compact: true) %>
-                      <%= transaction_recurring_badge(transaction, compact: true) %>
-                    </div>
-                    
-                    <!-- Action button (shows on hover) -->
-                    <div class="mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <%= transaction_action_buttons(transaction) %>
-                    </div>
-                  </div>
-                </li>
-              <% end %>
-            </ul>
-          <% else %>
-            <p class="text-xs text-gray-400 dark:text-gray-500 text-center py-8">No transactions</p>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
+
+    <!-- Inline details slot for this week (desktop) -->
+    <div id="week-details-0" class="mt-3"></div>
+
+    <!-- Week Summary Row -->
+    <% week_start = @date.beginning_of_week(:monday) %>
+    <% week_end = @date.end_of_week(:monday) %>
+    <%= render partial: 'shared/bento_cards/week_summary_row', 
+        locals: { 
+          week_index: 0, 
+          eow_amount: @week_end_balance, 
+          week_start_date: week_start, 
+          week_end_date: week_end,
+          income_total: @week_income,
+          expense_total: @week_expenses,
+          net_total: @week_total,
+          transaction_count: @week_transaction_count
+        } %>
   </div>
 </div>
 
-<!-- Week Summary -->
-<div class="mt-6 bg-gradient-to-r from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-sm border-2 border-primary-700/20 dark:border-primary-900/30 p-6">
-  <div class="flex items-center justify-between flex-wrap gap-4">
-    <div>
-      <h3 class="font-semibold text-gray-700 dark:text-gray-300 mb-1">Week of <%= @date.beginning_of_week(:monday).strftime("%B %d") %> - <%= @date.end_of_week(:monday).strftime("%B %d, %Y") %></h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400">Total transactions this week: <%= @transactions.count %></p>
-    </div>
-    <div class="flex gap-6">
-      <div class="text-right">
-        <p class="text-sm text-gray-600 dark:text-gray-400">Income</p>
-        <p class="text-2xl font-bold text-green-600 dark:text-green-400">
-          +$<%= number_with_precision(@transactions.income.sum(:amount).abs, precision: 2) %>
-        </p>
+<!-- Transaction Details Sections -->
+<% @week_days.each do |day| %>
+  <% transactions = day_transactions(day[:date]) %>
+  <% if transactions.any? %>
+    <% day_id = "day-#{day[:date].to_s}" %>
+    <div id="<%= day_id %>" class="hidden mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div class="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+            <%= day[:date].strftime("%A, %B %d, %Y") %>
+          </h3>
+          <button type="button" data-day-id="<%= day_id %>" data-action="click->calendar#toggleDay" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:scale-110 transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="text-right">
-        <p class="text-sm text-gray-600 dark:text-gray-400">Expenses</p>
-        <p class="text-2xl font-bold text-red-600 dark:text-red-400">
-          -$<%= number_with_precision(@transactions.expenses.sum(:amount).abs, precision: 2) %>
-        </p>
-      </div>
-      <div class="text-right">
-        <p class="text-sm text-gray-600 dark:text-gray-400">Net</p>
-        <% net = @transactions.sum(:amount) %>
-        <p class="text-2xl font-bold <%= net >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
-          <%= net >= 0 ? '+' : '' %>$<%= number_with_precision(net.abs, precision: 2) %>
-        </p>
+      <div class="overflow-x-auto">
+        <%= render partial: 'shared/transactions/table', locals: { transactions: transactions, compact: false, show_date: false, show_footer_total: true, total_value: day_total(day[:date]) } %>
       </div>
     </div>
-  </div>
-</div>
-
+  <% end %>
+<% end %>

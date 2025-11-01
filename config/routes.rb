@@ -36,6 +36,9 @@ Rails.application.routes.draw do
       get "stats/bars", to: "projects/stats#bars", as: :stats_bars
     end
     resources :expenses, controller: "project_expenses" do
+      collection do
+        get :templates
+      end
       resources :contributions, only: [ :update ], controller: "expense_contributions"
     end
     resources :memberships, only: [ :create, :destroy ], controller: "project_memberships"

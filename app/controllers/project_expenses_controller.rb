@@ -14,12 +14,24 @@ class ProjectExpensesController < ApplicationController
       # Use selected participants or default to all participants
       contributor_ids = params[:contributor_user_ids].presence || @project.participants.pluck(:id)
       @expense.rebuild_contributions_for_participants!(contributor_ids)
-      
+
       # Calculate fresh project statistics for projects index update
       calculate_projects_statistics
-      
+
+      # Determine referer path for conditional redirect
+      referer_path = begin
+        request.referer.present? ? URI.parse(request.referer).path : nil
+      rescue
+        nil
+      end
+
       respond_to do |format|
-        format.turbo_stream
+        format.turbo_stream do
+          # If coming from project show page, redirect; otherwise update stats
+          if referer_path != projects_path && referer_path != "/projects"
+            redirect_to project_path(@project), status: :see_other
+          end
+        end
         format.html { redirect_to project_path(@project), notice: "Expense added" }
       end
     else
@@ -35,7 +47,7 @@ class ProjectExpensesController < ApplicationController
       # Use selected participants or default to all participants
       contributor_ids = params[:contributor_user_ids].presence || @project.participants.pluck(:id)
       @expense.rebuild_contributions_for_participants!(contributor_ids)
-      
+
       respond_to do |format|
         format.turbo_stream { redirect_to project_path(@project), notice: "Expense updated successfully!" }
         format.html { redirect_to project_path(@project), notice: "Expense updated" }
@@ -47,14 +59,68 @@ class ProjectExpensesController < ApplicationController
 
   def destroy
     @expense.destroy
-    
+
     # Calculate fresh project statistics for projects index update
     calculate_projects_statistics
-    
+
+    # Determine referer path for conditional redirect
+    referer_path = begin
+      request.referer.present? ? URI.parse(request.referer).path : nil
+    rescue
+      nil
+    end
+
     respond_to do |format|
-      format.turbo_stream
+      format.turbo_stream do
+        # If coming from project show page, redirect; otherwise update stats
+        if referer_path != projects_path && referer_path != "/projects"
+          redirect_to project_path(@project), status: :see_other
+        end
+      end
       format.html { redirect_to project_path(@project), notice: "Expense deleted" }
     end
+  end
+
+  def templates
+    # Get unique merchant+category combinations with most recent expense data
+    search_term = params[:q].to_s.downcase.strip
+
+    # Get all unique merchant+category pairs with their most recent expense
+    templates_hash = {}
+
+    @project.project_expenses.order(created_at: :desc).each do |expense|
+      key = "#{expense.merchant}|#{expense.category || ''}"
+
+      # Only keep the most recent expense for each merchant+category combination
+      unless templates_hash[key]
+        templates_hash[key] = {
+          merchant: expense.merchant,
+          category: expense.category,
+          notes: expense.notes,
+          last_amount: expense.total_cents,
+          last_created_at: expense.created_at.to_i
+        }
+      end
+    end
+
+    templates = templates_hash.values.sort_by { |t| -t[:last_created_at] }
+
+    # Filter by search term if provided
+    if search_term.present?
+      templates = templates.select do |template|
+        merchant_match = template[:merchant]&.downcase&.include?(search_term)
+        category_match = template[:category]&.downcase&.include?(search_term)
+        merchant_match || category_match
+      end
+    end
+
+    # Limit to 20 results
+    templates = templates.take(20)
+
+    # Remove created_at from response (not needed by frontend)
+    templates.each { |t| t.delete(:last_created_at) }
+
+    render json: templates
   end
 
   private
@@ -80,7 +146,16 @@ class ProjectExpensesController < ApplicationController
     end
 
     def expense_params
-      params.require(:project_expense).permit(:merchant, :category, :total_cents, :due_on, :notes)
+      permitted = params.require(:project_expense).permit(:merchant, :category, :total_dollars, :due_on, :notes)
+
+      # Convert dollars to cents if total_dollars is provided
+      if permitted[:total_dollars].present?
+        dollars = permitted[:total_dollars].to_f
+        permitted[:total_cents] = (dollars * 100).round.to_i
+        permitted.delete(:total_dollars)
+      end
+
+      permitted
     end
 
     def calculate_projects_statistics
@@ -91,12 +166,12 @@ class ProjectExpensesController < ApplicationController
         .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
         .distinct
         .includes(:project_expenses, :owner, :members, project_memberships: :user)
-      
+
       @projects = projects.order(created_at: :desc)
-      
+
       # Calculate total projects
       @total_projects = projects.count
-      
+
       # Calculate total expenses
       @total_expenses_cents = ProjectExpense
         .joins(:project)
@@ -105,7 +180,7 @@ class ProjectExpensesController < ApplicationController
         .distinct
         .sum(:total_cents)
       @total_expenses = @total_expenses_cents / 100.0
-      
+
       # Calculate unique participants
       owner_ids = projects.pluck(:owner_id)
       member_ids = ProjectMembership
@@ -114,7 +189,7 @@ class ProjectExpensesController < ApplicationController
         .distinct
         .pluck(:user_id)
       @total_participants = (owner_ids + member_ids).uniq.count
-      
+
       # Calculate active projects
       project_ids_with_expenses = ProjectExpense
         .joins(:project)
@@ -123,7 +198,7 @@ class ProjectExpensesController < ApplicationController
         .distinct
         .pluck(:project_id)
       @active_projects = project_ids_with_expenses.uniq.count
-      
+
       # Find largest expense
       @largest_expense = ProjectExpense
         .joins(:project)
@@ -132,7 +207,7 @@ class ProjectExpensesController < ApplicationController
         .distinct
         .order(total_cents: :desc)
         .first
-      
+
       # Find most active project
       project_expense_counts = ProjectExpense
         .joins(:project)
@@ -141,7 +216,7 @@ class ProjectExpensesController < ApplicationController
         .distinct
         .group(:project_id)
         .count
-      
+
       if project_expense_counts.any?
         most_active_project_id = project_expense_counts.max_by { |_, count| count }[0]
         @most_active_project = projects.find_by(id: most_active_project_id)

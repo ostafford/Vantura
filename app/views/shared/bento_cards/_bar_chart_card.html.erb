@@ -3,6 +3,32 @@
   project = local_assigns.fetch(:project)
   initial_year = local_assigns[:year]
   initial_month = local_assigns[:month]
+  current_date = local_assigns[:current_date] || (initial_year && initial_month ? Date.new(initial_year, initial_month, 1) : Date.today)
+  current_year = current_date.year
+  current_month = current_date.month
+  month_title = local_assigns[:month_title] || current_date.strftime("%B %Y")
+  view_mode = local_assigns[:view_mode] || 'month'
+  turbo_frame = local_assigns[:turbo_frame] || 'calendar_content'
+  
+  # Generate URL pattern for month navigation
+  prev_path = local_assigns[:prev_path]
+  if prev_path&.include?('?')
+    base_part, query_part = prev_path.split('?', 2)
+    if query_part.include?('year=') && query_part.include?('month=')
+      url_pattern = "#{base_part}?year=:year&month=:month"
+      url_type = 'query'
+    else
+      url_pattern = "#{base_part}?#{query_part}"
+      url_type = 'path'
+    end
+  elsif prev_path
+    url_pattern = prev_path.gsub(/\d{4}/, ':year').gsub(/\/(\d{1,2})(\/|$)/, '/:month\\2')
+    url_type = 'path'
+  else
+    url_pattern = ''
+    url_type = 'query'
+  end
+  
   group_by_options = [
     ['All expenses', 'none'],
     ['By category', 'category'],
@@ -11,13 +37,71 @@
   ]
 %>
 
-<div class="bento-span-2 bento-row-span-2 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 bg-white dark:bg-gray-800 p-4"
-     data-controller="bento-bar-chart"
+<div class="bento-span-4 bento-row-span-2 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 bg-white dark:bg-gray-800 p-4"
+     data-controller="bento-bar-chart month-nav"
      data-bento-bar-chart-endpoint-value="<%= stats_bars_project_path(project) %>"
+     data-month-nav-url-pattern-value="<%= url_pattern %>"
+     data-month-nav-url-type-value="<%= url_type %>"
+     data-month-nav-view-mode-value="<%= view_mode %>"
+     data-month-nav-current-year-value="<%= current_year %>"
+     data-month-nav-current-month-value="<%= current_month %>"
+     data-month-nav-turbo-frame-value="<%= turbo_frame %>"
      <%= "data-bento-bar-chart-year-value=\"#{initial_year}\"" if initial_year.present? %>
      <%= "data-bento-bar-chart-month-value=\"#{initial_month}\"" if initial_month.present? %>>
   <div class="flex items-center justify-between gap-3">
-    <h3 class="text-sm font-semibold text-gray-900 dark:text-white"><%= title %></h3>
+    <!-- Month/Year Button with Dropdown -->
+    <div class="relative">
+      <button type="button"
+              data-month-nav-target="header"
+              data-action="click->month-nav#togglePicker"
+              class="text-2xl font-bold text-gray-900 dark:text-white hover:text-primary-700 dark:hover:text-primary-400 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-lg px-2 py-1">
+        <%= month_title %>
+        <svg class="inline-block w-5 h-5 ml-2 align-middle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <!-- Month/Year Picker Dropdown -->
+      <div data-month-nav-target="dropdown"
+           class="hidden absolute left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border-2 border-gray-200 dark:border-gray-700 z-50 p-4"
+           data-transition-enter="transition ease-out duration-200"
+           data-transition-enter-from="opacity-0 transform scale-95"
+           data-transition-enter-to="opacity-100 transform scale-100"
+           data-transition-leave="transition ease-in duration-150"
+           data-transition-leave-from="opacity-100 transform scale-100"
+           data-transition-leave-to="opacity-0 transform scale-95">
+        <!-- Year Selector -->
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Year</label>
+          <select data-month-nav-target="yearSelect"
+                  data-action="change->month-nav#selectYear"
+                  class="block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <% (current_year - 5).upto(current_year + 5) do |year| %>
+              <option value="<%= year %>" <%= 'selected' if year == current_year %>><%= year %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Month Grid -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Month</label>
+          <div class="grid grid-cols-3 gap-2">
+            <% Date::MONTHNAMES[1..12].each_with_index do |month_name, index| %>
+              <% month_num = index + 1 %>
+              <button type="button"
+                      data-month-nav-target="monthButton"
+                      data-month-value="<%= month_num %>"
+                      data-action="click->month-nav#selectMonth"
+                      class="px-3 py-2 text-sm font-medium rounded-lg transition-all
+                             <%= month_num == current_month && current_date.year == current_year ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' %>">
+                <%= month_name[0..2] %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="inline-flex rounded-lg border-2 border-primary-700/30 dark:border-primary-500/20 bg-white dark:bg-gray-800 p-1 shadow-lg">
       <button type="button"
               data-bento-bar-chart-target="yearBtn"

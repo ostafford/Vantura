@@ -1,0 +1,150 @@
+<section id="project_expenses_section" class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm border-2 border-gray-200 dark:border-gray-700" aria-label="Project expenses list">
+  <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex items-center justify-between gap-4">
+      <!-- Left: Previous/Today/Next Navigation Buttons -->
+      <div class="flex gap-3" data-controller="month-nav" data-month-nav-turbo-frame-value="calendar_content">
+        <%= link_to project_path(@project, year: (@date.prev_month.year), month: (@date.prev_month.month)),
+                    class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                    data: { action: 'click->month-nav#navigate', turbo_frame: 'calendar_content' } do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Previous
+        <% end %>
+
+        <%= link_to project_path(@project, year: Date.today.year, month: Date.today.month),
+                    class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                    data: { action: 'click->month-nav#navigate', turbo_frame: 'calendar_content' } do %>
+          Today
+        <% end %>
+
+        <%= link_to project_path(@project, year: (@date.next_month.year), month: (@date.next_month.month)),
+                    class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                    data: { action: 'click->month-nav#navigate', turbo_frame: 'calendar_content' } do %>
+          Next
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        <% end %>
+      </div>
+
+      <!-- Center: Project Expenses Heading -->
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white flex-1 text-center">Project Expenses</h2>
+
+      <!-- Right: Action Buttons -->
+      <div class="flex gap-2">
+        <% can_manage = (@project.owner_id == Current.user.id) || @project.project_memberships.where(user_id: Current.user.id, access_level: ProjectMembership.access_levels[:full]).exists? %>
+        <% if can_manage %>
+          <%= link_to new_project_expense_path(@project), class: "inline-flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 hover:shadow-lg transition-all", title: "Add expense" do %>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+          <% end %>
+          
+          <%= link_to edit_project_path(@project), class: "inline-flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 hover:shadow-lg transition-all", title: "Edit project" do %>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+          <% end %>
+          
+          <% if @project.owner_id == Current.user.id %>
+            <%= button_to project_path(@project), method: :delete, form: { data: { turbo_confirm: "Delete this project?" }, class: "inline" }, class: "inline-flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 border border-red-300 dark:border-red-600 rounded-xl text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:scale-110 hover:shadow-lg transition-all", title: "Delete project" do %>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            <% end %>
+          <% end %>
+        <% else %>
+          <!-- Spacer to maintain layout when buttons aren't shown -->
+          <div class="w-12"></div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-900">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Merchant</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Due</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Notes</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="project_expenses_table_body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        <% if @expenses.any? %>
+          <% @expenses.each do |expense| %>
+            <tr data-controller="expense-row" data-action="click->expense-row#toggle" class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-gray-400 chevron-icon transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                  <span class="text-sm text-gray-900 dark:text-gray-100"><%= expense.merchant %></span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"><%= expense.category %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100"><%= format_cents(expense.total_cents) %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"><%= expense.due_on&.strftime('%Y-%m-%d') %></td>
+              <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100"><%= expense.notes %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation()">
+                <% if @project.owner_id == Current.user.id %>
+                  <%= link_to "Edit", edit_project_expense_path(@project, expense), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 mr-3" %>
+                  <%= button_to "Delete", project_expense_path(@project, expense), method: :delete, form: { data: { turbo_confirm: "Delete this expense?" }, class: "inline" }, class: "text-red-700 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" %>
+                <% end %>
+              </td>
+            </tr>
+            <tr data-expense-row-target="contributions" class="hidden">
+              <td colspan="6" class="px-6 pb-4 bg-gray-50 dark:bg-gray-800/50">
+                <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900">
+                  <div class="font-medium mb-3 text-sm text-gray-900 dark:text-white">Contributions</div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <% expense.expense_contributions.includes(:user).each do |contrib| %>
+                      <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3">
+                        <div>
+                          <div class="text-sm font-medium text-gray-900 dark:text-gray-100"><%= user_display_name(contrib.user) %></div>
+                          <div class="text-xs text-gray-500 dark:text-gray-400 mt-1"><%= format_cents(contrib.share_cents) %></div>
+                        </div>
+                        <div>
+                          <% if can_toggle_paid?(contrib) %>
+                            <%= form_with(model: [@project, expense, contrib], url: project_expense_contribution_path(@project, expense, contrib), method: :patch) do |ff| %>
+                              <label class="inline-flex items-center gap-2 text-sm cursor-pointer">
+                                <%= ff.check_box :paid, { checked: contrib.paid, onchange: 'this.form.submit()', include_hidden: true, class: "rounded border-gray-300 text-primary-600 focus:ring-primary-500" }, true, false %>
+                                <span class="text-gray-700 dark:text-gray-300"><%= contrib.paid ? 'Paid' : 'Unpaid' %></span>
+                              </label>
+                            <% end %>
+                          <% else %>
+                            <span class="text-sm <%= contrib.paid ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400' %>">
+                              <%= contrib.paid ? 'Paid' : 'Not paid' %>
+                            </span>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No expenses yet</h3>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by adding your first expense.</p>
+              <% if @project.owner_id == Current.user.id %>
+                <%= link_to "Add Expense", new_project_expense_path(@project), class: "mt-4 inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg font-medium transition-colors" %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+

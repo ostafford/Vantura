@@ -1,19 +1,93 @@
 <!-- Month Navigation -->
-<div class="bg-gradient-to-r from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 p-4">
+<% current_date = local_assigns[:current_date] || @date || Date.today %>
+<% current_year = current_date.year %>
+<% current_month = current_date.month %>
+<% view_mode = local_assigns[:view_mode] || 'month' %>
+<% month_title = local_assigns[:title] || current_date.strftime("%B %Y") %>
+
+<%# For week view, get the Monday of the current week %>
+<% if view_mode == 'week' %>
+  <% current_week_start = current_date.beginning_of_week(:monday) %>
+  <% current_week_year = current_week_start.year %>
+  <% current_week_month = current_week_start.month %>
+  <% current_week_day = current_week_start.day %>
+<% else %>
+  <% current_week_year = current_year %>
+  <% current_week_month = current_month %>
+  <% current_week_day = 1 %>
+<% end %>
+
+<%# Generate base URL pattern from prev_path - extract the pattern %>
+<%# For calendar: /calendar/2024/3 -> /calendar/:year/:month %>
+<%# For calendar with view: /calendar/2024/3?view=month -> /calendar/:year/:month?view=month %>
+<%# For calendar week: /calendar/2024/3/15?view=week -> /calendar/:year/:month/:day?view=week %>
+<%# For projects: /projects/4?year=2024&month=3 -> /projects/4?year=:year&month=:month %>
+<% if prev_path.include?('?') %>
+  <%# Check if it's query-style (projects) or path-style with query params (calendar) %>
+  <% base_part, query_part = prev_path.split('?', 2) %>
+  <% if query_part.include?('year=') && query_part.include?('month=') %>
+    <%# Projects-style: extract base URL and replace year/month in query %>
+    <% url_pattern = "#{base_part}?year=:year&month=:month" %>
+    <% url_type = 'query' %>
+  <% elsif query_part.include?('view=week') %>
+    <%# Calendar week view: replace year/month/day in path, preserve query %>
+    <%# Pattern: /calendar/2024/3/15 -> /calendar/:year/:month/:day %>
+    <%# Use regex to replace: year, then first number (month), then second number (day) %>
+    <% temp_pattern = base_part.gsub(/\d{4}/, ':year') %>
+    <%# Replace first occurrence of /number/ with /:month/ %>
+    <% temp_pattern = temp_pattern.sub(/\/(\d{1,2})\//, '/:month/') %>
+    <%# Replace remaining /number with /:day %>
+    <% temp_pattern = temp_pattern.sub(/\/(\d{1,2})(\/|$)/, '/:day\\2') %>
+    <% url_pattern = "#{temp_pattern}?#{query_part}" %>
+    <% url_type = 'week' %>
+  <% else %>
+    <%# Calendar-style with query params: replace year/month in path, preserve query %>
+    <% path_pattern = base_part.gsub(/\d{4}/, ':year').gsub(/\/(\d{1,2})(\/|$)/, '/:month\\2') %>
+    <% url_pattern = "#{path_pattern}?#{query_part}" %>
+    <% url_type = 'path' %>
+  <% end %>
+<% else %>
+  <%# Calendar-style: extract base URL pattern %>
+  <%# Remove year and month numbers, replace with placeholders %>
+  <% url_pattern = prev_path.gsub(/\d{4}/, ':year').gsub(/\/(\d{1,2})(\/|$)/, '/:month\\2') %>
+  <% url_type = 'path' %>
+<% end %>
+
+<div class="bg-gradient-to-r from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-lg border-2 border-primary-700/30 dark:border-primary-500/20 p-4" 
+     data-controller="month-nav"
+     data-month-nav-url-pattern-value="<%= url_pattern %>"
+     data-month-nav-url-type-value="<%= url_type %>"
+     data-month-nav-view-mode-value="<%= view_mode %>"
+     data-month-nav-current-year-value="<%= current_year %>"
+     data-month-nav-current-month-value="<%= current_month %>"
+     <% if view_mode == 'week' %>
+     data-month-nav-current-week-year-value="<%= current_week_year %>"
+     data-month-nav-current-week-month-value="<%= current_week_month %>"
+     data-month-nav-current-week-day-value="<%= current_week_day %>"
+     <% end %>
+     data-month-nav-turbo-frame-value="<%= local_assigns[:turbo_frame] || 'calendar_content' %>">
   <div class="flex items-center justify-between">
     <div class="flex gap-3">
       <%= link_to prev_path,
                   class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                  data: { turbo_frame: 'calendar_content' } do %>
+                  data: { action: 'click->month-nav#navigate', turbo_frame: local_assigns[:turbo_frame] || 'calendar_content' } do %>
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
         Previous
       <% end %>
 
+      <% if local_assigns[:today_path].present? %>
+        <%= link_to today_path,
+                    class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                    data: { action: 'click->month-nav#navigate', turbo_frame: local_assigns[:turbo_frame] || 'calendar_content' } do %>
+          Today
+        <% end %>
+      <% end %>
+
       <%= link_to next_path,
                   class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                  data: { turbo_frame: 'calendar_content' } do %>
+                  data: { action: 'click->month-nav#navigate', turbo_frame: local_assigns[:turbo_frame] || 'calendar_content' } do %>
         Next
         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -21,9 +95,96 @@
       <% end %>
     </div>
 
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-      <%= local_assigns[:title] || @date.strftime("%B %Y") %>
-    </h2>
+    <!-- Clickable Month Header with Dropdown -->
+    <div class="relative">
+      <button type="button"
+              data-month-nav-target="header"
+              data-action="click->month-nav#togglePicker"
+              class="text-2xl font-bold text-gray-900 dark:text-white hover:text-primary-700 dark:hover:text-primary-400 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-lg px-2 py-1">
+        <%= month_title %>
+        <svg class="inline-block w-5 h-5 ml-2 align-middle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <!-- Month/Year or Week Picker Dropdown -->
+      <div data-month-nav-target="dropdown"
+           class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border-2 border-gray-200 dark:border-gray-700 z-50 p-4"
+           data-transition-enter="transition ease-out duration-200"
+           data-transition-enter-from="opacity-0 transform scale-95"
+           data-transition-enter-to="opacity-100 transform scale-100"
+           data-transition-leave="transition ease-in duration-150"
+           data-transition-leave-from="opacity-100 transform scale-100"
+           data-transition-leave-to="opacity-0 transform scale-95">
+        
+        <% if view_mode == 'week' %>
+          <!-- Week Picker -->
+          <!-- Year Selector -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Year</label>
+            <select data-month-nav-target="weekYearSelect"
+                    data-action="change->month-nav#selectWeekYear"
+                    class="block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+              <% (current_year - 5).upto(current_year + 5) do |year| %>
+                <option value="<%= year %>" <%= 'selected' if year == current_week_year %>><%= year %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <!-- Month Selector -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Month</label>
+            <select data-month-nav-target="weekMonthSelect"
+                    data-action="change->month-nav#selectWeekMonth"
+                    class="block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+              <% Date::MONTHNAMES[1..12].each_with_index do |month_name, index| %>
+                <% month_num = index + 1 %>
+                <option value="<%= month_num %>" <%= 'selected' if month_num == current_week_month %>><%= month_name %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <!-- Week List -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Week</label>
+            <div data-month-nav-target="weekList" class="max-h-60 overflow-y-auto space-y-1">
+              <!-- Weeks will be generated dynamically by JavaScript -->
+            </div>
+          </div>
+        <% else %>
+          <!-- Month Picker -->
+          <!-- Year Selector -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Year</label>
+            <select data-month-nav-target="yearSelect"
+                    data-action="change->month-nav#selectYear"
+                    class="block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+              <% (current_year - 5).upto(current_year + 5) do |year| %>
+                <option value="<%= year %>" <%= 'selected' if year == current_year %>><%= year %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <!-- Month Grid -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Month</label>
+            <div class="grid grid-cols-3 gap-2">
+              <% Date::MONTHNAMES[1..12].each_with_index do |month_name, index| %>
+                <% month_num = index + 1 %>
+                <button type="button"
+                        data-month-nav-target="monthButton"
+                        data-month-value="<%= month_num %>"
+                        data-action="click->month-nav#selectMonth"
+                        class="px-3 py-2 text-sm font-medium rounded-lg transition-all
+                               <%= month_num == current_month && current_date.year == current_year ? 'bg-primary-700 text-white dark:bg-primary-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' %>">
+                  <%= month_name[0..2] %>
+                </button>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
 
     <% if block_given? %>
       <%= yield %>

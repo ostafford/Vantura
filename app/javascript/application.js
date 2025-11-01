@@ -4,4 +4,4 @@ import "controllers"
 import "helpers/notifications"
  
 // Optional: keep Turbo bar snappy if you still want it visible
-Turbo.setProgressBarDelay(0)
+Turbo.config.drive.progressBarDelay = 0

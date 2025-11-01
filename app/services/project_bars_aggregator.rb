@@ -20,7 +20,7 @@ class ProjectBarsAggregator < ApplicationService
     when "contributor"
       datasets = build_contributor_datasets(range)
     else
-      datasets = [build_total_dataset(range)]
+      datasets = [ build_total_dataset(range) ]
     end
 
     {
@@ -39,7 +39,7 @@ class ProjectBarsAggregator < ApplicationService
       (Date.new(@year, 1, 1)..Date.new(@year, 12, 31))
     else
       base_date = Date.new(@year, @month, 1)
-      (base_date.prev_year.beginning_of_month..base_date.end_of_month)
+      (base_date.beginning_of_month..base_date.end_of_month)
     end
   end
 
@@ -82,12 +82,12 @@ class ProjectBarsAggregator < ApplicationService
     groups = if @ids.present?
       @ids
     else
-      # Top 5 groups by total over the range
+      # All groups sorted by total over the range (highest first)
       totals = expenses_relation.where(due_on: range).group(column).sum(:total_cents)
-      totals.sort_by { |_, v| -v }.map(&:first).compact.first(5)
+      totals.sort_by { |_, v| -v }.map(&:first).compact
     end
 
-    groups.compact.first(6).map do |group_value|
+    groups.compact.map do |group_value|
       data_by_month = months_in_range(range).map do |month_date|
         month_start = month_date.beginning_of_month
         month_end = month_date.end_of_month
@@ -108,10 +108,10 @@ class ProjectBarsAggregator < ApplicationService
     selected_ids = if @ids.present?
       @ids.map(&:to_i) & participant_ids
     else
-      participant_ids.first(5)
+      participant_ids
     end
 
-    selected_ids.first(6).map do |user_id|
+    selected_ids.map do |user_id|
       user_name = User.find_by(id: user_id)&.name || "User #{user_id}"
       data_by_month = months_in_range(range).map do |month_date|
         month_start = month_date.beginning_of_month
@@ -132,10 +132,14 @@ class ProjectBarsAggregator < ApplicationService
   end
 
   def color_for(key)
-    palette = ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#06B6D4"]
+    # Expanded palette with 24 distinct colors to support many categories/merchants/contributors
+    palette = [
+      "#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#06B6D4",
+      "#EC4899", "#14B8A6", "#F97316", "#6366F1", "#84CC16", "#EAB308",
+      "#A855F7", "#22C55E", "#F43F5E", "#0EA5E9", "#A3E635", "#FB923C",
+      "#C026D3", "#2DD4BF", "#FBBF24", "#9333EA", "#4ADE80", "#F87171"
+    ]
     idx = key.to_s.hash % palette.length
     palette[idx]
   end
 end
-
-

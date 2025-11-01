@@ -1,4 +1,4 @@
-<%= form_with(model: @project, local: true) do |f| %>
+<%= form_with(model: @project, local: true, data: { turbo: false }) do |f| %>
   <% if @project.errors.any? %>
     <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
       <h3 class="text-sm font-medium text-red-800 dark:text-red-300 mb-2">Please fix the following errors:</h3>

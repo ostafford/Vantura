@@ -52,6 +52,8 @@ export default class extends Controller {
   }
   
   setupScrollPreservation() {
+    // Note: Month navigation scroll preservation is handled by month_nav_controller.js
+    // This method handles scroll preservation for full page loads/navigation (turbo:load)
     // Save scroll position before page is cached
     const beforeCacheHandler = () => {
       if (window.scrollY > 0) {

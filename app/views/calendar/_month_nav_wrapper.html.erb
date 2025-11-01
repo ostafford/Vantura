@@ -1,0 +1,32 @@
+<div id="calendar_month_navigation">
+<% if @view == 'week' %>
+  <% prev_week_date = @date - 1.week %>
+  <% next_week_date = @date + 1.week %>
+  <%= render 'shared/month_navigation', 
+      title: "Week of #{@date.beginning_of_week(:monday).strftime('%b %d')} - #{@date.end_of_week(:monday).strftime('%b %d, %Y')}",
+      prev_path: calendar_month_path(prev_week_date.year, prev_week_date.month, prev_week_date.day, view: 'week'),
+      next_path: calendar_month_path(next_week_date.year, next_week_date.month, next_week_date.day, view: 'week'),
+      view_mode: 'week',
+      current_date: @date,
+      turbo_frame: 'calendar_content' do %>
+    <button type="button" data-action="click->modal#open" class="inline-flex items-center justify-center w-10 h-10 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md" title="Add Transaction">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+    </button>
+  <% end %>
+<% else %>
+  <%= render 'shared/month_navigation', 
+      prev_path: calendar_month_path(@date.prev_month.year, @date.prev_month.month, view: 'month'),
+      next_path: calendar_month_path(@date.next_month.year, @date.next_month.month, view: 'month'),
+      current_date: @date,
+      turbo_frame: 'calendar_content' do %>
+    <button type="button" data-action="click->modal#open" class="inline-flex items-center justify-center w-10 h-10 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md" title="Add Transaction">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+    </button>
+  <% end %>
+<% end %>
+</div>
+

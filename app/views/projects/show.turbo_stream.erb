@@ -1,0 +1,10 @@
+<%# Update the Bento Cards with current month stats (includes bar chart with month navigation) %>
+<%= turbo_stream.update "project_statistics_bento" do %>
+  <%= render partial: "projects/project_bento_cards" %>
+<% end %>
+
+<%# Replace the expenses table section %>
+<%= turbo_stream.replace "project_expenses_section" do %>
+  <%= render partial: "projects/expenses_table" %>
+<% end %>
+

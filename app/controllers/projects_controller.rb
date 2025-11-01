@@ -27,20 +27,28 @@ class ProjectsController < ApplicationController
     # Month-filtered expenses for stats
     @expenses_in_month = @project.project_expenses.where(due_on: month_start..month_end)
     @expenses = @expenses_in_month.order(due_on: :asc, created_at: :desc).includes(:expense_contributions)
-    
+
     # Calculate project-specific statistics (month-filtered)
     @total_expenses_cents = @expenses_in_month.sum(:total_cents)
     @expense_count = @expenses_in_month.count
     @total_participants = @project.participants.count
-    
+
     # Find largest expense (month-filtered)
     @largest_expense = @expenses_in_month.order(total_cents: :desc).first
-    
+
     # Calculate unpaid contributions count (month-filtered)
     @unpaid_contributions_count = ExpenseContribution
       .joins(:project_expense)
       .where(project_expenses: { project_id: @project.id, due_on: month_start..month_end }, paid: false)
       .count
+
+    # Calculate MoM, YoY, and projection stats
+    @project_stats = ProjectStatsCalculator.call(@project, @date)
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def new
@@ -54,7 +62,7 @@ class ProjectsController < ApplicationController
     if @project.save
       sync_project_memberships(params[:member_user_ids])
       calculate_project_statistics
-      
+
       respond_to do |format|
         format.turbo_stream
         format.html { redirect_to @project, notice: "Project created successfully" }
@@ -71,7 +79,7 @@ class ProjectsController < ApplicationController
     if @project.update(project_params)
       sync_project_memberships(params[:member_user_ids])
       calculate_project_statistics
-      
+
       respond_to do |format|
         # For Turbo Stream requests, send an HTTP redirect that Turbo will follow
         format.turbo_stream { redirect_to @project, status: :see_other }
@@ -85,7 +93,7 @@ class ProjectsController < ApplicationController
   def destroy
     @project.destroy
     calculate_project_statistics
-    
+
     respond_to do |format|
       format.turbo_stream
       format.html { redirect_to projects_path, notice: "Project deleted" }
@@ -128,7 +136,7 @@ class ProjectsController < ApplicationController
       Array(member_user_ids).map(&:to_i).uniq.each do |uid|
         next if uid == Current.user.id
         raw_level = access_levels[uid.to_s]
-        level = %w[full limited].include?(raw_level) ? raw_level : 'limited'
+        level = %w[full limited].include?(raw_level) ? raw_level : "limited"
         @project.project_memberships.create(user_id: uid, access_level: ProjectMembership.access_levels[level])
       end
     end
@@ -140,12 +148,12 @@ class ProjectsController < ApplicationController
         .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
         .distinct
         .includes(:project_expenses, :owner, :members, project_memberships: :user)
-      
+
       @projects = projects.order(created_at: :desc)
-      
+
       # Calculate total projects
       @total_projects = projects.count
-      
+
       # Calculate total expenses (sum of all project_expenses.total_cents across all projects)
       @total_expenses_cents = ProjectExpense
         .joins(:project)
@@ -154,7 +162,7 @@ class ProjectsController < ApplicationController
         .distinct
         .sum(:total_cents)
       @total_expenses = @total_expenses_cents / 100.0
-      
+
       # Calculate unique participants across all projects
       owner_ids = projects.pluck(:owner_id)
       member_ids = ProjectMembership
@@ -163,7 +171,7 @@ class ProjectsController < ApplicationController
         .distinct
         .pluck(:user_id)
       @total_participants = (owner_ids + member_ids).uniq.count
-      
+
       # Calculate active projects (projects with at least one expense)
       project_ids_with_expenses = ProjectExpense
         .joins(:project)
@@ -172,7 +180,7 @@ class ProjectsController < ApplicationController
         .distinct
         .pluck(:project_id)
       @active_projects = project_ids_with_expenses.uniq.count
-      
+
       # Find largest expense (for hero card)
       @largest_expense = ProjectExpense
         .joins(:project)
@@ -181,7 +189,7 @@ class ProjectsController < ApplicationController
         .distinct
         .order(total_cents: :desc)
         .first
-      
+
       # Find most active project (project with most expenses)
       project_expense_counts = ProjectExpense
         .joins(:project)
@@ -190,7 +198,7 @@ class ProjectsController < ApplicationController
         .distinct
         .group(:project_id)
         .count
-      
+
       if project_expense_counts.any?
         most_active_project_id = project_expense_counts.max_by { |_, count| count }[0]
         @most_active_project = projects.find_by(id: most_active_project_id)

@@ -41,5 +41,3 @@ module Projects
     end
   end
 end
-
-
