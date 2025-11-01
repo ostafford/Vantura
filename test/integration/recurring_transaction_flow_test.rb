@@ -9,14 +9,16 @@ class RecurringTransactionFlowTest < ActionDispatch::IntegrationTest
     @transaction = transactions(:expense_one)
   end
 
-  test "view recurring transactions index", skip: SKIP_ALL do
+  test "view recurring transactions index" do
+    skip if SKIP_ALL
     get recurring_transactions_path
 
     assert_response :success
     assert_select "h1", "Manage Recurring Transactions"
   end
 
-  test "create recurring transaction from existing transaction", skip: SKIP_ALL do
+  test "create recurring transaction from existing transaction" do
+    skip if SKIP_ALL
     post recurring_transactions_path, params: {
       transaction_id: @transaction.id,
       frequency: "monthly",
@@ -36,7 +38,8 @@ class RecurringTransactionFlowTest < ActionDispatch::IntegrationTest
     assert recurring.is_active
   end
 
-  test "toggle recurring transaction active status", skip: SKIP_ALL do
+  test "toggle recurring transaction active status" do
+    skip if SKIP_ALL
     recurring = @account.recurring_transactions.create!(
       description: "Monthly Bill",
       amount: -100.0,
@@ -57,7 +60,8 @@ class RecurringTransactionFlowTest < ActionDispatch::IntegrationTest
     assert_not recurring.reload.is_active
   end
 
-  test "delete recurring transaction", skip: SKIP_ALL do
+  test "delete recurring transaction" do
+    skip if SKIP_ALL
     recurring = @account.recurring_transactions.create!(
       description: "Test Pattern",
       amount: -50.0,

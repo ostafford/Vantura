@@ -190,17 +190,25 @@ class AccountTest < ActiveSupport::TestCase
       current_balance: 1000.0
     )
 
-    # Add transactions after the past month we're checking
-    last_month = Date.today - 1.month
+    # Use fixed dates to avoid flakiness: target month is October 15, transaction is on Nov 1
+    # This ensures the transaction is always "after" the target month and <= today
+    # We use a date that's in the past relative to when the test runs, but after the target month
+    target_month = Date.new(2025, 9, 15) # September 15 (past month)
+    # Transaction must be after Sep 30 but <= today. Use today's date or a date in current month
+    # that's definitely after September
+    today = Date.today
+    transaction_date = [today, target_month.end_of_month + 1.day].min # First day after month or today, whichever is earlier
+
+    # Add transaction after the past month we're checking
     account.transactions.create!(
       description: "Recent Income",
       amount: 200.0,
-      transaction_date: Date.today - 5.days,
+      transaction_date: transaction_date,
       status: "SETTLED",
       is_hypothetical: false
     )
 
-    balance = account.end_of_month_balance(last_month)
+    balance = account.end_of_month_balance(target_month)
     # Should be current balance (1000) minus transactions after last month (200)
     assert_equal 800.0, balance
   end

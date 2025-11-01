@@ -25,16 +25,16 @@ class Account < ApplicationRecord
     month_end = date.end_of_month
 
     if month_end < today
-      # For past months: current balance minus all transactions from month_end to today
-      transactions_after_month = transactions
-                                  .where("transaction_date > ? AND transaction_date <= ?",
-                                         month_end, today)
-      current_balance - transactions_after_month.sum(:amount)
+      # For past months: current balance minus all transactions from after month_end up to today
+      # To get the balance at end of past month, we reverse all transactions that happened after
+      # Using exclusive start (> month_end) and inclusive end (<= today) to match calendar_controller pattern
+      transactions_after_month = transactions.where("transaction_date > ? AND transaction_date <= ?", month_end, today)
+      sum_after = transactions_after_month.sum(:amount) || 0.0
+      current_balance - sum_after
     else
       # For current/future months: current balance plus all FUTURE transactions (after today)
       transactions_until_month_end = transactions
-                                      .where("transaction_date > ? AND transaction_date <= ?",
-                                             today, month_end)
+                                      .where(transaction_date: (today + 1.day)..month_end)
       current_balance + transactions_until_month_end.sum(:amount)
     end
   end

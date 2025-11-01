@@ -136,28 +136,36 @@ class DashboardStatsCalculatorTest < ActiveSupport::TestCase
   end
 
   test "should return all transactions for the month" do
-    # Create 15 transactions
+    # Use fixed date on day 15+ to ensure all transactions stay within the same month
+    # regardless of when the test runs
+    fixed_date = Date.new(2025, 11, 15) # November 15 (day 15+ ensures stability)
+
+    # Create 15 transactions from day 15 down to day 1, all within November
     15.times do |i|
       @account.transactions.create!(
         description: "Transaction #{i}",
         amount: -10.0 * (i + 1),
-        transaction_date: @today - i.days,
+        transaction_date: fixed_date - i.days, # Nov 15, Nov 14, ... Nov 1
         status: "SETTLED",
         is_hypothetical: false
       )
     end
 
-    stats = DashboardStatsCalculator.call(@account, @today)
+    stats = DashboardStatsCalculator.call(@account, fixed_date)
     # Note: Recent transactions are no longer limited to allow week-based pagination
     assert_equal 15, stats[:recent_transactions].length
   end
 
   test "should order recent transactions by date descending" do
-    # Create transactions with different dates
+    # Use fixed date on day 15+ to ensure both transactions are in the same month
+    # regardless of when the test runs
+    fixed_date = Date.new(2025, 11, 15) # November 15 (day 15+ ensures stability)
+
+    # Create transactions with different dates, both within November
     old_txn = @account.transactions.create!(
       description: "Old",
       amount: -100.0,
-      transaction_date: @today - 5.days,
+      transaction_date: fixed_date - 5.days, # November 10
       status: "SETTLED",
       is_hypothetical: false
     )
@@ -165,12 +173,12 @@ class DashboardStatsCalculatorTest < ActiveSupport::TestCase
     new_txn = @account.transactions.create!(
       description: "New",
       amount: -50.0,
-      transaction_date: @today,
+      transaction_date: fixed_date, # November 15
       status: "SETTLED",
       is_hypothetical: false
     )
 
-    stats = DashboardStatsCalculator.call(@account, @today)
+    stats = DashboardStatsCalculator.call(@account, fixed_date)
     assert_equal new_txn.id, stats[:recent_transactions].first.id
     assert_equal old_txn.id, stats[:recent_transactions].last.id
   end

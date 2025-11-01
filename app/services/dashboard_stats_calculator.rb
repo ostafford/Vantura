@@ -29,10 +29,17 @@ class DashboardStatsCalculator < ApplicationService
   end
 
   def recent_transactions
-    @recent_transactions ||= @account.transactions
-                                     .where(transaction_date: month_range)
-                                     .includes(:recurring_transaction) # Prevent N+1 queries
-                                     .order(transaction_date: :desc, id: :desc)
+    @recent_transactions ||= begin
+      transactions = @account.transactions
+                            .where(transaction_date: month_range)
+                            .includes(:recurring_transaction) # Prevent N+1 queries
+                            .to_a
+      # Sort by date descending, then by id descending to ensure consistent ordering
+      transactions.sort do |a, b|
+        date_compare = b.transaction_date <=> a.transaction_date
+        date_compare != 0 ? date_compare : (b.id <=> a.id)
+      end
+    end
     # Removed .limit(10) to allow week-based pagination to show all transactions
   end
 
