@@ -50,7 +50,22 @@ bin/rails test
 
 # Run specific test
 bin/rails test test/models/user_test.rb
+
+# Run system tests
+bin/rails test:system
+
+# Generate coverage report
+bin/rails test
+open coverage/index.html
 ```
+
+**Coverage Targets:**
+- ≥80% overall coverage
+- 100% critical business logic
+- 90%+ models
+- 70%+ controllers
+
+See [Testing Guide](docs/testing-guide.md) for detailed testing patterns and practices.
 
 ## Development
 
@@ -92,7 +107,9 @@ bin/rails test                  # Run tests
 ## Documentation
 
 - **[Public Roadmap](PUBLIC_ROADMAP.md)** - Upcoming features and development plans (public-facing)
-- **[Internal Documentation](docs/README.md)** - Development guides and technical reference (private)
+- **[Refactoring Decisions](docs/refactoring-decisions.md)** - Architectural decisions made during refactoring
+- **[Testing Guide](docs/testing-guide.md)** - Testing patterns and practices
+- **[Stimulus Controllers Architecture](docs/stimulus-controllers-architecture.md)** - Frontend architecture decisions
 
 ## Security
 

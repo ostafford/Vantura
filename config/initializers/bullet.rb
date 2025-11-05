@@ -2,8 +2,8 @@
 # See: https://github.com/flyerhzm/bullet
 
 if Rails.env.development? || Rails.env.test?
-  require 'bullet'
-  
+  require "bullet"
+
   Bullet.enable = true
   Bullet.alert = true
   Bullet.bullet_logger = true
@@ -12,4 +12,3 @@ if Rails.env.development? || Rails.env.test?
   Bullet.add_footer = true
   Bullet.raise = true if Rails.env.test?
 end
-

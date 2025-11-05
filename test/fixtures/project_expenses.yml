@@ -1,0 +1,50 @@
+expense_one:
+  project: project_one
+  merchant: Test Merchant One
+  category: groceries
+  total_cents: 10000
+  due_on: <%= Date.today %>
+  notes: Test notes
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+expense_two:
+  project: project_one
+  merchant: Test Merchant Two
+  category: dining
+  total_cents: 5000
+  due_on: <%= Date.today - 1.day %>
+  notes: 
+  created_at: <%= 2.days.ago %>
+  updated_at: <%= 2.days.ago %>
+
+expense_three:
+  project: project_with_expenses
+  merchant: Power Company
+  category: utilities
+  total_cents: 15000
+  due_on: <%= Date.today %>
+  notes: Monthly power bill
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.day.ago %>
+
+expense_last_month:
+  project: project_with_expenses
+  merchant: Last Month Merchant
+  category: groceries
+  total_cents: 8000
+  due_on: <%= Date.today.prev_month %>
+  notes: 
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.month.ago %>
+
+expense_without_date:
+  project: project_one
+  merchant: No Date Merchant
+  category: other
+  total_cents: 3000
+  due_on: 
+  notes: Expense without due date
+  created_at: <%= 3.days.ago %>
+  updated_at: <%= 3.days.ago %>
+

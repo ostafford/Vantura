@@ -1,6 +1,7 @@
 class RecurringTransactionsController < ApplicationController
   include AccountLoadable
 
+  before_action :authorize_account_ownership!, only: [ :index ]
   before_action :load_account, except: [ :create ]
   before_action :set_recurring_transaction, only: [ :show, :edit, :update, :destroy, :toggle_active ]
 
@@ -47,6 +48,7 @@ class RecurringTransactionsController < ApplicationController
 
   def show
     # Recurring transaction is already loaded by before_action
+    respond_to { |format| format.html; format.turbo_stream }
   end
 
   def edit

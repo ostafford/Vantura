@@ -11,23 +11,23 @@ module BentoCardsHelper
   def projection_card_data(title:, value:, change:, balance:, days_remaining: 0, upcoming_recurring_expenses: [], upcoming_recurring_income: [], **options)
     change_is_positive = change >= 0
     balance_is_positive = balance >= 0
-    
+
     # Format change value
     change_display = change.is_a?(Numeric) ? "$#{'%.2f' % change.abs}" : change.to_s
-    
+
     # Badge color based on NET CASH FLOW (Income - Expenses)
-    badge_bg = change_is_positive ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'
-    badge_text = change_is_positive ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'
-    icon_path = change_is_positive ? 
+    badge_bg = change_is_positive ? "bg-green-100 dark:bg-green-900/30" : "bg-red-100 dark:bg-red-900/30"
+    badge_text = change_is_positive ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
+    icon_path = change_is_positive ?
       '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />' :
       '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />'
-    
+
     # Value color based on ACTUAL BALANCE (positive or negative)
-    value_color = balance_is_positive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-    
+    value_color = balance_is_positive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+
     # Calculate recurring totals
     recurring_totals = calculate_recurring_totals(upcoming_recurring_expenses, upcoming_recurring_income)
-    
+
     {
       title: title,
       value: value,
@@ -46,7 +46,7 @@ module BentoCardsHelper
       **options
     }
   end
-  
+
   # Calculate totals for recurring expenses and income
   # @param expenses [Array] Array of recurring expense records
   # @param income [Array] Array of recurring income records
@@ -56,7 +56,7 @@ module BentoCardsHelper
     recurring_income_total = income.sum { |r| r.amount }
     total_recurring_items = expenses.count + income.count
     recurring_net = recurring_income_total - recurring_expense_total
-    
+
     {
       recurring_expense_total: recurring_expense_total,
       recurring_income_total: recurring_income_total,
@@ -67,23 +67,23 @@ module BentoCardsHelper
       has_recurring_items: expenses.any? || income.any?
     }
   end
-  
+
   # Get CSS class for balance color based on sign
   # @param balance [Numeric] Balance value
   # @return [String] CSS class for balance color
   def balance_color_class(balance)
-    balance >= 0 ? 'text-green-400 dark:text-green-300' : 'text-red-400 dark:text-red-300'
+    balance >= 0 ? "text-green-400 dark:text-green-300" : "text-red-400 dark:text-red-300"
   end
-  
+
   # Format balance with color class
   # @param balance [Numeric] Balance value
   # @param size_class [String] Size class for text (default: 'text-3xl font-bold')
   # @return [String] HTML span with formatted balance and color class
-  def formatted_balance_with_color(balance, size_class: 'text-3xl font-bold')
+  def formatted_balance_with_color(balance, size_class: "text-3xl font-bold")
     color_class = balance_color_class(balance)
     content_tag :span, number_to_currency(balance), class: "#{size_class} #{color_class}"
   end
-  
+
   # Calculate hypothetical total (income - expenses)
   # @param hypothetical_income [Numeric] Hypothetical income amount
   # @param hypothetical_expenses [Numeric] Hypothetical expenses amount
@@ -91,19 +91,18 @@ module BentoCardsHelper
   def calculate_hypothetical_total(hypothetical_income, hypothetical_expenses)
     hypothetical_income - hypothetical_expenses
   end
-  
+
   # Generate period text for transaction type cards
   # @param period [String] Period identifier ('week', 'search', or 'month')
   # @return [String] Human-readable period text
   def period_text(period)
     case period
-    when 'week'
+    when "week"
       "This week"
-    when 'search'
+    when "search"
       "Search Results"
     else
       "This month"
     end
   end
 end
-

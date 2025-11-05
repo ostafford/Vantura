@@ -14,6 +14,7 @@ class TransactionsController < ApplicationController
 
   def show
     # Transaction is already loaded by before_action
+    respond_to { |format| format.html; format.turbo_stream }
   end
 
   def edit
@@ -51,7 +52,11 @@ class TransactionsController < ApplicationController
     return unless load_account
     data = TransactionSearchService.call(@account, params[:q], params.slice(:year, :month), params[:filter] || "all")
     assign_transaction_index_variables(data)
-    respond_to { |format| format.turbo_stream; format.json { render json: @transactions } }
+    respond_to do |format|
+      format.html { redirect_to transactions_path(filter: @filter_type, year: @year, month: @month, q: params[:q]) }
+      format.turbo_stream
+      format.json { render json: @transactions }
+    end
   end
 
   private
@@ -62,7 +67,19 @@ class TransactionsController < ApplicationController
   end
 
   def set_transaction
-    @transaction = @account.transactions.find(params[:id])
+    # First try to find transaction in user's accounts
+    transaction = Transaction.joins(:account)
+                             .where(accounts: { user_id: Current.user.id })
+                             .find_by(id: params[:id])
+
+    unless transaction
+      head :forbidden
+      return
+    end
+
+    @transaction = transaction
+    # Set @account to the transaction's account for consistency
+    @account = transaction.account
   end
 
   def filter_transactions_by_type(type)

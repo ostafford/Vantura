@@ -55,10 +55,18 @@ class TransactionIndexService < ApplicationService
       if @date_params[:year].present? && @date_params[:month].present?
         y = @date_params[:year].to_i
         m = @date_params[:month].to_i
-        Date.new(y, m, 1)
+        # Validate date values are reasonable
+        if y > 0 && m.between?(1, 12)
+          Date.new(y, m, 1)
+        else
+          Date.today
+        end
       else
         Date.today
       end
+    rescue ArgumentError
+      # Handle invalid dates gracefully
+      Date.today
     end
   end
 

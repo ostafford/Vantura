@@ -1,4 +1,20 @@
 ENV["RAILS_ENV"] ||= "test"
+
+# SimpleCov must be required before loading the application
+require "simplecov"
+SimpleCov.start "rails" do
+  add_filter "/test/"
+  add_filter "/config/"
+  add_filter "/vendor/"
+
+  add_group "Controllers", "app/controllers"
+  add_group "Models", "app/models"
+  add_group "Services", "app/services"
+  add_group "Jobs", "app/jobs"
+  add_group "Mailers", "app/mailers"
+  add_group "Helpers", "app/helpers"
+end
+
 require_relative "../config/environment"
 require "rails/test_help"
 

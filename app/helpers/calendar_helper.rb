@@ -73,7 +73,7 @@ module CalendarHelper
     today_class = is_today ? " border-2 border-primary-700/40 dark:border-primary-500/40" : ""
     base + today_class
   end
-  
+
   # Calculate end of week balance for a given account and date
   # @param account [Account] Account to calculate balance for
   # @param date [Date] Date to calculate from
@@ -83,7 +83,7 @@ module CalendarHelper
     week_transactions = account.transactions.where(transaction_date: Date.today..week_end)
     account.current_balance + week_transactions.sum(:amount)
   end
-  
+
   # Calculate hypothetical total from income and expenses
   # @param income [Numeric] Total income amount
   # @param expenses [Numeric] Total expenses amount
@@ -91,7 +91,7 @@ module CalendarHelper
   def calculate_hypothetical_total(income, expenses)
     income - expenses
   end
-  
+
   # Format date range with transaction count
   # @param start_date [Date] Start of the range
   # @param end_date [Date] End of the range

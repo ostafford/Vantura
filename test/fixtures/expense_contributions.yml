@@ -1,0 +1,27 @@
+contribution_one:
+  project_expense: expense_one
+  user: one
+  share_cents: 5000
+  paid: false
+  paid_at: 
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+contribution_two:
+  project_expense: expense_one
+  user: two
+  share_cents: 5000
+  paid: false
+  paid_at: 
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+contribution_paid:
+  project_expense: expense_three
+  user: one
+  share_cents: 15000
+  paid: true
+  paid_at: <%= 1.day.ago %>
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.day.ago %>
+

@@ -1,7 +1,9 @@
 require "test_helper"
 
 class RecurringTransactionFlowTest < ActionDispatch::IntegrationTest
-  # Temporarily skipped due to pre-existing setup issues unrelated to calendar refactor
+  # TODO: Fix pre-existing setup issues unrelated to calendar refactor
+  # These integration tests were skipped due to setup issues that existed before Phase 7 refactoring
+  # Should be addressed in a separate phase focused on integration test setup fixes
   SKIP_ALL = true
   def setup
     sign_in_as :one

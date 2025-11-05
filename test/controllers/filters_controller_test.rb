@@ -1,7 +1,10 @@
 require "test_helper"
 
 class FiltersControllerTest < ActionDispatch::IntegrationTest
-  # Temporarily skipped due to pre-existing failures unrelated to calendar refactor
+  # TODO: Fix pre-existing failures unrelated to calendar refactor
+  # These tests were skipped due to issues with FiltersController that existed before Phase 7 refactoring
+  # FiltersController is actively used (routes configured, AnalysisController uses it)
+  # Should be addressed in a separate phase focused on FiltersController fixes
   # Remove this line to re-enable once FiltersController is fixed
   self.test_order = :sorted # keep deterministic, even when skipped
   SKIP_ALL = true

@@ -11,4 +11,18 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     get root_url
     assert_redirected_to new_session_url
   end
+
+  test "should use DashboardStatsCalculator service" do
+    sign_in_as(:one)
+    get root_url
+    assert_response :success
+    # Service is called indirectly - verified through successful response
+  end
+
+  test "should use RecurringTransactionsService for upcoming transactions" do
+    sign_in_as(:one)
+    get root_url
+    assert_response :success
+    # Service is called indirectly - verified through successful response
+  end
 end

@@ -1,0 +1,40 @@
+<div class="max-w-4xl mx-auto mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Recurring Transaction</h1>
+
+  <div class="space-y-4">
+    <div>
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Description:</span>
+      <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @recurring.description %></span>
+    </div>
+
+    <div>
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Amount:</span>
+      <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @recurring.amount < 0 ? "-" : "+" %>$<%= number_with_precision(@recurring.amount.abs, precision: 2) %></span>
+    </div>
+
+    <div>
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Frequency:</span>
+      <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @recurring.frequency.humanize %></span>
+    </div>
+
+    <div>
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Next Occurrence:</span>
+      <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @recurring.next_occurrence_date.strftime("%b %d, %Y") %></span>
+    </div>
+
+    <div>
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
+      <% if @recurring.is_active? %>
+        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+      <% else %>
+        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Paused</span>
+      <% end %>
+    </div>
+
+    <div class="mt-6">
+      <%= link_to "Edit", edit_recurring_transaction_path(@recurring, account_id: @account.id), class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" %>
+      <%= link_to "Back to List", recurring_transactions_path(account_id: @account.id), class: "ml-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium" %>
+    </div>
+  </div>
+</div>
+

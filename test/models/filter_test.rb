@@ -109,11 +109,20 @@ class FilterTest < ActiveSupport::TestCase
   end
 
   test "should destroy filter when user is destroyed" do
-    @filter.save!
-    user_filter_count = @user.filters.count
-    assert_difference("Filter.count", -user_filter_count) do
-      @user.destroy
+    # Create a fresh user to avoid fixture interference
+    fresh_user = User.create!(email_address: "filter_test@example.com", password: "password123", up_bank_token: "test_token")
+    fresh_filter = Filter.create!(
+      name: "Fresh Filter",
+      user: fresh_user,
+      filter_types: [ "category" ],
+      filter_params: { "categories" => [ "Food" ] },
+      date_range: nil
+    )
+
+    assert_difference("Filter.count", -1) do
+      fresh_user.destroy
     end
+    assert_nil Filter.find_by(id: fresh_filter.id)
   end
 
   # Scopes
