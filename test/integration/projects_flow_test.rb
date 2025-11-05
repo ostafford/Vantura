@@ -64,12 +64,12 @@ class ProjectsFlowTest < ActionDispatch::IntegrationTest
     # As member: can update own
     delete session_url
     post session_url, params: { email_address: @member.email_address, password: "password" }
-    patch project_expense_contribution_url(project, expense, member_contrib), params: { expense_contribution: { paid: true } }
+    patch contribution_url(member_contrib), params: { expense_contribution: { paid: true } }
     assert_response :redirect
     assert member_contrib.reload.paid
 
     # Cannot update owner's
-    patch project_expense_contribution_url(project, expense, owner_contrib), params: { expense_contribution: { paid: true } }
+    patch contribution_url(owner_contrib), params: { expense_contribution: { paid: true } }
     assert_response :forbidden
   end
 end

@@ -45,11 +45,25 @@ class ProjectExpensesController < ApplicationController
 
   private
     def set_project
-      @project = Project.find(params[:project_id])
+      # For nested routes (index, new, create), project_id is in params
+      # For shallow routes (show, edit, update, destroy), get project from expense
+      if params[:project_id]
+        @project = Project.find(params[:project_id])
+      elsif params[:id]
+        @expense = ProjectExpense.find(params[:id])
+        @project = @expense.project
+      end
     end
 
     def set_expense
-      @expense = @project.project_expenses.find(params[:id])
+      # For nested routes, find expense within project scope
+      # For shallow routes, find expense directly by ID
+      if params[:project_id]
+        @expense = @project.project_expenses.find(params[:id])
+      else
+        @expense = ProjectExpense.find(params[:id])
+        @project ||= @expense.project
+      end
     end
 
     def authorize_member!

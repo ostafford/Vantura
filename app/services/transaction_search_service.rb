@@ -114,6 +114,7 @@ class TransactionSearchService < ApplicationService
         .where(transaction_date: start_date..end_date)
         .where("description LIKE ? COLLATE NOCASE OR category LIKE ? COLLATE NOCASE OR merchant LIKE ? COLLATE NOCASE",
                search_pattern, search_pattern, search_pattern)
+        .includes(:recurring_transaction)
         .order(transaction_date: :desc)
         .limit(10)
         .to_a
@@ -180,6 +181,7 @@ class TransactionSearchService < ApplicationService
   def month_transactions
     @month_transactions ||= @account.transactions
                                      .where(transaction_date: start_date..end_date)
+                                     .includes(:recurring_transaction)
                                      .order(transaction_date: :desc)
   end
 

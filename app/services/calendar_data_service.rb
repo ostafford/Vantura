@@ -118,6 +118,7 @@ class CalendarDataService < ApplicationService
   def transactions
     @transactions ||= @account.transactions
                              .where(transaction_date: start_date..end_date)
+                             .includes(:recurring_transaction)
                              .order(:transaction_date)
                              .to_a
   end

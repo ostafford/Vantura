@@ -111,8 +111,12 @@ class ProjectBarsAggregator < ApplicationService
       participant_ids
     end
 
+    # Preload users to prevent N+1 queries
+    users_by_id = User.where(id: selected_ids).index_by(&:id)
+
     selected_ids.map do |user_id|
-      user_name = User.find_by(id: user_id)&.name || "User #{user_id}"
+      user = users_by_id[user_id]
+      user_name = user&.name || "User #{user_id}"
       data_by_month = months_in_range(range).map do |month_date|
         month_start = month_date.beginning_of_month
         month_end = month_date.end_of_month

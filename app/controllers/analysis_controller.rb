@@ -30,7 +30,7 @@ class AnalysisController < ApplicationController
     # Get all transactions for the current month for detailed analysis
     # Use includes to prevent N+1 queries
     @transactions = @account.transactions
-                          .includes(:account) # Eager load associations
+                          .includes(:account, :recurring_transaction) # Eager load associations
                           .where(transaction_date: @current_date.beginning_of_month..@current_date.end_of_month)
                           .where(is_hypothetical: false)
                           .order(transaction_date: :desc)
@@ -42,7 +42,7 @@ class AnalysisController < ApplicationController
         filtered_relation = TransactionFilterService.call(@account, @selected_filter)
         # Re-fetch only the filtered transactions for this account with eager loading
         @transactions = @account.transactions
-                              .includes(:account)
+                              .includes(:account, :recurring_transaction)
                               .where(id: filtered_relation.select(:id))
       end
     end

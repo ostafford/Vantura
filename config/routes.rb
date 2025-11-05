@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   post "sync", to: "dashboard#sync", as: :sync
 
   # Calendar
+  # Custom route pattern for calendar navigation by year/month/day
+  # This is acceptable as calendar view is collection-based filtering
   get "calendar", to: "calendar#index"
   get "calendar/:year/:month(/:day)", to: "calendar#index", as: :calendar_month
 
@@ -35,10 +37,14 @@ Rails.application.routes.draw do
     member do
       get "stats/bars", to: "projects/stats#bars", as: :stats_bars
     end
-    resources :expenses, controller: "project_expenses" do
+    # Use shallow: true to avoid deep nesting (projects → expenses → contributions)
+    # This creates shallow routes for expenses: index/new/create are nested,
+    # show/edit/update/destroy are shallow (no project_id in URL)
+    resources :expenses, controller: "project_expenses", shallow: true do
       collection do
         get :templates
       end
+      # Contributions are now shallow (no project_id or expense_id in URL for update action)
       resources :contributions, only: [ :update ], controller: "expense_contributions"
     end
     resources :memberships, only: [ :create, :destroy ], controller: "project_memberships"
@@ -47,6 +53,8 @@ Rails.application.routes.draw do
   # Transactions (for hypothetical transactions)
   resources :transactions, only: [ :index, :show, :create, :edit, :update, :destroy ] do
     collection do
+      # Custom collection route for filtering transactions by year/month
+      # This is acceptable as it's a filter/collection route
       get ":year/:month", to: "transactions#index", as: :month
       get :search
     end

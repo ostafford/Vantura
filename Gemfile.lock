@@ -86,6 +86,9 @@ GEM
     brakeman (7.1.1)
       racc
     builder (3.3.0)
+    bullet (8.1.0)
+      activesupport (>= 3.0.0)
+      uniform_notifier (~> 1.11)
     bundler-audit (0.9.2)
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
@@ -587,6 +590,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
+    uniform_notifier (1.18.0)
     uptrace (1.8.1)
       logger (~> 1.7.0)
       opentelemetry-exporter-otlp (~> 0.30.0)
@@ -626,6 +630,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   bootsnap
   brakeman (~> 7.1, >= 7.1.1)
+  bullet
   bundler-audit (~> 0.9.2)
   capybara
   concurrent-ruby (~> 1.2)

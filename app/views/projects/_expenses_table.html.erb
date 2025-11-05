@@ -92,8 +92,8 @@
               <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100"><%= expense.notes %></td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onclick="event.stopPropagation()">
                 <% if @project.owner_id == Current.user.id %>
-                  <%= link_to "Edit", edit_project_expense_path(@project, expense), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 mr-3" %>
-                  <%= button_to "Delete", project_expense_path(@project, expense), method: :delete, form: { data: { turbo_confirm: "Delete this expense?" }, class: "inline" }, class: "text-red-700 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" %>
+                  <%= link_to "Edit", edit_expense_path(expense), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 mr-3" %>
+                  <%= button_to "Delete", expense_path(expense), method: :delete, form: { data: { turbo_confirm: "Delete this expense?" }, class: "inline" }, class: "text-red-700 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" %>
                 <% end %>
               </td>
             </tr>
@@ -102,7 +102,7 @@
                 <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900">
                   <div class="font-medium mb-3 text-sm text-gray-900 dark:text-white">Contributions</div>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <% expense.expense_contributions.includes(:user).each do |contrib| %>
+                    <% expense.expense_contributions.each do |contrib| %>
                       <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3">
                         <div>
                           <div class="text-sm font-medium text-gray-900 dark:text-gray-100"><%= user_display_name(contrib.user) %></div>
@@ -110,7 +110,7 @@
                         </div>
                         <div>
                           <% if can_toggle_paid?(contrib) %>
-                            <%= form_with(model: [@project, expense, contrib], url: project_expense_contribution_path(@project, expense, contrib), method: :patch) do |ff| %>
+                            <%= form_with(model: contrib, url: contribution_path(contrib), method: :patch) do |ff| %>
                               <label class="inline-flex items-center gap-2 text-sm cursor-pointer">
                                 <%= ff.check_box :paid, { checked: contrib.paid, onchange: 'this.form.submit()', include_hidden: true, class: "rounded border-gray-300 text-primary-600 focus:ring-primary-500" }, true, false %>
                                 <span class="text-gray-700 dark:text-gray-300"><%= contrib.paid ? 'Paid' : 'Unpaid' %></span>

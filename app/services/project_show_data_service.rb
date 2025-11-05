@@ -61,7 +61,7 @@ class ProjectShowDataService < ApplicationService
   def all_expenses
     @all_expenses ||= @project.project_expenses
                               .order(due_on: :asc, created_at: :desc)
-                              .includes(:expense_contributions)
+                              .includes(expense_contributions: :user)
   end
 
   def expenses_in_month
@@ -69,7 +69,7 @@ class ProjectShowDataService < ApplicationService
   end
 
   def expenses
-    @expenses ||= expenses_in_month.order(due_on: :asc, created_at: :desc).includes(:expense_contributions)
+    @expenses ||= expenses_in_month.order(due_on: :asc, created_at: :desc).includes(expense_contributions: :user)
   end
 
   def total_expenses_cents

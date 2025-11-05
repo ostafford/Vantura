@@ -94,6 +94,7 @@ class TransactionIndexService < ApplicationService
   def transactions
     @transactions ||= filtered_transactions
                        .where(transaction_date: start_date..end_date)
+                       .includes(:recurring_transaction)
                        .order(transaction_date: :desc)
   end
 

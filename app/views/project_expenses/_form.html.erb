@@ -1,6 +1,6 @@
 <%= form_with(
   model: @expense,
-  url: (@expense.persisted? ? project_expense_path(@project, @expense) : project_expenses_path(@project)),
+  url: (@expense.persisted? ? expense_path(@expense) : project_expenses_path(@project)),
   method: (@expense.persisted? ? :patch : :post),
   local: true
 ) do |f| %>

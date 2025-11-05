@@ -68,6 +68,9 @@ gem "bundler-audit", "~> 0.9.2"
 
   # Load testing tools
   gem "concurrent-ruby", "~> 1.2"
+
+  # N+1 query detection [https://github.com/flyerhzm/bullet]
+  gem "bullet", require: false
 end
 
 group :development do
