@@ -1,0 +1,39 @@
+---
+description: desktop-first approac, best practices
+alwaysApply: false
+---
+## Desktop-First Approach
+
+```html
+<!-- Start with desktop, scale down -->
+<div class="grid grid-cols-4 gap-8 
+            lg:grid-cols-3 
+            md:grid-cols-2 
+            sm:grid-cols-1">
+  <div>Item</div>
+</div>
+
+<!-- Typography scales down -->
+<h1 class="text-6xl lg:text-5xl md:text-4xl sm:text-3xl">
+  Heading
+</h1>
+
+<!-- Hide/show by screen size -->
+<div class="block md:hidden">Desktop menu</div>
+<div class="hidden md:block">Mobile menu</div>
+```
+
+---
+
+## Best Practices
+
+- Design for desktop first (1280px+)
+- Scale down for smaller screens
+- Test on multiple devices
+- Use TailwindCSS responsive prefixes
+- Optimize images for each size
+- Touch-friendly mobile targets (44px min)
+
+---
+
+**Previous:** [← Accessibility](accessibility.md) | **Next:** [Documentation Standards →](documentation.md)

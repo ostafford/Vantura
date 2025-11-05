@@ -1,0 +1,13 @@
+---
+description: JavaScript in Rails 8
+alwaysApply: false
+---
+## JavaScript in Rails 8
+
+Rails 8 uses **Importmap** by default for JavaScript management. This means:
+- No webpack or node_modules in production
+- Import JavaScript modules directly from CDN
+- Stimulus controllers for interactive behavior
+- Vanilla JavaScript when needed
+
+---

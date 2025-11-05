@@ -1,0 +1,56 @@
+---
+description: Stimulus controller style, javascript
+alwaysApply: false
+---
+## Stimulus Controller Style
+
+```javascript
+// Good: Well-organized Stimulus controller
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  // 1. Static properties first
+  static targets = ["menu", "button"]
+  static classes = ["open", "closed"]
+  static values = {
+    url: String,
+    delay: { type: Number, default: 300 }
+  }
+  
+  // 2. Lifecycle callbacks
+  connect() {
+    this.close()
+  }
+  
+  disconnect() {
+    this.cleanup()
+  }
+  
+  // 3. Action methods
+  toggle(event) {
+    event.preventDefault()
+    this.isOpen ? this.close() : this.open()
+  }
+  
+  open() {
+    this.menuTarget.classList.add(this.openClass)
+    this.buttonTarget.setAttribute('aria-expanded', 'true')
+  }
+  
+  close() {
+    this.menuTarget.classList.remove(this.openClass)
+    this.buttonTarget.setAttribute('aria-expanded', 'false')
+  }
+  
+  // 4. Helper methods (private)
+  get isOpen() {
+    return this.menuTarget.classList.contains(this.openClass)
+  }
+  
+  cleanup() {
+    // Cleanup logic
+  }
+}
+```
+
+---

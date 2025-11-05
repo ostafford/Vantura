@@ -1,0 +1,123 @@
+---
+description: routes, route structure, route rules, 
+alwaysApply: false
+---
+## Routes
+
+Routes map URLs to controller actions.
+
+### Route Structure
+
+```ruby
+# config/routes.rb
+
+Rails.application.routes.draw do
+  # Root route
+  root "articles#index"
+  
+  # Health check (Rails 8)
+  get "up" => "rails/health#show", as: :rails_health_check
+  
+  # Authentication (Rails 8 generator)
+  get  "sign_in", to: "sessions#new"
+  post "sign_in", to: "sessions#create"
+  delete "sign_out", to: "sessions#destroy"
+  
+  # RESTful resources
+  resources :articles do
+    # Nested resources (1 level deep only)
+    resources :comments, only: [:create, :destroy]
+    
+    # Member routes (single resource)
+    member do
+      post :publish
+      post :archive
+    end
+    
+    # Collection routes
+    collection do
+      get :drafts
+    end
+  end
+  
+  # Shallow nesting for deep relationships
+  resources :users do
+    resources :articles, shallow: true
+  end
+  
+  # Namespace for admin
+  namespace :admin do
+    resources :articles
+    resources :users
+  end
+  
+  # Custom routes (use sparingly)
+  get '/about', to: 'pages#about'
+  get '/contact', to: 'pages#contact'
+end
+```
+
+### Route Rules
+
+**RESTful Resources:**
+```ruby
+# Good: Standard RESTful routes
+resources :articles
+# Generates:
+# GET    /articles          -> articles#index
+# GET    /articles/new      -> articles#new
+# POST   /articles          -> articles#create
+# GET    /articles/:id      -> articles#show
+# GET    /articles/:id/edit -> articles#edit
+# PATCH  /articles/:id      -> articles#update
+# DELETE /articles/:id      -> articles#destroy
+
+# Good: Limit routes with only/except
+resources :sessions, only: [:new, :create, :destroy]
+resources :articles, except: [:destroy]
+```
+
+**Nested Routes:**
+```ruby
+# Good: Nest 1 level deep
+resources :articles do
+  resources :comments, only: [:create, :destroy]
+end
+# GET    /articles/:article_id/comments -> comments#create
+# DELETE /articles/:article_id/comments/:id -> comments#destroy
+
+# Bad: Deep nesting (confusing URLs)
+resources :users do
+  resources :articles do
+    resources :comments  # Too deep!
+  end
+end
+
+# Good: Use shallow nesting instead
+resources :articles do
+  resources :comments, shallow: true
+end
+# POST   /articles/:article_id/comments -> comments#create
+# DELETE /comments/:id -> comments#destroy (no article_id needed)
+```
+
+**Custom Routes:**
+```ruby
+# Good: Member routes for single resource actions
+resources :articles do
+  member do
+    post :publish     # POST /articles/:id/publish
+    post :archive     # POST /articles/:id/archive
+  end
+end
+
+# Good: Collection routes for collection actions
+resources :articles do
+  collection do
+    get :drafts       # GET /articles/drafts
+    get :archived     # GET /articles/archived
+  end
+end
+
+# Avoid: Too many custom routes (use RESTful instead)
+```

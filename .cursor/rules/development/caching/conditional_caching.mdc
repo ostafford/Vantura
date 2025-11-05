@@ -1,0 +1,37 @@
+---
+description: conditional caching, environment based, user based
+alwaysApply: false
+---
+## Conditional Caching
+
+### Environment-Based
+
+```ruby
+# Only cache in production
+def index
+  if Rails.env.production?
+    @articles = Rails.cache.fetch('published_articles', expires_in: 10.minutes) do
+      Article.published.recent.limit(20).to_a
+    end
+  else
+    @articles = Article.published.recent.limit(20)
+  end
+end
+```
+
+### User-Based
+
+```ruby
+def show
+  # Don't cache for article author (always show fresh data)
+  if @article.user == Current.user
+    @article_data = fetch_article_data(@article)
+  else
+    @article_data = Rails.cache.fetch(['article', @article.id, 'data'], expires_in: 5.minutes) do
+      fetch_article_data(@article)
+    end
+  end
+end
+```
+
+---

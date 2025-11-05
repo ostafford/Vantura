@@ -1,0 +1,28 @@
+---
+description: stimulus controllers
+alwaysApply: false
+---
+## Stimulus Controllers
+
+**File naming:**
+- **snake_case, ends with `_controller.js`**: `dropdown_controller.js`, `modal_controller.js`
+
+**HTML identifier:**
+- **kebab-case**: `data-controller="dropdown"`, `data-controller="modal"`
+
+```javascript
+// Good
+// File: app/javascript/controllers/dropdown_controller.js
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  // ...
+}
+```
+
+```html
+<!-- HTML usage -->
+<div data-controller="dropdown">
+  <!-- kebab-case in HTML -->
+</div>
+```

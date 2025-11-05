@@ -1,0 +1,37 @@
+---
+description: Configuration, Propshaft Configuration, Environment-Specific Settings
+alwaysApply: false
+---
+## Configuration
+
+### Propshaft Configuration
+
+```ruby
+# config/initializers/assets.rb
+
+# Add additional assets to be compiled
+Rails.application.config.assets.paths << Rails.root.join("app", "assets", "videos")
+
+# Precompile additional assets
+Rails.application.config.assets.precompile += %w[admin.css admin.js]
+```
+
+### Environment-Specific Settings
+
+```ruby
+# config/environments/production.rb
+
+Rails.application.configure do
+  # Enable asset digesting (fingerprinting)
+  config.assets.digest = true
+  
+  # Use CDN
+  config.asset_host = 'https://cdn.example.com'
+  
+  # Compress CSS
+  config.assets.css_compressor = nil  # Propshaft doesn't compress
+  
+  # Fallback to assets pipeline if a precompiled asset is missed
+  config.assets.compile = false
+end
+```

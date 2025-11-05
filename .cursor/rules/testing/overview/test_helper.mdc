@@ -1,0 +1,30 @@
+---
+description: test helper, 
+alwaysApply: false
+---
+## Test Helper
+
+```ruby
+# test/test_helper.rb
+
+ENV["RAILS_ENV"] ||= "test"
+require_relative "../config/environment"
+require "rails/test_help"
+
+module ActiveSupport
+  class TestCase
+    # Run tests in parallel (faster)
+    parallelize(workers: :number_of_processors)
+
+    # Setup fixtures (test data)
+    fixtures :all
+
+    # Helper methods for all tests
+    def sign_in_as(user)
+      post session_url, params: { email: user.email, password: 'password' }
+    end
+  end
+end
+```
+
+---

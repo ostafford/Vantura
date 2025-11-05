@@ -1,0 +1,59 @@
+---
+description: query basics, finding records, where queries, 
+alwaysApply: false
+---
+## Query Basics
+
+### Finding Records
+
+```ruby
+# Find by ID
+Article.find(1)  # Raises ActiveRecord::RecordNotFound if not found
+
+# Find by attribute
+Article.find_by(slug: 'my-article')  # Returns nil if not found
+Article.find_by!(slug: 'my-article')  # Raises exception if not found
+
+# Find multiple
+Article.find([1, 2, 3])  # Returns array
+
+# First/Last
+Article.first
+Article.last
+Article.first(5)  # First 5 records
+
+# Take (random order)
+Article.take
+Article.take(10)
+```
+
+### Where Queries
+
+```ruby
+# Basic where
+Article.where(status: 'published')
+Article.where(user_id: 1)
+
+# Multiple conditions (AND)
+Article.where(status: 'published', user_id: 1)
+
+# String conditions (use with caution - SQL injection risk!)
+Article.where("status = ?", 'published')
+Article.where("views_count > ?", 1000)
+
+# Array conditions
+Article.where("status IN (?)", ['published', 'archived'])
+
+# Hash conditions with ranges
+Article.where(created_at: 1.week.ago..Time.current)
+Article.where(views_count: 100..1000)
+
+# NOT conditions
+Article.where.not(status: 'draft')
+Article.where.not(user_id: 1)
+
+# OR conditions
+Article.where(status: 'published').or(Article.where(featured: true))
+```
+
+---

@@ -1,0 +1,89 @@
+---
+description: assertions, basic assertions, rails specific assertions
+alwaysApply: false
+---
+## Assertions
+
+### Basic Assertions
+
+```ruby
+# Equality
+assert_equal expected, actual
+assert_not_equal expected, actual
+
+# Truth
+assert value
+assert_not value
+
+# Nil
+assert_nil value
+assert_not_nil value
+
+# Predicate
+assert_predicate object, :empty?
+assert_predicate object, :valid?
+
+# Inclusion
+assert_includes collection, item
+assert_not_includes collection, item
+
+# Instance
+assert_instance_of Class, object
+assert_kind_of Class, object
+
+# Respond to
+assert_respond_to object, :method_name
+
+# Match
+assert_match /pattern/, string
+assert_no_match /pattern/, string
+
+# Difference
+assert_difference 'Model.count', 1 do
+  Model.create(...)
+end
+
+assert_no_difference 'Model.count' do
+  Model.new(...).save
+end
+
+# Changes
+assert_changes 'object.attribute', from: old, to: new do
+  object.update(...)
+end
+```
+
+### Rails-Specific Assertions
+
+```ruby
+# Redirects
+assert_redirected_to path
+assert_redirected_to article_path(@article)
+
+# Response
+assert_response :success      # 200
+assert_response :redirect     # 302
+assert_response :missing      # 404
+assert_response :error        # 500
+
+# Template
+assert_template 'index'
+assert_template layout: 'application'
+
+# Select (in response body)
+assert_select 'h1', 'Title'
+assert_select 'div#content'
+assert_select 'form[action=?]', article_path(@article)
+
+# Email
+assert_emails 1 do
+  ArticleMailer.new_article(@article).deliver_now
+end
+
+# Enqueued jobs
+assert_enqueued_jobs 1, only: ArticleNotificationJob do
+  Article.create(...)
+end
+```
+
+---

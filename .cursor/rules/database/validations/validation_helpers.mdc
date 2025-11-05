@@ -1,0 +1,29 @@
+---
+description: validation helpers, validates_associated, validates_each
+alwaysApply: false
+---
+## Validation Helpers
+
+### validates_associated
+
+```ruby
+class Article < ApplicationRecord
+  has_many :comments
+  validates_associated :comments
+  # Validates each associated comment
+end
+```
+
+### validates_each
+
+```ruby
+class User < ApplicationRecord
+  validates_each :email, :backup_email do |record, attr, value|
+    if value.present? && value.include?('spam')
+      record.errors.add(attr, 'cannot contain spam')
+    end
+  end
+end
+```
+
+---

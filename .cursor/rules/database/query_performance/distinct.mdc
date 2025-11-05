@@ -1,0 +1,19 @@
+---
+description: distinct
+alwaysApply: false
+---
+## Distinct
+
+```ruby
+# Get unique values
+Article.select(:status).distinct
+
+# Distinct count
+Article.select(:user_id).distinct.count
+
+# Pluck distinct
+Article.distinct.pluck(:status)
+# => ["draft", "published", "archived"]
+```
+
+---

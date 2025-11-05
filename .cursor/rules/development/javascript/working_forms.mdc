@@ -1,0 +1,64 @@
+---
+description: Working with Forms, Form validation, form data handling, 
+alwaysApply: false
+---
+## Working with Forms
+
+### Form Validation
+
+```javascript
+// Basic validation
+function validateForm(formElement) {
+  const email = formElement.querySelector('#user-email-input').value
+  const password = formElement.querySelector('#user-password-input').value
+  const errors = []
+  
+  if (!email || !email.includes('@')) {
+    errors.push('Valid email is required')
+  }
+  
+  if (!password || password.length < 8) {
+    errors.push('Password must be at least 8 characters')
+  }
+  
+  return errors
+}
+
+// Usage
+const form = document.getElementById('user-signup-form')
+form.addEventListener('submit', (event) => {
+  event.preventDefault()
+  
+  const errors = validateForm(form)
+  
+  if (errors.length > 0) {
+    displayErrors(errors)
+  } else {
+    form.submit()
+  }
+})
+```
+
+### Form Data Handling
+
+```javascript
+// Get form data as object
+function getFormData(formElement) {
+  const formData = new FormData(formElement)
+  const data = {}
+  
+  for (const [key, value] of formData.entries()) {
+    data[key] = value
+  }
+  
+  return data
+}
+
+// Usage
+const form = document.getElementById('article-form')
+const data = getFormData(form)
+console.log(data)
+// { title: "My Article", body: "Content...", published: "true" }
+```
+
+---

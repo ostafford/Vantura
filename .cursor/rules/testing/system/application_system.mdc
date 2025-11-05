@@ -1,0 +1,25 @@
+---
+description: applications system test case.
+alwaysApply: false
+---
+## Application System Test Case
+
+```ruby
+# test/application_system_test_case.rb
+
+require "test_helper"
+
+class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
+  driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1400]
+  
+  # Helper methods
+  def sign_in_as(user)
+    visit login_url
+    fill_in "Email", with: user.email
+    fill_in "Password", with: "password"
+    click_button "Sign in"
+  end
+end
+```
+
+---

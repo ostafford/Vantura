@@ -1,0 +1,73 @@
+---
+description: comment style, ruby comments, javascript comments, erb comments
+alwaysApply: false
+---
+## Comment Style
+
+### Ruby Comments
+
+```ruby
+# Good: Explain WHY, not WHAT
+# Using find_by instead of find to avoid raising exception
+# when article doesn't exist, allowing graceful error handling
+@article = Article.find_by(id: params[:id])
+
+# Good: Document complex business logic
+# Calculate tiered discount based on user membership:
+# - Gold: 20% base + 5% loyalty
+# - Silver: 15% base + 2% loyalty
+# - Bronze: 10% flat
+def calculate_discount(user)
+  base_discount = tier_discount(user.tier)
+  loyalty_bonus = user.gold? ? 0.05 : (user.silver? ? 0.02 : 0)
+  base_discount + loyalty_bonus
+end
+
+# Bad: State the obvious
+# Get the article
+@article = Article.find(params[:id])
+
+# Bad: Commented-out code (delete instead)
+# def old_method
+#   # old implementation
+# end
+```
+
+### JavaScript Comments
+
+```javascript
+// Good: Explain non-obvious decisions
+// Debounce search to avoid excessive API calls
+// Wait 300ms after user stops typing
+this.searchTimeout = setTimeout(() => {
+  this.performSearch()
+}, 300)
+
+// Good: JSDoc for functions
+/**
+ * Calculates total price including tax
+ * @param {Array} items - Array of item objects
+ * @param {number} taxRate - Tax rate as decimal (e.g., 0.08 for 8%)
+ * @returns {number} Total price with tax
+ */
+function calculateTotal(items, taxRate) {
+  const subtotal = items.reduce((sum, item) => sum + item.price, 0)
+  return subtotal * (1 + taxRate)
+}
+```
+
+### ERB Comments
+
+```erb
+<%# Good: Explain view logic %>
+<%# Show edit button only to article author %>
+<% if @article.user == Current.user %>
+  <%= link_to "Edit", edit_article_path(@article) %>
+<% end %>
+
+<%# Bad: State the obvious %>
+<%# Render the article title %>
+<h1><%= @article.title %></h1>
+```
+
+---

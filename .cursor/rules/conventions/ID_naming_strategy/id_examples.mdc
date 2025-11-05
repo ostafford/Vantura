@@ -1,0 +1,144 @@
+---
+description: complete examples, login form, article card, modal dialog, cheat sheet
+alwaysApply: false
+---
+## Complete Examples
+
+### Login Form
+
+```html
+<div id="user-login-container">
+  <form id="user-login-form" action="/login" method="post">
+    <h1 id="user-login-heading">Sign In</h1>
+    
+    <div id="user-login-email-field">
+      <label for="user-email-input">Email Address</label>
+      <input id="user-email-input" 
+             type="email" 
+             name="email"
+             required
+             aria-required="true">
+    </div>
+    
+    <div id="user-login-password-field">
+      <label for="user-password-input">Password</label>
+      <input id="user-password-input" 
+             type="password" 
+             name="password"
+             required
+             aria-required="true">
+    </div>
+    
+    <div id="user-login-actions">
+      <button id="user-login-submit-button" type="submit">
+        Sign In
+      </button>
+      <a id="user-password-forgot-link" href="/password/reset">
+        Forgot password?
+      </a>
+    </div>
+  </form>
+</div>
+```
+
+### Article Card
+
+```html
+<article id="article-123-card" class="bg-white rounded-lg shadow-md p-6">
+  <header id="article-123-header">
+    <h2 id="article-123-title">
+      <a id="article-123-title-link" href="/articles/123">
+        Understanding Ruby on Rails
+      </a>
+    </h2>
+    <div id="article-123-metadata">
+      <span id="article-123-author">By John Doe</span>
+      <time id="article-123-date" datetime="2025-11-03">
+        November 3, 2025
+      </time>
+      <span id="article-123-reading-time">5 min read</span>
+    </div>
+  </header>
+  
+  <div id="article-123-excerpt">
+    <p>Learn the basics of Ruby on Rails...</p>
+  </div>
+  
+  <footer id="article-123-footer">
+    <div id="article-123-tags">
+      <span id="article-123-tag-ruby">Ruby</span>
+      <span id="article-123-tag-rails">Rails</span>
+    </div>
+    <div id="article-123-actions">
+      <a id="article-123-read-link" href="/articles/123">Read more</a>
+      <button id="article-123-bookmark-button" type="button">Bookmark</button>
+    </div>
+  </footer>
+</article>
+```
+
+### Modal Dialog
+
+```html
+<div data-controller="modal" id="delete-article-modal" class="hidden">
+  <div id="delete-article-modal-overlay" 
+       data-action="click->modal#close"
+       data-modal-target="overlay"></div>
+       
+  <div id="delete-article-modal-content" 
+       role="dialog"
+       aria-labelledby="delete-article-modal-title"
+       aria-modal="true"
+       data-modal-target="content">
+    
+    <div id="delete-article-modal-header">
+      <h2 id="delete-article-modal-title">Delete Article</h2>
+      <button id="delete-article-modal-close-button"
+              type="button"
+              data-action="click->modal#close"
+              aria-label="Close dialog">
+        ×
+      </button>
+    </div>
+    
+    <div id="delete-article-modal-body">
+      <p>Are you sure you want to delete this article? This action cannot be undone.</p>
+    </div>
+    
+    <div id="delete-article-modal-footer">
+      <button id="delete-article-cancel-button"
+              type="button"
+              data-action="click->modal#close">
+        Cancel
+      </button>
+      <button id="delete-article-confirm-button"
+              type="button"
+              class="bg-red-600 text-white">
+        Delete Article
+      </button>
+    </div>
+  </div>
+</div>
+```
+## Quick Reference Cheat Sheet
+
+| Element Type | ID Pattern | Example |
+|--------------|------------|---------|
+| Form | `[resource]-[action]-form` | `user-login-form` |
+| Text Input | `[resource]-[field]-input` | `article-title-input` |
+| Textarea | `[resource]-[field]-textarea` | `comment-content-textarea` |
+| Select | `[resource]-[field]-select` | `article-category-select` |
+| Checkbox | `[resource]-[field]-checkbox` | `user-terms-checkbox` |
+| Radio | `[resource]-[field]-[value]-radio` | `visibility-public-radio` |
+| Button | `[action]-button` or `[resource]-[action]-button` | `save-button`, `article-delete-button` |
+| Container | `[context]-container` | `user-dashboard-container` |
+| Section | `[name]-section` | `hero-section` |
+| Navigation | `[context]-navigation` | `main-navigation` |
+| Modal | `[purpose]-modal` | `delete-confirmation-modal` |
+| Dropdown | `[context]-dropdown` | `user-menu-dropdown` |
+| List | `[resource]-list-container` | `articles-list-container` |
+| Card | `[resource]-card` | `article-preview-card` |
+| Panel | `[purpose]-panel` | `stats-panel` |
+| Link | `[context]-[page]-link` | `nav-home-link` |
+
+---

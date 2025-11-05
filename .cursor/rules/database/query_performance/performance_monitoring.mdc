@@ -1,0 +1,37 @@
+---
+description: performance monitoring, bullet gem, rails query log
+alwaysApply: false
+---
+## Performance Monitoring
+
+### Bullet Gem
+
+```ruby
+# Gemfile
+gem 'bullet', group: :development
+
+# config/environments/development.rb
+config.after_initialize do
+  Bullet.enable = true
+  Bullet.alert = true
+  Bullet.bullet_logger = true
+  Bullet.console = true
+  Bullet.rails_logger = true
+end
+
+# Detects:
+# - N+1 queries
+# - Unused eager loading
+# - Missing counter cache
+```
+
+### Rails Query Log
+
+```ruby
+# config/environments/development.rb
+config.active_record.verbose_query_logs = true
+
+# Shows where queries originate in logs
+```
+
+---

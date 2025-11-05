@@ -1,0 +1,17 @@
+---
+description: project root files
+alwaysApply: false
+---
+## Project Root Files
+
+```
+.cursorrules                   # Cursor AI coding rules
+.gitignore                     # Git ignore patterns
+.ruby-version                  # Ruby version
+Dockerfile                     # Docker configuration
+Gemfile                        # Ruby dependencies
+Gemfile.lock                   # Locked Ruby dependencies
+package.json                   # JavaScript dependencies
+README.md                      # Project documentation
+Rakefile                       # Rake tasks
+```

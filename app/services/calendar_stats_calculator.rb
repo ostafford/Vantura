@@ -157,22 +157,22 @@ class CalendarStatsCalculator < ApplicationService
 
   def top_expense_merchants
     start_date, end_date = top_merchants_date_range
-    Transaction.top_merchants_by_type(
+    TransactionMerchantService.call(
+      @account,
       "expense",
-      account: @account,
-      start_date: start_date,
-      end_date: end_date,
+      start_date,
+      end_date,
       limit: 3
     )
   end
 
   def top_income_merchants
     start_date, end_date = top_merchants_date_range
-    Transaction.top_merchants_by_type(
+    TransactionMerchantService.call(
+      @account,
       "income",
-      account: @account,
-      start_date: start_date,
-      end_date: end_date,
+      start_date,
+      end_date,
       limit: 3
     )
   end

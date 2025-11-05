@@ -1,0 +1,30 @@
+---
+description: config directory organization, key configuration files
+alwaysApply: false
+---
+## Config Directory Organization
+
+### Key Configuration Files
+
+```
+config/
+├── routes.rb                  # All application routes
+├── database.yml               # Database settings
+├── cable.yml                  # Solid Cable settings
+├── queue.yml                  # Solid Queue settings
+├── recurring.yml              # Recurring jobs (optional)
+├── deploy.yml                 # Kamal 2 deployment
+├── importmap.rb               # JavaScript imports
+├── tailwind.config.js         # TailwindCSS config
+├── application.rb             # Main app config
+├── environments/
+│   ├── development.rb
+│   ├── test.rb
+│   └── production.rb
+├── initializers/              # App initialization code
+│   ├── assets.rb
+│   ├── filter_parameter_logging.rb
+│   └── inflections.rb
+└── locales/                   # I18n translations
+    └── en.yml
+```

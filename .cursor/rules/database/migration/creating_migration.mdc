@@ -1,0 +1,38 @@
+---
+description: create migration, generate migration, migration file structure
+alwaysApply: false
+---
+## Creating Migrations
+
+### Generate Migration
+
+```bash
+# Create new table
+rails generate migration CreateArticles
+
+# Add column
+rails generate migration AddPublishedToArticles published:boolean
+
+# Remove column
+rails generate migration RemoveBodyFromArticles body:text
+
+# Add reference
+rails generate migration AddUserToArticles user:references
+
+# Create join table
+rails generate migration CreateJoinTableArticleTag articles tags
+```
+
+### Migration File Structure
+
+```ruby
+# db/migrate/20251103000000_create_articles.rb
+
+class CreateArticles < ActiveRecord::Migration[8.0]
+  def change
+    # Migration code here
+  end
+end
+```
+
+---

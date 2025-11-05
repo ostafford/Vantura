@@ -1,0 +1,53 @@
+---
+description: conditional validations, using if and unless, context based validations, 
+alwaysApply: false
+---
+## Conditional Validations
+
+### Using :if and :unless
+
+```ruby
+class Article < ApplicationRecord
+  # Only validate when published
+  validates :published_at, presence: true, if: :published?
+  
+  # Multiple conditions with proc
+  validates :excerpt, presence: true, if: -> { published? && featured? }
+  
+  # With method name
+  validates :body, length: { minimum: 500 }, if: :long_form?
+  
+  # Using unless (opposite of if)
+  validates :draft_notes, presence: true, unless: :published?
+  
+  private
+  
+  def published?
+    status == 'published'
+  end
+  
+  def long_form?
+    article_type == 'long_form'
+  end
+end
+```
+
+### Context-Based Validations
+
+```ruby
+class User < ApplicationRecord
+  # Only on create
+  validates :password, presence: true, on: :create
+  
+  # Only on update
+  validates :current_password, presence: true, on: :update
+  
+  # Custom context
+  validates :admin_notes, presence: true, on: :admin_update
+end
+
+# Usage
+user.save(context: :admin_update)
+```
+
+---

@@ -1,0 +1,56 @@
+---
+description: CSS tailwindCSS classes, custom classes only when necessary, BEM notation for complex components, tailwindcss preferred
+alwaysApply: false
+---
+## CSS/TailwindCSS Classes
+
+### Custom Classes (when necessary)
+
+**Use kebab-case:**
+- `.user-profile`
+- `.nav-item-active`
+- `.blog-post-card`
+- `.article-metadata`
+
+### BEM Notation (for complex components)
+
+```css
+/* Block */
+.card { }
+
+/* Element */
+.card__header { }
+.card__body { }
+.card__footer { }
+
+/* Modifier */
+.card--featured { }
+.card--large { }
+.card--compact { }
+```
+
+```html
+<!-- BEM example -->
+<div class="card card--featured">
+  <div class="card__header">Title</div>
+  <div class="card__body">Content</div>
+  <div class="card__footer">Footer</div>
+</div>
+```
+
+### TailwindCSS (Preferred)
+
+```html
+<!-- Good: Use Tailwind utilities -->
+<div class="bg-white rounded-lg shadow-md p-6">
+  <h2 class="text-2xl font-bold mb-4">Title</h2>
+  <p class="text-gray-600">Content</p>
+</div>
+
+<!-- Avoid: Custom classes when Tailwind can do it -->
+<div class="custom-card">
+  <h2 class="custom-title">Title</h2>
+</div>
+```
+
+---

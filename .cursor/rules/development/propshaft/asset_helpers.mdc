@@ -1,0 +1,55 @@
+---
+description: asset helpers, images, Stylesheets, javascript via importmap
+alwaysApply: false
+---
+## Asset Helpers
+
+### Images
+
+```erb
+<!-- In views -->
+<%= image_tag "logo.png", alt: "Company Logo", class: "h-8" %>
+<!-- Generates: <img src="/assets/logo-abc123.png" alt="Company Logo" class="h-8"> -->
+
+<%= image_tag "icons/check.svg", class: "w-5 h-5" %>
+<!-- Generates: <img src="/assets/icons/check-def456.svg" class="w-5 h-5"> -->
+
+<!-- With specific dimensions -->
+<%= image_tag "hero-background.jpg", 
+    alt: "Hero background",
+    class: "w-full h-96 object-cover",
+    width: 1200,
+    height: 600 %>
+```
+
+```css
+/* In CSS */
+.hero {
+  background-image: url(/assets/hero-background.jpg);
+}
+
+.icon {
+  background-image: url(/assets/icons/check.svg);
+}
+```
+
+### Stylesheets
+
+```erb
+<!-- In layouts/application.html.erb -->
+<%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+<!-- Generates: <link rel="stylesheet" href="/assets/application-abc123.css" data-turbo-track="reload"> -->
+
+<!-- Additional stylesheets -->
+<%= stylesheet_link_tag "admin", "data-turbo-track": "reload" %>
+```
+
+### JavaScript (via Importmap)
+
+```erb
+<!-- In layouts/application.html.erb -->
+<%= javascript_importmap_tags %>
+<!-- Generates importmap and module scripts -->
+```
+
+---

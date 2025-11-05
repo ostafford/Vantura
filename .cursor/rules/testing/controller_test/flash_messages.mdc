@@ -1,0 +1,29 @@
+---
+description: testing flash messages
+alwaysApply: false
+---
+## Testing Flash Messages
+
+```ruby
+test "sets success flash on create" do
+  sign_in_as @user
+  
+  post articles_url, params: {
+    article: { title: "Test", body: "Body" }
+  }
+  
+  assert_equal "Article created successfully.", flash[:notice]
+end
+
+test "sets error flash on failed update" do
+  sign_in_as @article.user
+  
+  patch article_url(@article), params: {
+    article: { title: "" }
+  }
+  
+  assert flash[:alert].present?
+end
+```
+
+---

@@ -1,6 +1,6 @@
 <!-- Simplified Page Header for use with Persistent Nav -->
 <div class="bg-gradient-to-r from-cream-100 to-white dark:from-primary-900 dark:to-primary-950 shadow-sm border-b border-primary-700/20 dark:border-primary-900/30">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <%= content_wrapper class: "py-4" do %>
     <div class="flex items-center justify-between <%= local_assigns[:flex_wrap] ? 'flex-wrap gap-4' : '' %>">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= title %></h1>
@@ -20,6 +20,6 @@
         <% end %>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 

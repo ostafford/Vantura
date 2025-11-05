@@ -1,0 +1,13 @@
+---
+description: what are fixtures
+alwaysApply: false
+---
+## What are Fixtures?
+
+Fixtures provide test data in YAML format. They're:
+- ✅ Fast to load
+- ✅ Easy to reference
+- ✅ Automatically available in tests
+- ✅ Support associations
+
+---

@@ -1,0 +1,42 @@
+---
+description: enhanced SQLite support, new features, when to use SQLite in production, SQLite configuration
+alwaysApply: false
+---
+## 7. Enhanced SQLite Support
+
+Rails 8 makes SQLite production-ready with significant enhancements.
+
+### New Features
+
+- **Full-text search** - Using `create_virtual_table`
+- **Virtual tables** - Advanced query capabilities
+- **Bulk insert fixtures** - Faster test data seeding
+- **IMMEDIATE mode transactions** - Better concurrency
+- **Improved error handling** - Better timeout management
+
+### When to Use SQLite in Production
+
+✅ **Good for:**
+- Single-server deployments
+- Read-heavy workloads
+- Up to 100K requests/day per server
+- Apps with <100GB data
+- Projects prioritizing simplicity
+
+❌ **Not ideal for:**
+- Multi-server deployments requiring shared database
+- Very high write concurrency
+- Apps requiring replication
+- Enterprise compliance requirements
+
+### SQLite Configuration
+
+```ruby
+# config/database.yml
+
+production:
+  adapter: sqlite3
+  database: storage/production.sqlite3
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+```

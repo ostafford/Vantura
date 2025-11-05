@@ -1,0 +1,45 @@
+---
+description: polymorphic associations, 
+alwaysApply: false
+---
+## Polymorphic Associations
+
+One model belongs to multiple other models.
+
+```ruby
+# Create polymorphic table
+create_table :comments do |t|
+  # Polymorphic association
+  t.references :commentable, polymorphic: true, null: false
+  # Creates: commentable_id and commentable_type
+  
+  t.references :user, null: false, foreign_key: true
+  t.text :body, null: false
+  
+  t.timestamps
+end
+
+add_index :comments, [:commentable_type, :commentable_id]
+```
+
+```ruby
+# Models
+class Comment < ApplicationRecord
+  belongs_to :commentable, polymorphic: true
+  belongs_to :user
+end
+
+class Article < ApplicationRecord
+  has_many :comments, as: :commentable
+end
+
+class Video < ApplicationRecord
+  has_many :comments, as: :commentable
+end
+
+# Usage
+article.comments.create(user: user, body: "Great article!")
+video.comments.create(user: user, body: "Nice video!")
+```
+
+---

@@ -122,12 +122,12 @@ class TrendsStatsCalculator < ApplicationService
   # Top merchant by total spend (current month, expenses only)
   def top_merchant
     @top_merchant ||= begin
-      # Use shared query helper to get top merchants
-      merchants = Transaction.top_merchants_by_type(
+      # Use service to get top merchants
+      merchants = TransactionMerchantService.call(
+        @account,
         "expense",
-        account: @account,
-        start_date: @current_month_start,
-        end_date: @current_month_end,
+        @current_month_start,
+        @current_month_end,
         limit: 1
       )
 

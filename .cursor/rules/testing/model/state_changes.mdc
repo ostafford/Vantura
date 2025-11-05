@@ -1,0 +1,25 @@
+---
+description: testing state changes
+alwaysApply: false
+---
+## Testing State Changes
+
+```ruby
+test "article can transition from draft to published" do
+  article = articles(:draft)
+  
+  assert article.may_publish?
+  article.publish!
+  
+  assert_equal 'published', article.status
+end
+
+test "published article cannot be deleted" do
+  article = articles(:published)
+  
+  assert_not article.may_delete?
+  assert_raises(StateMachineError) { article.delete! }
+end
+```
+
+---

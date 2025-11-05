@@ -1,0 +1,43 @@
+---
+description: interacting with forms, filling forms, editing forms
+alwaysApply: false
+---
+## Interacting with Forms
+
+### Filling Forms
+
+```ruby
+test "creating a new article" do
+  sign_in_as @user
+  visit new_article_url
+  
+  fill_in "Title", with: "My New Article"
+  fill_in "Body", with: "This is the article body"
+  select "Technology", from: "Category"
+  check "Published"
+  
+  click_button "Create Article"
+  
+  assert_text "Article created successfully"
+  assert_selector "h1", text: "My New Article"
+end
+```
+
+### Editing Forms
+
+```ruby
+test "updating an article" do
+  article = articles(:one)
+  sign_in_as article.user
+  
+  visit edit_article_url(article)
+  
+  fill_in "Title", with: "Updated Title"
+  click_button "Update Article"
+  
+  assert_text "Article updated successfully"
+  assert_selector "h1", text: "Updated Title"
+end
+```
+
+---

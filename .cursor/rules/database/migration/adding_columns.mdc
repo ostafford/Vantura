@@ -1,0 +1,65 @@
+---
+description: adding columns, add single column, add multiple columns, add reference, add column with default from existing data.
+alwaysApply: false
+---
+## Adding Columns
+
+### Add Single Column
+
+```ruby
+class AddPublishedToArticles < ActiveRecord::Migration[8.0]
+  def change
+    add_column :articles, :published, :boolean, default: false, null: false
+  end
+end
+```
+
+### Add Multiple Columns
+
+```ruby
+class AddDetailsToArticles < ActiveRecord::Migration[8.0]
+  def change
+    add_column :articles, :slug, :string, null: false
+    add_column :articles, :excerpt, :text
+    add_column :articles, :views_count, :integer, default: 0
+    add_column :articles, :published_at, :datetime
+    
+    add_index :articles, :slug, unique: true
+  end
+end
+```
+
+### Add Reference
+
+```ruby
+class AddUserToArticles < ActiveRecord::Migration[8.0]
+  def change
+    add_reference :articles, :user, null: false, foreign_key: true
+    
+    # Or with custom options:
+    add_reference :articles, :category, 
+                  foreign_key: { on_delete: :nullify }
+  end
+end
+```
+
+### Add Column with Default from Existing Data
+
+```ruby
+class AddStatusToArticles < ActiveRecord::Migration[8.0]
+  def change
+    add_column :articles, :status, :string
+    
+    # Set default based on existing data
+    reversible do |dir|
+      dir.up do
+        Article.update_all(status: 'draft')
+        change_column_null :articles, :status, false
+        change_column_default :articles, :status, 'draft'
+      end
+    end
+  end
+end
+```
+
+---

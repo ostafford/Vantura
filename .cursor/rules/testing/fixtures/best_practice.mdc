@@ -1,0 +1,128 @@
+---
+description: best practices, dos and dont's, leading fixtures, alternatives to fixtures, factoryBot more flexibility, when to use fixtures, 
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```yaml
+# Use descriptive names
+john:
+  email: john@example.com
+
+published_article:
+  title: Published Article
+  status: published
+
+# Use ERB for dates
+created_at: <%= 1.week.ago %>
+
+# Reference associations
+article:
+  user: john
+
+# Include realistic data
+body: This is a realistic article body with enough content to pass validations
+
+# Use different states
+draft:
+  status: draft
+published:
+  status: published
+archived:
+  status: archived
+```
+
+### DON'T ❌
+
+```yaml
+# Don't use auto-incrementing IDs
+# Rails handles IDs automatically
+
+# Don't duplicate data unnecessarily
+# Reference associations instead
+
+# Don't forget required fields
+article:
+  title: Missing required body field!
+
+# Don't use unrealistic data
+email: test  # Not a valid email
+body: x  # Too short
+
+# Don't hardcode dates
+created_at: 2025-01-01  # Use ERB: <%= 1.week.ago %>
+```
+
+---
+
+## Loading Fixtures
+
+```ruby
+# Load all fixtures (default)
+class ArticleTest < ActiveSupport::TestCase
+  fixtures :all
+end
+
+# Load specific fixtures
+class ArticleTest < ActiveSupport::TestCase
+  fixtures :articles, :users
+end
+
+# Access fixtures
+test "user has articles" do
+  user = users(:john)
+  assert user.articles.any?
+end
+```
+
+---
+
+## Alternatives to Fixtures
+
+### FactoryBot (More flexibility)
+
+```ruby
+# Gemfile
+gem 'factory_bot_rails', group: [:development, :test]
+
+# test/factories/users.rb
+FactoryBot.define do
+  factory :user do
+    sequence(:email) { |n| "user#{n}@example.com" }
+    first_name { "Test" }
+    last_name { "User" }
+    password { "password" }
+  end
+end
+
+# Usage
+user = create(:user)
+article = create(:article, user: user)
+```
+
+### When to Use Fixtures vs Factories
+
+**Use Fixtures when:**
+- Simple test data needs
+- Fast test suite (fixtures are faster)
+- Standard Rails approach
+
+**Use Factories when:**
+- Complex object creation
+- Need randomized data
+- Creating variations of objects
+- Need callbacks during creation
+
+---
+
+## Related Documentation
+
+- [Testing Overview](testing-overview.md) - Testing philosophy
+- [Model Tests](model-tests.md) - Using fixtures in model tests
+- [Controller Tests](controller-tests.md) - Using fixtures in controller tests
+
+---
+
+**Previous:** [← System Tests](system-tests.md) | **Next:** [Kamal Deployment →](../06-deployment/kamal.md)

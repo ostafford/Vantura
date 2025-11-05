@@ -1,0 +1,128 @@
+---
+description: column types, string types, numeric types, boolean, date and time, JSON, binary, other types, 
+alwaysApply: false
+---
+## Column Types
+
+### String Types
+
+```ruby
+# string - VARCHAR(255) - for short text
+t.string :title
+t.string :email, limit: 100
+
+# text - TEXT - for long text
+t.text :body
+t.text :description
+
+# When to use:
+# string: titles, names, emails, slugs (< 255 chars)
+# text: article bodies, descriptions, comments (> 255 chars)
+```
+
+### Numeric Types
+
+```ruby
+# integer - INT - whole numbers
+t.integer :age
+t.integer :views_count, default: 0
+
+# bigint - BIGINT - large whole numbers
+t.bigint :user_id
+
+# decimal - DECIMAL - precise numbers (money)
+t.decimal :price, precision: 10, scale: 2
+# precision: total digits
+# scale: digits after decimal
+# Example: 12345678.90 (10 digits, 2 after decimal)
+
+# float - FLOAT - approximate numbers
+t.float :latitude
+t.float :longitude
+
+# When to use:
+# integer: counts, ages, quantities
+# bigint: large IDs, large counts
+# decimal: money, precise calculations
+# float: coordinates, scientific data
+```
+
+### Boolean
+
+```ruby
+# boolean - BOOLEAN
+t.boolean :published, default: false
+t.boolean :active, default: true
+t.boolean :admin, default: false, null: false
+
+# In queries:
+Article.where(published: true)
+User.where(admin: false)
+```
+
+### Date & Time
+
+```ruby
+# date - DATE - date only (YYYY-MM-DD)
+t.date :birth_date
+t.date :published_on
+
+# datetime - DATETIME - date and time
+t.datetime :published_at
+t.datetime :expires_at
+
+# timestamps - creates created_at and updated_at
+t.timestamps
+
+# When to use:
+# date: birthdays, deadlines (no time needed)
+# datetime: events, logs (need time)
+# timestamps: audit trail (always include!)
+```
+
+### JSON
+
+```ruby
+# json - JSON - structured data
+t.json :metadata
+t.json :settings
+t.json :preferences
+
+# jsonb - JSONB (PostgreSQL only) - binary JSON, faster queries
+t.jsonb :data
+
+# Example usage:
+Article.create(
+  title: "Test",
+  metadata: { tags: ["ruby", "rails"], featured: true }
+)
+
+Article.where("metadata->>'featured' = ?", "true")
+```
+
+### Binary
+
+```ruby
+# binary - BLOB - binary data
+t.binary :file_data
+
+# Note: Use ActiveStorage for file uploads instead!
+```
+
+### Other Types
+
+```ruby
+# uuid - UUID - universally unique identifier
+t.uuid :uuid
+
+# inet - INET (PostgreSQL) - IP addresses
+t.inet :ip_address
+
+# array - ARRAY (PostgreSQL) - array of values
+t.string :tags, array: true, default: []
+
+# hstore - HSTORE (PostgreSQL) - key-value pairs
+t.hstore :properties
+```
+
+---

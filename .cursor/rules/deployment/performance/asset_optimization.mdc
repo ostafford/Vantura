@@ -1,0 +1,18 @@
+---
+description: Asset optimization, image optimization, CSS, JS
+alwaysApply: false
+---
+## Asset Optimization
+
+### Image Optimization
+- Use WebP format
+- Optimize before upload
+- Lazy load below-the-fold images
+- Use responsive images
+
+### CSS/JS
+- Minification (automatic in production)
+- Use CDN for assets
+- Preload critical assets
+
+---

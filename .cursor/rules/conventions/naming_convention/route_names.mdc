@@ -1,0 +1,26 @@
+---
+description: route names
+alwaysApply: false
+---
+## Route Names
+
+**RESTful resource names (plural):**
+
+```ruby
+# config/routes.rb
+
+# Good: Plural resource names
+resources :articles
+resources :users
+resources :blog_posts
+
+# Custom routes: snake_case
+get '/about_us', to: 'pages#about'
+get '/contact_form', to: 'pages#contact'
+
+# Named routes: snake_case with _path/_url suffix
+# articles_path → /articles
+# article_path(@article) → /articles/:id
+# new_article_path → /articles/new
+# edit_article_path(@article) → /articles/:id/edit
+```

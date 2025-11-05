@@ -1,0 +1,95 @@
+---
+description: key principles, convention over configuration, DRY (don't repeat yourself), KISS (Keep It Simple, Stupid), RESTful Routes, Desktop-First Design
+alwaysApply: false
+---
+## Key Principles
+
+### 1. Convention over Configuration
+Follow Rails defaults unless absolutely necessary. Rails has strong opinions about how things should be structured - embrace them.
+
+**Example:**
+```ruby
+# Good: Follow Rails conventions
+class ArticlesController < ApplicationController
+  def index
+    @articles = Article.all
+  end
+end
+
+# Avoid: Fighting Rails conventions
+class ArticlesController < ApplicationController
+  def list_all_articles
+    @article_collection = Article.find(:all)
+  end
+end
+```
+
+### 2. DRY (Don't Repeat Yourself)
+Extract repeated code into helpers, partials, or concerns.
+
+**Example:**
+```ruby
+# Bad: Repeated authentication check
+class ArticlesController < ApplicationController
+  def show
+    redirect_to login_path unless current_user
+  end
+end
+
+# Good: Extract to ApplicationController
+class ApplicationController < ActionController::Base
+  before_action :require_authentication
+  
+  private
+  
+  def require_authentication
+    redirect_to sign_in_path unless authenticated?
+  end
+end
+```
+
+### 3. KISS (Keep It Simple, Stupid)
+Always choose the simplest solution that works.
+
+**Example:**
+```ruby
+# Bad: Overly complex
+def user_status
+  if user.active == true
+    if user.verified == true
+      return "active_verified"
+    else
+      return "active_unverified"
+    end
+  else
+    return "inactive"
+  end
+end
+
+# Good: Simple
+def user_status
+  return "inactive" unless user.active?
+  user.verified? ? "active_verified" : "active_unverified"
+end
+```
+
+### 4. RESTful Routes
+Use standard REST actions whenever possible.
+
+**Standard REST Actions:**
+- `index` - List all resources
+- `show` - Display a single resource
+- `new` - Form to create new resource
+- `create` - Create new resource
+- `edit` - Form to edit existing resource
+- `update` - Update existing resource
+- `destroy` - Delete resource
+
+### 5. Desktop-First Design
+Build for desktop (1280px), then scale down for mobile.
+
+**Breakpoints:**
+- Default (no prefix): 1280px+ (desktop)
+- `lg:` - 1024px (laptops)
+- `md:` - 768px (tablets)
+- `sm:` - 640px (mobile)

@@ -1,0 +1,106 @@
+---
+description: best practices, do's and dont's, cache key patterns, standard patterns, 
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Use descriptive cache keys
+Rails.cache.fetch(['articles', 'trending', Date.today], expires_in: 1.hour)
+
+# Set appropriate expiration times
+Rails.cache.fetch('stats', expires_in: 5.minutes) { calculate_stats }
+
+# Cache expensive operations
+Rails.cache.fetch('complex_query', expires_in: 1.hour) do
+  Article.joins(:tags, :comments)
+         .group('articles.id')
+         .having('COUNT(comments.id) > 10')
+         .to_a
+end
+
+# Use Russian Doll caching for nested data
+# Parent and child caches update independently
+
+# Cache computed values
+def expensive_calculation
+  Rails.cache.fetch(['model', id, 'calculation'], expires_in: 1.day) do
+    perform_expensive_calculation
+  end
+end
+
+# Include cache version in keys when structure changes
+Rails.cache.fetch(['articles', 'list', 'v2'], expires_in: 1.hour)
+```
+
+### DON'T ❌
+
+```ruby
+# Don't cache everything
+# Only cache expensive or frequently accessed data
+
+# Don't use vague cache keys
+# Rails.cache.fetch('data') { ... }  # Bad!
+
+# Don't cache user-specific data without user ID in key
+# Rails.cache.fetch('articles') { Current.user.articles }  # Bad!
+
+# Don't forget expiration times
+# Rails.cache.fetch('articles') { Article.all }  # Never expires!
+
+# Don't cache in development (makes debugging hard)
+# Enable only when testing cache behavior
+
+# Don't manually serialize objects
+# Rails does this automatically
+# Rails.cache.write('article', @article.to_json)  # Unnecessary!
+
+# Don't cache entire ActiveRecord collections without to_a
+Rails.cache.fetch('articles') { Article.all.to_a }  # Good
+# Rails.cache.fetch('articles') { Article.all }      # Bad (ActiveRecord::Relation)
+```
+
+---
+
+## Cache Key Patterns
+
+### Standard Patterns
+
+```ruby
+# Simple key
+['articles', 'list']
+
+# With timestamp
+['articles', 'list', Article.maximum(:updated_at)]
+
+# With user
+['articles', 'list', Current.user.id]
+
+# With date
+['articles', 'trending', Date.today]
+
+# With version
+['articles', 'list', 'v2']
+
+# Complex key
+['dashboard', Current.user.id, Date.today, 'v1']
+
+# Model-based
+[model, 'attribute', value]
+[@article, 'reading_time']
+[@article, 'related_articles', 5]
+```
+
+---
+
+## Related Documentation
+
+- [Rails 8 Features](../01-overview/rails-8-features.md) - Solid Cache overview
+- [Ruby & Rails Guidelines](ruby-rails.md) - Model patterns
+- [Performance](../06-deployment/performance.md) - Performance optimization
+
+---
+
+**Previous:** [← Background Jobs](background-jobs.md) | **Next:** [WebSockets →](websockets.md)

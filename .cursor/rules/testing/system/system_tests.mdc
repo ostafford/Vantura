@@ -1,0 +1,14 @@
+---
+description: what are system tests
+alwaysApply: false
+---
+## What are System Tests?
+
+System tests simulate real user interactions in a browser. They test:
+- ✅ Full user workflows
+- ✅ JavaScript interactions
+- ✅ Turbo/Stimulus behavior
+- ✅ End-to-end functionality
+- ✅ Visual elements
+
+---

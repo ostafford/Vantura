@@ -1,0 +1,28 @@
+---
+description: Architecture Pattern, MVC (Model-View-Controller)
+alwaysApply: false
+---
+## Architecture Pattern
+
+### MVC (Model-View-Controller)
+
+Strictly follow Rails MVC pattern:
+
+**Models:**
+- Business logic
+- Validations
+- Associations
+- Scopes
+- Database interactions
+
+**Views:**
+- Presentation layer only
+- ERB templates
+- Partials for reusability
+- No business logic
+
+**Controllers:**
+- Coordinate between models and views
+- Handle HTTP requests
+- Thin controllers (<10 lines per action)
+- Maximum 2 instance variables per action

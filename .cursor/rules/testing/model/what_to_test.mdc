@@ -1,0 +1,20 @@
+---
+description: what to test in models
+alwaysApply: false
+---
+## What to Test in Models
+
+Test:
+- ✅ Validations
+- ✅ Associations
+- ✅ Scopes
+- ✅ Instance methods
+- ✅ Class methods
+- ✅ Callbacks
+
+Don't test:
+- ❌ Rails framework functionality
+- ❌ Database operations (trust ActiveRecord)
+- ❌ Private methods directly
+
+---

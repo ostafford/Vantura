@@ -1,0 +1,43 @@
+---
+description: self referential associations
+alwaysApply: false
+---
+## Self-Referential Associations
+
+Model references itself.
+
+```ruby
+# Users following users
+create_table :follows do |t|
+  t.integer :follower_id, null: false
+  t.integer :followee_id, null: false
+  
+  t.timestamps
+end
+
+add_foreign_key :follows, :users, column: :follower_id
+add_foreign_key :follows, :users, column: :followee_id
+add_index :follows, [:follower_id, :followee_id], unique: true
+```
+
+```ruby
+# Model
+class Follow < ApplicationRecord
+  belongs_to :follower, class_name: 'User'
+  belongs_to :followee, class_name: 'User'
+end
+
+class User < ApplicationRecord
+  has_many :follows_as_follower, class_name: 'Follow', foreign_key: :follower_id
+  has_many :follows_as_followee, class_name: 'Follow', foreign_key: :followee_id
+  
+  has_many :following, through: :follows_as_follower, source: :followee
+  has_many :followers, through: :follows_as_followee, source: :follower
+end
+
+# Usage
+user.following      # Users this user follows
+user.followers      # Users following this user
+```
+
+---

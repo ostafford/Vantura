@@ -1,0 +1,93 @@
+---
+description: Layout utilities, flexbox, grid, spacing
+alwaysApply: false
+---
+## Layout Utilities
+
+### Flexbox
+
+```html
+<!-- Horizontal layout -->
+<div class="flex items-center justify-between gap-4">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <div>Item 3</div>
+</div>
+
+<!-- Vertical layout -->
+<div class="flex flex-col gap-4">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <div>Item 3</div>
+</div>
+
+<!-- Centered content -->
+<div class="flex items-center justify-center h-screen">
+  <div>Centered Content</div>
+</div>
+
+<!-- Space between items -->
+<div class="flex justify-between">
+  <div>Left</div>
+  <div>Right</div>
+</div>
+
+<!-- Wrap items -->
+<div class="flex flex-wrap gap-4">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <div>Item 3</div>
+</div>
+```
+
+### Grid
+
+```html
+<!-- 3-column grid -->
+<div class="grid grid-cols-3 gap-4">
+  <div>Column 1</div>
+  <div>Column 2</div>
+  <div>Column 3</div>
+</div>
+
+<!-- Responsive grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <div>Item 3</div>
+</div>
+
+<!-- Grid with different column spans -->
+<div class="grid grid-cols-4 gap-4">
+  <div class="col-span-3">Wide column</div>
+  <div class="col-span-1">Narrow column</div>
+</div>
+```
+
+### Spacing
+
+```html
+<!-- Margin -->
+<div class="m-4">Margin all sides</div>
+<div class="mt-4">Margin top</div>
+<div class="mx-auto">Margin horizontal center</div>
+
+<!-- Padding -->
+<div class="p-6">Padding all sides</div>
+<div class="px-4 py-2">Padding horizontal & vertical</div>
+
+<!-- Space between children -->
+<div class="space-y-4">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <div>Item 3</div>
+</div>
+
+<div class="space-x-2">
+  <span>Item 1</span>
+  <span>Item 2</span>
+  <span>Item 3</span>
+</div>
+```
+
+---

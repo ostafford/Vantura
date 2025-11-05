@@ -1,0 +1,679 @@
+---
+description: id naming and category, forms and form elements, form containers, input fields, textareas, select dropdowns, checkboxes, radio buttons, buttons, labels, navigation elements, main navigation, mobile navigation, user account menu, breadcrumb navigation, pagination, sidebar navigation, content sections and containers, page sections, main content areas, dashboard sections, list containers, article structure, card components, panels and widgets, interactive components, modals, dropdowns, tooltips, accordions, tabs, alerts and notifications, loading states, popovers, media and dynamic content, images, videos, audio, canvas, dynamic lists, counters and badges, progress indicators, filters and sort controls, stimulus target integration, 
+alwaysApply: false
+---
+## ID Naming by Category
+
+### 1. Forms & Form Elements
+
+#### Form Containers
+
+```html
+<!-- Authentication forms -->
+<form id="user-login-form">
+<form id="user-signup-form">
+<form id="user-password-reset-form">
+
+<!-- Resource forms -->
+<form id="article-create-form">
+<form id="article-edit-form">
+<form id="comment-reply-form">
+<form id="profile-update-form">
+
+<!-- Search forms -->
+<form id="article-search-form">
+<form id="global-search-form">
+```
+
+**Pattern:** `[resource]-[action]-form`
+
+#### Input Fields
+
+```html
+<!-- Text inputs -->
+<input id="user-email-input" type="email">
+<input id="user-password-input" type="password">
+<input id="user-password-confirmation-input" type="password">
+<input id="article-title-input" type="text">
+<input id="article-slug-input" type="text">
+<input id="search-query-input" type="search">
+
+<!-- Number inputs -->
+<input id="article-views-count-input" type="number">
+<input id="product-price-input" type="number">
+
+<!-- Date inputs -->
+<input id="article-published-date-input" type="date">
+<input id="user-birth-date-input" type="date">
+
+<!-- Hidden inputs -->
+<input id="article-id-hidden-input" type="hidden">
+<input id="csrf-token-hidden-input" type="hidden">
+```
+
+**Pattern:** `[resource]-[field]-input` or `[resource]-[field]-[type]-input`
+
+#### Textareas
+
+```html
+<textarea id="article-body-textarea"></textarea>
+<textarea id="comment-content-textarea"></textarea>
+<textarea id="message-body-textarea"></textarea>
+<textarea id="feedback-text-textarea"></textarea>
+```
+
+**Pattern:** `[resource]-[field]-textarea`
+
+#### Select Dropdowns
+
+```html
+<select id="article-status-select">
+<select id="article-category-select">
+<select id="user-role-select">
+<select id="country-select">
+<select id="language-select">
+```
+
+**Pattern:** `[resource]-[field]-select`
+
+#### Checkboxes
+
+```html
+<!-- Single checkboxes -->
+<input id="article-published-checkbox" type="checkbox">
+<input id="user-terms-accepted-checkbox" type="checkbox">
+<input id="comment-notify-replies-checkbox" type="checkbox">
+<input id="user-newsletter-subscribed-checkbox" type="checkbox">
+
+<!-- Checkbox groups (add value to ID) -->
+<input id="article-tags-technology-checkbox" type="checkbox" value="technology">
+<input id="article-tags-tutorial-checkbox" type="checkbox" value="tutorial">
+```
+
+**Pattern:** `[resource]-[field]-checkbox` or `[resource]-[field]-[value]-checkbox`
+
+#### Radio Buttons
+
+```html
+<!-- Radio groups (always include value in ID) -->
+<input id="article-visibility-public-radio" type="radio" name="visibility" value="public">
+<input id="article-visibility-private-radio" type="radio" name="visibility" value="private">
+<input id="article-visibility-unlisted-radio" type="radio" name="visibility" value="unlisted">
+
+<!-- Payment methods -->
+<input id="payment-method-card-radio" type="radio" name="payment_method" value="card">
+<input id="payment-method-paypal-radio" type="radio" name="payment_method" value="paypal">
+```
+
+**Pattern:** `[resource]-[field]-[value]-radio`
+
+#### Buttons
+
+```html
+<!-- Submit buttons -->
+<button id="user-login-submit-button" type="submit">
+<button id="article-save-button" type="submit">
+<button id="comment-post-button" type="submit">
+
+<!-- Action buttons (non-submit) -->
+<button id="article-preview-button" type="button">
+<button id="save-draft-button" type="button">
+<button id="cancel-edit-button" type="button">
+<button id="delete-confirm-button" type="button">
+<button id="modal-close-button" type="button">
+
+<!-- Icon buttons (with descriptive action) -->
+<button id="comment-edit-button" type="button">
+<button id="comment-delete-button" type="button">
+<button id="article-share-button" type="button">
+```
+
+**Pattern:** `[resource]-[action]-button` or `[action]-button`
+
+#### Labels
+
+```html
+<!-- Labels must match input IDs with "for" attribute -->
+<label for="user-email-input">Email Address</label>
+<input id="user-email-input" type="email">
+
+<label for="article-title-input">Article Title</label>
+<input id="article-title-input" type="text">
+
+<label for="article-category-select">Category</label>
+<select id="article-category-select">
+```
+
+**Rule:** Label `for` attribute MUST match input `id` exactly
+
+---
+
+### 2. Navigation Elements
+
+#### Main Navigation
+
+```html
+<nav id="main-navigation" aria-label="Main navigation">
+  <ul id="main-nav-list">
+    <li id="nav-home-item">
+      <a id="nav-home-link" href="/">Home</a>
+    </li>
+    <li id="nav-articles-item">
+      <a id="nav-articles-link" href="/articles">Articles</a>
+    </li>
+    <li id="nav-about-item">
+      <a id="nav-about-link" href="/about">About</a>
+    </li>
+  </ul>
+</nav>
+```
+
+#### Mobile Navigation
+
+```html
+<nav id="mobile-navigation">
+  <button id="mobile-menu-toggle-button" aria-expanded="false">
+    <span>Menu</span>
+  </button>
+  <div id="mobile-menu-overlay" class="hidden">
+    <div id="mobile-menu-content">
+      <ul id="mobile-nav-list">
+        <li><a id="mobile-nav-home-link" href="/">Home</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+```
+
+#### User Account Menu
+
+```html
+<nav id="user-account-menu">
+  <button id="user-menu-toggle-button" aria-haspopup="true" aria-expanded="false">
+    Account
+  </button>
+  <div id="user-menu-dropdown" class="hidden">
+    <a id="user-profile-link" href="/profile">Profile</a>
+    <a id="user-settings-link" href="/settings">Settings</a>
+    <a id="user-notifications-link" href="/notifications">Notifications</a>
+    <button id="user-logout-button" type="button">Logout</button>
+  </div>
+</nav>
+```
+
+#### Breadcrumb Navigation
+
+```html
+<nav id="breadcrumb-navigation" aria-label="Breadcrumb">
+  <ol id="breadcrumb-list">
+    <li><a id="breadcrumb-home-link" href="/">Home</a></li>
+    <li><a id="breadcrumb-articles-link" href="/articles">Articles</a></li>
+    <li><span id="breadcrumb-current-page">Current Article</span></li>
+  </ol>
+</nav>
+```
+
+#### Pagination
+
+```html
+<nav id="pagination-navigation" aria-label="Pagination">
+  <a id="pagination-first-link" href="?page=1">First</a>
+  <a id="pagination-previous-link" href="?page=2">Previous</a>
+  <span id="pagination-current-page">Page 3</span>
+  <a id="pagination-next-link" href="?page=4">Next</a>
+  <a id="pagination-last-link" href="?page=10">Last</a>
+</nav>
+```
+
+#### Sidebar Navigation
+
+```html
+<nav id="sidebar-navigation">
+  <h2 id="sidebar-nav-heading">Categories</h2>
+  <ul id="sidebar-nav-list">
+    <li><a id="sidebar-nav-technology-link" href="/categories/technology">Technology</a></li>
+    <li><a id="sidebar-nav-tutorials-link" href="/categories/tutorials">Tutorials</a></li>
+  </ul>
+</nav>
+```
+
+**Navigation Patterns:**
+- Main nav container: `main-navigation`
+- Mobile nav: `mobile-navigation`
+- User menus: `user-account-menu`, `user-menu-dropdown`
+- Nav links: `nav-[page]-link` or `[context]-nav-[page]-link`
+- Nav items: `nav-[page]-item`
+- Toggle buttons: `[menu]-toggle-button`
+
+---
+
+### 3. Content Sections & Containers
+
+#### Page Sections
+
+```html
+<!-- Landing page sections -->
+<section id="hero-section">
+<section id="features-section">
+<section id="testimonials-section">
+<section id="pricing-section">
+<section id="contact-section">
+<section id="footer-section">
+
+<!-- Content page sections -->
+<section id="article-content-section">
+<section id="comments-section">
+<section id="related-articles-section">
+<section id="author-bio-section">
+```
+
+#### Main Content Areas
+
+```html
+<main id="main-content-container">
+<div id="page-content-container">
+<div id="article-content-container">
+<div id="dashboard-content-container">
+```
+
+#### Dashboard Sections
+
+```html
+<div id="user-dashboard-container">
+  <div id="dashboard-header">
+    <h1 id="dashboard-title">Dashboard</h1>
+  </div>
+  <div id="dashboard-sidebar">
+    <!-- Sidebar content -->
+  </div>
+  <div id="dashboard-main-content">
+    <div id="dashboard-stats-panel">
+    <div id="dashboard-recent-activity-panel">
+    <div id="dashboard-quick-actions-panel">
+  </div>
+</div>
+```
+
+#### List Containers
+
+```html
+<div id="articles-list-container">
+<div id="comments-list-container">
+<div id="users-list-container">
+<div id="notifications-list-container">
+<div id="search-results-container">
+<div id="shopping-cart-items-container">
+```
+
+#### Article Structure
+
+```html
+<article id="article-content-container">
+  <header id="article-header">
+    <h1 id="article-title">Article Title</h1>
+    <div id="article-metadata-panel">
+      <span id="article-author-name">Author</span>
+      <time id="article-published-date">Date</time>
+      <span id="article-reading-time">5 min read</span>
+    </div>
+  </header>
+  
+  <section id="article-body">
+    <!-- Article content -->
+  </section>
+  
+  <footer id="article-footer">
+    <div id="article-tags-list">
+      <span id="article-tag-technology">Technology</span>
+    </div>
+    <div id="article-actions-panel">
+      <button id="article-share-button">Share</button>
+      <button id="article-bookmark-button">Bookmark</button>
+    </div>
+  </footer>
+</article>
+```
+
+#### Card Components
+
+```html
+<div id="article-preview-card">
+<div id="user-profile-card">
+<div id="notification-card">
+<div id="product-card">
+<div id="testimonial-card">
+```
+
+#### Panels & Widgets
+
+```html
+<div id="sidebar-widget-container">
+<div id="stats-panel">
+<div id="recent-activity-panel">
+<div id="quick-actions-panel">
+<div id="notifications-panel">
+<div id="user-info-panel">
+```
+
+**Content Section Patterns:**
+- Page sections: `[name]-section`
+- Main containers: `[context]-container`
+- Headers/footers: `[context]-header`, `[context]-footer`
+- Lists: `[resource]-list-container`
+- Cards: `[resource]-[type]-card`
+- Panels: `[purpose]-panel`
+- Widgets: `[purpose]-widget-container`
+
+---
+
+### 4. Interactive Components
+
+#### Modals
+
+```html
+<!-- Delete confirmation modal -->
+<div id="delete-confirmation-modal">
+  <div id="delete-confirmation-modal-overlay"></div>
+  <div id="delete-confirmation-modal-content">
+    <div id="delete-confirmation-modal-header">
+      <h2 id="delete-confirmation-modal-title">Confirm Deletion</h2>
+      <button id="delete-confirmation-modal-close-button" aria-label="Close">×</button>
+    </div>
+    <div id="delete-confirmation-modal-body">
+      <p>Are you sure you want to delete this item?</p>
+    </div>
+    <div id="delete-confirmation-modal-footer">
+      <button id="delete-confirmation-cancel-button">Cancel</button>
+      <button id="delete-confirmation-confirm-button">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Other modal examples -->
+<div id="user-settings-modal">
+<div id="image-preview-modal">
+<div id="video-player-modal">
+<div id="share-modal">
+```
+
+**Modal Pattern:** `[purpose]-modal` with nested:
+- `-overlay`
+- `-content`
+- `-header`
+- `-title`
+- `-close-button`
+- `-body`
+- `-footer`
+
+#### Dropdowns
+
+```html
+<div id="user-menu-dropdown">
+<div id="sort-options-dropdown">
+<div id="filter-options-dropdown">
+<div id="language-selector-dropdown">
+<div id="notification-settings-dropdown">
+```
+
+#### Tooltips
+
+```html
+<div id="help-tooltip">
+<div id="info-tooltip">
+<div id="username-tooltip">
+<div id="error-tooltip">
+```
+
+#### Accordions
+
+```html
+<div id="faq-accordion-container">
+  <button id="faq-item-1-toggle" aria-expanded="false">
+    Question 1
+  </button>
+  <div id="faq-item-1-content" class="hidden">
+    Answer 1
+  </div>
+  
+  <button id="faq-item-2-toggle" aria-expanded="false">
+    Question 2
+  </button>
+  <div id="faq-item-2-content" class="hidden">
+    Answer 2
+  </div>
+</div>
+```
+
+#### Tabs
+
+```html
+<div id="profile-tabs-container">
+  <!-- Tab buttons -->
+  <div id="profile-tabs-list" role="tablist">
+    <button id="profile-overview-tab" role="tab" aria-selected="true">
+      Overview
+    </button>
+    <button id="profile-settings-tab" role="tab" aria-selected="false">
+      Settings
+    </button>
+    <button id="profile-security-tab" role="tab" aria-selected="false">
+      Security
+    </button>
+  </div>
+  
+  <!-- Tab panels -->
+  <div id="profile-overview-panel" role="tabpanel">
+    <!-- Overview content -->
+  </div>
+  <div id="profile-settings-panel" role="tabpanel" class="hidden">
+    <!-- Settings content -->
+  </div>
+  <div id="profile-security-panel" role="tabpanel" class="hidden">
+    <!-- Security content -->
+  </div>
+</div>
+```
+
+#### Alerts & Notifications
+
+```html
+<!-- Status alerts -->
+<div id="success-alert" role="alert">
+<div id="error-alert" role="alert">
+<div id="warning-alert" role="alert">
+<div id="info-alert" role="alert">
+
+<!-- Specific alerts -->
+<div id="login-success-alert">
+<div id="form-error-alert">
+<div id="save-success-alert">
+
+<!-- Notification badges -->
+<div id="notification-badge">
+<div id="unread-count-badge">
+<div id="cart-item-count-badge">
+```
+
+#### Loading States
+
+```html
+<div id="loading-spinner">
+<div id="page-loading-overlay">
+<div id="content-loading-placeholder">
+<div id="form-loading-spinner">
+<div id="button-loading-spinner">
+```
+
+#### Popovers
+
+```html
+<div id="share-popover">
+<div id="user-profile-popover">
+<div id="actions-popover">
+<div id="info-popover">
+```
+
+**Interactive Component Patterns:**
+- Modals: `[purpose]-modal` with nested structure
+- Dropdowns: `[context]-dropdown`
+- Tooltips: `[context]-tooltip`
+- Tabs: `[context]-tabs-container`, tabs: `[context]-[name]-tab`, panels: `[context]-[name]-panel`
+- Alerts: `[type]-alert` or `[context]-[type]-alert`
+- Loading: `loading-spinner`, `[context]-loading-overlay`
+- Popovers: `[context]-popover`
+
+---
+
+### 5. Media & Dynamic Content
+
+#### Images
+
+```html
+<img id="user-avatar-image" src="..." alt="User avatar">
+<img id="article-featured-image" src="..." alt="Article image">
+<img id="logo-image" src="..." alt="Company logo">
+<img id="product-thumbnail-image" src="..." alt="Product">
+<img id="hero-background-image" src="..." alt="">
+```
+
+#### Videos
+
+```html
+<video id="hero-background-video" autoplay muted loop>
+<video id="tutorial-video-player" controls>
+<video id="product-demo-video" controls>
+```
+
+#### Audio
+
+```html
+<audio id="podcast-audio-player" controls>
+<audio id="notification-sound" preload="auto">
+```
+
+#### Canvas
+
+```html
+<canvas id="chart-canvas"></canvas>
+<canvas id="signature-canvas"></canvas>
+<canvas id="drawing-canvas"></canvas>
+```
+
+#### Dynamic Lists
+
+```html
+<div id="search-results-container">
+<div id="notifications-list-container">
+<div id="activity-feed-container">
+<div id="live-updates-container">
+```
+
+#### Counters & Badges
+
+```html
+<span id="cart-item-count-badge">3</span>
+<span id="notification-count-badge">5</span>
+<span id="unread-messages-count">12</span>
+<div id="view-counter">1,234 views</div>
+<div id="like-counter">56 likes</div>
+```
+
+#### Progress Indicators
+
+```html
+<div id="upload-progress-bar">
+<div id="profile-completion-progress">
+<div id="download-progress-bar">
+<div id="task-progress-indicator">
+```
+
+#### Filters & Sort Controls
+
+```html
+<div id="article-filter-controls">
+  <select id="article-sort-select">
+  <select id="article-category-filter-select">
+  <input id="article-date-filter-input" type="date">
+  <button id="filter-apply-button">Apply</button>
+  <button id="filter-reset-button">Reset</button>
+</div>
+```
+
+**Media & Dynamic Content Patterns:**
+- Images: `[context]-image`
+- Videos/Audio: `[context]-video-player`, `[context]-audio-player`
+- Canvas: `[purpose]-canvas`
+- Dynamic lists: `[resource]-list-container`
+- Badges/counters: `[context]-count-badge`, `[context]-counter`
+- Progress: `[context]-progress-bar`, `[context]-progress-indicator`
+- Filters: `[context]-filter-controls`
+
+---
+
+### 6. Stimulus Target Integration
+
+When using Stimulus controllers, IDs complement `data-[controller]-target` attributes:
+
+```html
+<!-- Dropdown with both Stimulus targets and IDs -->
+<div data-controller="dropdown" id="user-menu-dropdown-container">
+  <!-- Stimulus target for controller logic -->
+  <button data-action="dropdown#toggle" 
+          data-dropdown-target="button"
+          id="user-menu-toggle-button"
+          aria-haspopup="true"
+          aria-expanded="false">
+    Menu
+  </button>
+  
+  <!-- Stimulus target with ID for external access -->
+  <div data-dropdown-target="menu"
+       class="hidden"
+       id="user-menu-dropdown-menu">
+    <a href="/profile" id="user-profile-link">Profile</a>
+    <a href="/settings" id="user-settings-link">Settings</a>
+  </div>
+</div>
+
+<!-- Modal with Stimulus -->
+<div data-controller="modal" id="delete-confirmation-modal">
+  <div data-modal-target="overlay" 
+       id="delete-modal-overlay"
+       data-action="click->modal#close"></div>
+  <div data-modal-target="content" id="delete-modal-content">
+    <button data-action="modal#close" 
+            id="delete-modal-close-button"
+            aria-label="Close">×</button>
+    <div id="delete-modal-body">
+      <!-- Content -->
+    </div>
+  </div>
+</div>
+
+<!-- Autosave form with Stimulus -->
+<form data-controller="autosave"
+      data-autosave-url-value="/articles/1"
+      id="article-edit-form">
+  <input data-autosave-target="field"
+         id="article-title-input"
+         type="text">
+  <textarea data-autosave-target="field"
+            id="article-body-textarea"></textarea>
+  <div data-autosave-target="status" id="autosave-status">
+    Saved
+  </div>
+</form>
+```
+
+**Stimulus + ID Guidelines:**
+- Use `data-[controller]-target` for Stimulus controller logic
+- Add IDs when:
+  - Element needs to be accessed outside the Stimulus controller
+  - Form labels need association
+  - Deep linking/anchors required
+  - Testing needs stable selectors
+  - Multiple controllers interact with same element
+- ID format remains consistent: `[context]-[element]-[type]`
+- Prefer Stimulus targets for internal controller logic
+- Use IDs for external access and debugging
+

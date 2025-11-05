@@ -1,0 +1,18 @@
+---
+description: XSS prevention 
+alwaysApply: false
+---
+## XSS Prevention
+
+```erb
+<!-- Bad: Unescaped user input -->
+<%= raw @article.body %>
+
+<!-- Good: Escaped by default -->
+<%= @article.body %>
+
+<!-- Good: Sanitize HTML -->
+<%= sanitize @article.body %>
+```
+
+---

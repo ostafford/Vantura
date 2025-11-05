@@ -1,0 +1,36 @@
+---
+description: importmap usage, importing modules, adding packages to importmap, 
+alwaysApply: false
+---
+## Importmap Usage
+
+### Importing Modules
+
+```javascript
+// app/javascript/application.js
+
+// Import Stimulus
+import '@hotwired/turbo-rails'
+import './controllers'
+
+// Import external libraries (via Importmap)
+import { Chart } from 'chart.js'
+
+// Use imported library
+const chart = new Chart(ctx, config)
+```
+
+### Adding Packages to Importmap
+
+```bash
+# Add package via importmap
+bin/importmap pin chart.js
+
+# Pin specific version
+bin/importmap pin lodash@4.17.21
+
+# Unpin package
+bin/importmap unpin chart.js
+```
+
+---

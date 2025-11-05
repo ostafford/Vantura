@@ -1,0 +1,37 @@
+---
+description: find by sql, execute, sanitize sql
+alwaysApply: false
+---
+## Raw SQL (Use Sparingly)
+
+### find_by_sql
+
+```ruby
+# Execute raw SQL
+articles = Article.find_by_sql([
+  "SELECT * FROM articles WHERE status = ? AND views_count > ?",
+  'published',
+  1000
+])
+```
+
+### execute
+
+```ruby
+# Execute SQL without returning records
+ActiveRecord::Base.connection.execute(
+  "UPDATE articles SET views_count = views_count + 1 WHERE id = 1"
+)
+```
+
+### sanitize_sql
+
+```ruby
+# Sanitize SQL to prevent injection
+query = Article.sanitize_sql_array([
+  "SELECT * FROM articles WHERE title LIKE ?",
+  "%#{params[:search]}%"
+])
+```
+
+---

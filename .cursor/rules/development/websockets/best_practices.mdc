@@ -1,0 +1,65 @@
+---
+description: best practice, dos and dont, 
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Use specific stream names
+stream_from "notifications_#{current_user.id}"
+
+# Verify authorization in subscribed
+def subscribed
+  room = Room.find(params[:room_id])
+  reject unless room.user_ids.include?(current_user.id)
+  stream_from "chat_room_#{room.id}"
+end
+
+# Render partials for consistent HTML
+def render_message(message)
+  ApplicationController.render(
+    partial: 'messages/message',
+    locals: { message: message }
+  )
+end
+
+# Use after_commit callbacks
+after_create_commit :broadcast_message
+
+# Handle disconnections gracefully
+def unsubscribed
+  cleanup_user_data
+  stop_all_streams
+end
+
+# Use jobs for expensive broadcasts
+NotificationBroadcastJob.perform_later(user_id, data)
+```
+
+### DON'T ❌
+
+```ruby
+# Don't broadcast sensitive data
+# ActionCable.server.broadcast('channel', password: user.password)
+
+# Don't forget authorization
+# stream_from params[:channel]  # No verification!
+
+# Don't use after_create (use after_create_commit)
+# after_create :broadcast  # May broadcast before transaction commits
+
+# Don't broadcast too frequently
+# Can overwhelm clients and database
+
+# Don't include large data in broadcasts
+# Send IDs and fetch data client-side if needed
+
+# Don't forget to stop streams
+def unsubscribed
+  stop_all_streams  # Important!
+end
+```
+
+---

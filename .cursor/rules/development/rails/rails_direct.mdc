@@ -1,0 +1,14 @@
+---
+description: structure related
+alwaysApply: false
+---
+## Related Documentation
+
+- [File Structure](../02-conventions/file-structure.md) - Directory organization
+- [Naming Conventions](../02-conventions/naming-conventions.md) - Naming rules
+- [Hotwire Guidelines](hotwire.md) - Frontend interactivity
+- [Database Design](../04-database/database-design.md) - Models and associations
+
+---
+
+**Previous:** [← Code Style](../02-conventions/code-style.md) | **Next:** [Hotwire →](hotwire.md)

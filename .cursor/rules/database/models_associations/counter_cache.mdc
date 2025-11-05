@@ -1,0 +1,46 @@
+---
+description: counter cache
+alwaysApply: false
+---
+## Counter Cache
+
+Optimize counting associated records.
+
+```ruby
+# app/models/article.rb
+class Article < ApplicationRecord
+  belongs_to :user, counter_cache: true
+  # Updates user.articles_count automatically
+end
+
+# app/models/user.rb
+class User < ApplicationRecord
+  has_many :articles
+  # Has articles_count column
+end
+```
+
+**Migration:**
+```ruby
+class AddArticlesCountToUsers < ActiveRecord::Migration[8.0]
+  def change
+    add_column :users, :articles_count, :integer, default: 0, null: false
+    
+    # Reset existing counts
+    User.find_each do |user|
+      User.reset_counters(user.id, :articles)
+    end
+  end
+end
+```
+
+**Custom counter cache:**
+```ruby
+class Article < ApplicationRecord
+  belongs_to :user, counter_cache: :published_articles_count
+end
+
+# Requires published_articles_count column on users table
+```
+
+---

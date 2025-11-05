@@ -13,9 +13,9 @@ class DashboardTest < ApplicationSystemTestCase
     # Check main components are present
     assert_text "Vantura"
     assert_text "Current Balance"
-    assert_text @account.display_name
-    assert_selector "#expenses_card"
-    assert_selector "#income_card"
+    assert_text "$1,000.00"  # Balance from fixture
+    assert_selector "#dashboard-expenses-card"
+    assert_selector "#dashboard-income-card"
     # projection_card might not exist if there's no data
     assert_text "End of Month Projection"
   end
@@ -23,7 +23,8 @@ class DashboardTest < ApplicationSystemTestCase
   test "user can navigate to settings" do
     visit root_path
 
-    click_on "Settings"
+    # Settings link might be in sidebar or navigation - find by href
+    find("a[href='/settings']", match: :first).click
 
     assert_current_path settings_path
     assert_text "Up Bank Integration"
@@ -72,7 +73,8 @@ class DashboardTest < ApplicationSystemTestCase
     fill_in "password", with: "password"
     click_button "Sign in"
 
-    # Wait for sign-in to complete
+    # Wait for sign-in to complete - allow time for redirect
+    sleep 0.5
     assert_current_path root_path
   end
 end

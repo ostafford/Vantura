@@ -1,0 +1,52 @@
+---
+description: accessibility requirements, ARIA and ids, form accessibility
+alwaysApply: false
+---
+## Accessibility Requirements
+
+### ARIA and IDs
+
+```html
+<!-- Labelled by -->
+<div role="dialog" aria-labelledby="modal-title" id="settings-modal">
+  <h2 id="modal-title">Settings</h2>
+</div>
+
+<!-- Described by -->
+<input id="password-input" 
+       type="password"
+       aria-describedby="password-requirements">
+<div id="password-requirements">
+  Must be at least 8 characters
+</div>
+
+<!-- Controls -->
+<button aria-controls="user-menu-dropdown" 
+        aria-expanded="false"
+        id="user-menu-toggle-button">
+  Menu
+</button>
+<div id="user-menu-dropdown" class="hidden">
+  <!-- Menu items -->
+</div>
+```
+
+### Form Accessibility
+
+```html
+<!-- Always associate labels with inputs -->
+<label for="user-email-input">Email Address</label>
+<input id="user-email-input" 
+       type="email"
+       aria-required="true"
+       aria-invalid="false">
+
+<!-- Error messages -->
+<input id="user-password-input" 
+       type="password"
+       aria-describedby="password-error"
+       aria-invalid="true">
+<div id="password-error" role="alert">
+  Password is required
+</div>
+```

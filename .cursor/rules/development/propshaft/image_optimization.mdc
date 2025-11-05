@@ -1,0 +1,44 @@
+---
+description: image optimization, recommended formats, optimization tools, resposive 
+alwaysApply: false
+---
+## Image Optimization
+
+### Recommended Formats
+
+- **PNG**: Logos, icons with transparency
+- **JPG**: Photos, complex images
+- **SVG**: Icons, simple illustrations
+- **WebP**: Modern format (smaller, high quality)
+
+### Optimization Tools
+
+```bash
+# Install ImageOptim (Mac)
+brew install imageoptim-cli
+
+# Optimize images
+imageoptim app/assets/images/**/*.{png,jpg}
+
+# Install WebP tools
+brew install webp
+
+# Convert to WebP
+cwebp app/assets/images/hero.jpg -q 80 -o app/assets/images/hero.webp
+```
+
+### Responsive Images
+
+```erb
+<!-- Serve different sizes -->
+<%= image_tag "hero-background.jpg",
+    alt: "Hero",
+    srcset: "#{asset_path('hero-background-small.jpg')} 640w,
+             #{asset_path('hero-background-medium.jpg')} 1024w,
+             #{asset_path('hero-background-large.jpg')} 1920w",
+    sizes: "(max-width: 640px) 640px,
+            (max-width: 1024px) 1024px,
+            1920px" %>
+```
+
+---

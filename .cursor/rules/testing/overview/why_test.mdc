@@ -1,0 +1,14 @@
+---
+description: why test
+alwaysApply: false
+---
+## Why Test?
+
+Testing ensures:
+- Code works as expected
+- Changes don't break existing functionality
+- Confidence in refactoring
+- Living documentation
+- Faster debugging
+
+---

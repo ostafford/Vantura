@@ -1,0 +1,32 @@
+---
+description: authentication, rails 8 built-in authentication, password security
+alwaysApply: false
+---
+## Authentication
+
+### Rails 8 Built-in Authentication
+```ruby
+# Use Rails 8 authentication generator
+rails generate authentication
+
+# Provides:
+# - User model with has_secure_password
+# - Sessions controller
+# - Password reset flow
+# - Remember me functionality
+```
+
+### Password Security
+```ruby
+class User < ApplicationRecord
+  has_secure_password
+  
+  validates :password, length: { minimum: 8 }, on: :create
+  validates :password, format: { 
+    with: /\A(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+    message: "must include uppercase, lowercase, and number"
+  }, if: :password_present?
+end
+```
+
+---

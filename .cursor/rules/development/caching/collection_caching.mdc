@@ -1,0 +1,42 @@
+---
+description: collection caching, basic collection cache, custom cache key, performance optimization
+alwaysApply: false
+---
+## Collection Caching
+
+### Basic Collection Cache
+
+```erb
+<!-- Automatically caches each article individually -->
+<%= render partial: 'articles/article', 
+           collection: @articles, 
+           cached: true %>
+```
+
+### Custom Cache Key
+
+```erb
+<!-- Include version in cache key -->
+<%= render partial: 'articles/article',
+           collection: @articles,
+           cached: ->(article) { [article, 'v2'] } %>
+
+<!-- Include current user in cache key -->
+<%= render partial: 'articles/article',
+           collection: @articles,
+           cached: ->(article) { [article, Current.user] } %>
+```
+
+### Performance Optimization
+
+```ruby
+# In controller - preload data to avoid N+1
+def index
+  @articles = Article.published
+                     .includes(:user, :category, :tags)
+                     .recent
+                     .limit(20)
+end
+```
+
+---

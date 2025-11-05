@@ -1,9 +1,23 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Connects to data-controller="transactions-nav"
+/**
+ * Transactions Navigation Controller
+ * 
+ * Handles Turbo Stream navigation for transactions list with scroll preservation.
+ * Syncs autocomplete controller month/year values after navigation.
+ * 
+ * Cross-controller access:
+ * - querySelector('[data-controller~="autocomplete"]') - Accesses autocomplete controller
+ *   for syncing month/year values. This is acceptable as it's accessing another controller's
+ *   element outside this controller's scope.
+ * 
+ * @see .cursor/rules/conventions/ID_naming_strategy/id_naming_category.mdc (lines 668-678)
+ * @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
+ */
 export default class extends Controller {
   static values = { 
-    turboFrame: String
+    turboFrame: String,
+    autocompleteController: String // Optional: ID of autocomplete controller to sync
   }
 
   navigate(event) {
@@ -28,6 +42,8 @@ export default class extends Controller {
         Turbo.renderStreamMessage(html)
         
         // Sync autocomplete month/year values
+        // Cross-controller access: querySelector acceptable for accessing other controller
+        // Per rules: Elements accessed outside controller scope can use querySelector/getElementById
         const month = url.searchParams.get('month')
         const year = url.searchParams.get('year')
         const autoEl = document.querySelector('[data-controller~="autocomplete"]')

@@ -1,0 +1,23 @@
+---
+description: grouping
+alwaysApply: false
+---
+## Grouping
+
+```ruby
+# Group by column
+Article.group(:status).count
+# => {"draft"=>5, "published"=>10}
+
+# Group with sum
+Article.group(:category_id).sum(:views_count)
+# => {1=>1000, 2=>500}
+
+# Multiple groups
+Article.group(:status, :category_id).count
+
+# Having (filter grouped results)
+Article.group(:user_id).having('COUNT(*) > 5')
+```
+
+---

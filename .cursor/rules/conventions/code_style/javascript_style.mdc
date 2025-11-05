@@ -1,0 +1,85 @@
+---
+description: javascript style, indentation & spacing, variable declarations, function definition, string templates, object & array destructing
+alwaysApply: false
+---
+## JavaScript Style
+
+### Indentation & Spacing
+
+```javascript
+// Good: 2 spaces
+function calculateTotal(items) {
+  return items.reduce((sum, item) => {
+    return sum + item.price
+  }, 0)
+}
+
+// Bad: 4 spaces or tabs
+function calculateTotal(items) {
+    return items.reduce((sum, item) => {
+        return sum + item.price
+    }, 0)
+}
+```
+
+### Variable Declarations
+
+```javascript
+// Good: const for constants
+const MAX_ITEMS = 10
+const API_URL = 'https://api.example.com'
+
+// Good: let for variables that change
+let totalCount = 0
+let currentPage = 1
+
+// Bad: var (use const/let instead)
+var count = 0  // Don't use var
+```
+
+### Function Definitions
+
+```javascript
+// Good: Arrow functions for callbacks
+items.map(item => item.name)
+items.filter(item => item.active)
+
+// Good: Traditional functions for methods
+function calculateTotal(items) {
+  return items.reduce((sum, item) => sum + item.price, 0)
+}
+
+// Good: Method shorthand in classes
+class Calculator {
+  calculateTotal(items) {
+    return items.reduce((sum, item) => sum + item.price, 0)
+  }
+}
+```
+
+### String Templates
+
+```javascript
+// Good: Template literals for interpolation
+const message = `Hello, ${userName}!`
+const url = `/articles/${articleId}`
+
+// Good: Single quotes for static strings
+const status = 'active'
+const category = 'technology'
+```
+
+### Object & Array Destructuring
+
+```javascript
+// Good: Use destructuring
+const { name, email, age } = user
+const [first, second, ...rest] = items
+
+// Good: Destructuring in function parameters
+function displayUser({ name, email }) {
+  console.log(`${name}: ${email}`)
+}
+```
+
+---

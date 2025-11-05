@@ -1,0 +1,50 @@
+---
+description: Async/Await, basic usage, Multiple Async Operations
+alwaysApply: false
+---
+## Async/Await
+
+### Basic Usage
+
+```javascript
+// Good: async/await (cleaner than promises)
+async function loadUserData(userId) {
+  try {
+    const response = await fetch(`/users/${userId}`)
+    const user = await response.json()
+    return user
+  } catch (error) {
+    console.error('Error loading user:', error)
+    throw error
+  }
+}
+
+// Use it
+loadUserData(123)
+  .then(user => console.log(user))
+  .catch(error => console.error(error))
+```
+
+### Multiple Async Operations
+
+```javascript
+// Sequential (one after another)
+async function loadSequential() {
+  const user = await fetchUser()
+  const articles = await fetchArticles(user.id)
+  const comments = await fetchComments(articles[0].id)
+  return { user, articles, comments }
+}
+
+// Parallel (all at once, faster)
+async function loadParallel() {
+  const [user, articles, categories] = await Promise.all([
+    fetchUser(),
+    fetchArticles(),
+    fetchCategories()
+  ])
+  return { user, articles, categories }
+}
+```
+
+---

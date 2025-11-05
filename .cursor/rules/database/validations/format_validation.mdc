@@ -1,0 +1,44 @@
+---
+description: format validation
+alwaysApply: false
+---
+## Format Validation
+
+Validates against a regular expression.
+
+```ruby
+class User < ApplicationRecord
+  # Email format
+  validates :email, format: { 
+    with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i,
+    message: "must be a valid email address"
+  }
+  
+  # Phone number (US format)
+  validates :phone, format: { 
+    with: /\A\d{3}-\d{3}-\d{4}\z/,
+    message: "must be in format: XXX-XXX-XXXX"
+  }
+  
+  # Username (alphanumeric and underscores only)
+  validates :username, format: { 
+    with: /\A[a-zA-Z0-9_]+\z/,
+    message: "can only contain letters, numbers, and underscores"
+  }
+  
+  # Slug (lowercase, numbers, hyphens)
+  validates :slug, format: {
+    with: /\A[a-z0-9-]+\z/,
+    message: "can only contain lowercase letters, numbers, and hyphens"
+  }
+  
+  # URL
+  validates :website, format: {
+    with: /\Ahttps?:\/\/.+\z/,
+    message: "must be a valid URL",
+    allow_blank: true
+  }
+end
+```
+
+---

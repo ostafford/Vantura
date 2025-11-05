@@ -1,8 +1,29 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Connects to data-controller="modal"
+/**
+ * Modal Controller
+ * 
+ * Manages modal/drawer behavior for transaction forms, recurring transactions, and filters.
+ * Handles opening/closing animations, escape key handling, and transaction type UI updates.
+ * 
+ * Cross-controller access: None (all elements are within controller scope)
+ * 
+ * @see .cursor/rules/conventions/code_style/stimulus_controller_style.mdc
+ * @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
+ */
 export default class extends Controller {
-  static targets = ["modal", "form", "drawer", "content"]
+  static targets = [
+    "modal", 
+    "form", 
+    "drawer", 
+    "content",
+    "typeRadio",
+    "typeCard",
+    "descriptionLabel",
+    "amountLabel",
+    "dateLabel",
+    "transactionDescription"
+  ]
   static values = {
     type: String // "transaction", "recurring", or "filter"
   }
@@ -100,41 +121,62 @@ export default class extends Controller {
 
   // Transaction type UI update
   updateTransactionTypeUI() {
-    const radios = document.querySelectorAll('.transaction-type-radio')
-    const cards = document.querySelectorAll('.transaction-type-card')
+    // Use Stimulus targets instead of querySelector
+    // Per rules: Elements within controller scope should use targets
+    if (!this.hasTypeRadioTargets || !this.hasTypeCardTargets) return
+    
     let selectedType = 'expense'
     
-    radios.forEach((radio, index) => {
+    this.typeRadioTargets.forEach((radio, index) => {
       if (radio.checked) {
         selectedType = radio.value
-        cards[index].classList.remove('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
-        if (radio.value === 'expense') {
-          cards[index].classList.add('border-expense-500', 'dark:border-expense-500', 'bg-red-50', 'dark:bg-red-900/20')
-        } else {
-          cards[index].classList.add('border-success-500', 'dark:border-success-500', 'bg-green-50', 'dark:bg-green-900/20')
+        const card = this.typeCardTargets[index]
+        if (card) {
+          card.classList.remove('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
+          if (radio.value === 'expense') {
+            card.classList.add('border-expense-500', 'dark:border-expense-500', 'bg-red-50', 'dark:bg-red-900/20')
+          } else {
+            card.classList.add('border-success-500', 'dark:border-success-500', 'bg-green-50', 'dark:bg-green-900/20')
+          }
         }
       } else {
-        cards[index].classList.remove('border-expense-500', 'dark:border-expense-500', 'bg-red-50', 'dark:bg-red-900/20', 'border-success-500', 'dark:border-success-500', 'bg-green-50', 'dark:bg-green-900/20')
-        cards[index].classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
+        const card = this.typeCardTargets[index]
+        if (card) {
+          card.classList.remove('border-expense-500', 'dark:border-expense-500', 'bg-red-50', 'dark:bg-red-900/20', 'border-success-500', 'dark:border-success-500', 'bg-green-50', 'dark:bg-green-900/20')
+          card.classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
+        }
       }
     })
 
-    // Update labels based on transaction type
-    const descLabel = document.getElementById('descriptionLabel')
-    const amountLabel = document.getElementById('amountLabel')
-    const dateLabel = document.getElementById('dateLabel')
-    const descInput = document.getElementById('transactionDescription')
-    
+    // Update labels based on transaction type using Stimulus targets
+    // IDs are still present for form label associations and debugging
+    // Per rules: Both targets AND IDs are required (targets for logic, IDs for debugging/labels)
     if (selectedType === 'expense') {
-      if (descLabel) descLabel.textContent = 'What are you buying?'
-      if (amountLabel) amountLabel.textContent = 'How much will it cost?'
-      if (dateLabel) dateLabel.textContent = 'When do you plan to buy it?'
-      if (descInput) descInput.placeholder = 'e.g., New laptop, Restaurant dinner'
+      if (this.hasDescriptionLabelTarget) {
+        this.descriptionLabelTarget.textContent = 'What are you buying?'
+      }
+      if (this.hasAmountLabelTarget) {
+        this.amountLabelTarget.textContent = 'How much will it cost?'
+      }
+      if (this.hasDateLabelTarget) {
+        this.dateLabelTarget.textContent = 'When do you plan to buy it?'
+      }
+      if (this.hasTransactionDescriptionTarget) {
+        this.transactionDescriptionTarget.placeholder = 'e.g., New laptop, Restaurant dinner'
+      }
     } else {
-      if (descLabel) descLabel.textContent = 'What income are you receiving?'
-      if (amountLabel) amountLabel.textContent = 'How much will you receive?'
-      if (dateLabel) dateLabel.textContent = 'When do you expect to receive it?'
-      if (descInput) descInput.placeholder = 'e.g., Freelance work, Gift, Tax refund'
+      if (this.hasDescriptionLabelTarget) {
+        this.descriptionLabelTarget.textContent = 'What income are you receiving?'
+      }
+      if (this.hasAmountLabelTarget) {
+        this.amountLabelTarget.textContent = 'How much will you receive?'
+      }
+      if (this.hasDateLabelTarget) {
+        this.dateLabelTarget.textContent = 'When do you expect to receive it?'
+      }
+      if (this.hasTransactionDescriptionTarget) {
+        this.transactionDescriptionTarget.placeholder = 'e.g., Freelance work, Gift, Tax refund'
+      }
     }
   }
 }

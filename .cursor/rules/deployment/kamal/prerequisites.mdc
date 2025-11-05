@@ -1,0 +1,18 @@
+---
+description: prerequisites
+alwaysApply: false
+---
+## Prerequisites
+
+```bash
+# On your local machine:
+- Ruby installed
+- Docker installed
+- SSH access to servers
+
+# On your servers:
+- Docker installed
+- SSH key authentication
+```
+
+---

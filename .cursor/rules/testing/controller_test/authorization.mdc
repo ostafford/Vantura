@@ -1,0 +1,31 @@
+---
+description: testing authorization
+alwaysApply: false
+---
+## Testing Authorization
+
+```ruby
+test "admin can edit any article" do
+  admin = users(:admin)
+  sign_in_as admin
+  
+  get edit_article_url(@article)
+  assert_response :success
+end
+
+test "user can only edit own articles" do
+  other_user = users(:jane)
+  sign_in_as other_user
+  
+  get edit_article_url(@article)
+  assert_redirected_to articles_url
+  assert_equal "Not authorized.", flash[:alert]
+end
+
+test "guest cannot access admin pages" do
+  get admin_dashboard_url
+  assert_redirected_to login_url
+end
+```
+
+---

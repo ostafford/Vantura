@@ -1,0 +1,40 @@
+---
+description: asset fingerprinting, how it works, in views
+alwaysApply: false
+---
+## Asset Fingerprinting
+
+Propshaft automatically fingerprints assets in production for cache busting.
+
+### How It Works
+
+```
+# Source file
+app/assets/images/logo.png
+
+# Development (no fingerprint)
+/assets/logo.png
+
+# Production (with fingerprint)
+/assets/logo-2f5b3c8a9d1e4f7a6c8b9e0d1f2a3b4c.png
+```
+
+### In Views
+
+```erb
+<!-- You write: -->
+<%= image_tag "logo.png" %>
+
+<!-- Development generates: -->
+<img src="/assets/logo.png">
+
+<!-- Production generates: -->
+<img src="/assets/logo-2f5b3c8a9d1e4f7a6c8b9e0d1f2a3b4c.png">
+```
+
+**Benefits:**
+- Browsers cache assets aggressively
+- Changing file content changes fingerprint
+- No stale cache issues
+
+---

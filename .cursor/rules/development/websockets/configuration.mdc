@@ -1,0 +1,38 @@
+---
+description: configuration, development, production
+alwaysApply: false
+---
+## Configuration
+
+### Development
+
+```ruby
+# config/environments/development.rb
+
+Rails.application.configure do
+  # Use async adapter in development
+  config.action_cable.adapter = :async
+end
+```
+
+### Production
+
+```ruby
+# config/environments/production.rb
+
+Rails.application.configure do
+  # Use Solid Cable in production
+  config.action_cable.adapter = :solid_cable
+  
+  # Mount Action Cable on main app
+  config.action_cable.mount_path = '/cable'
+  
+  # Allowed request origins
+  config.action_cable.allowed_request_origins = [
+    'https://example.com',
+    'https://www.example.com'
+  ]
+end
+```
+
+---

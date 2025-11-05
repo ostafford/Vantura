@@ -1,0 +1,36 @@
+---
+description: naming decision tree, for files, for variable/methods
+alwaysApply: false
+---
+## Naming Decision Tree
+
+### For Files
+
+```
+Is it a...
+├─ Model? → singular snake_case (user.rb)
+├─ Controller? → plural snake_case + _controller (users_controller.rb)
+├─ View? → action name (index.html.erb) or partial (_form.html.erb)
+├─ Job? → singular snake_case + _job (notification_job.rb)
+├─ Channel? → singular/plural snake_case + _channel (comments_channel.rb)
+├─ Mailer? → singular snake_case + _mailer (user_mailer.rb)
+├─ Test? → matches class + _test (user_test.rb)
+└─ JavaScript? → snake_case + _controller (dropdown_controller.js)
+```
+
+### For Variables/Methods
+
+```
+Is it...
+├─ Ruby?
+│  ├─ Variable? → snake_case (user_name)
+│  ├─ Method? → snake_case (calculate_total)
+│  ├─ Constant? → SCREAMING_SNAKE_CASE (MAX_ATTEMPTS)
+│  ├─ Boolean method? → ends with ? (active?)
+│  └─ Bang method? → ends with ! (save!)
+└─ JavaScript?
+   ├─ Variable? → camelCase (userName)
+   ├─ Function? → camelCase (calculateTotal)
+   ├─ Constant? → SCREAMING_SNAKE_CASE (MAX_ATTEMPTS)
+   └─ Class? → PascalCase (ArticleManager)
+```

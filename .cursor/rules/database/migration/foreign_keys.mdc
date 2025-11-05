@@ -1,0 +1,42 @@
+---
+description: foreign keys, add foreign key, remove foreign key,
+alwaysApply: false
+---
+## Foreign Keys
+
+### Add Foreign Key
+
+```ruby
+class AddForeignKeyToArticles < ActiveRecord::Migration[8.0]
+  def change
+    # Basic foreign key
+    add_foreign_key :articles, :users
+    
+    # With custom options
+    add_foreign_key :comments, :articles, on_delete: :cascade
+    add_foreign_key :articles, :categories, on_delete: :nullify
+    
+    # Self-referential
+    add_foreign_key :comments, :comments, column: :parent_id
+  end
+end
+```
+
+### Remove Foreign Key
+
+```ruby
+class RemoveForeignKeyFromArticles < ActiveRecord::Migration[8.0]
+  def change
+    # By table name
+    remove_foreign_key :articles, :categories
+    
+    # By column name
+    remove_foreign_key :articles, column: :user_id
+    
+    # By name
+    remove_foreign_key :articles, name: 'fk_articles_users'
+  end
+end
+```
+
+---

@@ -11,7 +11,7 @@
   daily_rate = days_remaining > 0 ? (monthly_net / days_remaining) : 0
 %>
 <%= render 'shared/bento_cards/projection_card',
-    id: 'projection_card',
+    id: 'dashboard-projection-card',
     title: "End of Month Projection",
     value: "$#{number_with_precision(end_of_month_balance, precision: 2)}",
     balance: end_of_month_balance,

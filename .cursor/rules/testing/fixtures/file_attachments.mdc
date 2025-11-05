@@ -1,0 +1,20 @@
+---
+description: file attachments
+alwaysApply: false
+---
+## File Attachments
+
+```yaml
+# test/fixtures/articles.yml
+
+with_image:
+  title: Article with Image
+  body: Body text
+  featured_image: <%= ActiveStorage::Blob.create_and_upload!(
+    io: File.open(Rails.root.join('test/fixtures/files/test.jpg')),
+    filename: 'test.jpg',
+    content_type: 'image/jpeg'
+  ) %>
+```
+
+---

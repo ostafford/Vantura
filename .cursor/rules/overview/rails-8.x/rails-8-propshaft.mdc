@@ -1,0 +1,63 @@
+---
+description: propshaft asset pipeline, key difference from sprockets, directory structure, asset helpers, asset fingerprinting, commands
+alwaysApply: false
+---
+## 5. Propshaft (Asset Pipeline)
+
+Propshaft is the new default asset pipeline in Rails 8, replacing Sprockets.
+
+### Key Differences from Sprockets
+
+- **Simpler** - Focused on serving static assets
+- **No compilation** - Use modern JS tools (esbuild) if needed
+- **Faster** - Optimized for speed
+- **Asset fingerprinting** - Automatic cache busting
+- **Smaller codebase** - Easier to maintain
+
+### Directory Structure
+
+```
+app/
+├── assets/
+│   ├── stylesheets/
+│   │   └── application.tailwind.css
+│   └── images/
+│       ├── logo.png
+│       └── hero.jpg
+└── javascript/
+    ├── application.js
+    └── controllers/
+```
+
+### Asset Helpers
+
+```erb
+<!-- Images -->
+<%= image_tag "logo.png", alt: "Logo" %>
+
+<!-- Stylesheets (auto-loaded) -->
+<%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+
+<!-- JavaScript (auto-loaded) -->
+<%= javascript_importmap_tags %>
+```
+
+### Asset Fingerprinting
+
+```
+# Development
+/assets/logo.png
+
+# Production (fingerprinted for cache busting)
+/assets/logo-a1b2c3d4e5f6.png
+```
+
+### Commands
+
+```bash
+# Precompile for production
+rails assets:precompile
+
+# Clean compiled assets
+rails assets:clobber
+```

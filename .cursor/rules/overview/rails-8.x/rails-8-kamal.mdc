@@ -1,0 +1,72 @@
+---
+description: Kamal 2, generated files, benefits, basic commands, configuration example, 
+alwaysApply: false
+---
+## 6. Kamal 2 (Deployment)
+
+Rails 8 generates Kamal 2 configuration by default for zero-downtime Docker deployments.
+
+### Generated Files
+
+- `config/deploy.yml` - Kamal deployment configuration
+- `.env.example` - Environment variables template
+- `Dockerfile` - Multi-stage Docker build
+
+### Benefits
+
+- **Deploy to any Linux server** - No PaaS required
+- **Zero-downtime deployments** - Rolling updates
+- **SSL certificates** - Let's Encrypt integration
+- **Docker registry** - Automatic management
+- **Health checks** - Automatic monitoring
+
+### Basic Commands
+
+```bash
+# Initial setup (first time only)
+kamal setup
+
+# Deploy updates
+kamal deploy
+
+# Roll back
+kamal rollback
+
+# View logs
+kamal app logs
+
+# SSH into server
+kamal app exec -i bash
+
+# Check status
+kamal details
+```
+
+### Configuration Example
+
+```yaml
+# config/deploy.yml
+
+service: myapp
+image: username/myapp
+
+servers:
+  web:
+    hosts:
+      - 192.168.0.1
+    labels:
+      traefik.http.routers.myapp.rule: Host(`myapp.com`)
+      traefik.http.routers.myapp.entrypoints: websecure
+      traefik.http.routers.myapp.tls.certresolver: letsencrypt
+
+registry:
+  username: username
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  clear:
+    RAILS_ENV: production
+  secret:
+    - RAILS_MASTER_KEY
+```

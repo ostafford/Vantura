@@ -1,0 +1,39 @@
+---
+description: local storage
+alwaysApply: false
+---
+## Local Storage
+
+```javascript
+// Save to localStorage
+function saveToStorage(key, value) {
+  try {
+    const serialized = JSON.stringify(value)
+    localStorage.setItem(key, serialized)
+  } catch (error) {
+    console.error('Failed to save to localStorage:', error)
+  }
+}
+
+// Read from localStorage
+function readFromStorage(key) {
+  try {
+    const serialized = localStorage.getItem(key)
+    return serialized ? JSON.parse(serialized) : null
+  } catch (error) {
+    console.error('Failed to read from localStorage:', error)
+    return null
+  }
+}
+
+// Remove from localStorage
+function removeFromStorage(key) {
+  localStorage.removeItem(key)
+}
+
+// Usage
+saveToStorage('user-preferences', { theme: 'dark', language: 'en' })
+const prefs = readFromStorage('user-preferences')
+```
+
+---

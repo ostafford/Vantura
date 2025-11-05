@@ -1,0 +1,25 @@
+---
+description: testing complex logic
+alwaysApply: false
+---
+## Testing Complex Logic
+
+```ruby
+test "calculates discount based on user tier" do
+  gold_user = users(:gold)
+  silver_user = users(:silver)
+  
+  assert_equal 0.20, gold_user.discount_rate
+  assert_equal 0.15, silver_user.discount_rate
+end
+
+test "applies tiered pricing correctly" do
+  product = products(:one)
+  
+  assert_equal 100, product.price_for_quantity(1)
+  assert_equal 90, product.price_for_quantity(10)
+  assert_equal 80, product.price_for_quantity(100)
+end
+```
+
+---

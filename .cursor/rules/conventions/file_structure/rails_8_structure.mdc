@@ -1,0 +1,95 @@
+---
+description: rails 8 directory structure
+alwaysApply: false
+---
+## Rails 8 Directory Structure
+
+```
+app/
+├── controllers/
+│   ├── concerns/              # Shared controller logic
+│   ├── application_controller.rb
+│   └── [resource]_controller.rb
+├── models/
+│   ├── concerns/              # Shared model logic (e.g., Searchable, Publishable)
+│   ├── application_record.rb
+│   ├── current.rb             # Rails 8 authentication context
+│   └── [resource].rb
+├── views/
+│   ├── layouts/               # Application layouts
+│   │   ├── application.html.erb
+│   │   └── mailer.html.erb
+│   ├── shared/                # Shared partials
+│   │   ├── _header.html.erb
+│   │   ├── _footer.html.erb
+│   │   └── _flash.html.erb
+│   └── [resource]/            # Resource-specific views
+│       ├── index.html.erb
+│       ├── show.html.erb
+│       ├── _form.html.erb     # Form partial
+│       └── _[resource].html.erb  # Display partial
+├── helpers/                   # View helpers only
+│   ├── application_helper.rb
+│   └── [resource]_helper.rb
+├── javascript/
+│   ├── controllers/           # Stimulus controllers
+│   │   ├── application.js
+│   │   └── [feature]_controller.js
+│   └── application.js         # JS entry point
+├── assets/
+│   ├── stylesheets/
+│   │   └── application.tailwind.css
+│   └── images/
+├── mailers/
+│   └── application_mailer.rb
+├── jobs/                      # Solid Queue jobs
+│   ├── application_job.rb
+│   └── [resource]_job.rb
+└── channels/                  # Solid Cable channels
+    ├── application_cable/
+    └── [resource]_channel.rb
+
+config/
+├── routes.rb                  # All application routes
+├── database.yml               # Database configuration
+├── cable.yml                  # Solid Cable configuration
+├── queue.yml                  # Solid Queue configuration
+├── deploy.yml                 # Kamal 2 deployment
+├── importmap.rb               # JavaScript import maps
+└── environments/
+    ├── development.rb
+    ├── test.rb
+    └── production.rb
+
+db/
+├── migrate/                   # Database migrations
+├── schema.rb                  # Current database schema (don't edit!)
+└── seeds.rb                   # Seed data
+
+test/                          # Minitest files (Rails default)
+├── models/
+├── controllers/
+├── system/                    # System/integration tests
+├── jobs/
+├── mailers/
+└── fixtures/                  # Test data
+
+lib/
+├── tasks/                     # Custom Rake tasks
+└── assets/
+
+public/                        # Static files served directly
+└── robots.txt
+
+bin/
+├── dev                        # Start all services
+├── rails
+└── setup
+
+Gemfile                        # Ruby dependencies
+Gemfile.lock
+package.json                   # JavaScript dependencies
+Dockerfile                     # Docker configuration
+.cursorrules                   # Cursor AI rules
+README.md                      # Project documentation
+```

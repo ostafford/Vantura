@@ -21,7 +21,7 @@
   detail_text = is_positive ? "Savings Rate: #{number_with_precision(savings_rate, precision: 1)}%" : "Deficit: $#{number_with_precision(expense_total - income_total, precision: 2)}"
 %>
 <%= render 'shared/bento_cards/stat_card',
-    id: 'net_cash_flow_card',
+    id: 'dashboard-net-cash-flow-card',
     title: "Net Cash Flow",
     value: formatted_net,
     subtitle: nil,

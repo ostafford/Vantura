@@ -1,0 +1,28 @@
+---
+description: initial setup
+alwaysApply: false
+---
+## Initial Setup
+
+```bash
+# 1. Generate config files
+kamal init
+
+# 2. Set registry password
+export KAMAL_REGISTRY_PASSWORD=your_docker_password
+
+# 3. Set Rails master key
+export RAILS_MASTER_KEY=your_rails_master_key
+
+# 4. Setup servers (first time only)
+kamal setup
+
+# This will:
+# - Install Docker on servers
+# - Setup Traefik
+# - Setup application
+# - Run migrations
+# - Start services
+```
+
+---

@@ -1,0 +1,20 @@
+---
+description: testing real-time features
+alwaysApply: false
+---
+## Testing Real-Time Features
+
+```ruby
+test "receives real-time notifications" do
+  sign_in_as @user
+  visit root_url
+  
+  # Trigger notification in background
+  Notification.create!(user: @user, message: "New comment")
+  
+  # Wait for WebSocket to deliver
+  assert_selector ".notification", text: "New comment", wait: 3
+end
+```
+
+---

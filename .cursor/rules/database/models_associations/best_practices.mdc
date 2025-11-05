@@ -1,0 +1,90 @@
+---
+description: best practices, dos, dont, association chaining
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Use descriptive association names
+has_many :published_articles, -> { where(status: 'published') }
+
+# Specify dependent behavior
+has_many :comments, dependent: :destroy
+
+# Use counter_cache for counts
+belongs_to :user, counter_cache: true
+
+# Use inverse_of for optimization
+has_many :articles, inverse_of: :user
+
+# Use touch to invalidate caches
+belongs_to :article, touch: true
+
+# Prefer has_many :through over has_and_belongs_to_many
+has_many :tags, through: :article_tags
+
+# Use optional: true when association is optional
+belongs_to :category, optional: true
+
+# Scope associations for common queries
+has_many :active_users, -> { where(active: true) }
+```
+
+### DON'T ❌
+
+```ruby
+# Don't forget dependent option
+has_many :comments  # Orphaned when user deleted!
+
+# Don't use has_and_belongs_to_many if you need timestamps
+# Use has_many :through instead
+
+# Don't query associations in loops (N+1)
+users.each { |user| user.articles.count }  # Bad!
+users.includes(:articles).each { |user| user.articles.count }  # Good!
+
+# Don't use has_many for belongs_to
+class Article
+  has_many :user  # Wrong!
+  belongs_to :user  # Correct!
+end
+
+# Don't manually set foreign keys
+article.user_id = user.id  # Bad
+article.user = user        # Good
+
+# Don't forget validations
+belongs_to :user  # Should validate presence if required
+```
+
+---
+
+## Association Chaining
+
+```ruby
+# Chain associations
+User.joins(:articles).where(articles: { status: 'published' })
+
+# Nested includes
+User.includes(articles: [:comments, :tags])
+
+# Complex queries
+User.joins(articles: :comments)
+    .where(comments: { created_at: 1.week.ago.. })
+    .distinct
+```
+
+---
+
+## Related Documentation
+
+- [Database Design](database-design.md) - Table relationships
+- [Migrations](migrations.md) - Creating foreign keys
+- [Validations](validations.md) - Association validation
+- [Queries & Performance](queries-performance.md) - N+1 prevention
+
+---
+
+**Previous:** [← Migrations](migrations.md) | **Next:** [Validations →](validations.md)

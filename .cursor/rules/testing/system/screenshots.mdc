@@ -1,0 +1,19 @@
+---
+description: screenshots
+alwaysApply: false
+---
+## Screenshots
+
+```ruby
+test "captures screenshot on failure" do
+  visit articles_url
+  
+  take_screenshot  # Manual screenshot
+  
+  assert_selector ".non-existent"  # Will fail and auto-screenshot
+end
+
+# Screenshots saved to tmp/screenshots/
+```
+
+---

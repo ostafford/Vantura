@@ -1,0 +1,31 @@
+---
+description: Directory Structure
+alwaysApply: false
+---
+## Directory Structure
+
+```
+app/assets/
+├── images/              # Images (PNG, JPG, SVG, etc.)
+│   ├── logo.png
+│   ├── hero-background.jpg
+│   └── icons/
+│       └── check.svg
+├── stylesheets/         # CSS files
+│   ├── application.css
+│   └── components/
+│       └── button.css
+└── fonts/               # Custom fonts
+    ├── custom-font.woff2
+    └── custom-font.woff
+
+public/
+└── assets/              # Compiled assets (production)
+    ├── logo-[fingerprint].png
+    └── application-[fingerprint].css
+
+vendor/assets/           # Third-party assets (rarely used)
+lib/assets/              # Library assets (rarely used)
+```
+
+---

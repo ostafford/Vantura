@@ -1,0 +1,40 @@
+---
+description: order and limit, order, limit and offset
+alwaysApply: false
+---
+## Order and Limit
+
+### order
+
+```ruby
+# Ascending
+Article.order(:created_at)
+Article.order(created_at: :asc)
+
+# Descending
+Article.order(created_at: :desc)
+
+# Multiple columns
+Article.order(status: :asc, created_at: :desc)
+
+# String (for complex ordering)
+Article.order('created_at DESC, title ASC')
+
+# Nulls first/last (PostgreSQL)
+Article.order('published_at DESC NULLS LAST')
+```
+
+### limit and offset
+
+```ruby
+# Limit
+Article.limit(10)
+
+# Offset (for pagination)
+Article.limit(10).offset(20)
+
+# Better: Use pagination gem (Kaminari, Pagy)
+Article.page(3).per(10)  # Kaminari
+```
+
+---

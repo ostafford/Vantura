@@ -1,0 +1,69 @@
+---
+description: custom validations, validate method, custom validator class, inline custom validation
+alwaysApply: false
+---
+## Custom Validations
+
+### Validate Method
+
+```ruby
+class Article < ApplicationRecord
+  validate :title_cannot_be_draft
+  validate :published_at_must_be_in_future, on: :create
+  
+  private
+  
+  def title_cannot_be_draft
+    if title.present? && title.downcase.include?('draft')
+      errors.add(:title, "cannot contain the word 'draft'")
+    end
+  end
+  
+  def published_at_must_be_in_future
+    if published_at.present? && published_at < Time.current
+      errors.add(:published_at, "must be in the future")
+    end
+  end
+end
+```
+
+### Custom Validator Class
+
+```ruby
+# app/validators/email_validator.rb
+class EmailValidator < ActiveModel::EachValidator
+  def validate_each(record, attribute, value)
+    unless value =~ /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+      record.errors.add(attribute, options[:message] || "is not a valid email")
+    end
+  end
+end
+
+# Usage in model
+class User < ApplicationRecord
+  validates :email, email: true
+  
+  # With options
+  validates :backup_email, email: { message: "must be valid" }
+end
+```
+
+### Inline Custom Validation
+
+```ruby
+class Article < ApplicationRecord
+  validates :body, length: { minimum: 100 }, if: :published?
+  
+  validate do
+    if body.present? && body.split.size < 50
+      errors.add(:body, "must have at least 50 words")
+    end
+  end
+  
+  def published?
+    status == 'published'
+  end
+end
+```
+
+---

@@ -1,0 +1,79 @@
+---
+description: best practices, when to use what, common patterns, 
+alwaysApply: false
+---
+## Best Practices
+
+### When to Use What
+
+**Use Turbo Drive for:**
+- Standard page navigation
+- Form submissions
+- Default behavior (it's automatic!)
+
+**Use Turbo Frames for:**
+- Updating specific page sections
+- Inline editing
+- Pagination without full page reload
+- Modal content loading
+
+**Use Turbo Streams for:**
+- Real-time updates (create, update, delete)
+- Multiple simultaneous page updates
+- Broadcasting changes to multiple users
+
+**Use Stimulus for:**
+- Client-side interactivity
+- UI behaviors (dropdowns, modals, tooltips)
+- Form enhancements (validation, autosave)
+- Anything requiring JavaScript logic
+
+### Common Patterns
+
+**Inline Editing:**
+```erb
+<%= turbo_frame_tag dom_id(article, :title) do %>
+  <h1><%= article.title %></h1>
+  <%= link_to "Edit", edit_article_path(article) %>
+<% end %>
+```
+
+**Optimistic UI Updates:**
+```javascript
+// Remove item immediately, undo if request fails
+async delete(event) {
+  const item = event.target.closest('[data-item]')
+  item.remove()
+  
+  try {
+    await fetch(this.urlValue, { method: 'DELETE' })
+  } catch (error) {
+    // Re-add item if deletion failed
+    this.element.appendChild(item)
+  }
+}
+```
+
+**Progressive Enhancement:**
+```erb
+<!-- Works without JavaScript -->
+<%= link_to "Delete", article_path(@article), method: :delete %>
+
+<!-- Enhanced with Turbo Streams when JS available -->
+<%= button_to "Delete", article_path(@article),
+    method: :delete,
+    form: { data: { turbo_confirm: "Are you sure?" } } %>
+```
+
+---
+
+## Related Documentation
+
+- [Ruby & Rails Guidelines](ruby-rails.md) - Controllers and views
+- [JavaScript Guidelines](javascript.md) - Vanilla JS patterns
+- [TailwindCSS](tailwindcss.md) - Styling interactive components
+
+---
+
+**Previous:** [← Ruby & Rails](ruby-rails.md) | **Next:** [TailwindCSS →](tailwindcss.md)
+

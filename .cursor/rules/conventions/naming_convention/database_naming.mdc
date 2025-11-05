@@ -1,0 +1,60 @@
+---
+description: database naming, tables, columns, indexes, 
+alwaysApply: false
+---
+## Database Naming
+
+### Tables
+
+**Plural, snake_case:**
+- `users`
+- `blog_posts`
+- `article_comments`
+- `article_tags` (join table)
+
+### Columns
+
+**snake_case:**
+- `first_name`
+- `email_address`
+- `published_at`
+- `views_count`
+- `is_active` (avoid, use just `active`)
+
+```ruby
+# Good
+create_table :blog_posts do |t|
+  t.string :title
+  t.text :body
+  t.string :slug
+  t.integer :views_count
+  t.datetime :published_at
+  t.references :user, foreign_key: true
+  
+  t.timestamps
+end
+
+# Bad
+create_table :BlogPost do |t|  # Wrong! Use lowercase
+  t.string :Title              # Wrong! Use snake_case
+  t.text :Body
+end
+```
+
+### Indexes
+
+**snake_case with descriptive suffix:**
+- `index_articles_on_slug`
+- `index_articles_on_user_id_and_status`
+- `index_users_on_email`
+
+```ruby
+# Good
+add_index :articles, :slug, unique: true
+add_index :articles, [:user_id, :status]
+
+# Rails automatically generates index names, but if custom:
+add_index :articles, :slug, name: 'index_articles_on_slug_unique'
+```
+
+---

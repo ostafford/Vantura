@@ -1,0 +1,34 @@
+---
+description: color system, gray scale, brand colors, usage
+alwaysApply: false
+---
+## Color System
+
+### Gray Scale
+- `gray-50` through `gray-900` (lightest to darkest)
+- Use for: backgrounds, borders, text
+
+### Brand Colors
+- `blue-*` - Primary actions
+- `green-*` - Success states
+- `red-*` - Errors, destructive actions
+- `yellow-*` - Warnings
+- `purple-*`, `pink-*`, `indigo-*` - Accents
+
+### Usage
+```html
+<!-- Text colors -->
+<p class="text-gray-900">Primary text</p>
+<p class="text-gray-600">Secondary text</p>
+<p class="text-gray-400">Tertiary text</p>
+
+<!-- Background colors -->
+<div class="bg-blue-600">Primary background</div>
+<div class="bg-gray-50">Light background</div>
+
+<!-- Border colors -->
+<div class="border border-gray-300">Border</div>
+<div class="border-2 border-blue-500">Emphasized border</div>
+```
+
+---

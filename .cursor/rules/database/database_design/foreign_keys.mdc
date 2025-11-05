@@ -1,0 +1,57 @@
+---
+description: foreign keys, naming convention, adding foreign keys, foreign key options, 
+alwaysApply: false
+---
+## Foreign Keys
+
+Foreign keys reference other tables.
+
+### Naming Convention
+
+```ruby
+# Foreign key format: {model_name}_id
+user_id       # References users.id
+article_id    # References articles.id
+category_id   # References categories.id
+```
+
+### Adding Foreign Keys
+
+```ruby
+# In migration
+create_table :articles do |t|
+  t.references :user, null: false, foreign_key: true
+  # Creates user_id column with foreign key constraint
+  
+  t.string :title
+  t.text :body
+  
+  t.timestamps
+end
+
+# Or add foreign key separately
+add_reference :articles, :category, foreign_key: true
+
+# With custom options
+add_reference :articles, :user, 
+              null: false,
+              foreign_key: { on_delete: :cascade }
+```
+
+### Foreign Key Options
+
+```ruby
+# Cascade delete (delete dependent records)
+foreign_key: { on_delete: :cascade }
+
+# Nullify on delete (set to NULL)
+foreign_key: { on_delete: :nullify }
+
+# Restrict delete (prevent deletion if referenced)
+foreign_key: { on_delete: :restrict }
+
+# No action (database default)
+foreign_key: true
+```
+
+---

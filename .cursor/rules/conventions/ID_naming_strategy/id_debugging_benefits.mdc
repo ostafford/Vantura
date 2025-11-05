@@ -1,0 +1,66 @@
+---
+description: debugging benifits, browser devtools, console selection, testing
+alwaysApply: false
+---
+## Debugging Benefits
+
+Well-named IDs make debugging significantly easier:
+
+### Browser DevTools
+
+```html
+<!-- Bad: Difficult to identify -->
+<div id="d1">
+  <button id="b1" onclick="fn1()">Click</button>
+</div>
+
+<!-- DevTools shows: "div#d1", "button#b1" -->
+<!-- No context about purpose -->
+
+<!-- Good: Self-documenting -->
+<div id="user-profile-container">
+  <button id="user-settings-save-button" data-action="click->profile#save">
+    Save Settings
+  </button>
+</div>
+
+<!-- DevTools shows: "div#user-profile-container", "button#user-settings-save-button" -->
+<!-- Immediately clear what each element is for -->
+```
+
+### Console Selection
+
+```javascript
+// Easy element selection
+const button = document.getElementById('user-settings-save-button');
+const form = document.getElementById('article-edit-form');
+const input = document.getElementById('user-email-input');
+
+// Clear what you're selecting
+console.log(button); // "button#user-settings-save-button"
+```
+
+### Error Messages
+
+```javascript
+// Bad ID in error
+"Cannot find element with ID 'btn1'"
+// What is btn1? Where is it? What does it do?
+
+// Good ID in error
+"Cannot find element with ID 'user-login-submit-button'"
+// Ah, it's the login form submit button
+```
+
+### Testing
+
+```ruby
+# System tests with clear selectors
+assert_selector "button#user-login-submit-button"
+fill_in "user-email-input", with: "test@example.com"
+click_button "user-login-submit-button"
+
+# Immediately clear what test is doing
+```
+
+---

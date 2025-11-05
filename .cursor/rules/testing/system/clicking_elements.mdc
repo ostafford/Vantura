@@ -1,0 +1,32 @@
+---
+description: clicking elements
+alwaysApply: false
+---
+## Clicking Elements
+
+```ruby
+test "clicking article link" do
+  article = articles(:one)
+  visit articles_url
+  
+  click_link article.title
+  
+  assert_current_path article_path(article)
+  assert_selector "h1", text: article.title
+end
+
+test "clicking delete button" do
+  article = articles(:one)
+  sign_in_as article.user
+  visit article_url(article)
+  
+  accept_confirm do
+    click_button "Delete"
+  end
+  
+  assert_text "Article deleted"
+  assert_no_selector "h1", text: article.title
+end
+```
+
+---

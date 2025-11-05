@@ -1,0 +1,30 @@
+---
+description: testing nested resources
+alwaysApply: false
+---
+## Testing Nested Resources
+
+```ruby
+test "creates comment on article" do
+  sign_in_as @user
+  
+  assert_difference('@article.comments.count', 1) do
+    post article_comments_url(@article), params: {
+      comment: { body: "Great article!" }
+    }
+  end
+  
+  assert_redirected_to article_url(@article)
+end
+
+test "deletes comment from article" do
+  comment = comments(:one)
+  sign_in_as comment.user
+  
+  assert_difference('Comment.count', -1) do
+    delete article_comment_url(@article, comment)
+  end
+end
+```
+
+---

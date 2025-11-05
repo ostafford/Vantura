@@ -1,0 +1,18 @@
+---
+description: SQL injection prevention
+alwaysApply: false
+---
+## SQL Injection Prevention
+
+```ruby
+# Bad: SQL injection vulnerability
+Article.where("title = '#{params[:title]}'")
+
+# Good: Parameterized query
+Article.where("title = ?", params[:title])
+
+# Good: Hash conditions
+Article.where(title: params[:title])
+```
+
+---

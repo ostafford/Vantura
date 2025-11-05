@@ -1,0 +1,53 @@
+---
+description: numericality validation, 
+alwaysApply: false
+---
+## Numericality Validation
+
+Validates numeric values.
+
+```ruby
+class Product < ApplicationRecord
+  # Basic numericality
+  validates :price, numericality: true
+  
+  # Integer only
+  validates :quantity, numericality: { only_integer: true }
+  
+  # Greater than
+  validates :price, numericality: { greater_than: 0 }
+  
+  # Greater than or equal to
+  validates :age, numericality: { greater_than_or_equal_to: 18 }
+  
+  # Less than
+  validates :discount, numericality: { less_than: 100 }
+  
+  # Less than or equal to
+  validates :rating, numericality: { less_than_or_equal_to: 5 }
+  
+  # Equal to
+  validates :code, numericality: { equal_to: 1234 }
+  
+  # Odd
+  validates :odd_number, numericality: { odd: true }
+  
+  # Even
+  validates :even_number, numericality: { even: true }
+  
+  # Combined
+  validates :price, numericality: { 
+    greater_than: 0,
+    less_than: 1_000_000,
+    message: "must be between 0 and 1,000,000"
+  }
+  
+  # Decimal precision
+  validates :price, numericality: { 
+    greater_than_or_equal_to: 0.01,
+    less_than: 1_000_000
+  }
+end
+```
+
+---

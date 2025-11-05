@@ -1,0 +1,87 @@
+---
+description: cache invalidation, automatic invalidation, manual cache expiration, cache sweeper, pattern matching deletion
+alwaysApply: false
+---
+## Cache Invalidation
+
+### Automatic Invalidation (via touch: true)
+
+```ruby
+# app/models/comment.rb
+
+class Comment < ApplicationRecord
+  belongs_to :article, touch: true  # Updates article.updated_at when comment changes
+end
+
+# When comment is created/updated/destroyed, article cache is invalidated
+```
+
+### Manual Cache Expiration
+
+```ruby
+# In model
+class Article < ApplicationRecord
+  after_save :clear_cache
+  after_destroy :clear_cache
+  
+  private
+  
+  def clear_cache
+    Rails.cache.delete(['article', id])
+    Rails.cache.delete('articles_list')
+  end
+end
+```
+
+### Cache Sweepers (Controller-Based)
+
+```ruby
+# app/controllers/articles_controller.rb
+
+class ArticlesController < ApplicationController
+  def create
+    @article = Current.user.articles.build(article_params)
+    
+    if @article.save
+      expire_article_caches
+      redirect_to @article, notice: "Article created."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+  
+  def update
+    if @article.update(article_params)
+      expire_article_caches
+      redirect_to @article, notice: "Article updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+  
+  private
+  
+  def expire_article_caches
+    # Expire specific caches
+    Rails.cache.delete(['article', @article.id])
+    Rails.cache.delete('published_articles')
+    Rails.cache.delete(['articles', 'dashboard', Current.user.id, Date.today])
+  end
+end
+```
+
+### Pattern Matching Deletion
+
+```ruby
+# Delete all caches matching a pattern
+def expire_user_caches(user_id)
+  # Note: Solid Cache doesn't support pattern deletion by default
+  # You need to track keys or use specific keys
+  
+  Rails.cache.delete(['user', user_id, 'articles'])
+  Rails.cache.delete(['user', user_id, 'comments'])
+  Rails.cache.delete(['user', user_id, 'stats'])
+end
+```
+
+---

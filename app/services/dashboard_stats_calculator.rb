@@ -91,21 +91,21 @@ class DashboardStatsCalculator < ApplicationService
   end
 
   def top_expense_merchants
-    @top_expense_merchants ||= Transaction.top_merchants_by_type(
+    @top_expense_merchants ||= TransactionMerchantService.call(
+      @account,
       "expense",
-      account: @account,
-      start_date: month_range.first,
-      end_date: month_range.last,
+      month_range.first,
+      month_range.last,
       limit: 3
     )
   end
 
   def top_income_merchants
-    @top_income_merchants ||= Transaction.top_merchants_by_type(
+    @top_income_merchants ||= TransactionMerchantService.call(
+      @account,
       "income",
-      account: @account,
-      start_date: month_range.first,
-      end_date: month_range.last,
+      month_range.first,
+      month_range.last,
       limit: 3
     )
   end

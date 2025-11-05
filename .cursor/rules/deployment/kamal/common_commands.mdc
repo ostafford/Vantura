@@ -1,0 +1,94 @@
+---
+description: Common commands, deployment, application management, server management, Environment Variables, rollback, cleanup, 
+alwaysApply: false
+---
+## Common Commands
+
+### Deployment
+
+```bash
+# Deploy application
+kamal deploy
+
+# Deploy with specific version
+kamal deploy --version=v1.2.3
+
+# Redeploy (rebuild and deploy)
+kamal redeploy
+```
+
+### Application Management
+
+```bash
+# Start app
+kamal app start
+
+# Stop app
+kamal app stop
+
+# Restart app
+kamal app restart
+
+# Show app status
+kamal app details
+
+# Show app logs
+kamal app logs
+
+# Follow logs in real-time
+kamal app logs --follow
+
+# Show recent logs
+kamal app logs --since 10m
+```
+
+### Server Management
+
+```bash
+# SSH into server
+kamal app exec -i bash
+
+# Run Rails console on server
+kamal app exec -i 'bin/rails console'
+
+# Run rake task
+kamal app exec 'bin/rails db:migrate:status'
+
+# Check server details
+kamal server details
+```
+
+### Environment Variables
+
+```bash
+# Show environment variables
+kamal env
+
+# Push new environment variables
+kamal env push
+```
+
+### Rollback
+
+```bash
+# Rollback to previous version
+kamal rollback
+
+# Rollback to specific version
+kamal rollback --version=v1.2.2
+```
+
+### Cleanup
+
+```bash
+# Remove old images
+kamal prune
+
+# Remove old containers
+kamal prune --containers
+
+# Remove everything
+kamal prune --all
+```
+
+---

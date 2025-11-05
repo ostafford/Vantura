@@ -1,0 +1,19 @@
+---
+description: general id format
+alwaysApply: false
+---
+## General ID Format
+
+**Pattern:** `[context]-[element]-[purpose/type]`
+
+**Components:**
+- **Context:** The resource or feature (`user`, `article`, `comment`, `nav`, `modal`)
+- **Element:** The specific element (`login`, `title`, `body`, `toggle`, `menu`)
+- **Purpose/Type:** The element type or function (`form`, `input`, `button`, `link`, `container`, `section`)
+
+**Examples:**
+- `user-login-form` = user context + login element + form type
+- `article-title-input` = article context + title element + input type
+- `nav-home-link` = nav context + home element + link type
+
+---

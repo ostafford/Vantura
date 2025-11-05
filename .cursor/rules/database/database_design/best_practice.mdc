@@ -1,0 +1,128 @@
+---
+description: best practices, dos, dont, database specific features, postgreSQL, mySQL, SQLite
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Use appropriate column types
+t.string :email         # Short text
+t.text :body           # Long text
+t.decimal :price       # Money
+t.boolean :published   # True/false
+
+# Add NOT NULL constraints
+t.string :title, null: false
+
+# Set default values
+t.boolean :active, default: true
+t.integer :views_count, default: 0
+
+# Always add timestamps
+t.timestamps
+
+# Index foreign keys
+add_index :articles, :user_id
+
+# Index frequently queried columns
+add_index :articles, :status
+add_index :articles, :published_at
+
+# Add unique constraints for unique data
+add_index :users, :email, unique: true
+
+# Use foreign key constraints
+t.references :user, foreign_key: true
+
+# Name join tables alphabetically
+article_tags  # Not tag_articles
+```
+
+### DON'T ❌
+
+```ruby
+# Don't use string for large text
+t.string :body  # Use t.text instead
+
+# Don't forget NOT NULL for required fields
+t.string :email  # Add null: false
+
+# Don't use float for money
+t.float :price  # Use t.decimal instead
+
+# Don't forget indexes on foreign keys
+# Always add: add_index :articles, :user_id
+
+# Don't create redundant columns
+# Bad: user_first_name (duplicate of users.first_name)
+# Good: Just use user.first_name via association
+
+# Don't use generic names
+t.string :name      # Bad (name of what?)
+t.string :user_name # Good (specific)
+
+# Don't store calculated values that can be computed
+# Bad: t.integer :comments_count
+# Good: article.comments.count (or counter_cache)
+```
+
+---
+
+## Database-Specific Features
+
+### PostgreSQL
+
+```ruby
+# Array columns
+t.string :tags, array: true, default: []
+
+# JSON columns
+t.jsonb :metadata
+
+# UUID columns
+enable_extension 'pgcrypto'
+create_table :articles, id: :uuid do |t|
+  t.string :title
+end
+
+# Full-text search
+add_index :articles, :title, using: :gin, opclass: :gin_trgm_ops
+```
+
+### MySQL
+
+```ruby
+# Case-sensitive unique index
+add_index :users, :email, unique: true, 
+          name: 'index_users_on_email_case_sensitive',
+          length: { email: 255 }
+
+# Full-text search
+add_index :articles, [:title, :body], type: :fulltext
+```
+
+### SQLite
+
+```ruby
+# Limited features compared to PostgreSQL/MySQL
+# Good for development, not recommended for production
+
+# No array columns
+# No jsonb columns
+# Limited constraint support
+```
+
+---
+
+## Related Documentation
+
+- [Migrations](migrations.md) - Creating and modifying tables
+- [Models & Associations](models-associations.md) - ActiveRecord relationships
+- [Validations](validations.md) - Data validation
+- [Queries & Performance](queries-performance.md) - Efficient querying
+
+---
+
+**Previous:** [← Assets](../03-development/assets.md) | **Next:** [Migrations →](migrations.md)

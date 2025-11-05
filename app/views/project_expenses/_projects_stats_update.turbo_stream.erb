@@ -2,8 +2,8 @@
 <% referer_path = request.referer.present? ? URI.parse(request.referer).path rescue nil %>
 <% if referer_path == projects_path || referer_path == '/projects' %>
   <%# We're coming from projects index, update the stats %>
-  <%= turbo_stream.replace "projects_hero_card" do %>
-    <div id="projects_hero_card">
+  <%= turbo_stream.replace "projects-hero-card" do %>
+    <div id="projects-hero-card">
       <%= render 'shared/bento_cards/hero_card',
           title: "Projects Hub",
           subtitle: @total_expenses_cents > 0 ? format_cents(@total_expenses_cents) : "No expenses yet",
@@ -43,9 +43,9 @@
     </div>
   <% end %>
 
-  <%= turbo_stream.replace "total_projects_card" do %>
+  <%= turbo_stream.replace "total-projects-card" do %>
     <%= render 'shared/bento_cards/stat_card',
-        id: 'total_projects_card',
+        id: 'total-projects-card',
         title: "Total Projects",
         value: @total_projects.to_s,
         subtitle: "<span class='font-semibold text-gray-900 dark:text-gray-300'>#{@active_projects}</span> active".html_safe,
@@ -55,9 +55,9 @@
         size: 'bento-span-1 bento-row-span-2' %>
   <% end %>
 
-  <%= turbo_stream.replace "total_expenses_card" do %>
+  <%= turbo_stream.replace "total-expenses-card" do %>
     <%= render 'shared/bento_cards/stat_card',
-        id: 'total_expenses_card',
+        id: 'total-expenses-card',
         title: "Total Expenses",
         value: format_cents(@total_expenses_cents),
         subtitle: "<span class='font-semibold text-gray-900 dark:text-gray-300'>#{@total_projects}</span> projects".html_safe,
@@ -67,9 +67,9 @@
         size: 'bento-span-1 bento-row-span-2' %>
   <% end %>
 
-  <%= turbo_stream.replace "total_participants_card" do %>
+  <%= turbo_stream.replace "total-participants-card" do %>
     <%= render 'shared/bento_cards/stat_card',
-        id: 'total_participants_card',
+        id: 'total-participants-card',
         title: "Total Participants",
         value: @total_participants.to_s,
         subtitle: "<span class='font-semibold text-gray-900 dark:text-gray-300'>#{@total_projects}</span> projects".html_safe,
@@ -79,9 +79,9 @@
         size: 'bento-span-1 bento-row-span-2' %>
   <% end %>
 
-  <%= turbo_stream.replace "active_projects_card" do %>
+  <%= turbo_stream.replace "active-projects-card" do %>
     <%= render 'shared/bento_cards/stat_card',
-        id: 'active_projects_card',
+        id: 'active-projects-card',
         title: "Active Projects",
         value: @active_projects.to_s,
         subtitle: "<span class='font-semibold text-gray-900 dark:text-gray-300'>#{@total_projects - @active_projects}</span> inactive".html_safe,
@@ -97,7 +97,7 @@
 
 <%# Show success notification %>
 <% success_message = local_assigns.fetch(:success_message, 'Operation completed successfully!') %>
-<%= turbo_stream.append "notifications" do %>
+<%= turbo_stream.append "notifications-container" do %>
   <div data-controller="notification"
        data-notification-type-value="success"
        data-notification-auto-dismiss-value="true"

@@ -1,0 +1,16 @@
+---
+description: installation
+alwaysApply: false
+---
+## Installation
+
+```bash
+# Kamal is included in Rails 8
+# Already in Gemfile:
+gem "kamal", require: false
+
+# Install
+bundle install
+```
+
+---

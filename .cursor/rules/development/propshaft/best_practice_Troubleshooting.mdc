@@ -1,0 +1,99 @@
+---
+description: best practices, dos and dont, troubleshooting, assets not loading in production, missing image in development
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```erb
+<!-- Use asset helpers -->
+<%= image_tag "logo.png" %>
+<%= stylesheet_link_tag "application" %>
+
+<!-- Optimize images before adding -->
+<!-- Use WebP for modern browsers -->
+<picture>
+  <source srcset="<%= asset_path('hero.webp') %>" type="image/webp">
+  <%= image_tag "hero.jpg", alt: "Hero" %>
+</picture>
+
+<!-- Lazy load images below the fold -->
+<%= image_tag "image.jpg", loading: "lazy" %>
+
+<!-- Organize assets logically -->
+app/assets/images/icons/check.svg
+app/assets/images/illustrations/empty-state.svg
+
+<!-- Use descriptive filenames -->
+hero-background.jpg  # Good
+img1.jpg            # Bad
+```
+
+### DON'T ❌
+
+```erb
+<!-- Don't hardcode asset paths -->
+<img src="/assets/logo.png">  <!-- Bad! -->
+<%= image_tag "logo.png" %>   <!-- Good! -->
+
+<!-- Don't put assets in public/ (unless static) -->
+public/logo.png              <!-- Bad -->
+app/assets/images/logo.png   <!-- Good -->
+
+<!-- Don't use huge unoptimized images -->
+<!-- Optimize and resize before adding -->
+
+<!-- Don't forget alt text -->
+<%= image_tag "logo.png" %>  <!-- Bad -->
+<%= image_tag "logo.png", alt: "Company Logo" %>  <!-- Good -->
+
+<!-- Don't use data URIs for large images -->
+<!-- Use actual files with asset pipeline -->
+```
+
+---
+
+## Troubleshooting
+
+### Assets Not Loading in Production
+
+```bash
+# Ensure assets are precompiled
+rails assets:precompile
+
+# Check public/assets/ directory exists
+ls public/assets/
+
+# Verify asset_host is correct
+rails runner "puts Rails.application.config.asset_host"
+
+# Check web server serves static files
+# Nginx: ensure static files are served
+# Kamal: ensure volumes are mounted correctly
+```
+
+### Missing Images in Development
+
+```bash
+# Restart Rails server
+rails server
+
+# Check file exists
+ls app/assets/images/logo.png
+
+# Check file permissions
+chmod 644 app/assets/images/logo.png
+```
+
+---
+
+## Related Documentation
+
+- [Rails 8 Features](../01-overview/rails-8-features.md) - Propshaft overview
+- [TailwindCSS](tailwindcss.md) - CSS organization
+- [Deployment](../06-deployment/kamal.md) - Asset compilation in production
+
+---
+
+**Previous:** [← WebSockets](websockets.md) | **Next:** [Database Design →](../04-database/database-design.md)

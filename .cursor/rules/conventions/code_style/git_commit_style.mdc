@@ -1,0 +1,48 @@
+---
+description: git commit style, commit message format, types, examples. 
+alwaysApply: false
+---
+## Git Commit Style
+
+### Commit Message Format
+
+```
+<type>: <subject>
+
+<body>
+
+<footer>
+```
+
+### Types
+
+- `feat` - New feature
+- `fix` - Bug fix
+- `docs` - Documentation changes
+- `style` - Code style changes (formatting)
+- `refactor` - Code refactoring
+- `test` - Adding or updating tests
+- `chore` - Maintenance tasks
+
+### Examples
+
+```bash
+# Good: Clear, descriptive commits
+git commit -m "feat: add user authentication with Rails 8 generator"
+git commit -m "fix: resolve N+1 query in articles index"
+git commit -m "refactor: extract article publishing logic to concern"
+
+# Good: Multi-line commit with context
+git commit -m "fix: correct timezone handling in article publishing
+
+Articles were publishing at incorrect times due to timezone conversion
+issue in the ArticlePublisher service. Now correctly uses user's
+timezone when scheduling publication.
+
+Fixes #123"
+
+# Bad: Vague commits
+git commit -m "fix stuff"
+git commit -m "update"
+git commit -m "changes"
+```

@@ -1,0 +1,66 @@
+---
+description: id naming rules, dos, donts
+alwaysApply: false
+---
+## ID Naming Rules
+
+### DO ✅
+
+1. **Use kebab-case**
+   - `user-login-form` ✅
+   - NOT `userLoginForm` ❌
+   - NOT `user_login_form` ❌
+
+2. **Be specific and descriptive**
+   - `article-edit-form` ✅
+   - NOT `edit-form` ❌
+   - NOT `form2` ❌
+
+3. **Include context**
+   - `user-email-input` ✅
+   - NOT `email` ❌
+
+4. **Use consistent suffixes**
+   - `-button` for buttons
+   - `-input` for inputs
+   - `-container` for wrapper divs
+   - `-section` for major sections
+   - `-modal` for modals
+   - `-dropdown` for dropdowns
+
+5. **Prefix with resource name**
+   - `article-title-input` ✅
+   - `user-profile-card` ✅
+   - `comment-reply-form` ✅
+
+6. **Make it readable**
+   - `mobile-menu-toggle-button` ✅ (clear purpose)
+   - NOT `mmtb` ❌ (cryptic abbreviation)
+
+### DON'T ❌
+
+1. **Use generic IDs**
+   - NOT `container` ❌
+   - NOT `wrapper` ❌
+   - NOT `div1` ❌
+   - NOT `btn` ❌
+
+2. **Use camelCase or snake_case**
+   - NOT `userForm` ❌
+   - NOT `user_form` ❌
+   - USE `user-form` ✅
+
+3. **Use cryptic abbreviations**
+   - NOT `usr-frm` ❌
+   - NOT `art-ttl` ❌
+   - USE `user-form` ✅
+   - USE `article-title` ✅
+
+4. **Overuse IDs**
+   - Add only when needed
+   - Prefer classes for styling
+
+5. **Use IDs for styling (prefer classes)**
+   - Exception: When absolutely necessary
+
+---

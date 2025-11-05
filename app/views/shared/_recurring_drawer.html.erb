@@ -1,7 +1,7 @@
 <!-- Recurring Transaction Drawer (Slide-in Panel) -->
 <% if @account %>
   <!-- Drawer Container -->
-  <div id="recurringModal" 
+  <div id="recurring-modal" 
        data-recurring-modal-target="modal"
        class="hidden z-50">
     
@@ -35,8 +35,8 @@
 
       <!-- Drawer Content (Scrollable) -->
       <div class="flex-1 overflow-y-auto">
-        <%= form_with url: recurring_transactions_path, method: :post, class: "p-6", id: "recurringForm", data: { recurring_modal_target: "form" } do |f| %>
-          <%= f.hidden_field :transaction_id, id: "recurringTransactionId", data: { recurring_modal_target: "transactionId" } %>
+        <%= form_with url: recurring_transactions_path, method: :post, class: "p-6", id: "recurring-form", data: { recurring_modal_target: "form" } do |f| %>
+          <%= f.hidden_field :transaction_id, id: "recurring-transaction-id-input", data: { recurring_modal_target: "transactionId" } %>
           
           <div class="space-y-5">
             <!-- Transaction Preview -->
@@ -49,14 +49,14 @@
                 </div>
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Transaction Details</p>
               </div>
-              <p class="text-lg font-bold text-gray-900 dark:text-white mb-1" id="recurringDescription" data-recurring-modal-target="description">-</p>
-              <p class="text-sm text-gray-600 dark:text-gray-400">Amount: <span id="recurringAmount" data-recurring-modal-target="amount" class="font-semibold text-gray-900 dark:text-white">-</span></p>
+              <p class="text-lg font-bold text-gray-900 dark:text-white mb-1" id="recurring-description-text" data-recurring-modal-target="description">-</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Amount: <span id="recurring-amount-text" data-recurring-modal-target="amount" class="font-semibold text-gray-900 dark:text-white">-</span></p>
             </div>
 
             <!-- Frequency Selection -->
             <div>
-              <label for="frequency" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">How often does this occur?</label>
-              <select name="frequency" id="frequency" required 
+              <label for="recurring-frequency-select" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">How often does this occur?</label>
+              <select name="frequency" id="recurring-frequency-select" required 
                       data-recurring-modal-target="frequencySelect"
                       data-action="change->recurring-modal#updateNextOccurrenceDate"
                       class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all">
@@ -71,11 +71,11 @@
 
             <!-- Next Occurrence Date -->
             <div>
-              <label for="nextOccurrenceDate" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+              <label for="recurring-next-occurrence-date-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                 When is the next occurrence?
               </label>
               <%= f.date_field :next_occurrence_date, 
-                  id: "nextOccurrenceDate",
+                  id: "recurring-next-occurrence-date-input",
                   data: { recurring_modal_target: "nextOccurrenceDate" },
                   class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all",
                   required: true %>
@@ -84,10 +84,10 @@
 
             <!-- Projection Duration -->
             <div>
-              <label for="projection_months" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+              <label for="recurring-projection-months-select" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                 How far ahead to project?
               </label>
-              <select name="projection_months" id="projection_months" 
+              <select name="projection_months" id="recurring-projection-months-select" 
                       class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all">
                 <option value="indefinite" selected>Indefinite (recommended)</option>
                 <option value="3">3 months</option>
@@ -100,13 +100,13 @@
 
             <!-- Amount Tolerance -->
             <div>
-              <label for="recurring_transaction_amount_tolerance" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+              <label for="recurring-transaction-amount-tolerance-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                 Amount matching tolerance
               </label>
               <div class="relative">
                 <span class="absolute left-4 top-3 text-gray-500 dark:text-gray-400 font-semibold">±$</span>
                 <%= f.number_field :amount_tolerance,
-                    id: "recurring_transaction_amount_tolerance", 
+                    id: "recurring-transaction-amount-tolerance-input", 
                     step: 0.01,
                     value: 1.0,
                     class: "w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all",

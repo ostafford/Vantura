@@ -1,0 +1,62 @@
+---
+description: testing associations, belongs_to, has_many, has_mant through, 
+alwaysApply: false
+---
+## Testing Associations
+
+### belongs_to
+
+```ruby
+test "belongs to user" do
+  article = articles(:one)
+  assert_respond_to article, :user
+  assert_instance_of User, article.user
+end
+
+test "requires user" do
+  article = Article.new(title: "Title", body: "Body")
+  assert_not article.valid?
+  assert article.errors[:user].any?
+end
+```
+
+### has_many
+
+```ruby
+test "has many articles" do
+  user = users(:john)
+  assert_respond_to user, :articles
+  assert user.articles.count > 0
+  assert_instance_of Article, user.articles.first
+end
+
+test "destroying user destroys articles" do
+  user = users(:john)
+  article_id = user.articles.first.id
+  
+  user.destroy
+  
+  assert_nil Article.find_by(id: article_id)
+end
+```
+
+### has_many :through
+
+```ruby
+test "has many tags through article_tags" do
+  article = articles(:one)
+  assert_respond_to article, :tags
+  assert article.tags.count > 0
+end
+
+test "can add tags" do
+  article = articles(:one)
+  tag = tags(:technology)
+  
+  article.tags << tag
+  
+  assert_includes article.tags, tag
+end
+```
+
+---

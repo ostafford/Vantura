@@ -1,0 +1,24 @@
+---
+description: inverse associations
+alwaysApply: false
+---
+## Inverse Associations
+
+Optimize memory by linking associations.
+
+```ruby
+class User < ApplicationRecord
+  has_many :articles, inverse_of: :user
+end
+
+class Article < ApplicationRecord
+  belongs_to :user, inverse_of: :articles
+end
+```
+
+**Benefits:**
+- Fewer database queries
+- Consistent object references
+- Better memory usage
+
+---

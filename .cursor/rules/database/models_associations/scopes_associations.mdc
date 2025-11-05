@@ -1,0 +1,27 @@
+---
+description: scopes on associations
+alwaysApply: false
+---
+## Scopes on Associations
+
+```ruby
+class User < ApplicationRecord
+  has_many :articles
+  has_many :published_articles, 
+           -> { where(status: 'published') },
+           class_name: 'Article'
+  has_many :recent_articles,
+           -> { where('created_at > ?', 1.week.ago).order(created_at: :desc) },
+           class_name: 'Article'
+end
+```
+
+**Usage:**
+```ruby
+user = User.first
+user.articles            # All articles
+user.published_articles  # Only published
+user.recent_articles     # Only recent
+```
+
+---

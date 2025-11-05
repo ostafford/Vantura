@@ -1,0 +1,71 @@
+---
+description: rails cache examples, basic read/write, complex cache keys, conditional caching, time-based expiration. 
+alwaysApply: false
+---
+## Rails.cache Examples
+
+### Basic Read/Write
+
+```ruby
+# In controller or model
+class ArticlesController < ApplicationController
+  def index
+    @articles = Rails.cache.fetch('published_articles', expires_in: 10.minutes) do
+      Article.published.includes(:user, :category).recent.limit(20)
+    end
+  end
+end
+```
+
+### Complex Cache Keys
+
+```ruby
+# Cache with multiple dependencies
+cache_key = ['articles', 'dashboard', Current.user.id, Date.today]
+
+@dashboard_data = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+  {
+    recent_articles: Article.recent.limit(5),
+    trending_topics: Tag.trending,
+    user_stats: Current.user.stats
+  }
+end
+```
+
+### Conditional Caching
+
+```ruby
+def show
+  # Cache for non-admin users only
+  if Current.user&.admin?
+    @article = Article.find(params[:id])
+  else
+    @article = Rails.cache.fetch(['article', params[:id]], expires_in: 5.minutes) do
+      Article.includes(:user, :comments).find(params[:id])
+    end
+  end
+end
+```
+
+### Time-Based Expiration
+
+```ruby
+# Expire at specific time (end of day)
+expires_at = Date.tomorrow.beginning_of_day
+ttl = expires_at.to_i - Time.current.to_i
+
+Rails.cache.fetch('daily_stats', expires_in: ttl) do
+  calculate_daily_stats
+end
+
+# Expire after specific duration
+Rails.cache.fetch('articles_count', expires_in: 1.hour) do
+  Article.count
+end
+
+Rails.cache.fetch('trending_topics', expires_in: 15.minutes) do
+  Tag.trending.limit(10)
+end
+```
+
+---

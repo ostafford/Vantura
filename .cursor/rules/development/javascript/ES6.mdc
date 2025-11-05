@@ -1,0 +1,110 @@
+---
+description: ES6+ Features, Variable Declarations, arrow functions, template literals, Destructuring, Spread Operator, Default Parameters
+alwaysApply: false
+---
+## ES6+ Features
+
+### Variable Declarations
+
+```javascript
+// Good: const for constants
+const MAX_ITEMS = 10
+const API_URL = '/api/articles'
+
+// Good: let for variables that change
+let currentPage = 1
+let totalCount = 0
+
+// Bad: var (don't use)
+// var count = 0
+```
+
+### Arrow Functions
+
+```javascript
+// Good: Arrow functions for callbacks
+const numbers = [1, 2, 3, 4, 5]
+const doubled = numbers.map(n => n * 2)
+const evens = numbers.filter(n => n % 2 === 0)
+
+// Good: Arrow function with block
+const processData = (data) => {
+  const filtered = data.filter(item => item.active)
+  const mapped = filtered.map(item => item.value)
+  return mapped
+}
+
+// Traditional function when you need 'this' context
+function Counter() {
+  this.count = 0
+  this.increment = function() {
+    this.count++
+  }
+}
+```
+
+### Template Literals
+
+```javascript
+// Good: Template literals for interpolation
+const name = 'John'
+const message = `Hello, ${name}!`
+
+const article = { id: 1, title: 'Test' }
+const url = `/articles/${article.id}`
+
+// Multi-line strings
+const html = `
+  <div class="card">
+    <h2>${article.title}</h2>
+  </div>
+`
+```
+
+### Destructuring
+
+```javascript
+// Object destructuring
+const user = { name: 'John', email: 'john@example.com', age: 30 }
+const { name, email } = user
+
+// Array destructuring
+const [first, second, ...rest] = [1, 2, 3, 4, 5]
+
+// Function parameter destructuring
+function displayUser({ name, email }) {
+  console.log(`${name}: ${email}`)
+}
+
+displayUser(user)
+```
+
+### Spread Operator
+
+```javascript
+// Array spread
+const arr1 = [1, 2, 3]
+const arr2 = [4, 5, 6]
+const combined = [...arr1, ...arr2]
+
+// Object spread
+const defaults = { color: 'blue', size: 'medium' }
+const custom = { size: 'large', style: 'bold' }
+const merged = { ...defaults, ...custom }
+// Result: { color: 'blue', size: 'large', style: 'bold' }
+```
+
+### Default Parameters
+
+```javascript
+// Good: Default parameters
+function fetchArticles(page = 1, limit = 10) {
+  return fetch(`/articles?page=${page}&limit=${limit}`)
+}
+
+fetchArticles()        // Uses defaults
+fetchArticles(2)       // page=2, limit=10
+fetchArticles(2, 20)   // page=2, limit=20
+```
+
+---

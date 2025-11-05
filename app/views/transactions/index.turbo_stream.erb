@@ -1,22 +1,22 @@
 <%# Update the Bento Cards with current month stats and top merchants %>
-<%= turbo_stream.update "bento_cards_container" do %>
+<%= turbo_stream.update "transactions-bento-cards-container" do %>
   <%= render partial: "transactions/bento_cards" %>
 <% end %>
 
 <%# Replace the entire tbody to avoid nested <tbody> causing header misalignment %>
-<%= turbo_stream.replace "transactions_table_body" do %>
-  <tbody id="transactions_table_body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+<%= turbo_stream.replace "transactions-table-body" do %>
+  <tbody id="transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
     <%= render partial: "transactions/table_body", locals: { transactions: @transactions } %>
   </tbody>
 <% end %>
 
 <%# Update the month heading %>
-<%= turbo_stream.update "current_month_heading" do %>
+<%= turbo_stream.update "transactions-current-month-heading" do %>
   <%= @date.strftime("%B %Y") %>
 <% end %>
 
 <%# Update the navigation links %>
-<%= turbo_stream.update "month_navigation" do %>
+<%= turbo_stream.update "transactions-month-navigation" do %>
   <%= link_to transactions_path(year: @date.prev_month.year, month: @date.prev_month.month, filter: @filter_type),
               class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
               data: { action: 'click->transactions-nav#navigate' } do %>

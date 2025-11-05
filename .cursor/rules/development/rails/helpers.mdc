@@ -1,0 +1,80 @@
+---
+description: helpers, helper structure, helper rules
+alwaysApply: false
+---
+## Helpers
+
+Helpers contain view-specific logic and formatting.
+
+### Helper Structure
+
+```ruby
+# app/helpers/articles_helper.rb
+
+module ArticlesHelper
+  def article_status_badge(article)
+    color = case article.status
+            when 'published' then 'bg-green-100 text-green-800'
+            when 'draft' then 'bg-yellow-100 text-yellow-800'
+            when 'archived' then 'bg-gray-100 text-gray-800'
+            else 'bg-gray-100 text-gray-800'
+            end
+    
+    content_tag :span, article.status.titleize,
+                class: "px-3 py-1 rounded-full text-sm font-semibold #{color}"
+  end
+  
+  def format_reading_time(article)
+    minutes = article.reading_time
+    pluralize(minutes, "minute") + " read"
+  end
+  
+  def article_published_date(article)
+    return "Not published" unless article.published_at
+    
+    if article.published_at > 1.year.ago
+      article.published_at.strftime("%B %d, %Y")
+    else
+      article.published_at.strftime("%Y")
+    end
+  end
+  
+  def render_article_metadata(article)
+    content_tag :div, class: "text-sm text-gray-600" do
+      safe_join([
+        content_tag(:span, "By #{article.user.name}"),
+        " • ",
+        content_tag(:time, article_published_date(article), datetime: article.published_at&.iso8601),
+        " • ",
+        content_tag(:span, format_reading_time(article))
+      ])
+    end
+  end
+end
+```
+
+### Helper Rules
+
+**Use Helpers for View Logic:**
+```ruby
+# Good: Helper method
+def format_price(amount)
+  number_to_currency(amount, unit: "$", precision: 2)
+end
+
+# Good: Helper returns HTML
+def status_badge(status)
+  color = status == 'active' ? 'green' : 'gray'
+  content_tag :span, status.titleize, class: "badge badge-#{color}"
+end
+
+# Bad: Business logic in helper
+def calculate_discount(user, product)
+  # This belongs in a model or service object
+  if user.premium?
+    product.price * 0.8
+  else
+    product.price
+  end
+end
+```

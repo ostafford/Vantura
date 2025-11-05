@@ -1,0 +1,68 @@
+---
+description: enqueuing jobs, immediate execution, delayed execution, priority, customer queue
+alwaysApply: false
+---
+## Enqueuing Jobs
+
+### Immediate Execution
+
+```ruby
+# Enqueue job to run ASAP
+ArticleNotificationJob.perform_later(@article.id)
+
+# In controller
+def create
+  @article = Current.user.articles.build(article_params)
+  
+  if @article.save
+    ArticleNotificationJob.perform_later(@article.id)
+    redirect_to @article, notice: "Article created."
+  else
+    render :new, status: :unprocessable_entity
+  end
+end
+```
+
+### Delayed Execution
+
+```ruby
+# Enqueue with delay
+ArticleNotificationJob.set(wait: 1.hour).perform_later(@article.id)
+
+# Enqueue at specific time
+ArticleNotificationJob.set(wait_until: Date.tomorrow.noon).perform_later(@article.id)
+
+# Enqueue at specific datetime
+publish_time = Time.zone.parse("2025-12-25 09:00:00")
+ArticleNotificationJob.set(wait_until: publish_time).perform_later(@article.id)
+```
+
+### Priority
+
+```ruby
+# Higher number = higher priority
+ArticleNotificationJob.set(priority: 10).perform_later(@article.id)
+
+# Low priority (background cleanup)
+CleanupJob.set(priority: -10).perform_later
+
+# Default priority is 0
+```
+
+### Custom Queue
+
+```ruby
+# Enqueue to specific queue
+ArticleNotificationJob.set(queue: :high_priority).perform_later(@article.id)
+
+# Configure in job class
+class UrgentNotificationJob < ApplicationJob
+  queue_as :urgent
+  
+  def perform(user_id)
+    # Handle urgent notification
+  end
+end
+```
+
+---

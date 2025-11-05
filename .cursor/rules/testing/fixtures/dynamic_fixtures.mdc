@@ -1,0 +1,42 @@
+---
+description: dynamic fixtures, using loops, conditional content
+alwaysApply: false
+---
+## Dynamic Fixtures
+
+### Using Loops
+
+```yaml
+# test/fixtures/articles.yml
+
+<% 20.times do |i| %>
+bulk_<%= i %>:
+  user: john
+  title: Bulk Article <%= i %>
+  slug: bulk-article-<%= i %>
+  body: Body content for article <%= i %>
+  status: published
+  published_at: <%= i.days.ago %>
+  views_count: <%= rand(100..1000) %>
+  created_at: <%= (i + 1).days.ago %>
+<% end %>
+```
+
+### Conditional Content
+
+```yaml
+# test/fixtures/users.yml
+
+<% 5.times do |i| %>
+user_<%= i %>:
+  email: user<%= i %>@example.com
+  password_digest: <%= BCrypt::Password.create('password') %>
+  first_name: User<%= i %>
+  last_name: Test
+  admin: <%= i == 0 %>
+  active: <%= i.even? %>
+  created_at: <%= i.weeks.ago %>
+<% end %>
+```
+
+---

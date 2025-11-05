@@ -1,0 +1,33 @@
+---
+description: schema file
+alwaysApply: false
+---
+## Schema File
+
+Rails maintains `db/schema.rb` with the current database structure.
+
+```ruby
+# db/schema.rb
+
+ActiveRecord::Schema[8.0].define(version: 2025_11_03_000000) do
+  enable_extension "plpgsql"
+  
+  create_table "articles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title", null: false
+    t.text "body", null: false
+    t.string "status", default: "draft"
+    t.datetime "published_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_articles_on_status"
+    t.index ["user_id"], name: "index_articles_on_user_id"
+  end
+  
+  add_foreign_key "articles", "users"
+end
+```
+
+**Never edit `db/schema.rb` directly!** Always use migrations.
+
+---

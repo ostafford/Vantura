@@ -1,0 +1,27 @@
+---
+description: primary keys
+alwaysApply: false
+---
+## Primary Keys
+
+Rails automatically creates an `id` column as the primary key.
+
+```ruby
+# Default primary key (auto-incrementing integer)
+create_table :articles do |t|
+  # id column created automatically
+  t.string :title
+end
+
+# Custom primary key name
+create_table :articles, primary_key: :article_id do |t|
+  t.string :title
+end
+
+# UUID primary key
+create_table :articles, id: :uuid do |t|
+  t.string :title
+end
+```
+
+---

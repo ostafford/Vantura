@@ -1,0 +1,19 @@
+---
+description: using fixtures in tests
+alwaysApply: false
+---
+## Using Fixtures in Tests
+
+```ruby
+test "user has email" do
+  user = users(:john)
+  assert_equal "john@example.com", user.email
+end
+
+test "admin can delete articles" do
+  admin = users(:jane)
+  assert admin.admin?
+end
+```
+
+---

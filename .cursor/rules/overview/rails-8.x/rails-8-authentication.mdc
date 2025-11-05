@@ -1,0 +1,65 @@
+---
+description: authentication generator, generate authentication, generated files, key features, usage example, 
+alwaysApply: false
+---
+## 1. Authentication Generator
+
+Rails 8 includes a built-in authentication generator that creates a complete session-based authentication system.
+
+### Generate Authentication
+
+```bash
+rails generate authentication
+```
+
+### Generated Files
+
+- `app/models/user.rb` - User model with `has_secure_password`
+- `app/models/session.rb` - Session model for database-backed session tracking
+- `app/models/current.rb` - Current context (like `Current.user`)
+- `app/controllers/sessions_controller.rb` - Login/logout handling
+- `app/controllers/passwords_controller.rb` - Password reset functionality
+- `app/mailers/passwords_mailer.rb` - Password reset emails
+- Views for login, signup, password reset
+- Migrations for `users` and `sessions` tables
+
+### Key Features
+
+- **Session-based authentication** (no JWT complexity)
+- **Password reset** functionality with expiring tokens
+- **Metadata tracking** (IP address, user agent, last used at)
+- **Database-backed sessions** for security
+- Built on Rails 7.1 improvements (`has_secure_password`, `normalizes`, `generates_token_for`, `authenticate_by`)
+
+### Usage Example
+
+```ruby
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  before_action :require_authentication
+  
+  private
+  
+  def require_authentication
+    redirect_to sign_in_path unless authenticated?
+  end
+  
+  def authenticated?
+    Current.user.present?
+  end
+end
+
+# app/models/user.rb (generated)
+class User < ApplicationRecord
+  has_secure_password
+  has_many :sessions, dependent: :destroy
+  
+  normalizes :email_address, with: ->(e) { e.strip.downcase }
+  
+  validates :email_address, presence: true, uniqueness: true
+  validates :password, length: { minimum: 8 }, if: -> { password.present? }
+end
+
+# Access current user anywhere
+Current.user
+```

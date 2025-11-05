@@ -1,0 +1,45 @@
+---
+description: aggregations, count, sum, average, minimum, maximum
+alwaysApply: false
+---
+## Aggregations
+
+### count
+
+```ruby
+# Count all records
+Article.count
+
+# Count with condition
+Article.where(status: 'published').count
+
+# Count distinct
+Article.distinct.count(:user_id)
+
+# Group count
+Article.group(:status).count
+# => {"draft"=>5, "published"=>10, "archived"=>2}
+```
+
+### sum, average, minimum, maximum
+
+```ruby
+# Sum
+Article.sum(:views_count)
+Article.where(status: 'published').sum(:views_count)
+
+# Average
+Article.average(:views_count)
+
+# Minimum
+Article.minimum(:created_at)
+
+# Maximum
+Article.maximum(:views_count)
+
+# With group
+Article.group(:category_id).sum(:views_count)
+# => {1=>1000, 2=>500, 3=>750}
+```
+
+---

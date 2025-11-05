@@ -1,0 +1,80 @@
+---
+description: Server-Side Channel, Basic Channel Structure, Channel with Parameters, 
+alwaysApply: false
+---
+## Server-Side Channel
+
+### Basic Channel Structure
+
+```ruby
+# app/channels/notification_channel.rb
+
+class NotificationChannel < ApplicationCable::Channel
+  # Called when client subscribes to channel
+  def subscribed
+    # Stream from a named broadcast
+    stream_from "notifications_#{current_user.id}"
+  end
+  
+  # Called when client unsubscribes
+  def unsubscribed
+    # Cleanup when channel is closed
+    stop_all_streams
+  end
+  
+  # Custom action (called from client)
+  def mark_as_read(data)
+    notification = Notification.find(data['id'])
+    notification.update(read: true) if notification.user == current_user
+  end
+end
+```
+
+### Channel with Parameters
+
+```ruby
+# app/channels/chat_channel.rb
+
+class ChatChannel < ApplicationCable::Channel
+  def subscribed
+    # Get room_id from params
+    room = Room.find(params[:room_id])
+    
+    # Verify user has access
+    reject unless room.user_ids.include?(current_user.id)
+    
+    # Stream from room-specific broadcast
+    stream_from "chat_room_#{room.id}"
+  end
+  
+  def unsubscribed
+    stop_all_streams
+  end
+  
+  # Receive message from client
+  def speak(data)
+    room = Room.find(params[:room_id])
+    message = room.messages.create!(
+      user: current_user,
+      content: data['message']
+    )
+    
+    # Broadcast to all subscribers
+    ChatChannel.broadcast_to(
+      room,
+      message: render_message(message)
+    )
+  end
+  
+  private
+  
+  def render_message(message)
+    ApplicationController.render(
+      partial: 'messages/message',
+      locals: { message: message }
+    )
+  end
+end
+```
+
+---

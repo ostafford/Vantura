@@ -1,0 +1,33 @@
+---
+description: test directory
+alwaysApply: false
+---
+## Test Directory
+
+```
+test/
+├── models/
+│   ├── user_test.rb
+│   └── article_test.rb
+├── controllers/
+│   ├── articles_controller_test.rb
+│   └── comments_controller_test.rb
+├── system/                    # Integration tests
+│   ├── articles_test.rb
+│   └── authentication_test.rb
+├── jobs/
+│   └── article_notification_job_test.rb
+├── mailers/
+│   └── article_mailer_test.rb
+├── fixtures/                  # Test data
+│   ├── users.yml
+│   ├── articles.yml
+│   └── comments.yml
+├── test_helper.rb
+└── application_system_test_case.rb
+```
+
+**Rules:**
+- Mirror app structure in tests
+- One test file per class
+- Use fixtures for test data

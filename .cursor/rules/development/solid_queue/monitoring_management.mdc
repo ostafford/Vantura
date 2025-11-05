@@ -1,0 +1,45 @@
+---
+description: monitoring and management, command line, rails console, 
+alwaysApply: false
+---
+## Monitoring & Management
+
+### Command Line
+
+```bash
+# View queue status
+rails solid_queue:status
+
+# View jobs in queue
+rails solid_queue:jobs
+
+# View failed jobs
+rails solid_queue:failed
+
+# Retry failed jobs
+rails solid_queue:retry_all
+
+# Clear failed jobs
+rails solid_queue:clear_failed
+```
+
+### Rails Console
+
+```ruby
+# View pending jobs
+SolidQueue::Job.pending.count
+
+# View failed jobs
+SolidQueue::Job.failed.count
+
+# View jobs by queue
+SolidQueue::Job.where(queue_name: 'default').count
+
+# Manually enqueue job
+ArticleNotificationJob.perform_later(article.id)
+
+# Perform job immediately (for testing)
+ArticleNotificationJob.perform_now(article.id)
+```
+
+---

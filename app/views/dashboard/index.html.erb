@@ -16,11 +16,11 @@
   
   
           <!-- Sync Loading Indicator (hidden by default, shown via Turbo Stream) -->
-          <div id="sync_notification"></div>
+          <div id="sync-notification-container"></div>
   <!-- Dashboard Header -->
   <%= render 'shared/page_header_simple', title: "Dashboard", subtitle: "Your cash flow projection tool" %>
   
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <%= content_wrapper class: "py-6" do %>
     <% if @account %>
       <!-- Financial Overview Section -->
       <section class="bento-grid mb-6" aria-label="Financial overview statistics">
@@ -118,7 +118,7 @@
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
                   </tr>
                 </thead>
-                <tbody id="recent_transactions" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody id="recent-transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   <% if @recent_transactions.any? %>
                     <% @recent_transactions.each do |transaction| %>
                       <%= render 'dashboard/recent_transaction_row', transaction: transaction %>
@@ -176,7 +176,7 @@
         </div>
       </div>
     <% end %>
-  </div>
+  <% end %>
 
   <%= render 'shared/transaction_drawer', default_transaction_date: Date.today %>
 </main>

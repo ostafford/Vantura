@@ -1,0 +1,42 @@
+---
+description: turbo drive, how it works, disabling turbo drive, turbo drive benefits
+alwaysApply: false
+---
+## Turbo Drive
+
+Turbo Drive automatically converts link clicks and form submissions into AJAX requests.
+
+### How It Works
+
+```erb
+<!-- This link is automatically intercepted by Turbo Drive -->
+<%= link_to "Articles", articles_path %>
+<!-- Result: AJAX request, fast page transition, no full reload -->
+
+<!-- This form is automatically handled by Turbo -->
+<%= form_with model: @article do |f| %>
+  <%= f.text_field :title %>
+  <%= f.submit %>
+<% end %>
+<!-- Result: AJAX submission, page update without full reload -->
+```
+
+### Disabling Turbo Drive
+
+```erb
+<!-- Disable for specific links -->
+<%= link_to "External Site", "https://example.com", data: { turbo: false } %>
+
+<!-- Disable for forms that upload files -->
+<%= form_with url: upload_path, data: { turbo: false } do |f| %>
+  <%= f.file_field :document %>
+  <%= f.submit %>
+<% end %>
+```
+
+### Turbo Drive Benefits
+
+- ✅ Faster page transitions
+- ✅ Preserves scroll position
+- ✅ Browser history works correctly
+- ✅ No JavaScript needed (automatic)

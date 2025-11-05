@@ -1,0 +1,47 @@
+---
+description: testing JSON responses
+alwaysApply: false
+---
+## Testing JSON Responses
+
+```ruby
+test "returns article as json" do
+  get article_url(@article, format: :json)
+  
+  assert_response :success
+  json = JSON.parse(response.body)
+  assert_equal @article.title, json['title']
+end
+
+test "creates article via json" do
+  sign_in_as @user
+  
+  assert_difference('Article.count', 1) do
+    post articles_url, params: {
+      article: {
+        title: "JSON Article",
+        body: "Body"
+      }
+    }, as: :json
+  end
+  
+  assert_response :created
+end
+
+test "returns errors as json" do
+  sign_in_as @user
+  
+  post articles_url, params: {
+    article: {
+      title: "",
+      body: ""
+    }
+  }, as: :json
+  
+  assert_response :unprocessable_entity
+  json = JSON.parse(response.body)
+  assert json['errors'].present?
+end
+```
+
+---

@@ -1,0 +1,35 @@
+---
+description: test files
+alwaysApply: false
+---
+## Test Files
+
+**Match class name with `_test` suffix:**
+
+```ruby
+# Model tests
+# File: test/models/user_test.rb
+class UserTest < ActiveSupport::TestCase
+end
+
+# File: test/models/blog_post_test.rb
+class BlogPostTest < ActiveSupport::TestCase
+end
+
+# Controller tests
+# File: test/controllers/articles_controller_test.rb
+class ArticlesControllerTest < ActionDispatch::IntegrationTest
+end
+
+# System tests
+# File: test/system/articles_test.rb
+class ArticlesTest < ApplicationSystemTestCase
+end
+
+# Job tests
+# File: test/jobs/article_notification_job_test.rb
+class ArticleNotificationJobTest < ActiveSupport::TestCase
+end
+```
+
+---

@@ -1,0 +1,45 @@
+---
+description: File organization, grouping, 
+alwaysApply: false
+---
+## File Organization
+
+### Grouping
+
+```ruby
+# Good: Logical grouping with blank lines
+class Article < ApplicationRecord
+  # Constants
+  STATUSES = ['draft', 'published', 'archived'].freeze
+  MAX_TITLE_LENGTH = 200
+  
+  # Associations
+  belongs_to :user
+  has_many :comments, dependent: :destroy
+  has_many :tags, through: :article_tags
+  
+  # Validations
+  validates :title, presence: true, length: { maximum: MAX_TITLE_LENGTH }
+  validates :body, presence: true
+  validates :status, inclusion: { in: STATUSES }
+  
+  # Scopes
+  scope :published, -> { where(status: 'published') }
+  scope :recent, -> { order(created_at: :desc) }
+  
+  # Callbacks
+  before_save :sanitize_title
+  
+  # Public methods
+  def publish!
+    update!(status: 'published', published_at: Time.current)
+  end
+  
+  private
+  
+  # Private methods
+  def sanitize_title
+    self.title = title.strip
+  end
+end
+```

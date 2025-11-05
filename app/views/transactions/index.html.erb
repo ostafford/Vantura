@@ -4,13 +4,13 @@
   <!-- Header -->
   <%= render 'shared/page_header_simple', title: "Your Transactions", subtitle: "View and manage all your transactions" %>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <%= content_wrapper class: "py-6" do %>
     <%# Turbo Frame for partial updates %>
     <%= turbo_frame_tag "transactions_content" do %>
       <% if @account %>
         <!-- Transaction Summary Section -->
         <section class="mb-6" aria-label="Transaction summary statistics">
-          <div id="bento_cards_container" class="bento-grid">
+          <div id="transactions-bento-cards-container" class="bento-grid">
             <%= render partial: "transactions/bento_cards" %>
           </div>
         </section>
@@ -20,7 +20,7 @@
           <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep p-4">
             <div class="flex items-center justify-between">
               <!-- Month Navigation -->
-              <div id="month_navigation" class="flex gap-3" data-controller="transactions-nav">
+              <div id="transactions-month-navigation" class="flex gap-3" data-controller="transactions-nav">
                 <%= link_to transactions_path(year: @date.prev_month.year, month: @date.prev_month.month, filter: @filter_type),
                             class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
                             data: { action: 'click->transactions-nav#navigate' } do %>
@@ -41,14 +41,14 @@
               </div>
 
               <!-- Month Display -->
-              <h2 id="current_month_heading" class="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 id="transactions-current-month-heading" class="text-2xl font-bold text-gray-900 dark:text-white">
                 <%= @date.strftime("%B %Y") %>
               </h2>
 
               <!-- Filter Dropdown -->
               <div class="relative">
-                <label for="filter" class="sr-only">Filter transactions</label>
-                <select id="filter" name="filter" 
+                <label for="transaction-filter-select" class="sr-only">Filter transactions</label>
+                <select id="transaction-filter-select" name="filter" 
                         data-action="change->filter#change"
                         data-filter-url-value="<%= transactions_path(year: @year, month: @month) %>"
                         data-filter-turbo-frame-value="transactions_content"
@@ -118,7 +118,7 @@
                   <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody id="transactions_table_body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody id="transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 <%= render partial: "transactions/table_body", locals: { transactions: @transactions } %>
               </tbody>
             </table>
@@ -136,7 +136,7 @@
         </section>
       <% end %>
     <% end # Close turbo_frame_tag "transactions_content" %>
-  </div>
+  <% end %>
 
   <%= render 'shared/recurring_drawer' %>
 </main>

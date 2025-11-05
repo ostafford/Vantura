@@ -1,0 +1,89 @@
+---
+description: caching strategies, time-based caching, query result catching, computed value caching, User-Specific Caching
+alwaysApply: false
+---
+## Caching Strategies
+
+### Time-Based Caching
+
+```ruby
+# Cache for specific duration
+class DashboardController < ApplicationController
+  def show
+    @stats = Rails.cache.fetch('dashboard_stats', expires_in: 5.minutes) do
+      {
+        articles_count: Article.count,
+        users_count: User.count,
+        comments_count: Comment.count
+      }
+    end
+  end
+end
+```
+
+### Query Result Caching
+
+```ruby
+class Article < ApplicationRecord
+  def self.trending(limit: 10)
+    Rails.cache.fetch(['articles', 'trending', limit], expires_in: 15.minutes) do
+      where('created_at > ?', 1.week.ago)
+        .order(views_count: :desc)
+        .limit(limit)
+        .to_a
+    end
+  end
+  
+  def self.by_category(category_id)
+    Rails.cache.fetch(['articles', 'category', category_id], expires_in: 1.hour) do
+      where(category_id: category_id)
+        .published
+        .recent
+        .to_a
+    end
+  end
+end
+```
+
+### Computed Value Caching
+
+```ruby
+class Article < ApplicationRecord
+  def reading_time
+    Rails.cache.fetch(['article', id, 'reading_time']) do
+      words = body.split.size
+      (words / 200.0).ceil
+    end
+  end
+  
+  def related_articles(limit: 5)
+    Rails.cache.fetch(['article', id, 'related', limit], expires_in: 1.day) do
+      Article.published
+             .where(category_id: category_id)
+             .where.not(id: id)
+             .recent
+             .limit(limit)
+             .to_a
+    end
+  end
+end
+```
+
+### User-Specific Caching
+
+```ruby
+class User < ApplicationRecord
+  def dashboard_data
+    Rails.cache.fetch(['user', id, 'dashboard'], expires_in: 10.minutes) do
+      {
+        articles: articles.recent.limit(5),
+        draft_count: articles.draft.count,
+        published_count: articles.published.count,
+        total_views: articles.sum(:views_count)
+      }
+    end
+  end
+end
+```
+
+---

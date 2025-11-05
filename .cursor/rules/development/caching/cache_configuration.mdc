@@ -1,0 +1,52 @@
+---
+description: Cache Configuration, Development Environment, production environment, customer cache store options, 
+alwaysApply: false
+---
+## Cache Configuration
+
+### Development Environment
+
+```ruby
+# config/environments/development.rb
+
+Rails.application.configure do
+  # Disable caching by default in development
+  config.cache_classes = false
+  config.action_controller.perform_caching = false
+  config.cache_store = :null_store
+  
+  # Enable caching for testing
+  # config.action_controller.perform_caching = true
+  # config.cache_store = :solid_cache_store
+end
+```
+
+### Production Environment
+
+```ruby
+# config/environments/production.rb
+
+Rails.application.configure do
+  # Enable caching
+  config.cache_classes = true
+  config.action_controller.perform_caching = true
+  
+  # Use Solid Cache
+  config.cache_store = :solid_cache_store
+end
+```
+
+### Custom Cache Store Options
+
+```ruby
+# config/environments/production.rb
+
+config.cache_store = :solid_cache_store, {
+  expires_in: 1.day,      # Default expiration
+  namespace: 'myapp',     # Cache key prefix
+  compress: true,         # Compress cached data
+  compress_threshold: 1.kilobyte
+}
+```
+
+---

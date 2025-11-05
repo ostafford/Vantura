@@ -1,0 +1,26 @@
+---
+description: migration files
+alwaysApply: false
+---
+## Migration Files
+
+**Format:** `YYYYMMDDHHMMSS_descriptive_name.rb`
+
+**Naming patterns:**
+- `create_[table]` - Creating a table
+- `add_[column]_to_[table]` - Adding a column
+- `remove_[column]_from_[table]` - Removing a column
+- `change_[column]_in_[table]` - Changing a column
+- `rename_[old]_to_[new]_in_[table]` - Renaming a column
+
+```bash
+# Good migration names
+rails generate migration CreateArticles
+# → 20251103120000_create_articles.rb
+
+rails generate migration AddPublishedToArticles published:boolean
+# → 20251103120001_add_published_to_articles.rb
+
+rails generate migration RemoveExcerptFromArticles excerpt:text
+# → 20251103120002_remove_excerpt_from_articles.rb
+```

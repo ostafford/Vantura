@@ -1,0 +1,35 @@
+---
+description: accessories, additional services, redis, sidekiq worker
+alwaysApply: false
+---
+## Accessories (Additional Services)
+
+### Redis
+
+```yaml
+# config/deploy.yml
+
+accessories:
+  redis:
+    image: redis:7
+    host: 192.168.1.4
+    port: 6379
+    volumes:
+      - /var/lib/redis:/data
+```
+
+### Sidekiq Worker
+
+```yaml
+# config/deploy.yml
+
+servers:
+  worker:
+    hosts:
+      - 192.168.1.5
+    cmd: bundle exec sidekiq
+    env:
+      RAILS_MAX_THREADS: 10
+```
+
+---

@@ -1,0 +1,57 @@
+---
+description: validation options, allow_nil and allow_blank, message, on(context)
+alwaysApply: false
+---
+## Validation Options
+
+### allow_nil and allow_blank
+
+```ruby
+class Article < ApplicationRecord
+  # allow_nil: Skip validation if value is nil
+  validates :excerpt, length: { maximum: 500 }, allow_nil: true
+  
+  # allow_blank: Skip validation if value is blank (nil or empty string)
+  validates :subtitle, length: { maximum: 100 }, allow_blank: true
+  
+  # Difference:
+  # nil.blank? => true
+  # "".blank?  => true
+  # nil.nil?   => true
+  # "".nil?    => false
+end
+```
+
+### message
+
+```ruby
+class User < ApplicationRecord
+  validates :email, presence: { message: "is required" }
+  validates :age, numericality: { 
+    greater_than: 18,
+    message: "must be at least 18"
+  }
+  
+  # With interpolation
+  validates :username, length: { 
+    minimum: 3,
+    message: "must be at least %{count} characters"
+  }
+end
+```
+
+### on (Context)
+
+```ruby
+class User < ApplicationRecord
+  validates :password, presence: true, on: :create
+  validates :password, length: { minimum: 8 }, on: :create
+  validates :bio, presence: true, on: :profile_update
+end
+
+# Usage
+user.save  # Runs :create validations
+user.save(context: :profile_update)  # Runs :profile_update validations
+```
+
+---

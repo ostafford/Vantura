@@ -1,0 +1,31 @@
+---
+description: ERB in fixtures
+alwaysApply: false
+---
+## ERB in Fixtures
+
+```yaml
+# test/fixtures/articles.yml
+
+recent:
+  title: Recent Article
+  body: Body text
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+old:
+  title: Old Article
+  body: Body text
+  created_at: <%= 1.year.ago %>
+  updated_at: <%= 1.year.ago %>
+
+# Using loops
+<% 10.times do |i| %>
+article_<%= i %>:
+  title: Article <%= i %>
+  body: Body <%= i %>
+  created_at: <%= i.days.ago %>
+<% end %>
+```
+
+---

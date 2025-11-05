@@ -1,0 +1,61 @@
+---
+description: Image Organization, standard structure, using images, 
+alwaysApply: false
+---
+## Image Organization
+
+### Standard Structure
+
+```
+app/assets/images/
+├── logo.png              # Main logo
+├── logo-dark.png         # Dark mode logo
+├── favicon.ico           # Favicon
+├── hero-background.jpg   # Hero image
+├── default-avatar.png    # Default user avatar
+├── icons/                # SVG icons
+│   ├── check.svg
+│   ├── cross.svg
+│   ├── arrow-right.svg
+│   └── menu.svg
+├── illustrations/        # Larger illustrations
+│   ├── empty-state.svg
+│   └── error-404.svg
+└── social/              # Social media images
+    ├── og-image.jpg     # Open Graph
+    └── twitter-card.jpg # Twitter Card
+```
+
+### Using Images
+
+```erb
+<!-- Hero section -->
+<section class="relative h-96">
+  <%= image_tag "hero-background.jpg", 
+      alt: "Hero background",
+      class: "absolute inset-0 w-full h-full object-cover" %>
+  <div class="relative z-10">
+    <h1 class="text-4xl font-bold text-white">Welcome</h1>
+  </div>
+</section>
+
+<!-- Logo in navigation -->
+<nav class="flex items-center">
+  <%= link_to root_path do %>
+    <%= image_tag "logo.png", alt: "Company Logo", class: "h-8" %>
+  <% end %>
+</nav>
+
+<!-- Icons -->
+<button class="flex items-center gap-2">
+  <%= image_tag "icons/check.svg", class: "w-5 h-5" %>
+  <span>Confirm</span>
+</button>
+
+<!-- Avatar with fallback -->
+<%= image_tag user.avatar_url.presence || "default-avatar.png",
+    alt: user.name,
+    class: "w-10 h-10 rounded-full" %>
+```
+
+---

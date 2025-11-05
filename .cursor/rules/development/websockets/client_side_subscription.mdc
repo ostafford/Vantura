@@ -1,0 +1,112 @@
+---
+description: client-side subscription, basic subscription, Subscription with Parameters, Subscription with Parameters, Calling Channel Actions
+alwaysApply: false
+---
+## Client-Side Subscription
+
+### Basic Subscription
+
+```javascript
+// app/javascript/channels/notification_channel.js
+
+import consumer from "./consumer"
+
+consumer.subscriptions.create("NotificationChannel", {
+  // Called when subscription is ready
+  connected() {
+    console.log("Connected to NotificationChannel")
+  },
+
+  // Called when subscription is closed
+  disconnected() {
+    console.log("Disconnected from NotificationChannel")
+  },
+
+  // Called when data is received from server
+  received(data) {
+    console.log("Received:", data)
+    
+    // Update UI with notification
+    this.displayNotification(data)
+  },
+  
+  // Custom methods
+  displayNotification(data) {
+    const container = document.getElementById('notifications-container')
+    container.insertAdjacentHTML('afterbegin', data.html)
+    
+    // Update notification count
+    const badge = document.getElementById('notification-count-badge')
+    badge.textContent = parseInt(badge.textContent) + 1
+  }
+})
+```
+
+### Subscription with Parameters
+
+```javascript
+// app/javascript/channels/chat_channel.js
+
+import consumer from "./consumer"
+
+const roomId = document.getElementById('chat-room-container')?.dataset.roomId
+
+if (roomId) {
+  consumer.subscriptions.create(
+    { channel: "ChatChannel", room_id: roomId },
+    {
+      connected() {
+        console.log(`Connected to chat room ${roomId}`)
+      },
+
+      disconnected() {
+        console.log("Disconnected from chat")
+      },
+
+      received(data) {
+        // Append new message to chat
+        const messagesContainer = document.getElementById('messages-container')
+        messagesContainer.insertAdjacentHTML('beforeend', data.message)
+        
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight
+      },
+
+      // Send message to server
+      speak(message) {
+        this.perform('speak', { message: message })
+      }
+    }
+  )
+}
+```
+
+### Calling Channel Actions
+
+```javascript
+// app/javascript/channels/notification_channel.js
+
+import consumer from "./consumer"
+
+const notificationChannel = consumer.subscriptions.create("NotificationChannel", {
+  received(data) {
+    this.displayNotification(data)
+  },
+  
+  displayNotification(data) {
+    const container = document.getElementById('notifications-container')
+    container.insertAdjacentHTML('afterbegin', data.html)
+  }
+})
+
+// Call server-side action
+document.addEventListener('click', (event) => {
+  if (event.target.matches('[data-action="mark-notification-read"]')) {
+    const notificationId = event.target.dataset.notificationId
+    
+    notificationChannel.perform('mark_as_read', { id: notificationId })
+  }
+})
+```
+
+---

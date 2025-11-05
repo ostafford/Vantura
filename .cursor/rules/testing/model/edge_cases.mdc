@@ -1,0 +1,24 @@
+---
+description: testing edge cases
+alwaysApply: false
+---
+## Testing Edge Cases
+
+```ruby
+test "handles empty body gracefully" do
+  article = Article.new(body: "")
+  assert_equal 0, article.reading_time
+end
+
+test "handles nil values" do
+  article = Article.new(title: nil, body: nil)
+  assert_not article.valid?
+end
+
+test "handles very long text" do
+  article = Article.new(body: "a" * 1_000_000)
+  assert article.reading_time > 0
+end
+```
+
+---

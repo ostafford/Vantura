@@ -1,0 +1,69 @@
+---
+description: best practices, do and donts
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```javascript
+// Use const/let, not var
+const API_URL = '/api'
+let currentPage = 1
+
+// Use async/await
+async function loadData() {
+  const data = await fetch('/data')
+  return data.json()
+}
+
+// Use arrow functions
+const double = (n) => n * 2
+
+// Use template literals
+const message = `Hello, ${name}!`
+
+// Use destructuring
+const { name, email } = user
+
+// Handle errors
+try {
+  await riskyOperation()
+} catch (error) {
+  console.error(error)
+}
+```
+
+### DON'T ❌
+
+```javascript
+// Don't use var
+// var count = 0
+
+// Don't use jQuery
+// $('#element').hide()
+
+// Don't use inline event handlers
+// <button onclick="handleClick()">
+
+// Don't ignore errors
+// fetch('/api').then(r => r.json())  // No error handling!
+
+// Don't use synchronous XHR
+// const xhr = new XMLHttpRequest()  // Use fetch instead
+
+// Don't pollute global scope
+// window.myFunction = function() {}  // Use modules
+```
+
+---
+
+## Related Documentation
+
+- [Hotwire Guidelines](hotwire.md) - Stimulus controllers
+- [Code Style](../02-conventions/code-style.md) - JavaScript formatting
+- [TailwindCSS](tailwindcss.md) - Styling interactive elements
+
+---
+
+**Previous:** [← TailwindCSS](tailwindcss.md) | **Next:** [Background Jobs →](background-jobs.md)

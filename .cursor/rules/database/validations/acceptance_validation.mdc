@@ -1,0 +1,26 @@
+---
+description: acceptance validation
+alwaysApply: false
+---
+## Acceptance Validation
+
+Validates checkbox acceptance (terms of service).
+
+```ruby
+class User < ApplicationRecord
+  # Checkbox must be checked
+  validates :terms_of_service, acceptance: true
+  
+  # Custom values
+  validates :privacy_policy, acceptance: { 
+    accept: ['yes', '1', true]
+  }
+  
+  # With custom message
+  validates :terms, acceptance: { 
+    message: "must be accepted to continue"
+  }
+end
+```
+
+---

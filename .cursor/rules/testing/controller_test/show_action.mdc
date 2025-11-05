@@ -1,0 +1,28 @@
+---
+description: testing show action
+alwaysApply: false
+---
+## Testing Show Action
+
+```ruby
+test "should show article" do
+  get article_url(@article)
+  
+  assert_response :success
+  assert_not_nil assigns(:article)
+end
+
+test "shows article title" do
+  get article_url(@article)
+  
+  assert_select "h1", @article.title
+end
+
+test "returns 404 for non-existent article" do
+  assert_raises(ActiveRecord::RecordNotFound) do
+    get article_url(id: 999999)
+  end
+end
+```
+
+---

@@ -1,0 +1,33 @@
+---
+description: helper methods
+alwaysApply: false
+---
+## Helper Methods
+
+```ruby
+# test/test_helper.rb
+
+module ActiveSupport
+  class TestCase
+    def sign_in_as(user)
+      post session_url, params: {
+        email: user.email,
+        password: 'password'
+      }
+    end
+    
+    def sign_out
+      delete session_url
+    end
+  end
+end
+
+# Usage in tests
+test "requires authentication" do
+  sign_in_as @user
+  get new_article_url
+  assert_response :success
+end
+```
+
+---

@@ -1,0 +1,39 @@
+---
+description: removing columns, remove single column, remove multiple columns, remove reference 
+alwaysApply: false
+---
+## Removing Columns
+
+### Remove Single Column
+
+```ruby
+class RemoveBodyFromArticles < ActiveRecord::Migration[8.0]
+  def change
+    remove_column :articles, :body, :text
+    # Include type for reversibility
+  end
+end
+```
+
+### Remove Multiple Columns
+
+```ruby
+class RemoveDetailsFromArticles < ActiveRecord::Migration[8.0]
+  def change
+    remove_column :articles, :excerpt, :text
+    remove_column :articles, :subtitle, :string
+  end
+end
+```
+
+### Remove Reference
+
+```ruby
+class RemoveCategoryFromArticles < ActiveRecord::Migration[8.0]
+  def change
+    remove_reference :articles, :category, foreign_key: true
+  end
+end
+```
+
+---

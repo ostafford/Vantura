@@ -1,0 +1,60 @@
+---
+description: query optimization, select limit columns, pluck, get array of values, ids get array of ids, exits
+alwaysApply: false
+---
+## Query Optimization
+
+### select (Limit Columns)
+
+```ruby
+# Load only specific columns
+Article.select(:id, :title, :created_at)
+
+# With association
+Article.includes(:user).select('articles.*, users.name as author_name')
+
+# Count without loading records
+Article.select('COUNT(*) as count').first.count
+```
+
+### pluck (Get Array of Values)
+
+```ruby
+# Get array of single column
+Article.pluck(:title)
+# => ["Article 1", "Article 2", "Article 3"]
+
+# Multiple columns (returns array of arrays)
+Article.pluck(:id, :title)
+# => [[1, "Article 1"], [2, "Article 2"]]
+
+# More efficient than map
+Article.pluck(:title)           # Good - single query
+Article.all.map(&:title)        # Bad - loads all records first
+
+# Get IDs
+Article.where(status: 'published').pluck(:id)
+```
+
+### ids (Get Array of IDs)
+
+```ruby
+# Get array of IDs (optimized pluck(:id))
+Article.ids
+Article.where(status: 'published').ids
+# => [1, 2, 3, 4, 5]
+```
+
+### exists?
+
+```ruby
+# Check if record exists (efficient)
+Article.where(slug: 'my-article').exists?  # Returns true/false
+Article.exists?(slug: 'my-article')        # Shorter syntax
+
+# More efficient than:
+Article.where(slug: 'my-article').any?     # Loads records
+Article.where(slug: 'my-article').present? # Loads records
+```
+
+---

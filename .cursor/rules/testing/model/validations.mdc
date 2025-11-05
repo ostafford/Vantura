@@ -1,0 +1,81 @@
+---
+description: testing validations, presence validation, length validation, format validation, uniqueness validation, numbericality validation
+alwaysApply: false
+---
+## Testing Validations
+
+### Presence Validation
+
+```ruby
+test "requires title" do
+  article = Article.new(body: "Body text")
+  assert_not article.valid?
+  assert_includes article.errors[:title], "can't be blank"
+end
+
+test "requires body" do
+  article = Article.new(title: "Title")
+  assert_not article.valid?
+  assert article.errors[:body].any?
+end
+```
+
+### Length Validation
+
+```ruby
+test "title must be at least 5 characters" do
+  article = Article.new(title: "Test", body: "Body")
+  assert_not article.valid?
+  assert_includes article.errors[:title], "is too short (minimum is 5 characters)"
+end
+
+test "title cannot exceed 200 characters" do
+  article = Article.new(title: "a" * 201, body: "Body")
+  assert_not article.valid?
+end
+```
+
+### Format Validation
+
+```ruby
+test "email must be valid format" do
+  user = User.new(email: "invalid")
+  assert_not user.valid?
+  assert_includes user.errors[:email], "is invalid"
+end
+
+test "accepts valid email" do
+  user = User.new(email: "user@example.com", password: "password")
+  user.valid?
+  assert_empty user.errors[:email]
+end
+```
+
+### Uniqueness Validation
+
+```ruby
+test "email must be unique" do
+  existing_user = users(:john)
+  new_user = User.new(email: existing_user.email, password: "password")
+  
+  assert_not new_user.valid?
+  assert_includes new_user.errors[:email], "has already been taken"
+end
+```
+
+### Numericality Validation
+
+```ruby
+test "age must be a number" do
+  user = User.new(age: "not a number")
+  assert_not user.valid?
+  assert user.errors[:age].any?
+end
+
+test "age must be greater than 18" do
+  user = User.new(age: 17)
+  assert_not user.valid?
+end
+```
+
+---

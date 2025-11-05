@@ -1,0 +1,37 @@
+---
+description: why rails 8, deployment simplification, performance, developer experience, production ready
+alwaysApply: false
+---
+## Why Rails 8?
+
+### Deployment Simplification
+- **No PaaS required** - Deploy to any Linux server with Kamal 2
+- **Reduced dependencies** - No Redis needed for most applications
+- **Cost savings** - Use SQLite + Solid adapters instead of managed services
+
+### Performance
+- **Solid Cache** - Large, persistent caches using fast SSDs
+- **Solid Queue** - Efficient job processing without Redis overhead
+- **Propshaft** - Faster asset serving than Sprockets
+
+### Developer Experience
+- **Authentication generator** - No more Devise complexity
+- **Integrated stack** - Everything works together out of the box
+- **Modern defaults** - Hotwire, Importmap, TailwindCSS ready
+
+### Production Ready
+- **Proven in production** - Powers HEY, Basecamp (millions of users)
+- **SQLite at scale** - Handles 100K+ requests/day per server
+- **Solid adapters** - Battle-tested in real applications
+
+---
+
+## Related Documentation
+
+- [Rails 8 New Features](rails-8-features.md) - Detailed feature documentation
+- [File Structure](../02-conventions/file-structure.md) - Project organization
+- [Ruby & Rails Guidelines](../03-development/ruby-rails.md) - Coding standards
+
+---
+
+**Next:** [Rails 8 New Features →](rails-8-features.md)

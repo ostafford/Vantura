@@ -1,0 +1,27 @@
+---
+description: waiting for elements
+alwaysApply: false
+---
+## Waiting for Elements
+
+```ruby
+test "waits for ajax loaded content" do
+  visit articles_url
+  
+  click_button "Load More"
+  
+  # Wait for element to appear
+  assert_selector ".article", count: 20, wait: 5
+end
+
+test "waits for element to disappear" do
+  visit article_url(@article)
+  
+  click_button "Delete"
+  
+  # Wait for confirmation to appear
+  assert_selector ".confirmation", wait: 2
+end
+```
+
+---

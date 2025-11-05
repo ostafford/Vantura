@@ -1,0 +1,18 @@
+---
+description: rails testing stack, test types
+alwaysApply: false
+---
+## Rails Testing Stack
+
+Rails 8 uses **Minitest** by default (simple, fast, built-in).
+
+### Test Types
+
+1. **Model Tests** - Test models, validations, associations, methods
+2. **Controller Tests** - Test controller actions, responses
+3. **System Tests** - Test full user interactions (browser automation)
+4. **Job Tests** - Test background jobs
+5. **Mailer Tests** - Test email delivery
+6. **Helper Tests** - Test view helpers
+
+---

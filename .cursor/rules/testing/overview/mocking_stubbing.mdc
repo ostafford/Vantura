@@ -1,0 +1,32 @@
+---
+description: mocking and stubbing, stubbing methods, mocking time
+alwaysApply: false
+---
+## Mocking and Stubbing
+
+### Stubbing Methods
+
+```ruby
+test "external API call" do
+  # Stub method to return specific value
+  ArticleAPI.stub :fetch, { title: "Test" } do
+    article = Article.import_from_api
+    assert_equal "Test", article.title
+  end
+end
+```
+
+### Mocking Time
+
+```ruby
+test "article publishes at scheduled time" do
+  future_time = 1.day.from_now
+  
+  travel_to future_time do
+    article = articles(:scheduled)
+    assert article.published?
+  end
+end
+```
+
+---

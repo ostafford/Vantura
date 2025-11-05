@@ -1,0 +1,25 @@
+---
+description: skipping validations
+alwaysApply: false
+---
+## Skipping Validations
+
+```ruby
+# Save without validations (use with caution!)
+article.save(validate: false)
+
+# Update without validations
+article.update_attribute(:title, "New Title")  # Skips validations
+article.update_column(:title, "New Title")     # Skips validations and callbacks
+
+# Methods that skip validations:
+# - update_attribute
+# - update_column
+# - update_columns
+# - increment!
+# - decrement!
+# - touch
+# - save(validate: false)
+```
+
+---

@@ -1,0 +1,21 @@
+---
+description: when to use websockets
+alwaysApply: false
+---
+## When to Use WebSockets
+
+**Use WebSockets for:**
+- Real-time notifications
+- Live chat/messaging
+- Collaborative editing
+- Live updates (new comments, likes, etc.)
+- Presence indicators (who's online)
+- Typing indicators
+- Live dashboards
+
+**Don't use WebSockets for:**
+- Simple form submissions (use Turbo Streams)
+- One-way updates (use Turbo Streams)
+- Infrequent updates (use polling)
+
+---

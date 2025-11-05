@@ -1,0 +1,15 @@
+---
+description: monitoring
+alwaysApply: false
+---
+## Monitoring
+
+- Use Rails Panel (development)
+- Use Bullet gem (N+1 detection)
+- Monitor slow queries
+- Track response times
+- Use APM tools (New Relic, Skylight)
+
+---
+
+**Previous:** [← Production Config](production-config.md) | **Next:** [Security →](security.md)

@@ -1,0 +1,42 @@
+---
+description: soft deletes
+alwaysApply: false
+---
+## Soft Deletes
+
+Keep deleted records in database.
+
+```ruby
+create_table :articles do |t|
+  t.string :title
+  t.text :body
+  t.datetime :deleted_at
+  
+  t.timestamps
+end
+
+add_index :articles, :deleted_at
+```
+
+```ruby
+# Model
+class Article < ApplicationRecord
+  scope :active, -> { where(deleted_at: nil) }
+  scope :deleted, -> { where.not(deleted_at: nil) }
+  
+  def soft_delete
+    update(deleted_at: Time.current)
+  end
+  
+  def restore
+    update(deleted_at: nil)
+  end
+end
+
+# Usage
+article.soft_delete
+Article.active        # Non-deleted articles
+Article.deleted       # Deleted articles
+```
+
+---

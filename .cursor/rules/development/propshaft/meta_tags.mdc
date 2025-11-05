@@ -1,0 +1,38 @@
+---
+description: Meta Tags for Social Media, Open Graph (Facebook, LinkedIn), in views
+alwaysApply: false
+---
+## Meta Tags for Social Media
+
+### Open Graph (Facebook, LinkedIn)
+
+```erb
+<!-- app/views/layouts/application.html.erb -->
+<head>
+  <!-- Open Graph -->
+  <meta property="og:title" content="<%= content_for?(:og_title) ? yield(:og_title) : 'Default Title' %>">
+  <meta property="og:description" content="<%= content_for?(:og_description) ? yield(:og_description) : 'Default description' %>">
+  <meta property="og:image" content="<%= content_for?(:og_image) ? yield(:og_image) : asset_url('social/og-image.jpg') %>">
+  <meta property="og:url" content="<%= request.original_url %>">
+  <meta property="og:type" content="website">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<%= content_for?(:og_title) ? yield(:og_title) : 'Default Title' %>">
+  <meta name="twitter:description" content="<%= content_for?(:og_description) ? yield(:og_description) : 'Default description' %>">
+  <meta name="twitter:image" content="<%= content_for?(:og_image) ? yield(:og_image) : asset_url('social/twitter-card.jpg') %>">
+</head>
+```
+
+### In Views
+
+```erb
+<!-- app/views/articles/show.html.erb -->
+<% content_for :og_title, @article.title %>
+<% content_for :og_description, @article.body.truncate(200) %>
+<% content_for :og_image, @article.featured_image.url if @article.featured_image.attached? %>
+
+<!-- Rest of view -->
+```
+
+---

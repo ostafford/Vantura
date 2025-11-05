@@ -1,0 +1,29 @@
+---
+description: joins and includes performance, when to Use Each
+alwaysApply: false
+---
+## Joins and Includes Performance
+
+### When to Use Each
+
+```ruby
+# includes: Load associations to avoid N+1
+articles = Article.includes(:user)
+articles.each { |a| puts a.user.name }  # No N+1
+
+# joins: Filter by association (doesn't load association)
+Article.joins(:user).where(users: { active: true })
+
+# eager_load: Load associations with LEFT JOIN
+Article.eager_load(:user).where(users: { active: true })
+
+# preload: Load associations with separate query
+Article.preload(:user)
+
+# Combine: Filter with joins, load with includes
+Article.joins(:category)
+       .includes(:user, :tags)
+       .where(categories: { name: 'Tech' })
+```
+
+---

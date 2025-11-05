@@ -1,0 +1,51 @@
+---
+description: Rails 8 Major Features, Solid Queue, solid cable, authentication generator, propshaft, kamal 2, enhanced SQLite, 
+alwaysApply: false
+---
+## Rails 8 Major Features
+
+Rails 8.0 (released November 2024) introduces significant changes focused on simplifying deployment and reducing dependencies:
+
+### 1. Solid Queue
+- Database-backed background job processor
+- Replaces Redis-based solutions (Sidekiq, Resque)
+- Uses `FOR UPDATE SKIP LOCKED` for PostgreSQL 9.5+, MySQL 8.0+, SQLite
+- Supports recurring jobs
+- Proven at scale (HEY processes 20M+ jobs/day)
+
+### 2. Solid Cache
+- Database-backed caching using SSD/NVMe drives
+- Replaces Redis/Memcached
+- Larger, longer-lasting caches
+- Cost-effective (SSD cheaper than RAM)
+
+### 3. Solid Cable
+- Database-backed WebSocket adapter for Action Cable
+- Eliminates Redis dependency for WebSockets
+- Fast polling through database
+- Performance comparable to Redis
+
+### 4. Authentication Generator
+- Built-in authentication system generator
+- Session-based with password reset
+- Database-backed session tracking
+- Metadata tracking (IP, user agent, timestamps)
+
+### 5. Propshaft
+- New default asset pipeline (replacing Sprockets)
+- Simpler, focused on serving static assets
+- Faster asset serving
+- Asset fingerprinting for cache busting
+
+### 6. Kamal 2
+- Default deployment configuration
+- Zero-downtime Docker deployments
+- Deploy to any Linux server
+- SSL certificates via Let's Encrypt
+
+### 7. Enhanced SQLite
+- Production-ready with Rails 8
+- Full-text search support
+- Virtual tables
+- Improved concurrency
+- Bulk insert fixtures

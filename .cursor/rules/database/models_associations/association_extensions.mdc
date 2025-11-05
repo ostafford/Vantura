@@ -1,0 +1,35 @@
+---
+description: Association Extensions
+alwaysApply: false
+---
+## Association Extensions
+
+Add custom methods to associations.
+
+```ruby
+class User < ApplicationRecord
+  has_many :articles do
+    def published
+      where(status: 'published')
+    end
+    
+    def recent(limit: 5)
+      order(created_at: :desc).limit(limit)
+    end
+    
+    def by_category(category)
+      where(category: category)
+    end
+  end
+end
+```
+
+**Usage:**
+```ruby
+user = User.first
+user.articles.published
+user.articles.recent(limit: 10)
+user.articles.by_category('Technology')
+```
+
+---

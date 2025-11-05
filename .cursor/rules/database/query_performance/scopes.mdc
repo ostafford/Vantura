@@ -1,0 +1,31 @@
+---
+description: Scopes
+alwaysApply: false
+---
+## Scopes
+
+```ruby
+class Article < ApplicationRecord
+  # Define reusable scopes
+  scope :published, -> { where(status: 'published') }
+  scope :draft, -> { where(status: 'draft') }
+  scope :recent, -> { order(created_at: :desc) }
+  scope :popular, -> { where('views_count > ?', 1000) }
+  
+  # Scope with parameters
+  scope :by_user, ->(user) { where(user: user) }
+  scope :created_after, ->(date) { where('created_at > ?', date) }
+  scope :search, ->(query) { where('title ILIKE ?', "%#{query}%") }
+  
+  # Chainable scopes
+  scope :featured_published, -> { published.where(featured: true) }
+end
+
+# Usage
+Article.published
+Article.published.recent
+Article.by_user(user).recent
+Article.created_after(1.week.ago).popular
+```
+
+---

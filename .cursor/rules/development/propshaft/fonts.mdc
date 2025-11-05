@@ -1,0 +1,60 @@
+---
+description: fonts, adding custom fonts, 
+alwaysApply: false
+---
+## Fonts
+
+### Adding Custom Fonts
+
+```
+app/assets/fonts/
+├── custom-font.woff2
+├── custom-font.woff
+├── custom-font-bold.woff2
+└── custom-font-bold.woff
+```
+
+```css
+/* app/assets/stylesheets/application.css */
+
+@font-face {
+  font-family: 'CustomFont';
+  src: url('/assets/custom-font.woff2') format('woff2'),
+       url('/assets/custom-font.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CustomFont';
+  src: url('/assets/custom-font-bold.woff2') format('woff2'),
+       url('/assets/custom-font-bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Use in Tailwind config */
+```
+
+```javascript
+// tailwind.config.js
+
+module.exports = {
+  theme: {
+    extend: {
+      fontFamily: {
+        'custom': ['CustomFont', 'sans-serif'],
+      }
+    }
+  }
+}
+```
+
+```html
+<!-- Use in HTML -->
+<h1 class="font-custom font-bold">Custom Font Heading</h1>
+```
+
+---

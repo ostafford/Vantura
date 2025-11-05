@@ -1,6 +1,6 @@
 <!-- Hero Card (2x2, top-left) -->
   <%= render 'shared/bento_cards/hero_card',
-      id: 'projects_hero_card',
+      id: 'projects-hero-card',
       title: "Projects Hub",
       subtitle: @total_expenses_cents > 0 ? format_cents(@total_expenses_cents) : "No expenses yet",
       description: "Track and manage shared expense projects. Collaborate with team members, split costs equally, and monitor project spending across all your active projects.",
@@ -39,7 +39,7 @@
 
 <!-- Total Expenses Card -->
 <%= render 'shared/bento_cards/stat_card',
-    id: 'total_expenses_card',
+    id: 'total-expenses-card',
     title: "Total Expenses",
     value: format_cents(@total_expenses_cents),
     subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@total_projects}</span> projects".html_safe,
@@ -50,7 +50,7 @@
 
 <!-- Total Projects Card -->
 <%= render 'shared/bento_cards/stat_card',
-    id: 'total_projects_card',
+    id: 'total-projects-card',
     title: "Total Projects",
     value: @total_projects.to_s,
     subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@active_projects}</span> active".html_safe,
@@ -62,7 +62,7 @@
 
 <!-- Total Participants Card -->
 <%= render 'shared/bento_cards/stat_card',
-    id: 'total_participants_card',
+    id: 'total-participants-card',
     title: "Total Participants",
     value: @total_participants.to_s,
     subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@total_projects}</span> projects".html_safe,
@@ -73,7 +73,7 @@
 
 <!-- Active Projects Card -->
 <%= render 'shared/bento_cards/stat_card',
-    id: 'active_projects_card',
+    id: 'active-projects-card',
     title: "Active Projects",
     value: @active_projects.to_s,
     subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@total_projects - @active_projects}</span> inactive".html_safe,

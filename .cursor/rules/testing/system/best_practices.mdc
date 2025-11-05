@@ -1,0 +1,72 @@
+---
+description: best practices, dos and donts, running system tests
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Test critical user paths
+test "user can complete signup and create first article"
+
+# Use descriptive test names
+test "admin can delete any article"
+
+# Test happy path and error cases
+test "shows error when article creation fails"
+
+# Use helper methods for common actions
+sign_in_as @user
+
+# Test one workflow per test
+test "creating and publishing article"
+
+# Wait for elements when needed
+assert_selector ".result", wait: 5
+```
+
+### DON'T ❌
+
+```ruby
+# Don't test every possible interaction
+# Focus on critical user paths
+
+# Don't make tests too long
+# Split complex flows into multiple tests
+
+# Don't forget to sign in when needed
+# Many actions require authentication
+
+# Don't use hard-coded sleeps
+sleep 2  # Bad!
+assert_selector ".result", wait: 2  # Good!
+
+# Don't test CSS styling
+# Focus on functionality
+```
+
+---
+
+## Running System Tests
+
+```bash
+# Run all system tests
+rails test:system
+
+# Run specific test file
+rails test:system test/system/articles_test.rb
+
+# Run specific test
+rails test:system test/system/articles_test.rb:10
+
+# Run with visible browser (not headless)
+CI=false rails test:system
+
+# Run with screenshots on failure
+rails test:system
+```
+
+---
+
+**Previous:** [← Controller Tests](controller-tests.md) | **Next:** [Fixtures →](fixtures.md)

@@ -1,0 +1,56 @@
+---
+description: migration safety, safe operations, unsafe operations, postgreSQL specific safety, 
+alwaysApply: false
+---
+## Migration Safety
+
+### Safe Operations
+
+```ruby
+# These are safe (no downtime):
+- add_column (with default: nil)
+- add_index (without unique constraint, or with CONCURRENTLY)
+- add_foreign_key (with validate: false)
+- remove_column (after code is deployed)
+- rename_column (with alias in model)
+```
+
+### Unsafe Operations
+
+```ruby
+# These can cause downtime:
+- remove_column (if code still uses it)
+- rename_column (if code references old name)
+- change_column_null (to null: false)
+- add_column (with default: not nil and null: false)
+- add_index (without CONCURRENTLY on large tables)
+
+# Solution: Multi-step deployment
+# 1. Deploy code changes first
+# 2. Run migration after
+```
+
+### PostgreSQL-Specific Safety
+
+```ruby
+# Add index concurrently (no locks)
+class AddIndexToArticles < ActiveRecord::Migration[8.0]
+  disable_ddl_transaction!
+  
+  def change
+    add_index :articles, :title, algorithm: :concurrently
+  end
+end
+
+# Add foreign key without validation
+def change
+  add_foreign_key :articles, :users, validate: false
+end
+
+# Validate later
+def change
+  validate_foreign_key :articles, :users
+end
+```
+
+---

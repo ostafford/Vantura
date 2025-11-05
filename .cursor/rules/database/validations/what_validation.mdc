@@ -1,0 +1,19 @@
+---
+description: what are validations
+alwaysApply: false
+---
+## What are Validations?
+
+Validations ensure data integrity before saving to the database. They run before `create`, `save`, and `update`.
+
+```ruby
+class Article < ApplicationRecord
+  validates :title, presence: true
+end
+
+article = Article.new
+article.save  # false (validation failed)
+article.errors.full_messages  # ["Title can't be blank"]
+```
+
+---

@@ -1,0 +1,23 @@
+---
+description: testing class methods
+alwaysApply: false
+---
+## Testing Class Methods
+
+```ruby
+test "trending returns popular articles" do
+  trending = Article.trending
+  
+  assert trending.count > 0
+  assert trending.all? { |a| a.views_count > 1000 }
+end
+
+test "search finds articles by title" do
+  results = Article.search("First")
+  
+  assert results.count > 0
+  assert results.any? { |a| a.title.include?("First") }
+end
+```
+
+---

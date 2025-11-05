@@ -1,0 +1,15 @@
+---
+description: CSRF Protection
+alwaysApply: false
+---
+## CSRF Protection
+
+Rails automatically protects against CSRF attacks:
+```erb
+<!-- Included in forms automatically -->
+<%= form_with model: @article do |f| %>
+  <%= f.csrf_token %>
+<% end %>
+```
+
+---

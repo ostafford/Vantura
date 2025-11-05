@@ -1,0 +1,214 @@
+---
+description: controllers, controller structure, controller rules, 
+alwaysApply: false
+---
+## Controllers
+
+Controllers coordinate between models and views. Keep them thin - business logic belongs in models.
+
+### Controller Structure
+
+```ruby
+# app/controllers/articles_controller.rb
+
+class ArticlesController < ApplicationController
+  # 1. Callbacks first
+  before_action :require_authentication
+  before_action :set_article, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_article, only: [:edit, :update, :destroy]
+  
+  # 2. Standard REST actions in order
+  def index
+    @articles = Article.published.recent.page(params[:page])
+  end
+  
+  def show
+    # @article set by before_action
+  end
+  
+  def new
+    @article = Article.new
+  end
+  
+  def create
+    @article = Current.user.articles.build(article_params)
+    
+    if @article.save
+      ArticleNotificationJob.perform_later(@article.id)
+      redirect_to @article, notice: "Article created successfully."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+  
+  def edit
+    # @article set by before_action
+  end
+  
+  def update
+    if @article.update(article_params)
+      redirect_to @article, notice: "Article updated successfully."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+  
+  def destroy
+    @article.destroy
+    redirect_to articles_url, notice: "Article deleted successfully."
+  end
+  
+  # 3. Custom actions (member/collection)
+  def publish
+    if @article.publish!
+      redirect_to @article, notice: "Article published."
+    else
+      redirect_to @article, alert: "Unable to publish."
+    end
+  end
+  
+  # 4. Private methods last
+  private
+  
+  def set_article
+    @article = Article.find(params[:id])
+  end
+  
+  def authorize_article
+    redirect_to articles_url, alert: "Not authorized." unless @article.user == Current.user
+  end
+  
+  def article_params
+    params.require(:article).permit(:title, :body, :published, :category_id)
+  end
+end
+```
+
+### Controller Rules
+
+**Keep Actions Thin:**
+```ruby
+# Good: Thin controller (under 10 lines)
+def create
+  @article = Current.user.articles.build(article_params)
+  
+  if @article.save
+    ArticleNotificationJob.perform_later(@article.id)
+    redirect_to @article, notice: "Article created."
+  else
+    render :new, status: :unprocessable_entity
+  end
+end
+
+# Bad: Fat controller (business logic in controller)
+def create
+  @article = Article.new(article_params)
+  @article.user = Current.user
+  @article.slug = @article.title.parameterize
+  @article.reading_time = @article.body.split.size / 200
+  @article.excerpt = @article.body.truncate(150)
+  
+  if @article.save
+    # Send notifications
+    @article.user.followers.each do |follower|
+      ArticleMailer.new_article(follower, @article).deliver_later
+    end
+    
+    # Update stats
+    @article.user.increment!(:articles_count)
+    
+    redirect_to @article, notice: "Article created."
+  else
+    render :new, status: :unprocessable_entity
+  end
+end
+
+# Good: Extract to model callbacks and jobs
+class Article < ApplicationRecord
+  before_validation :generate_slug
+  before_save :calculate_reading_time
+  after_create :notify_followers
+  
+  private
+  
+  def generate_slug
+    self.slug = title.parameterize if title.present?
+  end
+  
+  def calculate_reading_time
+    self.reading_time = body.split.size / 200 if body.present?
+  end
+  
+  def notify_followers
+    ArticleNotificationJob.perform_later(id)
+  end
+end
+```
+
+**Instance Variables:**
+```ruby
+# Good: Maximum 2 instance variables per action
+def index
+  @articles = Article.published.recent
+end
+
+def show
+  @article = Article.find(params[:id])
+  @comments = @article.comments.recent
+end
+
+# Bad: Too many instance variables (use view objects instead)
+def index
+  @articles = Article.published
+  @featured = Article.featured
+  @categories = Category.all
+  @tags = Tag.popular
+  @recent_comments = Comment.recent
+end
+```
+
+**Strong Parameters:**
+```ruby
+# Good: Always use strong parameters
+def article_params
+  params.require(:article).permit(:title, :body, :published, :category_id)
+end
+
+# Good: Conditional permissions
+def article_params
+  permitted = [:title, :body, :published]
+  permitted << :featured if Current.user.admin?
+  params.require(:article).permit(permitted)
+end
+
+# Good: Nested attributes
+def article_params
+  params.require(:article).permit(
+    :title, :body,
+    article_tags_attributes: [:id, :tag_id, :_destroy]
+  )
+end
+```
+
+**HTTP Status Codes:**
+```ruby
+# Good: Set proper status codes
+def create
+  if @article.save
+    redirect_to @article  # 302 Found
+  else
+    render :new, status: :unprocessable_entity  # 422
+  end
+end
+
+def destroy
+  @article.destroy
+  head :no_content  # 204 No Content
+end
+
+def not_found
+  render file: "#{Rails.root}/public/404.html", status: :not_found
+end
+```
+
+---

@@ -1,0 +1,65 @@
+---
+description: ERB Style for views, indentation, ERB tags, logic in views
+alwaysApply: false
+---
+## ERB Style (Views)
+
+### Indentation
+
+```erb
+<!-- Good: Proper indentation -->
+<div class="container">
+  <% if @articles.any? %>
+    <div class="articles">
+      <% @articles.each do |article| %>
+        <%= render article %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Bad: Inconsistent indentation -->
+<div class="container">
+<% if @articles.any? %>
+  <div class="articles">
+  <% @articles.each do |article| %>
+    <%= render article %>
+  <% end %>
+  </div>
+<% end %>
+</div>
+```
+
+### ERB Tags
+
+```erb
+<!-- Good: <%= %> for output -->
+<h1><%= @article.title %></h1>
+
+<!-- Good: <% %> for logic (no output) -->
+<% if @article.published? %>
+  <p>Published</p>
+<% end %>
+
+<!-- Good: <%# %> for comments -->
+<%# This renders the article form %>
+<%= render 'form' %>
+
+<!-- Bad: HTML comments for ERB (will be visible in source) -->
+<!-- <%= render 'form' %> -->
+```
+
+### Logic in Views
+
+```ruby
+# Good: Keep views simple
+<%= article.formatted_date %>
+
+# Bad: Complex logic in views
+<%= article.created_at > 1.year.ago ? article.created_at.strftime("%B %d, %Y") : article.created_at.year %>
+
+# Extract to helper method instead
+def article_date(article)
+  article.created_at > 1.year.ago ? article.created_at.strftime("%B %d, %Y") : article.created_at.year
+end
+```

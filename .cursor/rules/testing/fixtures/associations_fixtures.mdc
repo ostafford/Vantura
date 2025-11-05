@@ -1,0 +1,57 @@
+---
+description: associations in fixtures, belongs_to, has_many, 
+alwaysApply: false
+---
+## Associations in Fixtures
+
+### belongs_to
+
+```yaml
+# test/fixtures/articles.yml
+
+one:
+  user: john  # References users fixture
+  title: First Article
+  body: This is the first article body
+  status: published
+  published_at: <%= 1.day.ago %>
+
+two:
+  user: jane
+  title: Second Article
+  body: This is the second article body
+  status: draft
+```
+
+### has_many :through
+
+```yaml
+# test/fixtures/tags.yml
+
+ruby:
+  name: Ruby
+
+rails:
+  name: Rails
+
+javascript:
+  name: JavaScript
+```
+
+```yaml
+# test/fixtures/article_tags.yml
+
+one:
+  article: one
+  tag: ruby
+
+two:
+  article: one
+  tag: rails
+
+three:
+  article: two
+  tag: javascript
+```
+
+---

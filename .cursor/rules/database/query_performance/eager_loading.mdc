@@ -1,0 +1,64 @@
+---
+description: eager loading, includes, preload, eager_load, joins, joins, 
+alwaysApply: false
+---
+## Eager Loading
+
+### includes
+
+```ruby
+# Load association
+Article.includes(:user)
+
+# Multiple associations
+Article.includes(:user, :category, :tags)
+
+# Nested associations
+Article.includes(:user, comments: :user)
+
+# Deep nesting
+Article.includes(comments: { user: :profile })
+```
+
+### preload
+
+```ruby
+# Always uses separate queries (like includes)
+Article.preload(:user)
+Article.preload(:user, :category)
+
+# When to use preload:
+# - When you need separate queries
+# - When includes causes complex JOIN
+```
+
+### eager_load
+
+```ruby
+# Always uses LEFT OUTER JOIN
+Article.eager_load(:user)
+Article.eager_load(:user, :category)
+
+# When to use eager_load:
+# - When you need to filter by association
+Article.eager_load(:user).where(users: { active: true })
+```
+
+### joins
+
+```ruby
+# INNER JOIN (doesn't load association data)
+Article.joins(:user)
+Article.joins(:user, :category)
+
+# Use for filtering only (doesn't prevent N+1)
+Article.joins(:user).where(users: { active: true })
+
+# Nested joins
+Article.joins(comments: :user)
+
+# Use with includes when filtering
+Article.includes(:user).joins(:category).where(categories: { name: 'Tech' })
+```
+
+---

@@ -1,0 +1,22 @@
+---
+description: asset compilation
+alwaysApply: false
+---
+## Asset Compilation
+
+```yaml
+# config/deploy.yml
+
+# Assets are compiled during build
+# Using Thruster for asset serving
+
+asset_path: /rails/public/assets
+
+# Kamal automatically:
+# 1. Runs rails assets:precompile
+# 2. Includes assets in Docker image
+# 3. Serves via Thruster
+```
+
+---
+

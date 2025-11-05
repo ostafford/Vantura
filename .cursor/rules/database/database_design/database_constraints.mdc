@@ -1,0 +1,31 @@
+---
+description: database constraints, check constraints, exclusion constraints
+alwaysApply: false
+---
+## Database Constraints
+
+### Check Constraints
+
+```ruby
+# Ensure value meets condition
+add_check_constraint :articles, 
+                     "length(title) >= 5",
+                     name: "title_min_length"
+
+add_check_constraint :products,
+                     "price > 0",
+                     name: "price_positive"
+```
+
+### Exclusion Constraints (PostgreSQL)
+
+```ruby
+# Prevent overlapping values
+execute <<-SQL
+  ALTER TABLE bookings
+  ADD CONSTRAINT no_overlapping_bookings
+  EXCLUDE USING gist (room_id WITH =, daterange(start_date, end_date) WITH &&)
+SQL
+```
+
+---

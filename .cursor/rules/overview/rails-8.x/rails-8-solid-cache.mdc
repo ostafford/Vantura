@@ -1,0 +1,71 @@
+---
+description: solid cache, key benefits, configuration, using rails cache, Fragment Caching in Views
+alwaysApply: false
+---
+## 3. Solid Cache (Caching)
+
+Solid Cache uses disk storage (SSD/NVMe) instead of RAM for caching.
+
+### Key Benefits
+
+- **No Redis dependency** - Uses database storage
+- **Larger caches** - SSDs are cheaper than RAM
+- **Longer-lasting caches** - Persist across restarts
+- **Fast enough** - Modern SSDs are very fast
+- **Cost-effective** - Significant savings on infrastructure
+
+### Configuration
+
+```ruby
+# config/environments/production.rb
+
+Rails.application.configure do
+  # Solid Cache is default in Rails 8
+  config.cache_store = :solid_cache_store
+end
+```
+
+### Using Rails Cache
+
+```ruby
+# Basic caching
+Rails.cache.fetch("articles/recent") do
+  Article.published.recent.limit(10)
+end
+
+# Cache with expiration
+Rails.cache.fetch("user/#{user.id}/dashboard", expires_in: 1.hour) do
+  generate_user_dashboard(user)
+end
+
+# Write to cache
+Rails.cache.write("key", "value", expires_in: 12.hours)
+
+# Read from cache
+value = Rails.cache.read("key")
+
+# Delete from cache
+Rails.cache.delete("key")
+
+# Check existence
+Rails.cache.exist?("key")
+```
+
+### Fragment Caching in Views
+
+```erb
+<!-- Basic fragment caching -->
+<% cache @article do %>
+  <%= render @article %>
+<% end %>
+
+<!-- Cache with expiration -->
+<% cache @article, expires_in: 1.hour do %>
+  <%= render @article %>
+<% end %>
+
+<!-- Russian Doll caching -->
+<% cache ['articles', @articles.maximum(:updated_at)] do %>
+  <%= render @articles %>
+<% end %>
+```

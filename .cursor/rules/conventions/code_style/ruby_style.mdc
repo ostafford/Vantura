@@ -1,0 +1,160 @@
+---
+description: Ruby style Indentation & spacing, Ruby line length, ruby method definition, ruby string literals, ruby blocks, ruby hash syntax, ruby conditional expressions, ruby method chaining
+alwaysApply: false
+---
+## Ruby Style
+
+### Indentation & Spacing
+
+```ruby
+# Good: 2 spaces for indentation
+def calculate_total
+  items.sum do |item|
+    item.price * item.quantity
+  end
+end
+
+# Bad: 4 spaces or tabs
+def calculate_total
+    items.sum do |item|
+        item.price * item.quantity
+    end
+end
+```
+
+**Rules:**
+- Use 2 spaces for indentation (no tabs)
+- One empty line between methods
+- No trailing whitespace
+- End files with a newline
+
+### Line Length
+
+```ruby
+# Good: Under 120 characters
+def long_method_name(parameter_one, parameter_two, parameter_three)
+  # Method body
+end
+
+# If exceeds 120, break into multiple lines
+def long_method_name(
+  parameter_one,
+  parameter_two,
+  parameter_three
+)
+  # Method body
+end
+```
+
+**Limit:** 120 characters per line (Rails default)
+
+### Method Definitions
+
+```ruby
+# Good: Parentheses for methods with parameters
+def calculate_total(items, tax_rate)
+  subtotal = items.sum(&:price)
+  subtotal * (1 + tax_rate)
+end
+
+# Good: No parentheses for methods without parameters
+def total_count
+  items.count
+end
+
+# Bad: Inconsistent parentheses
+def calculate_total items, tax_rate  # Missing parentheses
+end
+```
+
+### String Literals
+
+```ruby
+# Good: Double quotes for interpolation
+name = "John"
+message = "Hello, #{name}!"
+
+# Good: Single quotes for static strings
+status = 'active'
+category = 'technology'
+
+# Good: Heredoc for multi-line strings
+sql = <<~SQL
+  SELECT *
+  FROM articles
+  WHERE status = 'published'
+SQL
+```
+
+### Blocks
+
+```ruby
+# Good: { } for single-line blocks
+items.map { |item| item.name }
+
+# Good: do...end for multi-line blocks
+items.each do |item|
+  puts item.name
+  puts item.price
+end
+
+# Good: Use &: symbol-to-proc when possible
+items.map(&:name)
+items.select(&:active?)
+```
+
+### Hash Syntax
+
+```ruby
+# Good: Symbol keys with colon syntax
+user = { name: 'John', email: 'john@example.com', age: 30 }
+
+# Good: Rocket syntax for non-symbol keys
+scores = { 'John' => 95, 'Jane' => 87 }
+
+# Bad: Mixing styles
+user = { :name => 'John', email: 'john@example.com' }  # Inconsistent
+```
+
+### Conditional Expressions
+
+```ruby
+# Good: Use && and || for boolean logic
+if user.active? && user.verified?
+  allow_access
+end
+
+# Good: unless for negative conditions (single condition only)
+redirect_to login_path unless authenticated?
+
+# Good: Ternary for simple conditions
+status = published? ? 'Published' : 'Draft'
+
+# Bad: unless with multiple conditions
+unless user.inactive? || user.unverified?  # Confusing
+  allow_access
+end
+
+# Bad: Nested ternaries
+status = published? ? (featured? ? 'Featured' : 'Published') : 'Draft'  # Too complex
+```
+
+### Method Chaining
+
+```ruby
+# Good: One method per line for long chains
+articles
+  .published
+  .recent
+  .includes(:user, :category)
+  .limit(10)
+
+# Good: Single line for short chains
+articles.published.recent
+
+# Bad: Mixed formatting
+articles.published
+  .recent.includes(:user, :category)
+  .limit(10)
+```
+

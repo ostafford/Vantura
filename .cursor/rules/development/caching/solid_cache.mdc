@@ -1,0 +1,99 @@
+---
+description: what is solid cache, cache types, rails cache, fragment caching, russian doll caching
+alwaysApply: false
+---
+## What is Solid Cache?
+
+Solid Cache is Rails 8's default caching solution. It uses your database instead of Redis.
+
+**Key Benefits:**
+- ✅ No Redis dependency
+- ✅ Uses database with optimized queries
+- ✅ Automatic cache expiration
+- ✅ Supports all Rails cache features
+- ✅ Proven at scale (HEY, Basecamp)
+- ✅ Works with PostgreSQL, MySQL, SQLite
+
+---
+
+## Cache Types
+
+### 1. Rails.cache (Low-Level Caching)
+
+Store any serializable data with a key.
+
+```ruby
+# Write to cache
+Rails.cache.write('articles_count', Article.count, expires_in: 1.hour)
+
+# Read from cache
+count = Rails.cache.read('articles_count')
+
+# Fetch (read or write)
+count = Rails.cache.fetch('articles_count', expires_in: 1.hour) do
+  Article.count
+end
+
+# Delete from cache
+Rails.cache.delete('articles_count')
+
+# Check if key exists
+Rails.cache.exist?('articles_count')
+
+# Clear entire cache (use sparingly!)
+Rails.cache.clear
+```
+
+### 2. Fragment Caching (View Caching)
+
+Cache portions of rendered HTML.
+
+```erb
+<!-- app/views/articles/index.html.erb -->
+
+<h1>Articles</h1>
+
+<% cache ['articles-list', Article.maximum(:updated_at)] do %>
+  <div id="articles-list-container">
+    <%= render @articles %>
+  </div>
+<% end %>
+```
+
+### 3. Russian Doll Caching (Nested Fragments)
+
+Cache nested partials with automatic invalidation.
+
+```erb
+<!-- app/views/articles/_article.html.erb -->
+
+<% cache article do %>
+  <article id="<%= "article-#{article.id}-card" %>" class="bg-white rounded-lg shadow-md p-6 mb-4">
+    <h2><%= article.title %></h2>
+    <p><%= article.body.truncate(200) %></p>
+    
+    <!-- Nested cache for comments -->
+    <% cache ['article-comments', article, article.comments.maximum(:updated_at)] do %>
+      <div id="article-<%= article.id %>-comments">
+        <%= render article.comments %>
+      </div>
+    <% end %>
+  </article>
+<% end %>
+```
+
+### 4. Collection Caching
+
+Optimize caching for collections.
+
+```erb
+<!-- Cache each article individually -->
+<%= render partial: 'articles/article', collection: @articles, cached: true %>
+
+<!-- With custom cache key -->
+<%= render partial: 'articles/article', 
+           collection: @articles, 
+           cached: ->(article) { [article, 'v2'] } %>
+```
+
+---

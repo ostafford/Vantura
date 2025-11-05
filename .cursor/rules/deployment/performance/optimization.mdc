@@ -1,0 +1,41 @@
+---
+description: Database optimization, indexes, N+1 queries, counter cache
+alwaysApply: false
+---
+## Database Optimization
+
+### Indexes
+```ruby
+# Always index foreign keys
+add_index :articles, :user_id
+
+# Index frequently queried columns
+add_index :articles, :status
+add_index :articles, :published_at
+
+# Compound indexes for common queries
+add_index :articles, [:user_id, :status]
+```
+
+### N+1 Queries
+```ruby
+# Bad: N+1 query
+articles.each { |article| article.user.name }
+
+# Good: Eager load
+Article.includes(:user).each { |article| article.user.name }
+```
+
+### Counter Cache
+```ruby
+# Add counter cache column
+add_column :users, :articles_count, :integer, default: 0
+
+# Use in model
+belongs_to :user, counter_cache: true
+
+# Access without query
+user.articles_count  # No database query!
+```
+
+---

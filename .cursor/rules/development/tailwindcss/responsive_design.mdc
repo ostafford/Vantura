@@ -1,0 +1,80 @@
+---
+description: responsice design, desktop first, breakpoints, desktop-first approach, Show/Hide by Screen Size
+alwaysApply: false
+---
+## Responsive Design (Desktop-First)
+
+### Breakpoints
+
+```
+Default (no prefix): 1280px and up (desktop) ← PRIMARY TARGET
+lg:  1024px  - Laptops / small desktops
+md:  768px   - Tablets (landscape)
+sm:  640px   - Large mobile phones
+```
+
+### Desktop-First Approach
+
+```html
+<!-- Default = Desktop, scale down for smaller screens -->
+
+<!-- Grid: 4 columns → 3 → 2 → 1 -->
+<div class="grid grid-cols-4 gap-8 
+            lg:grid-cols-3 lg:gap-6
+            md:grid-cols-2 md:gap-4
+            sm:grid-cols-1 sm:gap-2">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <div>Item 3</div>
+  <div>Item 4</div>
+</div>
+
+<!-- Typography: Scale down -->
+<h1 class="text-6xl font-bold 
+           lg:text-5xl
+           md:text-4xl
+           sm:text-3xl">
+  Page Title
+</h1>
+
+<p class="text-lg leading-relaxed
+          md:text-base md:leading-normal
+          sm:text-sm sm:leading-snug">
+  Body text scales down for smaller screens.
+</p>
+
+<!-- Spacing: Scale down -->
+<div class="p-8 m-4 space-y-6
+            md:p-6 md:m-3 md:space-y-4
+            sm:p-4 sm:m-2 sm:space-y-2">
+  Content with scaled spacing
+</div>
+
+<!-- Layout: Change direction -->
+<div class="flex flex-row gap-6
+            md:flex-col md:gap-4">
+  <aside class="w-64 md:w-full">Sidebar</aside>
+  <main class="flex-1">Main Content</main>
+</div>
+```
+
+### Show/Hide by Screen Size
+
+```html
+<!-- Visible only on desktop (>768px) -->
+<div class="block md:hidden">
+  Desktop navigation
+</div>
+
+<!-- Visible only on tablet/mobile (≤768px) -->
+<div class="hidden md:block">
+  Mobile navigation
+</div>
+
+<!-- Visible only on mobile (≤640px) -->
+<div class="hidden sm:block md:hidden">
+  Mobile-specific content
+</div>
+```
+
+---

@@ -1,0 +1,30 @@
+---
+description: Asset Loading Performance, Preloading Important Assets, Lazy Loading Images
+alwaysApply: false
+---
+## Asset Loading Performance
+
+### Preloading Important Assets
+
+```erb
+<!-- Preload critical CSS -->
+<%= preload_link_tag "application.css" %>
+
+<!-- Preload important images -->
+<%= preload_link_tag asset_path("hero-background.jpg"), as: "image" %>
+
+<!-- Preload fonts -->
+<%= preload_link_tag asset_path("custom-font.woff2"), as: "font", type: "font/woff2", crossorigin: "anonymous" %>
+```
+
+### Lazy Loading Images
+
+```erb
+<!-- Lazy load below-the-fold images -->
+<%= image_tag "large-image.jpg",
+    alt: "Large image",
+    loading: "lazy",
+    class: "w-full h-auto" %>
+```
+
+---

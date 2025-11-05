@@ -1,0 +1,23 @@
+---
+description: testing forms with attachments 
+alwaysApply: false
+---
+## Testing Forms with Attachments
+
+```ruby
+test "uploads featured image" do
+  sign_in_as @user
+  visit new_article_url
+  
+  fill_in "Title", with: "Article with Image"
+  fill_in "Body", with: "Body text"
+  attach_file "Featured Image", Rails.root.join("test/fixtures/files/image.jpg")
+  
+  click_button "Create Article"
+  
+  assert_text "Article created"
+  assert_selector "img[src*='image.jpg']"
+end
+```
+
+---

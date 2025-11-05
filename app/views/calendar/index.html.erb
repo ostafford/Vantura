@@ -8,11 +8,11 @@
   <%= render 'shared/page_header_simple', title: "Vantura Calendar", subtitle: "View your transactions over time" %>
 
   <% if @account %>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <%= content_wrapper class: "py-6" do %>
       <!-- Turbo Frame for changing content -->
       <%= turbo_frame_tag "calendar_content" do %>
         <!-- Calendar Overview Section -->
-        <section id="calendar_bento_cards" class="bento-grid mb-6" aria-label="Calendar overview statistics">
+        <section id="calendar-bento-cards-section" class="bento-grid mb-6" aria-label="Calendar overview statistics">
           <%= render partial: "calendar/bento_cards" %>
         </section>
 
@@ -26,7 +26,7 @@
             %>
             <%= link_to calendar_month_path(@date.year, @date.month, view: 'month'),
                 class: "px-4 py-2 rounded-md text-sm font-medium transition-all #{@view == 'month' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
-                data: { view: 'month', turbo_frame: 'calendar_content' } do %>
+                data: { view: 'month', turbo_frame: 'calendar_content', calendar_target: 'viewLink' } do %>
               <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
@@ -34,7 +34,7 @@
             <% end %>
             <%= link_to calendar_month_path(week_switch_date.year, week_switch_date.month, week_switch_date.day, view: 'week'),
                 class: "px-4 py-2 rounded-md text-sm font-medium transition-all #{@view == 'week' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
-                data: { view: 'week', turbo_frame: 'calendar_content' } do %>
+                data: { view: 'week', turbo_frame: 'calendar_content', calendar_target: 'viewLink' } do %>
               <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
               </svg>
@@ -64,7 +64,7 @@
         <%= render partial: "calendar/month_nav_wrapper" %>
 
         <!-- Render Appropriate View -->
-        <div id="calendar_view_container">
+        <div id="calendar-view-container">
       <% if @view == 'week' %>
         <%= render 'calendar/week_view' %>
       <% else %>
@@ -72,16 +72,16 @@
       <% end %>
         </div>
       <% end # Close turbo_frame_tag "calendar_content" %>
-    </div>
+    <% end %>
 
   <% else %>
     <!-- No Account Message -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <%= content_wrapper class: "py-8" do %>
       <div class="bg-gradient-to-br from-cream-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-deep p-12 text-center">
         <h2 class="text-2xl font-bold text-gray-900 mb-4">No account found</h2>
         <p class="text-gray-600">Please sync your Up Bank account first.</p>
       </div>
-    </div>
+    <% end %>
   <% end %>
 
   <%= render 'shared/transaction_drawer', default_transaction_date: Date.today %>

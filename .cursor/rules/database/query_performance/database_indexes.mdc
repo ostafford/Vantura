@@ -1,0 +1,44 @@
+---
+description: database indexes, when to add indexes, analyzing queries
+alwaysApply: false
+---
+## Database Indexes
+
+### When to Add Indexes
+
+```ruby
+# Always index:
+# 1. Foreign keys
+add_index :articles, :user_id
+
+# 2. Columns in WHERE clauses
+add_index :articles, :status
+add_index :articles, :published_at
+
+# 3. Columns in ORDER BY
+add_index :articles, :created_at
+
+# 4. Unique columns
+add_index :users, :email, unique: true
+
+# 5. Compound indexes for common queries
+add_index :articles, [:user_id, :status]
+add_index :articles, [:status, :created_at]
+```
+
+### Analyzing Queries
+
+```ruby
+# EXPLAIN query plan (PostgreSQL)
+Article.where(status: 'published').explain
+
+# In Rails console
+Article.where(status: 'published').to_sql
+# Shows generated SQL
+
+# Check if query uses index
+Article.where(user_id: 1).explain
+# Look for "Index Scan" or "Seq Scan"
+```
+
+---

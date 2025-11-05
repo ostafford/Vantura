@@ -1,0 +1,49 @@
+---
+description: reversible migration, using, using up and down
+alwaysApply: false
+---
+## Reversible Migrations
+
+### Using `reversible`
+
+```ruby
+class AddStatusToArticles < ActiveRecord::Migration[8.0]
+  def change
+    add_column :articles, :status, :string
+    
+    reversible do |dir|
+      dir.up do
+        # Run when migrating up
+        Article.update_all(status: 'draft')
+        change_column_null :articles, :status, false
+      end
+      
+      dir.down do
+        # Run when migrating down
+        # Usually empty for data migrations
+      end
+    end
+  end
+end
+```
+
+### Using `up` and `down`
+
+```ruby
+class AddComplexIndexToArticles < ActiveRecord::Migration[8.0]
+  def up
+    execute <<-SQL
+      CREATE INDEX CONCURRENTLY index_articles_on_title_trgm
+      ON articles USING gin (title gin_trgm_ops)
+    SQL
+  end
+  
+  def down
+    execute <<-SQL
+      DROP INDEX CONCURRENTLY index_articles_on_title_trgm
+    SQL
+  end
+end
+```
+
+---

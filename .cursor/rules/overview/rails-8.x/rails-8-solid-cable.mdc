@@ -1,0 +1,63 @@
+---
+description: solid cable websockets, key benefits, configuration, creating channels, broadcasting updates
+alwaysApply: false
+---
+## 4. Solid Cable (WebSockets)
+
+Solid Cable provides database-backed WebSocket connections via Action Cable.
+
+### Key Benefits
+
+- **No Redis dependency** - Uses database for pub/sub
+- **Fast polling** - Efficient database polling
+- **Performance** - Comparable to Redis for most apps
+- **Simplicity** - One less service to manage
+
+### Configuration
+
+```yaml
+# config/cable.yml
+
+production:
+  adapter: solid_cable
+
+development:
+  adapter: async
+
+test:
+  adapter: test
+```
+
+### Creating Channels
+
+```bash
+# Generate a channel
+rails generate channel Comments
+```
+
+```ruby
+# app/channels/comments_channel.rb
+class CommentsChannel < ApplicationCable::Channel
+  def subscribed
+    article = Article.find(params[:article_id])
+    stream_from "article_#{article.id}_comments"
+  end
+
+  def unsubscribed
+    # Cleanup when channel is closed
+  end
+end
+```
+
+### Broadcasting Updates
+
+```ruby
+# In controller after creating comment
+ActionCable.server.broadcast(
+  "article_#{@article.id}_comments",
+  {
+    comment: render_to_string(partial: 'comments/comment', locals: { comment: @comment }),
+    action: 'create'
+  }
+)
+```

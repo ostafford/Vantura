@@ -1,0 +1,139 @@
+---
+description: views, view structure, view rules, 
+alwaysApply: false
+---
+## Views
+
+Views handle presentation only - no business logic.
+
+### View Structure
+
+```erb
+<!-- app/views/articles/index.html.erb -->
+
+<div class="container mx-auto px-8" id="articles-index-container">
+  <header id="articles-index-header" class="mb-8">
+    <h1 class="text-4xl font-bold mb-4">Articles</h1>
+    <%= link_to "New Article", new_article_path,
+        id: "new-article-link",
+        class: "bg-blue-600 text-white px-4 py-2 rounded-lg" %>
+  </header>
+  
+  <div id="articles-list-container">
+    <%= render @articles %>
+  </div>
+  
+  <%= paginate @articles %>
+</div>
+
+<!-- app/views/articles/_article.html.erb -->
+<%= turbo_frame_tag dom_id(article) do %>
+  <article class="bg-white rounded-lg shadow-md p-6 mb-4"
+           id="<%= "article-#{article.id}-card" %>">
+    <header>
+      <h2 class="text-2xl font-semibold mb-2">
+        <%= link_to article.title, article, id: "article-#{article.id}-title-link" %>
+      </h2>
+      <div class="text-sm text-gray-600 mb-4">
+        <span>By <%= article.user.name %></span> •
+        <time datetime="<%= article.created_at.iso8601 %>">
+          <%= article.created_at.strftime("%B %d, %Y") %>
+        </time> •
+        <span><%= article.reading_time %> min read</span>
+      </div>
+    </header>
+    
+    <p class="text-gray-700 mb-4">
+      <%= article.body.truncate(200) %>
+    </p>
+    
+    <footer class="flex gap-4">
+      <%= link_to "Read More", article, class: "text-blue-600" %>
+      <% if article.can_be_edited_by?(Current.user) %>
+        <%= link_to "Edit", edit_article_path(article), class: "text-green-600" %>
+      <% end %>
+    </footer>
+  </article>
+<% end %>
+```
+
+### View Rules
+
+**Keep Views Simple:**
+```erb
+<!-- Good: Simple view logic -->
+<%= article.formatted_date %>
+<%= article.status_badge %>
+
+<!-- Bad: Complex logic in view -->
+<%= article.created_at > 1.year.ago ? article.created_at.strftime("%B %d, %Y") : article.created_at.year %>
+
+<!-- Extract to helper or model method instead -->
+```
+
+**Use Partials:**
+```erb
+<!-- Good: Extract to partial -->
+<div id="articles-list-container">
+  <%= render @articles %>
+</div>
+
+<!-- Good: Explicit partial with locals -->
+<%= render partial: "article", collection: @articles, as: :article %>
+
+<!-- Good: Partial with custom locals -->
+<%= render "shared/card", title: "Featured", content: @article %>
+```
+
+**Forms:**
+```erb
+<!-- app/views/articles/_form.html.erb -->
+<%= form_with(model: article, id: "article-form") do |form| %>
+  <% if article.errors.any? %>
+    <div id="article-form-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <h2 class="font-bold mb-2">
+        <%= pluralize(article.errors.count, "error") %> prohibited this article from being saved:
+      </h2>
+      <ul class="list-disc list-inside">
+        <% article.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+  <div class="mb-4">
+    <%= form.label :title, class: "block text-gray-700 font-semibold mb-2" %>
+    <%= form.text_field :title,
+        id: "article-title-input",
+        class: "w-full px-4 py-2 border rounded-lg",
+        autofocus: true %>
+  </div>
+  
+  <div class="mb-4">
+    <%= form.label :body, class: "block text-gray-700 font-semibold mb-2" %>
+    <%= form.text_area :body,
+        id: "article-body-textarea",
+        rows: 10,
+        class: "w-full px-4 py-2 border rounded-lg" %>
+  </div>
+  
+  <div class="mb-4">
+    <%= form.label :category_id, class: "block text-gray-700 font-semibold mb-2" %>
+    <%= form.collection_select :category_id, Category.all, :id, :name,
+        { include_blank: "Select a category" },
+        { id: "article-category-select", class: "w-full px-4 py-2 border rounded-lg" } %>
+  </div>
+  
+  <div class="flex gap-4">
+    <%= form.submit "Save Article",
+        id: "article-save-button",
+        class: "bg-blue-600 text-white px-6 py-2 rounded-lg" %>
+    <%= link_to "Cancel", articles_path,
+        id: "article-cancel-link",
+        class: "bg-gray-200 text-gray-700 px-6 py-2 rounded-lg" %>
+  </div>
+<% end %>
+```
+
+---

@@ -1,0 +1,12 @@
+---
+alwaysApply: false
+---
+## Related Documentation
+
+- [ID Naming Strategy](id-naming-strategy.md) - Comprehensive ID naming guide
+- [File Structure](file-structure.md) - Directory organization
+- [Ruby & Rails Guidelines](../03-development/ruby-rails.md) - Code standards
+
+---
+
+**Previous:** [← File Structure](file-structure.md) | **Next:** [ID Naming Strategy →](id-naming-strategy.md)

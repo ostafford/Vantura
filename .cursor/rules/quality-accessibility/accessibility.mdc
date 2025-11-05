@@ -1,0 +1,27 @@
+---
+description: examples
+alwaysApply: false
+---
+## Examples
+
+```html
+<!-- Semantic HTML -->
+<nav><header><main><footer><article><section>
+
+<!-- Alt text -->
+<img src="logo.png" alt="Company Logo">
+
+<!-- ARIA labels -->
+<button aria-label="Close dialog">×</button>
+
+<!-- Form labels -->
+<label for="email">Email</label>
+<input id="email" type="email">
+
+<!-- Keyboard navigation -->
+<button tabindex="0">Clickable</button>
+```
+
+---
+
+**Previous:** [← Code Quality](code-quality.md) | **Next:** [Responsive Design →](responsive-design.md)

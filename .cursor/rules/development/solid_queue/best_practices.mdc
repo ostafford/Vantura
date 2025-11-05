@@ -1,0 +1,125 @@
+---
+description: best practices, dos and donts, job patterns, chain jobs, batch jobs, idempotent jobs, 
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Pass IDs, not ActiveRecord objects
+ArticleNotificationJob.perform_later(@article.id)
+
+# Use find_each for large datasets
+def perform
+  User.active.find_each do |user|
+    process_user(user)
+  end
+end
+
+# Keep jobs focused (single responsibility)
+class SendWelcomeEmailJob < ApplicationJob
+  def perform(user_id)
+    user = User.find(user_id)
+    WelcomeMailer.welcome(user).deliver_now
+  end
+end
+
+# Use appropriate queues
+class UrgentNotificationJob < ApplicationJob
+  queue_as :urgent
+end
+
+# Configure retries appropriately
+retry_on TimeoutError, wait: 10.seconds, attempts: 5
+discard_on ActiveRecord::RecordNotFound
+```
+
+### DON'T ❌
+
+```ruby
+# Don't pass ActiveRecord objects (serialize to ID)
+# ArticleNotificationJob.perform_later(@article)  # Bad!
+
+# Don't load all records at once
+# User.all.each { |user| process(user) }  # Bad!
+
+# Don't put business logic in jobs
+# Keep business logic in models/services
+# Jobs should orchestrate, not implement
+
+# Don't ignore error handling
+# Add retry/discard configuration
+
+# Don't create jobs for everything
+# Simple operations can be synchronous
+```
+
+---
+
+## Job Patterns
+
+### Chain Jobs
+
+```ruby
+# Job 1: Process data
+class ProcessDataJob < ApplicationJob
+  def perform(data_id)
+    data = Data.find(data_id)
+    result = process(data)
+    
+    # Enqueue next job in chain
+    NotifyUsersJob.perform_later(result.id)
+  end
+end
+
+# Job 2: Notify users
+class NotifyUsersJob < ApplicationJob
+  def perform(result_id)
+    result = Result.find(result_id)
+    notify_users(result)
+  end
+end
+```
+
+### Batch Jobs
+
+```ruby
+# Parent job enqueues child jobs
+class BatchProcessJob < ApplicationJob
+  def perform(item_ids)
+    item_ids.each do |id|
+      ProcessItemJob.perform_later(id)
+    end
+  end
+end
+```
+
+### Idempotent Jobs
+
+```ruby
+# Job can be run multiple times safely
+class UpdateStatsJob < ApplicationJob
+  def perform(article_id)
+    article = Article.find(article_id)
+    
+    # Idempotent: recalculating doesn't cause issues
+    article.update(
+      comments_count: article.comments.count,
+      views_count: article.views.count
+    )
+  end
+end
+```
+
+---
+
+## Related Documentation
+
+- [Rails 8 Features](../01-overview/rails-8-features.md) - Solid Queue overview
+- [Ruby & Rails Guidelines](ruby-rails.md) - Model callbacks
+- [Testing](../05-testing/testing-overview.md) - Job testing
+
+---
+
+**Previous:** [← JavaScript](javascript.md) | **Next:** [Caching →](caching.md)

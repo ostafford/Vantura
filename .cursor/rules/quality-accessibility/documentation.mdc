@@ -1,0 +1,104 @@
+---
+description: API documentation, model documentation, documentation, changelog
+alwaysApply: false
+---
+## README.md
+
+Every project should have:
+```markdown
+# Project Name
+
+## Description
+Brief description of the project
+
+## Requirements
+- Ruby 3.3+
+- PostgreSQL 16+
+- Node.js 20+
+
+## Setup
+\`\`\`bash
+bin/setup
+\`\`\`
+
+## Running
+\`\`\`bash
+bin/dev
+\`\`\`
+
+## Testing
+\`\`\`bash
+rails test
+\`\`\`
+
+## Deployment
+\`\`\`bash
+kamal deploy
+\`\`\`
+```
+
+---
+
+## API Documentation
+
+Document API endpoints:
+```ruby
+# GET /api/articles
+# Returns list of articles
+# 
+# Parameters:
+#   page (integer, optional) - Page number
+#   per_page (integer, optional) - Items per page
+# 
+# Response:
+#   200 OK - Returns articles array
+#   404 Not Found - No articles found
+def index
+  @articles = Article.page(params[:page])
+  render json: @articles
+end
+```
+
+---
+
+## Model Documentation
+
+Document complex models:
+```ruby
+# Article represents a blog post
+# 
+# States: draft, published, archived
+# 
+# A published article must have:
+# - title (5-200 chars)
+# - body (100+ chars)
+# - published_at timestamp
+class Article < ApplicationRecord
+  # ...
+end
+```
+
+---
+
+## Changelog
+
+Keep a CHANGELOG.md:
+```markdown
+# Changelog
+
+## [1.2.0] - 2025-11-04
+### Added
+- User authentication system
+- Article publishing workflow
+
+### Changed
+- Improved article search
+- Updated UI design
+
+### Fixed
+- Fixed comment pagination bug
+```
+
+---
+
+**Previous:** [← Responsive Design](responsive-design.md) | **Complete!** ✅

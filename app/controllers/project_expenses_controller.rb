@@ -11,29 +11,9 @@ class ProjectExpensesController < ApplicationController
   def create
     @expense = @project.project_expenses.new(expense_params)
     if @expense.save
-      # Use selected participants or default to all participants
       contributor_ids = params[:contributor_user_ids].presence || @project.participants.pluck(:id)
-      @expense.rebuild_contributions_for_participants!(contributor_ids)
-
-      # Calculate fresh project statistics for projects index update
-      calculate_projects_statistics
-
-      # Determine referer path for conditional redirect
-      referer_path = begin
-        request.referer.present? ? URI.parse(request.referer).path : nil
-      rescue
-        nil
-      end
-
-      respond_to do |format|
-        format.turbo_stream do
-          # If coming from project show page, redirect; otherwise update stats
-          if referer_path != projects_path && referer_path != "/projects"
-            redirect_to project_path(@project), status: :see_other
-          end
-        end
-        format.html { redirect_to project_path(@project), notice: "Expense added" }
-      end
+      @expense.rebuild_contributions_for_participants!(contributor_ids) && assign_projects_index_stats
+      respond_to { |format| format.turbo_stream { redirect_to project_path(@project), status: :see_other if should_redirect_to_project? }; format.html { redirect_to project_path(@project), notice: "Expense added" } }
     else
       render :new, status: :unprocessable_entity
     end
@@ -44,14 +24,9 @@ class ProjectExpensesController < ApplicationController
 
   def update
     if @expense.update(expense_params)
-      # Use selected participants or default to all participants
       contributor_ids = params[:contributor_user_ids].presence || @project.participants.pluck(:id)
       @expense.rebuild_contributions_for_participants!(contributor_ids)
-
-      respond_to do |format|
-        format.turbo_stream { redirect_to project_path(@project), notice: "Expense updated successfully!" }
-        format.html { redirect_to project_path(@project), notice: "Expense updated" }
-      end
+      respond_to { |format| format.turbo_stream { redirect_to project_path(@project), notice: "Expense updated successfully!" }; format.html { redirect_to project_path(@project), notice: "Expense updated" } }
     else
       render :edit, status: :unprocessable_entity
     end
@@ -59,67 +34,12 @@ class ProjectExpensesController < ApplicationController
 
   def destroy
     @expense.destroy
-
-    # Calculate fresh project statistics for projects index update
-    calculate_projects_statistics
-
-    # Determine referer path for conditional redirect
-    referer_path = begin
-      request.referer.present? ? URI.parse(request.referer).path : nil
-    rescue
-      nil
-    end
-
-    respond_to do |format|
-      format.turbo_stream do
-        # If coming from project show page, redirect; otherwise update stats
-        if referer_path != projects_path && referer_path != "/projects"
-          redirect_to project_path(@project), status: :see_other
-        end
-      end
-      format.html { redirect_to project_path(@project), notice: "Expense deleted" }
-    end
+    assign_projects_index_stats
+    respond_to { |format| format.turbo_stream { redirect_to project_path(@project), status: :see_other if should_redirect_to_project? }; format.html { redirect_to project_path(@project), notice: "Expense deleted" } }
   end
 
   def templates
-    # Get unique merchant+category combinations with most recent expense data
-    search_term = params[:q].to_s.downcase.strip
-
-    # Get all unique merchant+category pairs with their most recent expense
-    templates_hash = {}
-
-    @project.project_expenses.order(created_at: :desc).each do |expense|
-      key = "#{expense.merchant}|#{expense.category || ''}"
-
-      # Only keep the most recent expense for each merchant+category combination
-      unless templates_hash[key]
-        templates_hash[key] = {
-          merchant: expense.merchant,
-          category: expense.category,
-          notes: expense.notes,
-          last_amount: expense.total_cents,
-          last_created_at: expense.created_at.to_i
-        }
-      end
-    end
-
-    templates = templates_hash.values.sort_by { |t| -t[:last_created_at] }
-
-    # Filter by search term if provided
-    if search_term.present?
-      templates = templates.select do |template|
-        merchant_match = template[:merchant]&.downcase&.include?(search_term)
-        category_match = template[:category]&.downcase&.include?(search_term)
-        merchant_match || category_match
-      end
-    end
-
-    # Limit to 20 results
-    templates = templates.take(20)
-
-    # Remove created_at from response (not needed by frontend)
-    templates.each { |t| t.delete(:last_created_at) }
-
+    templates = ProjectExpenseTemplatesService.call(@project, search_term: params[:q])
     render json: templates
   end
 
@@ -158,70 +78,20 @@ class ProjectExpensesController < ApplicationController
       permitted
     end
 
-    def calculate_projects_statistics
-      # Reuse the same logic from ProjectsController
-      # Get all projects for the current user
-      projects = Project
-        .joins("LEFT JOIN project_memberships ON project_memberships.project_id = projects.id")
-        .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
-        .distinct
-        .includes(:project_expenses, :owner, :members, project_memberships: :user)
-
-      @projects = projects.order(created_at: :desc)
-
-      # Calculate total projects
-      @total_projects = projects.count
-
-      # Calculate total expenses
-      @total_expenses_cents = ProjectExpense
-        .joins(:project)
-        .joins("LEFT JOIN project_memberships ON project_memberships.project_id = projects.id")
-        .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
-        .distinct
-        .sum(:total_cents)
-      @total_expenses = @total_expenses_cents / 100.0
-
-      # Calculate unique participants
-      owner_ids = projects.pluck(:owner_id)
-      member_ids = ProjectMembership
-        .joins(:project)
-        .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
-        .distinct
-        .pluck(:user_id)
-      @total_participants = (owner_ids + member_ids).uniq.count
-
-      # Calculate active projects
-      project_ids_with_expenses = ProjectExpense
-        .joins(:project)
-        .joins("LEFT JOIN project_memberships ON project_memberships.project_id = projects.id")
-        .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
-        .distinct
-        .pluck(:project_id)
-      @active_projects = project_ids_with_expenses.uniq.count
-
-      # Find largest expense
-      @largest_expense = ProjectExpense
-        .joins(:project)
-        .joins("LEFT JOIN project_memberships ON project_memberships.project_id = projects.id")
-        .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
-        .distinct
-        .order(total_cents: :desc)
-        .first
-
-      # Find most active project
-      project_expense_counts = ProjectExpense
-        .joins(:project)
-        .joins("LEFT JOIN project_memberships ON project_memberships.project_id = projects.id")
-        .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
-        .distinct
-        .group(:project_id)
-        .count
-
-      if project_expense_counts.any?
-        most_active_project_id = project_expense_counts.max_by { |_, count| count }[0]
-        @most_active_project = projects.find_by(id: most_active_project_id)
-      else
-        @most_active_project = nil
+    def referer_path
+      @referer_path ||= begin
+        request.referer.present? ? URI.parse(request.referer).path : nil
+      rescue
+        nil
       end
+    end
+
+    def should_redirect_to_project?
+      referer_path != projects_path && referer_path != "/projects"
+    end
+
+    def assign_projects_index_stats
+      stats = ProjectsIndexStatisticsService.call(Current.user)
+      @projects, @total_projects, @total_expenses_cents, @total_expenses, @total_participants, @active_projects, @largest_expense, @most_active_project = stats.values_at(:projects, :total_projects, :total_expenses_cents, :total_expenses, :total_participants, :active_projects, :largest_expense, :most_active_project)
     end
 end

@@ -1,0 +1,56 @@
+---
+description: batch processing, find_each, find_in_batches, in_batches
+alwaysApply: false
+---
+## Batch Processing
+
+### find_each
+
+```ruby
+# Process large datasets in batches (avoids memory issues)
+Article.find_each(batch_size: 1000) do |article|
+  article.update_stats
+end
+
+# Default batch_size is 1000
+Article.find_each do |article|
+  process(article)
+end
+
+# With conditions
+Article.where(status: 'published').find_each do |article|
+  send_notification(article)
+end
+```
+
+### find_in_batches
+
+```ruby
+# Process in batches (get array of records)
+Article.find_in_batches(batch_size: 500) do |articles|
+  articles.each do |article|
+    process(article)
+  end
+end
+
+# Useful for bulk operations
+Article.find_in_batches do |articles|
+  Article.import(articles, on_duplicate_key_update: [:updated_at])
+end
+```
+
+### in_batches
+
+```ruby
+# Update in batches (efficient for updates)
+Article.where(status: 'draft').in_batches(of: 1000) do |batch|
+  batch.update_all(status: 'archived')
+end
+
+# Delete in batches
+Article.where('created_at < ?', 1.year.ago).in_batches do |batch|
+  batch.delete_all
+end
+```
+
+---

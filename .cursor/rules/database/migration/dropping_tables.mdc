@@ -1,0 +1,32 @@
+---
+description: dropping tables, 
+alwaysApply: false
+---
+## Dropping Tables
+
+```ruby
+class DropArticles < ActiveRecord::Migration[8.0]
+  def change
+    drop_table :articles do |t|
+      # Include table structure for reversibility
+      t.references :user, foreign_key: true
+      t.string :title
+      t.text :body
+      t.timestamps
+    end
+  end
+end
+
+# Or irreversible (use with caution!)
+class DropArticles < ActiveRecord::Migration[8.0]
+  def up
+    drop_table :articles
+  end
+  
+  def down
+    raise ActiveRecord::IrreversibleMigration
+  end
+end
+```
+
+---

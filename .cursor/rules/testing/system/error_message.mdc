@@ -1,0 +1,27 @@
+---
+description: testing error messages, 
+alwaysApply: false
+---
+## Testing Error Messages
+
+```ruby
+test "shows validation errors" do
+  sign_in_as @user
+  visit new_article_url
+  
+  click_button "Create Article"
+  
+  assert_text "Title can't be blank"
+  assert_text "Body can't be blank"
+  assert_selector ".field_with_errors"
+end
+
+test "shows flash errors" do
+  visit article_url(999999)
+  
+  assert_text "Article not found"
+  assert_selector ".alert-error"
+end
+```
+
+---

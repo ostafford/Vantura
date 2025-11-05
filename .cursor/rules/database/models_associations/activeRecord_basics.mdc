@@ -1,0 +1,18 @@
+---
+description: ActiveRecord Basics
+alwaysApply: false
+---
+## ActiveRecord Basics
+
+Models represent database tables and handle business logic.
+
+```ruby
+# app/models/article.rb
+
+class Article < ApplicationRecord
+  # Inherits from ApplicationRecord
+  # Automatically maps to 'articles' table
+end
+```
+
+---

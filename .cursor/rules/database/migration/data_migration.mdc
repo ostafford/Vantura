@@ -1,0 +1,66 @@
+---
+description: data migration, updating existing data, complex data migration, batch processing, 
+alwaysApply: false
+---
+## Data Migrations
+
+### Updating Existing Data
+
+```ruby
+class SetDefaultStatusForArticles < ActiveRecord::Migration[8.0]
+  def up
+    Article.where(status: nil).update_all(status: 'draft')
+  end
+  
+  def down
+    # Optionally reverse the change
+    # Usually not needed for data migrations
+  end
+end
+```
+
+### Complex Data Migration
+
+```ruby
+class MigrateArticleCategories < ActiveRecord::Migration[8.0]
+  def up
+    # Create new categories
+    tech = Category.find_or_create_by(name: 'Technology')
+    design = Category.find_or_create_by(name: 'Design')
+    
+    # Migrate articles
+    Article.where(old_category: 'tech').update_all(category_id: tech.id)
+    Article.where(old_category: 'design').update_all(category_id: design.id)
+    
+    # Remove old column
+    remove_column :articles, :old_category
+  end
+  
+  def down
+    add_column :articles, :old_category, :string
+    
+    Article.includes(:category).find_each do |article|
+      article.update_column(:old_category, article.category&.name&.downcase)
+    end
+  end
+end
+```
+
+### Batch Processing
+
+```ruby
+class UpdateArticleSlugs < ActiveRecord::Migration[8.0]
+  def up
+    # Process in batches to avoid memory issues
+    Article.find_each(batch_size: 1000) do |article|
+      article.update_column(:slug, article.title.parameterize)
+    end
+  end
+  
+  def down
+    # Reversal not needed
+  end
+end
+```
+
+---

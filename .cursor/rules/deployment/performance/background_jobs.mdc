@@ -1,0 +1,22 @@
+---
+description: Background Jobs
+alwaysApply: false
+---
+## Background Jobs
+
+Move slow operations to background:
+```ruby
+# Slow operation in controller (bad)
+def create
+  @article.save
+  send_notifications  # Slow!
+end
+
+# Use background job (good)
+def create
+  @article.save
+  NotificationJob.perform_later(@article.id)
+end
+```
+
+---

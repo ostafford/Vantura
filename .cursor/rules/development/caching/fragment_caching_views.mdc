@@ -1,0 +1,64 @@
+---
+description: fragment caching in views, basic fragment cache, cache with model dependency, cache with multiple dependencies, cache with Version
+alwaysApply: false
+---
+## Fragment Caching in Views
+
+### Basic Fragment Cache
+
+```erb
+<!-- Cache entire sidebar -->
+<% cache 'sidebar', expires_in: 1.hour do %>
+  <aside class="w-64 bg-gray-50 p-4">
+    <h3 class="font-bold mb-4">Categories</h3>
+    <ul>
+      <% Category.all.each do |category| %>
+        <li><%= link_to category.name, category %></li>
+      <% end %>
+    </ul>
+  </aside>
+<% end %>
+```
+
+### Cache with Model Dependency
+
+```erb
+<!-- Cache invalidates when article is updated -->
+<% cache @article do %>
+  <article class="bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-3xl font-bold mb-4"><%= @article.title %></h1>
+    <div class="prose">
+      <%= @article.body %>
+    </div>
+  </article>
+<% end %>
+```
+
+### Cache with Multiple Dependencies
+
+```erb
+<!-- Cache key includes article and user -->
+<% cache ['article-card', @article, Current.user] do %>
+  <div class="card">
+    <h2><%= @article.title %></h2>
+    
+    <!-- Show edit button only to author -->
+    <% if @article.user == Current.user %>
+      <%= link_to "Edit", edit_article_path(@article) %>
+    <% end %>
+  </div>
+<% end %>
+```
+
+### Cache with Version
+
+```erb
+<!-- Add version to bust cache when layout changes -->
+<% cache ['article-card', @article, 'v2'] do %>
+  <div class="new-card-layout">
+    <%= render @article %>
+  </div>
+<% end %>
+```
+
+---

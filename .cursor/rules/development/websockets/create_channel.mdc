@@ -1,0 +1,17 @@
+---
+description: creating channels, generate a channel
+alwaysApply: false
+---
+## Creating Channels
+
+### Generate a Channel
+
+```bash
+rails generate channel Notification
+```
+
+**Creates:**
+- `app/channels/notification_channel.rb` (server-side)
+- `app/javascript/channels/notification_channel.js` (client-side)
+
+---

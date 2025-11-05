@@ -1,0 +1,29 @@
+---
+description: testing scopes
+alwaysApply: false
+---
+## Testing Scopes
+
+```ruby
+test "published scope returns published articles" do
+  published = Article.published
+  
+  assert published.count > 0
+  assert published.all? { |a| a.status == 'published' }
+end
+
+test "recent scope orders by created_at desc" do
+  articles = Article.recent.limit(2)
+  
+  assert articles.first.created_at >= articles.second.created_at
+end
+
+test "by_user scope filters by user" do
+  user = users(:john)
+  articles = Article.by_user(user)
+  
+  assert articles.all? { |a| a.user == user }
+end
+```
+
+---

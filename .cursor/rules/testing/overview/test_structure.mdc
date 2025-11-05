@@ -1,0 +1,32 @@
+---
+description: test structure, directory layout
+alwaysApply: false
+---
+## Test Structure
+
+### Directory Layout
+
+```
+test/
+├── application_system_test_case.rb  # System test base
+├── test_helper.rb                   # Test configuration
+├── controllers/                     # Controller tests
+│   └── articles_controller_test.rb
+├── models/                          # Model tests
+│   ├── article_test.rb
+│   └── user_test.rb
+├── system/                          # System tests
+│   ├── articles_test.rb
+│   └── sessions_test.rb
+├── jobs/                            # Job tests
+│   └── article_notification_job_test.rb
+├── mailers/                         # Mailer tests
+│   └── article_mailer_test.rb
+├── helpers/                         # Helper tests
+│   └── articles_helper_test.rb
+└── fixtures/                        # Test data
+    ├── articles.yml
+    └── users.yml
+```
+
+---

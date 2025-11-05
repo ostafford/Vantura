@@ -1,0 +1,41 @@
+---
+description: uniqueness validation
+alwaysApply: false
+---
+## Uniqueness Validation
+
+Ensures value is unique in database.
+
+```ruby
+class User < ApplicationRecord
+  # Basic uniqueness
+  validates :email, uniqueness: true
+  
+  # Case insensitive
+  validates :email, uniqueness: { case_sensitive: false }
+  
+  # Scoped uniqueness
+  validates :title, uniqueness: { scope: :user_id }
+  # Ensures title is unique per user
+  
+  # Multiple scope
+  validates :username, uniqueness: { 
+    scope: [:account_id, :organization_id],
+    message: "already taken in this organization"
+  }
+  
+  # With conditions
+  validates :email, uniqueness: { 
+    conditions: -> { where.not(deleted_at: nil) }
+  }
+end
+```
+
+**Important:** Always add database index for uniqueness:
+```ruby
+# In migration
+add_index :users, :email, unique: true
+add_index :articles, [:title, :user_id], unique: true
+```
+
+---

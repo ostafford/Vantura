@@ -1,0 +1,99 @@
+---
+description: recurring jobs, configuration, cron schedule format, Recurring Job Example, 
+alwaysApply: false
+---
+## Recurring Jobs
+
+Solid Queue supports cron-like recurring jobs.
+
+### Configuration
+
+```yaml
+# config/recurring.yml
+
+# Run every day at 3am
+daily_cleanup:
+  class: CleanupOldSessionsJob
+  schedule: "0 3 * * *"
+  queue: maintenance
+
+# Run every hour
+cache_refresh:
+  class: CacheRefreshJob
+  schedule: "0 * * * *"
+  queue: default
+
+# Run every 15 minutes
+status_check:
+  class: StatusCheckJob
+  schedule: "*/15 * * * *"
+  queue: monitoring
+
+# Run every Monday at 9am
+weekly_report:
+  class: WeeklyReportJob
+  schedule: "0 9 * * 1"
+  queue: reports
+
+# Run on first day of month at midnight
+monthly_billing:
+  class: MonthlyBillingJob
+  schedule: "0 0 1 * *"
+  queue: billing
+```
+
+### Cron Schedule Format
+
+```
+* * * * *
+│ │ │ │ │
+│ │ │ │ └── Day of week (0-7, 0 and 7 are Sunday)
+│ │ │ └──── Month (1-12)
+│ │ └────── Day of month (1-31)
+│ └──────── Hour (0-23)
+└────────── Minute (0-59)
+
+Examples:
+"0 3 * * *"      → Daily at 3:00 AM
+"*/15 * * * *"   → Every 15 minutes
+"0 */2 * * *"    → Every 2 hours
+"0 9 * * 1"      → Every Monday at 9:00 AM
+"0 0 1 * *"      → First day of every month at midnight
+"30 14 * * 5"    → Every Friday at 2:30 PM
+```
+
+### Recurring Job Example
+
+```ruby
+# app/jobs/daily_cleanup_job.rb
+
+class DailyCleanupJob < ApplicationJob
+  queue_as :maintenance
+  
+  def perform
+    cleanup_old_sessions
+    cleanup_expired_tokens
+    cleanup_temporary_files
+  end
+  
+  private
+  
+  def cleanup_old_sessions
+    Session.where('created_at < ?', 30.days.ago).delete_all
+  end
+  
+  def cleanup_expired_tokens
+    User.where('password_reset_sent_at < ?', 2.hours.ago)
+        .update_all(password_reset_token: nil)
+  end
+  
+  def cleanup_temporary_files
+    # Remove temp files older than 24 hours
+    Dir.glob(Rails.root.join('tmp', 'uploads', '*')).each do |file|
+      File.delete(file) if File.mtime(file) < 24.hours.ago
+    end
+  end
+end
+```
+
+---

@@ -1,0 +1,18 @@
+---
+description: Mass assignment protection
+alwaysApply: false
+---
+## Mass Assignment Protection
+
+```ruby
+# Use strong parameters
+def article_params
+  params.require(:article).permit(:title, :body)
+end
+
+# Never use params directly
+@article.update(params[:article])  # Dangerous!
+@article.update(article_params)     # Safe!
+```
+
+---

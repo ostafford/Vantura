@@ -1,0 +1,20 @@
+---
+description: testing pagination
+alwaysApply: false
+---
+## Testing Pagination
+
+```ruby
+test "navigates through pages" do
+  visit articles_url
+  
+  assert_selector ".article", count: 10
+  
+  click_link "Next"
+  
+  assert_current_path articles_path(page: 2)
+  assert_selector ".article", count: 10
+end
+```
+
+---

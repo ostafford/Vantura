@@ -1,0 +1,39 @@
+---
+description: N+1 query problem, the problem, the solution eager loading
+alwaysApply: false
+---
+## N+1 Query Problem
+
+### The Problem
+
+```ruby
+# BAD: N+1 query (1 query for articles, N queries for users)
+articles = Article.limit(10)
+articles.each do |article|
+  puts article.user.name  # Separate query for each article!
+end
+
+# Generates:
+# SELECT * FROM articles LIMIT 10
+# SELECT * FROM users WHERE id = 1
+# SELECT * FROM users WHERE id = 2
+# SELECT * FROM users WHERE id = 3
+# ... (10 queries total = 1 + 10)
+```
+
+### The Solution: Eager Loading
+
+```ruby
+# GOOD: 2 queries total (1 for articles, 1 for users)
+articles = Article.includes(:user).limit(10)
+articles.each do |article|
+  puts article.user.name  # No additional query!
+end
+
+# Generates:
+# SELECT * FROM articles LIMIT 10
+# SELECT * FROM users WHERE id IN (1, 2, 3, ...)
+# (2 queries total)
+```
+
+---

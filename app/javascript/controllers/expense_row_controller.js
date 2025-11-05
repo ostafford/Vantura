@@ -1,7 +1,19 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Connects to data-controller="expense-row"
+/**
+ * Expense Row Controller
+ * 
+ * Manages expand/collapse behavior for expense rows showing contribution details.
+ * Toggles visibility of contributions row and updates chevron icon state.
+ * 
+ * Cross-controller access: None (all elements are within controller scope)
+ * 
+ * @see .cursor/rules/conventions/code_style/stimulus_controller_style.mdc
+ * @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
+ */
 export default class extends Controller {
+  static targets = ["contributionsRow", "chevron"]
+
   toggle(event) {
     // Prevent event if clicking on action links/buttons
     if (event.target.closest('a, button, form')) {
@@ -15,7 +27,9 @@ export default class extends Controller {
     }
     
     const isHidden = contributionsRow.classList.contains('hidden')
-    const chevron = this.element.querySelector('.chevron-icon')
+    // Use Stimulus target instead of querySelector
+    // Per rules: Elements within controller scope should use targets
+    const chevron = this.hasChevronTarget ? this.chevronTarget : null
     
     if (isHidden) {
       contributionsRow.classList.remove('hidden')

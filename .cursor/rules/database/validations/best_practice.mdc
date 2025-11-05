@@ -1,0 +1,150 @@
+---
+description: best practices, dos, dont, common validation patterns, email validation, password validation, slug validation, 
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Validate at model level (not just client-side)
+validates :email, presence: true
+
+# Use database constraints for critical validations
+# Migration:
+add_index :users, :email, unique: true
+# Model:
+validates :email, uniqueness: true
+
+# Use presence for required fields
+validates :title, :body, presence: true
+
+# Use format for structured data
+validates :email, format: { with: EMAIL_REGEX }
+
+# Use numericality for numbers
+validates :age, numericality: { greater_than: 0 }
+
+# Use inclusion for enums/constants
+validates :status, inclusion: { in: STATUSES }
+
+# Keep error messages user-friendly
+validates :email, presence: { message: "is required" }
+
+# Use conditional validations
+validates :password, presence: true, on: :create
+
+# Test validations thoroughly
+# test/models/user_test.rb
+test "should not save user without email" do
+  user = User.new
+  assert_not user.save
+end
+```
+
+### DON'T ❌
+
+```ruby
+# Don't rely only on client-side validation
+# Always validate server-side
+
+# Don't use presence for boolean fields
+validates :published, presence: true  # Bad! false is "blank"
+validates :published, inclusion: { in: [true, false] }  # Good!
+
+# Don't forget database indexes for uniqueness
+validates :email, uniqueness: true  # Without index, race condition possible!
+
+# Don't validate in controllers
+# Validate in models instead
+
+# Don't skip validations without good reason
+article.save(validate: false)  # Dangerous!
+
+# Don't use update_attribute in production
+article.update_attribute(:title, "New")  # Skips validations!
+article.update(title: "New")  # Runs validations (good!)
+
+# Don't duplicate validation logic
+# DRY: Define once in model, reuse everywhere
+
+# Don't forget to test edge cases
+# Test nil, blank, invalid format, etc.
+```
+
+---
+
+## Common Validation Patterns
+
+### Email Validation
+
+```ruby
+class User < ApplicationRecord
+  validates :email,
+            presence: true,
+            uniqueness: { case_sensitive: false },
+            format: { 
+              with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i,
+              message: "must be a valid email address"
+            }
+  
+  before_save :normalize_email
+  
+  private
+  
+  def normalize_email
+    self.email = email.downcase.strip if email.present?
+  end
+end
+```
+
+### Password Validation
+
+```ruby
+class User < ApplicationRecord
+  has_secure_password
+  
+  validates :password,
+            presence: true,
+            length: { minimum: 8 },
+            format: { 
+              with: /\A(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+              message: "must include uppercase, lowercase, and number"
+            },
+            on: :create
+end
+```
+
+### Slug Validation
+
+```ruby
+class Article < ApplicationRecord
+  validates :slug,
+            presence: true,
+            uniqueness: true,
+            format: { 
+              with: /\A[a-z0-9-]+\z/,
+              message: "can only contain lowercase letters, numbers, and hyphens"
+            }
+  
+  before_validation :generate_slug
+  
+  private
+  
+  def generate_slug
+    self.slug = title.parameterize if title.present? && slug.blank?
+  end
+end
+```
+
+---
+
+## Related Documentation
+
+- [Database Design](database-design.md) - Database constraints
+- [Models & Associations](models-associations.md) - Model setup
+- [Ruby & Rails Guidelines](../03-development/ruby-rails.md) - Model structure
+
+---
+
+**Previous:** [← Models & Associations](models-associations.md) | **Next:** [Queries & Performance →](queries-performance.md)

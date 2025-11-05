@@ -1,0 +1,54 @@
+---
+description: test organization, setup and teardown, testing naming, 
+alwaysApply: false
+---
+## Test Organization
+
+### Setup and Teardown
+
+```ruby
+class ArticleTest < ActiveSupport::TestCase
+  # Run before each test
+  setup do
+    @article = articles(:one)
+    @user = users(:john)
+  end
+  
+  # Run after each test
+  teardown do
+    # Cleanup if needed
+  end
+  
+  test "article is valid" do
+    assert @article.valid?
+  end
+end
+```
+
+### Test Naming
+
+```ruby
+# Good: Descriptive test names
+test "user can create article" do
+  # ...
+end
+
+test "validates presence of title" do
+  # ...
+end
+
+test "published articles are visible" do
+  # ...
+end
+
+# Bad: Vague test names
+test "test 1" do
+  # ...
+end
+
+test "it works" do
+  # ...
+end
+```
+
+---

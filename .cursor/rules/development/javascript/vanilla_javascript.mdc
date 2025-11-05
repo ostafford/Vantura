@@ -1,0 +1,73 @@
+---
+description:  Vanilla JavaScript Patterns, DOM selection, event listeners, DOM manipulation, 
+alwaysApply: false
+---
+## Vanilla JavaScript Patterns
+
+### DOM Selection
+
+```javascript
+// Good: Modern selectors
+const button = document.getElementById('user-login-submit-button')
+const buttons = document.querySelectorAll('.btn-primary')
+const firstCard = document.querySelector('.card')
+
+// Bad: jQuery (not needed)
+// const button = $('#user-login-submit-button')
+```
+
+### Event Listeners
+
+```javascript
+// Good: addEventListener
+const button = document.getElementById('submit-button')
+button.addEventListener('click', (event) => {
+  event.preventDefault()
+  handleSubmit()
+})
+
+// Good: Event delegation for dynamic content
+document.addEventListener('click', (event) => {
+  if (event.target.matches('[data-action="delete"]')) {
+    handleDelete(event.target)
+  }
+})
+
+// Bad: Inline onclick
+// <button onclick="handleClick()">
+```
+
+### DOM Manipulation
+
+```javascript
+// Good: Modern DOM methods
+const element = document.getElementById('article-title')
+
+// Add/remove classes
+element.classList.add('active')
+element.classList.remove('hidden')
+element.classList.toggle('expanded')
+
+// Change content
+element.textContent = 'New Title'
+element.innerHTML = '<strong>Bold Title</strong>'
+
+// Attributes
+element.setAttribute('data-status', 'active')
+element.getAttribute('data-id')
+element.removeAttribute('disabled')
+
+// Create elements
+const div = document.createElement('div')
+div.id = 'new-container'
+div.className = 'bg-white rounded-lg p-6'
+div.textContent = 'Content'
+
+// Append to DOM
+document.getElementById('articles-list').appendChild(div)
+
+// Insert at specific position
+element.insertAdjacentHTML('beforeend', '<p>New paragraph</p>')
+```
+
+---

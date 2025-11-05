@@ -1,0 +1,166 @@
+---
+description: models, model structure, model rules, 
+alwaysApply: false
+---
+## Models
+
+Models contain business logic, validations, and associations.
+
+### Model Structure
+
+```ruby
+# app/models/article.rb
+
+class Article < ApplicationRecord
+  # 1. Constants
+  STATUSES = ['draft', 'published', 'archived'].freeze
+  MIN_TITLE_LENGTH = 5
+  MAX_TITLE_LENGTH = 200
+  MIN_BODY_LENGTH = 100
+  
+  # 2. Associations (belongs_to first, then has_many/has_one)
+  belongs_to :user
+  belongs_to :category, optional: true
+  has_many :comments, dependent: :destroy
+  has_many :article_tags, dependent: :destroy
+  has_many :tags, through: :article_tags
+  has_one_attached :featured_image
+  
+  # 3. Validations
+  validates :title, presence: true, 
+                    length: { minimum: MIN_TITLE_LENGTH, maximum: MAX_TITLE_LENGTH }
+  validates :body, presence: true, 
+                   length: { minimum: MIN_BODY_LENGTH }
+  validates :slug, presence: true, 
+                   uniqueness: { scope: :user_id, case_sensitive: false }
+  validates :status, inclusion: { in: STATUSES }
+  validates :views_count, numericality: { greater_than_or_equal_to: 0 }
+  
+  # 4. Scopes
+  scope :published, -> { where(status: 'published') }
+  scope :draft, -> { where(status: 'draft') }
+  scope :recent, -> { order(created_at: :desc) }
+  scope :popular, -> { where('views_count > ?', 1000).order(views_count: :desc) }
+  scope :by_user, ->(user) { where(user: user) }
+  
+  # 5. Callbacks (use sparingly)
+  before_validation :generate_slug, if: :title_changed?
+  before_save :sanitize_content
+  after_create :notify_followers
+  
+  # 6. Public methods
+  def publish!
+    raise "Cannot publish without title" if title.blank?
+    update!(status: 'published', published_at: Time.current)
+  end
+  
+  def archive!
+    update!(status: 'archived')
+  end
+  
+  def draft?
+    status == 'draft'
+  end
+  
+  def published?
+    status == 'published' && published_at.present? && published_at <= Time.current
+  end
+  
+  def can_be_edited_by?(user)
+    self.user == user || user.admin?
+  end
+  
+  def reading_time
+    words = body.split.size
+    (words / 200.0).ceil
+  end
+  
+  # 7. Private methods
+  private
+  
+  def generate_slug
+    self.slug = title.parameterize if title.present?
+  end
+  
+  def sanitize_content
+    self.title = title.strip if title.present?
+    self.body = body.strip if body.present?
+  end
+  
+  def notify_followers
+    ArticleNotificationJob.perform_later(id)
+  end
+end
+```
+
+### Model Rules
+
+**Method Naming:**
+```ruby
+# Good: Boolean methods end with ?
+def published?
+  status == 'published'
+end
+
+def expired?
+  expires_at < Time.current
+end
+
+# Good: Bang methods raise exceptions
+def publish!
+  raise "Already published" if published?
+  update!(status: 'published', published_at: Time.current)
+end
+
+def delete_with_dependencies!
+  transaction do
+    comments.destroy_all
+    tags.clear
+    destroy!
+  end
+end
+```
+
+**Scopes vs Class Methods:**
+```ruby
+# Good: Use scopes for queries
+scope :published, -> { where(status: 'published') }
+scope :recent, -> { order(created_at: :desc) }
+scope :by_category, ->(category) { where(category: category) }
+
+# Bad: Class methods for simple queries
+def self.published
+  where(status: 'published')
+end
+
+# Good: Class methods for complex logic
+def self.trending(limit: 10)
+  published
+    .where('created_at > ?', 1.week.ago)
+    .joins(:comments)
+    .group('articles.id')
+    .order('COUNT(comments.id) DESC')
+    .limit(limit)
+end
+```
+
+**Callbacks - Use Sparingly:**
+```ruby
+# Good: Simple callbacks
+before_validation :generate_slug
+before_save :sanitize_title
+
+# Avoid: Complex logic in callbacks (use service objects)
+# Bad:
+after_create :send_notifications
+after_create :update_user_stats
+after_create :post_to_social_media
+after_create :generate_sitemap
+
+# Good: Extract to service object
+after_create :trigger_post_creation_workflow
+
+def trigger_post_creation_workflow
+  ArticleCreationService.new(self).execute
+end
+```

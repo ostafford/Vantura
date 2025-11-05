@@ -1,0 +1,17 @@
+---
+description: what is solid queue
+alwaysApply: false
+---
+## What is Solid Queue?
+
+Solid Queue is Rails 8's default background job processor. It replaces Redis-based solutions (Sidekiq, Resque) by using your database.
+
+**Key Benefits:**
+- ✅ No Redis dependency
+- ✅ Uses database with `FOR UPDATE SKIP LOCKED`
+- ✅ Supports recurring jobs
+- ✅ Built-in concurrency controls
+- ✅ Proven at scale (HEY: 20M+ jobs/day)
+- ✅ Works with PostgreSQL 9.5+, MySQL 8.0+, SQLite
+
+---

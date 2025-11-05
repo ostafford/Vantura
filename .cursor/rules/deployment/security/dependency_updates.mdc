@@ -1,0 +1,17 @@
+---
+description:  Dependency Updates
+alwaysApply: false
+---
+## Dependency Updates
+
+```bash
+# Keep dependencies updated
+bundle update
+
+# Check for vulnerabilities
+bundle audit
+
+# Use Dependabot (GitHub)
+```
+
+---

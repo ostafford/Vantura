@@ -1,16 +1,16 @@
 <%# Update the Bento Cards with current month/week stats %>
-<%= turbo_stream.update "calendar_bento_cards" do %>
+<%= turbo_stream.update "calendar-bento-cards-section" do %>
   <%= render partial: "calendar/bento_cards" %>
 <% end %>
 
 <%# Update the month/week navigation header %>
-<%= turbo_stream.update "calendar_month_navigation" do %>
+<%= turbo_stream.update "calendar-month-navigation" do %>
   <%= render partial: "calendar/month_nav_wrapper" %>
 <% end %>
 
 <%# Replace the calendar view (month or week) %>
-<%= turbo_stream.replace "calendar_view_container" do %>
-  <div id="calendar_view_container">
+<%= turbo_stream.replace "calendar-view-container" do %>
+  <div id="calendar-view-container">
     <% if @view == 'week' %>
       <%= render 'calendar/week_view' %>
     <% else %>

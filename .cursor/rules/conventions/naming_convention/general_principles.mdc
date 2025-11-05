@@ -1,0 +1,13 @@
+---
+description: general principles
+alwaysApply: false
+---
+## General Principles
+
+1. **Be descriptive** - Names should clearly indicate purpose
+2. **Be consistent** - Follow the same patterns throughout
+3. **Follow Rails conventions** - Use singular/plural correctly
+4. **Use proper case** - snake_case for files, PascalCase for classes
+5. **Avoid abbreviations** - Write full words unless universally understood
+
+---

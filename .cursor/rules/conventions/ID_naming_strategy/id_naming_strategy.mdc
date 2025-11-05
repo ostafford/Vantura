@@ -1,0 +1,17 @@
+---
+description: id naming stratergy comprehensive,
+alwaysApply: false
+---
+# ID Naming Strategy (Comprehensive)
+
+**Last Updated:** November 3, 2025
+
+## Related Documentation
+
+- [Naming Conventions](naming-conventions.md) - General naming rules
+- [Hotwire Guidelines](../03-development/hotwire.md) - Stimulus controller integration
+- [Accessibility](../07-quality/accessibility.md) - WCAG compliance
+
+---
+
+**Previous:** [← Naming Conventions](naming-conventions.md) | **Next:** [Code Style →](code-style.md)

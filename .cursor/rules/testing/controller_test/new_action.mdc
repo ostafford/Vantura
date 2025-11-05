@@ -1,0 +1,23 @@
+---
+description: testing new action
+alwaysApply: false
+---
+## Testing New Action
+
+```ruby
+test "should get new" do
+  sign_in_as @user
+  get new_article_url
+  
+  assert_response :success
+  assert_not_nil assigns(:article)
+end
+
+test "redirects to login if not authenticated" do
+  get new_article_url
+  
+  assert_redirected_to login_url
+end
+```
+
+---

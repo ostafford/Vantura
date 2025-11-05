@@ -1,0 +1,32 @@
+---
+alwaysApply: false
+---
+## Console Methods
+
+```javascript
+// Different log levels
+console.log('Info message')
+console.warn('Warning message')
+console.error('Error message')
+
+// Grouped logs
+console.group('User Data')
+console.log('Name:', user.name)
+console.log('Email:', user.email)
+console.groupEnd()
+
+// Table view
+const users = [
+  { name: 'John', email: 'john@example.com' },
+  { name: 'Jane', email: 'jane@example.com' }
+]
+console.table(users)
+
+// Timing
+console.time('fetch-articles')
+await fetchArticles()
+console.timeEnd('fetch-articles')
+// Output: fetch-articles: 234.56ms
+```
+
+---

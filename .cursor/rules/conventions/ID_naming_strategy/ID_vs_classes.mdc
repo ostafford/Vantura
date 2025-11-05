@@ -1,0 +1,64 @@
+---
+description: when to use ids vs classes, use id for, use classes for, 
+alwaysApply: false
+---
+## When to Use IDs vs Classes
+
+### Use IDs for:
+
+1. **Form label associations**
+   ```html
+   <label for="user-email-input">Email</label>
+   <input id="user-email-input" type="email">
+   ```
+
+2. **JavaScript/Stimulus targeting**
+   ```javascript
+   document.getElementById('user-menu-toggle-button')
+   ```
+
+3. **Page anchors for deep linking**
+   ```html
+   <h2 id="comments-section">Comments</h2>
+   <a href="#comments-section">Jump to comments</a>
+   ```
+
+4. **Unique page elements**
+   - Main navigation
+   - Hero section
+   - Footer
+
+5. **ARIA relationships**
+   ```html
+   <button aria-describedby="help-tooltip">Help</button>
+   <div id="help-tooltip" role="tooltip">...</div>
+   ```
+
+### Use Classes for:
+
+1. **Styling (TailwindCSS utilities)**
+   ```html
+   <div class="bg-white rounded-lg shadow-md p-6">
+   ```
+
+2. **Multiple elements with same style**
+   ```html
+   <button class="btn btn-primary">Save</button>
+   <button class="btn btn-primary">Submit</button>
+   ```
+
+3. **Component variants**
+   ```html
+   <div class="card card--featured">
+   ```
+
+4. **Responsive design**
+   ```html
+   <div class="hidden md:block">
+   ```
+
+5. **State changes**
+   ```html
+   <div class="is-active is-loading">
+   ```
+

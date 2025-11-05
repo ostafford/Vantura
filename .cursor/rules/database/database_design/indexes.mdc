@@ -1,0 +1,69 @@
+---
+description: indexes, when to add indexes, compound indexes, partial indexes, unique indexes
+alwaysApply: false
+---
+## Indexes
+
+Indexes speed up queries but slow down writes.
+
+### When to Add Indexes
+
+```ruby
+# Always index:
+# 1. Primary keys (automatic)
+# 2. Foreign keys
+add_index :articles, :user_id
+
+# 3. Frequently queried columns
+add_index :articles, :published
+add_index :users, :email
+
+# 4. Unique columns
+add_index :users, :email, unique: true
+
+# 5. Columns used in WHERE clauses
+add_index :articles, :status
+add_index :articles, :category_id
+
+# 6. Columns used in ORDER BY
+add_index :articles, :created_at
+add_index :articles, :views_count
+```
+
+### Compound Indexes
+
+```ruby
+# Multiple columns queried together
+add_index :articles, [:user_id, :published]
+add_index :articles, [:category_id, :created_at]
+
+# Order matters! Index is used left-to-right
+# [:user_id, :published] helps:
+#   WHERE user_id = 1
+#   WHERE user_id = 1 AND published = true
+# But NOT:
+#   WHERE published = true (user_id not in condition)
+```
+
+### Partial Indexes
+
+```ruby
+# Index only specific rows
+add_index :articles, :user_id,
+          where: "published = true"
+
+add_index :users, :email,
+          where: "deleted_at IS NULL"
+```
+
+### Unique Indexes
+
+```ruby
+# Enforce uniqueness at database level
+add_index :users, :email, unique: true
+
+# Composite unique
+add_index :article_tags, [:article_id, :tag_id], unique: true
+```
+
+---

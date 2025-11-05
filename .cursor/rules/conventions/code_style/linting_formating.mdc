@@ -1,0 +1,59 @@
+---
+description: linting and formatting, rubocop, ESLint, prettier
+alwaysApply: false
+---
+## Linting & Formatting
+
+### RuboCop (Ruby)
+
+```yaml
+# .rubocop.yml
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.4
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Layout/LineLength:
+  Max: 120
+
+Metrics/MethodLength:
+  Max: 15
+
+Metrics/BlockLength:
+  Exclude:
+    - 'config/**/*'
+    - 'spec/**/*'
+    - 'test/**/*'
+```
+
+### ESLint (JavaScript)
+
+```json
+{
+  "extends": ["eslint:recommended"],
+  "env": {
+    "browser": true,
+    "es2022": true
+  },
+  "rules": {
+    "indent": ["error", 2],
+    "quotes": ["error", "single"],
+    "semi": ["error", "never"],
+    "no-unused-vars": ["error"]
+  }
+}
+```
+
+### Prettier
+
+```json
+{
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "tabWidth": 2,
+  "printWidth": 120
+}
+```

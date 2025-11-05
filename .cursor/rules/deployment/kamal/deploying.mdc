@@ -1,0 +1,31 @@
+---
+description: deploying, First Deployment
+alwaysApply: false
+---
+## Deploying
+
+### First Deployment
+
+```bash
+# Complete setup
+kamal setup
+```
+
+### Subsequent Deployments
+
+```bash
+# Deploy updates
+kamal deploy
+
+# What happens:
+# 1. Build Docker image locally
+# 2. Push to registry
+# 3. Pull image on servers
+# 4. Run migrations
+# 5. Start new containers
+# 6. Health check
+# 7. Switch traffic (zero-downtime)
+# 8. Stop old containers
+```
+
+---

@@ -1,0 +1,77 @@
+---
+description: working with errors, checking errors, adding custom errors, error messages in views,
+alwaysApply: false
+---
+## Working with Errors
+
+### Checking Errors
+
+```ruby
+article = Article.new
+article.valid?  # false
+article.invalid?  # true
+
+# Get all errors
+article.errors.full_messages
+# => ["Title can't be blank", "Body is too short"]
+
+# Get errors for specific attribute
+article.errors[:title]
+# => ["can't be blank"]
+
+# Check if attribute has errors
+article.errors[:title].any?  # true
+
+# Clear errors
+article.errors.clear
+```
+
+### Adding Custom Errors
+
+```ruby
+class Article < ApplicationRecord
+  validate :custom_validation
+  
+  private
+  
+  def custom_validation
+    # Add error to specific attribute
+    errors.add(:title, "cannot be 'Test'") if title == 'Test'
+    
+    # Add error to base (not specific attribute)
+    errors.add(:base, "Article must have either body or video")
+    
+    # Add multiple errors
+    if title.blank?
+      errors.add(:title, "can't be blank")
+      errors.add(:title, "must be present")
+    end
+  end
+end
+```
+
+### Error Messages in Views
+
+```erb
+<!-- Display all errors -->
+<% if @article.errors.any? %>
+  <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+    <h2><%= pluralize(@article.errors.count, "error") %> prohibited this article from being saved:</h2>
+    <ul>
+      <% @article.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<!-- Display errors for specific field -->
+<%= form.text_field :title, class: @article.errors[:title].any? ? 'border-red-500' : '' %>
+<% if @article.errors[:title].any? %>
+  <p class="text-red-600 text-sm mt-1">
+    <%= @article.errors[:title].first %>
+  </p>
+<% end %>
+```
+
+---

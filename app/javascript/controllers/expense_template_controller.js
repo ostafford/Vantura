@@ -1,8 +1,18 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Connects to data-controller="expense-template"
+/**
+ * Expense Template Controller
+ * 
+ * Manages expense template autocomplete search and selection.
+ * Provides template suggestions based on merchant/category input.
+ * 
+ * Cross-controller access: None (all elements are within controller scope)
+ * 
+ * @see .cursor/rules/conventions/code_style/stimulus_controller_style.mdc
+ * @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
+ */
 export default class extends Controller {
-  static targets = ["input", "results", "merchant", "category", "notes"]
+  static targets = ["input", "results", "merchant", "category", "notes", "resultsList", "resultItem"]
   static values = { 
     url: String
   }
@@ -83,8 +93,11 @@ export default class extends Controller {
   displayResults(templates) {
     this.templates = templates
     
-    const ul = this.resultsTarget.querySelector('ul')
-    if (!ul) return
+    // Use Stimulus target instead of querySelector
+    // Per rules: Elements within controller scope should use targets
+    if (!this.hasResultsListTarget) return
+    
+    const ul = this.resultsListTarget
     
     if (templates.length === 0) {
       ul.innerHTML = `
@@ -119,6 +132,8 @@ export default class extends Controller {
     ul.innerHTML = html
     
     // Attach click listeners and keyboard navigation
+    // Use querySelectorAll for dynamically created items (acceptable per rules)
+    // @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
     ul.querySelectorAll('li[data-index]').forEach((item, index) => {
       item.addEventListener('click', () => {
         this.selectTemplate(this.templates[index])

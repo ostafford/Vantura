@@ -1,0 +1,67 @@
+---
+description: file naming best practices, ruby files, view files, javascript files, test files
+alwaysApply: false
+---
+## File Naming Best Practices
+
+### Ruby Files
+
+```
+# Models (singular)
+user.rb
+blog_post.rb
+article_comment.rb
+
+# Controllers (plural + controller suffix)
+users_controller.rb
+blog_posts_controller.rb
+article_comments_controller.rb
+
+# Jobs (singular + job suffix)
+article_notification_job.rb
+data_export_job.rb
+
+# Mailers (singular + mailer suffix)
+article_mailer.rb
+user_mailer.rb
+```
+
+### View Files
+
+```
+# Actions (singular resource name)
+articles/index.html.erb
+articles/show.html.erb
+articles/new.html.erb
+articles/edit.html.erb
+
+# Partials (starts with underscore)
+articles/_form.html.erb
+articles/_article.html.erb
+shared/_header.html.erb
+```
+
+### JavaScript Files
+
+```
+# Stimulus controllers (snake_case + _controller suffix)
+dropdown_controller.js
+modal_controller.js
+autosave_controller.js
+
+# Other JS files (snake_case)
+application.js
+utilities.js
+```
+
+### Test Files
+
+```
+# Tests (matches class name + _test suffix)
+user_test.rb
+article_test.rb
+articles_controller_test.rb
+article_notification_job_test.rb
+```
+
+---

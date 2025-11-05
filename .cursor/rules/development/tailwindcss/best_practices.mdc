@@ -1,0 +1,49 @@
+---
+description: best practices, dos and donts
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```html
+<!-- Use Tailwind utilities -->
+<div class="bg-white rounded-lg shadow-md p-6">
+
+<!-- Organize classes logically -->
+<div class="flex items-center w-full p-4 bg-white rounded-lg">
+
+<!-- Use responsive prefixes -->
+<div class="grid grid-cols-4 md:grid-cols-2 sm:grid-cols-1">
+
+<!-- Extract repeated patterns to components -->
+<button class="btn-primary">Save</button>
+```
+
+### DON'T ❌
+
+```html
+<!-- Don't use inline styles -->
+<div style="background-color: white; padding: 24px;">
+
+<!-- Don't create custom classes when Tailwind works -->
+<div class="my-custom-container">  <!-- Use Tailwind instead -->
+
+<!-- Don't use arbitrary values excessively -->
+<div class="p-[23px]">  <!-- Use standard spacing scale -->
+
+<!-- Don't ignore responsive design -->
+<div class="w-96">  <!-- Should scale down on mobile -->
+```
+
+---
+
+## Related Documentation
+
+- [Code Style](../02-conventions/code-style.md) - General styling guidelines
+- [Responsive Design](../07-quality/responsive-design.md) - Desktop-first approach
+- [Hotwire](hotwire.md) - Interactive components
+
+---
+
+**Previous:** [← Hotwire](hotwire.md) | **Next:** [JavaScript →](javascript.md)

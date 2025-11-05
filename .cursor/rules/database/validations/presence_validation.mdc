@@ -1,0 +1,27 @@
+---
+description: presence validation
+alwaysApply: false
+---
+## Presence Validation
+
+Ensures field is not empty.
+
+```ruby
+class Article < ApplicationRecord
+  # Basic presence
+  validates :title, presence: true
+  validates :body, presence: true
+  
+  # Multiple attributes
+  validates :title, :body, presence: true
+  
+  # With custom message
+  validates :email, presence: { message: "must be provided" }
+  
+  # Boolean fields (use inclusion instead)
+  validates :published, inclusion: { in: [true, false] }
+  # Don't use presence for booleans (false is considered blank)
+end
+```
+
+---

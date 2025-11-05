@@ -1,0 +1,49 @@
+---
+description: running tests, commands, continues testing
+alwaysApply: false
+---
+## Running Tests
+
+### Commands
+
+```bash
+# Run all tests
+rails test
+
+# Run specific test file
+rails test test/models/article_test.rb
+
+# Run specific test
+rails test test/models/article_test.rb:10
+# (line 10 is where the test starts)
+
+# Run tests matching pattern
+rails test test/models
+
+# Run system tests only
+rails test:system
+
+# Run with verbose output
+rails test -v
+
+# Run in parallel (faster)
+rails test -j 4
+
+# Run with backtrace
+rails test -b
+```
+
+### Continuous Testing
+
+```bash
+# Install guard (auto-run tests on file changes)
+gem 'guard-minitest', group: :development
+
+# Generate Guardfile
+guard init minitest
+
+# Run guard
+guard
+```
+
+---

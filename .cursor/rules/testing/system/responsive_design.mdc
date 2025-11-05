@@ -1,0 +1,33 @@
+---
+description: testing responsive design
+alwaysApply: false
+---
+## Testing Responsive Design
+
+```ruby
+test "shows mobile menu on small screens" do
+  resize_window_to(375, 667)  # iPhone size
+  visit root_url
+  
+  assert_selector "#mobile-menu-toggle"
+  assert_no_selector "#desktop-menu"
+  
+  click_button "Menu"
+  assert_selector "#mobile-menu.open"
+end
+
+test "shows desktop layout on large screens" do
+  resize_window_to(1920, 1080)
+  visit root_url
+  
+  assert_selector "#desktop-menu"
+  assert_no_selector "#mobile-menu-toggle"
+end
+
+# Helper method in ApplicationSystemTestCase
+def resize_window_to(width, height)
+  page.driver.browser.manage.window.resize_to(width, height)
+end
+```
+
+---

@@ -1,0 +1,32 @@
+---
+description: class ordering 
+alwaysApply: false
+---
+## Class Ordering Convention
+
+Follow this order for consistency and readability:
+
+1. **Layout:** `block`, `inline-block`, `flex`, `grid`, `hidden`
+2. **Position:** `relative`, `absolute`, `fixed`, `sticky`, `top-0`, `left-0`, `z-10`
+3. **Display & Flex/Grid:** `flex-row`, `flex-col`, `items-center`, `justify-between`, `gap-4`
+4. **Box Model:** `w-full`, `h-screen`, `m-4`, `p-6`, `space-y-4`
+5. **Typography:** `text-lg`, `font-bold`, `text-center`, `leading-relaxed`, `tracking-wide`
+6. **Visual:** `bg-white`, `border`, `border-gray-300`, `rounded-lg`, `shadow-md`
+7. **Effects:** `opacity-50`, `cursor-pointer`
+8. **Transitions:** `transition`, `duration-300`, `ease-in-out`
+9. **Interactive States:** `hover:bg-blue-700`, `focus:ring-2`, `active:scale-95`
+10. **Responsive:** `md:flex-row`, `sm:text-sm`
+
+```html
+<!-- Good: Organized class order -->
+<div class="flex flex-col items-center justify-between w-full max-w-4xl mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow md:flex-row md:p-4 sm:p-2">
+  Content
+</div>
+
+<!-- Acceptable but less readable: Random order -->
+<div class="bg-white w-full shadow-md p-6 flex rounded-lg flex-col max-w-4xl md:flex-row">
+  Content
+</div>
+```
+
+---

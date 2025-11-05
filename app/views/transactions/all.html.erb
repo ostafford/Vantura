@@ -31,7 +31,7 @@
   <% end %>
 
   <!-- Month Navigation & Filter -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <%= content_wrapper class: "py-4" do %>
     <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep p-4">
       <div class="flex items-center justify-between">
         <!-- Month Navigation -->
@@ -60,8 +60,8 @@
 
         <!-- Filter Dropdown -->
         <div class="relative">
-          <label for="filter" class="sr-only">Filter transactions</label>
-          <select id="filter" name="filter" 
+          <label for="transaction-filter-select" class="sr-only">Filter transactions</label>
+          <select id="transaction-filter-select" name="filter" 
                   data-action="change->filter#change"
                   data-filter-url-value="<%= transactions_path(year: @year, month: @month) %>"
                   class="block px-4 py-2 pr-10 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
@@ -73,9 +73,9 @@
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+  <%= content_wrapper class: "py-4" do %>
     <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">
@@ -118,7 +118,7 @@
         </div>
       <% end %>
     </div>
-  </div>
+  <% end %>
 
   <%= render 'shared/recurring_drawer' %>
 </div>

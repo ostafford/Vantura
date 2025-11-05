@@ -1,0 +1,56 @@
+---
+description: error handling, try-catch blocks, global error handler, 
+alwaysApply: false
+---
+## Error Handling
+
+### Try-Catch Blocks
+
+```javascript
+// Good: Handle errors appropriately
+async function loadArticle(id) {
+  try {
+    const response = await fetch(`/articles/${id}`)
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Article not found')
+      }
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const article = await response.json()
+    return article
+  } catch (error) {
+    console.error('Error loading article:', error)
+    
+    // Show user-friendly error
+    showError('Unable to load article. Please try again.')
+    
+    // Re-throw if needed
+    throw error
+  }
+}
+```
+
+### Global Error Handler
+
+```javascript
+// Handle unhandled errors
+window.addEventListener('error', (event) => {
+  console.error('Global error:', event.error)
+  
+  // Log to error tracking service
+  // logError(event.error)
+})
+
+// Handle unhandled promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason)
+  
+  // Prevent default handling
+  event.preventDefault()
+})
+```
+
+---

@@ -1,0 +1,19 @@
+---
+description: association validation
+alwaysApply: false
+---
+## Association Validation
+
+```ruby
+class Article < ApplicationRecord
+  belongs_to :user
+  
+  # Validate presence of association
+  validates :user, presence: true
+  
+  # Validate associated record
+  validates_associated :user
+end
+```
+
+---

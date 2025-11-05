@@ -1,0 +1,79 @@
+---
+description: Configuration, config deploy, 
+alwaysApply: false
+---
+## Configuration
+
+### config/deploy.yml
+
+```yaml
+# config/deploy.yml
+
+service: myapp
+image: your-username/myapp
+
+# Servers
+servers:
+  web:
+    hosts:
+      - 192.168.1.1
+      - 192.168.1.2
+    labels:
+      traefik.http.routers.myapp.rule: Host(`myapp.com`)
+      traefik.http.routers.myapp-secure.entrypoints: websecure
+      traefik.http.routers.myapp-secure.rule: Host(`myapp.com`)
+      traefik.http.routers.myapp-secure.tls: true
+      traefik.http.routers.myapp-secure.tls.certresolver: letsencrypt
+  
+  worker:
+    hosts:
+      - 192.168.1.3
+    cmd: bundle exec solid_queue start
+
+# Registry (Docker Hub)
+registry:
+  username: your-username
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Environment variables
+env:
+  secret:
+    - RAILS_MASTER_KEY
+  clear:
+    RAILS_ENV: production
+    DATABASE_URL: postgresql://user:pass@db.example.com/myapp_production
+
+# Volumes
+volumes:
+  - "storage:/rails/storage"
+
+# Asset path (for Thruster)
+asset_path: /rails/public/assets
+
+# Database (if using managed DB, not Docker)
+# No database section needed if using external DB
+
+# SSL via Traefik
+traefik:
+  options:
+    publish:
+      - "443:443"
+    volume:
+      - "/letsencrypt/acme.json:/letsencrypt/acme.json"
+  args:
+    entryPoints.web.address: ":80"
+    entryPoints.websecure.address: ":443"
+    certificatesResolvers.letsencrypt.acme.email: "you@example.com"
+    certificatesResolvers.letsencrypt.acme.storage: "/letsencrypt/acme.json"
+    certificatesResolvers.letsencrypt.acme.httpchallenge: true
+    certificatesResolvers.letsencrypt.acme.httpchallenge.entrypoint: web
+
+# Healthcheck
+healthcheck:
+  path: /up
+  port: 3000
+  interval: 10s
+```
+
+---

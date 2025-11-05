@@ -1,0 +1,31 @@
+---
+description: CDN configuration, setup CDN for assets, with CDN enabled
+alwaysApply: false
+---
+## CDN Configuration
+
+### Setup CDN for Assets
+
+```ruby
+# config/environments/production.rb
+
+Rails.application.configure do
+  # Use CDN for assets
+  config.asset_host = 'https://cdn.example.com'
+  
+  # Or use environment variable
+  config.asset_host = ENV['ASSET_HOST']
+end
+```
+
+### With CDN Enabled
+
+```erb
+<!-- You write: -->
+<%= image_tag "logo.png" %>
+
+<!-- Generates: -->
+<img src="https://cdn.example.com/assets/logo-abc123.png">
+```
+
+---

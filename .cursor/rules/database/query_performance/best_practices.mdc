@@ -1,0 +1,110 @@
+---
+description: best practices, dos, dont, query debugging, rails console
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Use eager loading to avoid N+1
+Article.includes(:user, :tags)
+
+# Use find_each for large datasets
+Article.find_each { |a| process(a) }
+
+# Use pluck for single columns
+Article.pluck(:title)
+
+# Use exists? for existence checks
+Article.exists?(slug: 'my-article')
+
+# Index foreign keys and frequent queries
+add_index :articles, :user_id
+add_index :articles, :status
+
+# Use scopes for reusable queries
+scope :published, -> { where(status: 'published') }
+
+# Select only needed columns
+Article.select(:id, :title)
+
+# Use counter cache for counts
+belongs_to :user, counter_cache: true
+
+# Use appropriate join type
+joins    # Filter only
+includes # Load associations
+```
+
+### DON'T ❌
+
+```ruby
+# Don't cause N+1 queries
+articles = Article.all
+articles.each { |a| a.user.name }  # N+1!
+
+# Don't load all records for count
+Article.all.count      # Bad
+Article.count          # Good
+
+# Don't use map when pluck works
+Article.all.map(&:id)  # Bad
+Article.pluck(:id)     # Good
+
+# Don't forget indexes on foreign keys
+# Always: add_index :articles, :user_id
+
+# Don't use any? for existence checks
+Article.where(slug: 'test').any?     # Bad
+Article.exists?(slug: 'test')        # Good
+
+# Don't load records unnecessarily
+if Article.where(user_id: 1).any?    # Loads records
+if Article.exists?(user_id: 1)       # Just checks existence
+
+# Don't use SQL directly without sanitization
+# Bad: SQL injection risk
+Article.where("title = '#{params[:title]}'")
+# Good: Parameterized
+Article.where("title = ?", params[:title])
+
+# Don't ignore Bullet gem warnings
+# Fix N+1 queries it detects!
+```
+
+---
+
+## Query Debugging
+
+### In Rails Console
+
+```ruby
+# Show SQL for query
+Article.where(status: 'published').to_sql
+
+# Explain query plan
+Article.where(status: 'published').explain
+
+# Count queries
+ActiveRecord::Base.connection.query_cache.size
+
+# Enable query logging
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+
+# Benchmark queries
+Benchmark.measure { Article.includes(:user).to_a }
+```
+
+---
+
+## Related Documentation
+
+- [Database Design](database-design.md) - Indexes and structure
+- [Migrations](migrations.md) - Adding indexes
+- [Models & Associations](models-associations.md) - Association setup
+- [Caching](../03-development/caching.md) - Query caching
+
+---
+
+**Previous:** [← Validations](validations.md) | **Next:** [Testing Overview →](../05-testing/testing-overview.md)

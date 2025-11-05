@@ -1,0 +1,43 @@
+---
+description: complex workflows
+alwaysApply: false
+---
+## Complex Workflows
+
+```ruby
+test "complete article creation workflow" do
+  sign_in_as @user
+  
+  # Navigate to new article
+  visit root_url
+  click_link "New Article"
+  
+  # Fill in article details
+  fill_in "Title", with: "Complete Workflow Test"
+  fill_in "Body", with: "This is a complete test of the workflow"
+  select "Technology", from: "Category"
+  
+  # Add tags
+  fill_in "Tags", with: "ruby, rails, testing"
+  
+  # Upload image
+  attach_file "Featured Image", Rails.root.join("test/fixtures/files/test.jpg")
+  
+  # Preview before saving
+  click_button "Preview"
+  assert_selector ".preview-modal"
+  assert_text "Complete Workflow Test"
+  
+  # Save article
+  click_button "Save"
+  
+  # Verify creation
+  assert_text "Article created successfully"
+  assert_selector "h1", text: "Complete Workflow Test"
+  assert_selector "img[src*='test.jpg']"
+  assert_text "ruby"
+  assert_text "rails"
+end
+```
+
+---

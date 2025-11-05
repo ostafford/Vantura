@@ -1,0 +1,64 @@
+---
+description: Queue Configuration, basic configuration, queue priority, 
+alwaysApply: false
+---
+## Queue Configuration
+
+### Basic Configuration
+
+```yaml
+# config/queue.yml
+
+production:
+  dispatchers:
+    - polling_interval: 1
+      batch_size: 500
+  
+  workers:
+    # Default worker pool
+    - queues: "*"
+      threads: 5
+      processes: 3
+    
+    # High priority queue
+    - queues: "high_priority,urgent"
+      threads: 10
+      processes: 5
+    
+    # Low priority queue
+    - queues: "low_priority,maintenance"
+      threads: 2
+      processes: 1
+
+development:
+  workers:
+    - queues: "*"
+      threads: 1
+      processes: 1
+
+test:
+  workers:
+    - queues: "*"
+      threads: 1
+      processes: 1
+```
+
+### Queue Priority
+
+Jobs are processed in this order:
+1. **Job priority** (higher priority number first)
+2. **Queue order** (as listed in config)
+3. **Enqueue time** (older jobs first)
+
+```ruby
+# High priority
+UrgentJob.set(priority: 10, queue: :urgent).perform_later
+
+# Normal priority
+DefaultJob.perform_later
+
+# Low priority
+CleanupJob.set(priority: -10, queue: :maintenance).perform_later
+```
+
+---

@@ -1,0 +1,65 @@
+---
+description: testing jobs, job tests, testing in system tests, 
+alwaysApply: false
+---
+## Testing Jobs
+
+### Job Tests
+
+```ruby
+# test/jobs/article_notification_job_test.rb
+
+require "test_helper"
+
+class ArticleNotificationJobTest < ActiveSupport::TestCase
+  test "sends notifications to followers" do
+    article = articles(:published)
+    follower = users(:follower)
+    
+    # Assert email is sent
+    assert_emails 1 do
+      ArticleNotificationJob.perform_now(article.id)
+    end
+  end
+  
+  test "handles missing article gracefully" do
+    # Should raise error (will be retried by Solid Queue)
+    assert_raises ActiveRecord::RecordNotFound do
+      ArticleNotificationJob.perform_now(999999)
+    end
+  end
+  
+  test "enqueues job correctly" do
+    article = articles(:published)
+    
+    assert_enqueued_jobs 1, only: ArticleNotificationJob do
+      ArticleNotificationJob.perform_later(article.id)
+    end
+  end
+end
+```
+
+### Testing in System Tests
+
+```ruby
+# test/system/articles_test.rb
+
+require "application_system_test_case"
+
+class ArticlesTest < ApplicationSystemTestCase
+  test "creating article enqueues notification job" do
+    sign_in_as users(:john)
+    
+    visit new_article_path
+    
+    fill_in "Title", with: "New Article"
+    fill_in "Body", with: "Article content here"
+    
+    assert_enqueued_jobs 1, only: ArticleNotificationJob do
+      click_button "Create Article"
+    end
+  end
+end
+```
+
+---

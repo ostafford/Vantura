@@ -1,0 +1,30 @@
+---
+description: test coverage, simpleCov Gem
+alwaysApply: false
+---
+## Test Coverage
+
+### SimpleCov Gem
+
+```ruby
+# Gemfile
+gem 'simplecov', require: false, group: :test
+
+# test/test_helper.rb
+require 'simplecov'
+SimpleCov.start 'rails'
+
+# Run tests
+rails test
+
+# View coverage report
+open coverage/index.html
+```
+
+**Aim for:**
+- **80%+** overall coverage
+- **100%** critical business logic
+- **90%+** models
+- **70%+** controllers
+
+---

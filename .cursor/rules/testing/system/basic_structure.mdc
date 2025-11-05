@@ -1,0 +1,24 @@
+---
+description: basic structure
+alwaysApply: false
+---
+## Basic Structure
+
+```ruby
+# test/system/articles_test.rb
+
+require "application_system_test_case"
+
+class ArticlesTest < ApplicationSystemTestCase
+  setup do
+    @user = users(:john)
+  end
+  
+  test "visiting the index" do
+    visit articles_url
+    assert_selector "h1", text: "Articles"
+  end
+end
+```
+
+---

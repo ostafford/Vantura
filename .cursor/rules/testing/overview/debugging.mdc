@@ -1,0 +1,88 @@
+---
+description: debugging tests, debugging with byebug, verbose output, isolate failing test, test database, setup, database cleaner, 
+alwaysApply: false
+---
+## Debugging Tests
+
+### Debugging with byebug
+
+```ruby
+test "something complex" do
+  article = articles(:one)
+  
+  byebug  # Debugger stops here
+  
+  assert article.valid?
+end
+```
+
+### Verbose Output
+
+```bash
+# Run with verbose output
+rails test -v
+
+# Show backtrace
+rails test -b
+
+# Show warnings
+rails test -w
+```
+
+### Isolate Failing Test
+
+```ruby
+# Run only one test
+rails test test/models/article_test.rb:10
+
+# Focus on specific test temporarily
+test "only this test" do
+  # ...
+end
+
+# Comment out other tests while debugging
+```
+
+---
+
+## Test Database
+
+### Setup
+
+```bash
+# Create test database
+rails db:test:prepare
+
+# Reset test database
+rails db:test:purge
+rails db:test:prepare
+
+# Load schema to test database
+rails db:schema:load RAILS_ENV=test
+```
+
+### Database Cleaner
+
+```ruby
+# Test database is automatically cleaned between tests
+# Rails uses transactional fixtures by default
+
+# In test_helper.rb
+class ActiveSupport::TestCase
+  # Use transactional fixtures
+  self.use_transactional_tests = true
+end
+```
+
+---
+
+## Related Documentation
+
+- [Model Tests](model-tests.md) - Testing models in detail
+- [Controller Tests](controller-tests.md) - Testing controllers
+- [System Tests](system-tests.md) - Full integration tests
+- [Fixtures](fixtures.md) - Test data management
+
+---
+
+**Previous:** [← Queries & Performance](../04-database/queries-performance.md) | **Next:** [Model Tests →](model-tests.md)

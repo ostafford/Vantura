@@ -1,0 +1,23 @@
+---
+description: rate limiting 
+alwaysApply: false
+---
+## Rate Limiting
+
+```ruby
+# Use Rack::Attack gem
+gem 'rack-attack'
+
+# config/initializers/rack_attack.rb
+class Rack::Attack
+  throttle('req/ip', limit: 300, period: 5.minutes) do |req|
+    req.ip
+  end
+  
+  throttle('logins/email', limit: 5, period: 20.seconds) do |req|
+    req.params['email'] if req.path == '/login' && req.post?
+  end
+end
+```
+
+---

@@ -1,0 +1,43 @@
+---
+description: why id naming matters, problem with poor id naming
+alwaysApply: false
+---
+## Why ID Naming Matters
+
+IDs are critical for:
+- **Debugging** - Easy identification in browser DevTools
+- **JavaScript targeting** - Stimulus controllers, vanilla JS selectors
+- **Accessibility** - Form label associations, ARIA references
+- **Deep linking** - Anchor links within pages
+- **Testing** - Reliable selectors in system tests
+- **Team collaboration** - Self-documenting code
+
+### The Problem with Poor ID Naming
+
+```html
+<!-- Bad: Cryptic, debugging nightmare -->
+<div id="d1">
+  <div id="d2">
+    <form id="f1">
+      <input id="i1">
+      <button id="b1">Submit</button>
+    </form>
+  </div>
+</div>
+
+<!-- Good: Self-documenting, easy to debug -->
+<div id="user-profile-container">
+  <div id="user-profile-header">
+    <form id="user-settings-form">
+      <input id="user-email-input">
+      <button id="user-settings-save-button">Submit</button>
+    </form>
+  </div>
+</div>
+```
+
+**In Browser DevTools:**
+- Cryptic IDs: "What is `d1`? What does `b1` do?"
+- Clear IDs: "Oh, it's the user profile container with a settings form"
+
+---

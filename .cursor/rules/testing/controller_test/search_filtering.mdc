@@ -1,0 +1,23 @@
+---
+description: testing search and filtering
+alwaysApply: false
+---
+## Testing Search & Filtering
+
+```ruby
+test "filters articles by status" do
+  get articles_url(status: 'published')
+  
+  articles = assigns(:articles)
+  assert articles.all? { |a| a.status == 'published' }
+end
+
+test "searches articles by title" do
+  get articles_url(query: 'First')
+  
+  articles = assigns(:articles)
+  assert articles.any? { |a| a.title.include?('First') }
+end
+```
+
+---

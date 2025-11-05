@@ -1,0 +1,62 @@
+---
+description: best practices, dos and donts, 
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Test one thing per test
+test "validates title presence" do
+  article = Article.new(body: "Body")
+  assert_not article.valid?
+  assert_includes article.errors[:title], "can't be blank"
+end
+
+# Use fixtures for data
+article = articles(:published)
+
+# Test behavior, not implementation
+test "article can be published" do
+  article = articles(:draft)
+  article.publish!
+  assert article.published?
+end
+
+# Test edge cases
+test "handles empty input" do
+  article = Article.new
+  assert_not article.valid?
+end
+
+# Use descriptive names
+test "calculates reading time for 1000 word article" do
+  # ...
+end
+```
+
+### DON'T ❌
+
+```ruby
+# Don't test Rails functionality
+test "can save article" do
+  article = Article.create(title: "Test")
+  assert article.persisted?  # Trust Rails
+end
+
+# Don't test multiple validations in one test
+test "all validations" do
+  article = Article.new
+  assert_not article.valid?  # Too broad!
+end
+
+# Don't test private methods directly
+test "private_method works" do
+  article.send(:private_method)  # Bad!
+end
+```
+
+---
+
+**Previous:** [← Testing Overview](testing-overview.md) | **Next:** [Controller Tests →](controller-tests.md)

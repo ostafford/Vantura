@@ -1,0 +1,41 @@
+---
+description: running migration commands
+alwaysApply: false
+---
+## Running Migrations
+
+### Commands
+
+```bash
+# Run all pending migrations
+rails db:migrate
+
+# Rollback last migration
+rails db:rollback
+
+# Rollback multiple migrations
+rails db:rollback STEP=3
+
+# Rollback to specific version
+rails db:migrate:down VERSION=20251103000000
+
+# Migrate to specific version
+rails db:migrate:up VERSION=20251103000000
+
+# Check migration status
+rails db:migrate:status
+
+# Redo last migration (rollback + migrate)
+rails db:migrate:redo
+
+# Redo specific migration
+rails db:migrate:redo VERSION=20251103000000
+
+# Reset database (drop, create, migrate)
+rails db:reset
+
+# Drop and recreate from schema
+rails db:schema:load
+```
+
+---

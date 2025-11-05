@@ -1,0 +1,59 @@
+---
+description: testing javascript/turbo, turbo frames, stimulus controllers, 
+alwaysApply: false
+---
+## Testing JavaScript/Turbo
+
+### Turbo Frames
+
+```ruby
+test "inline editing with turbo frame" do
+  article = articles(:one)
+  sign_in_as article.user
+  visit article_url(article)
+  
+  click_link "Edit"
+  
+  # Form loads in frame without page reload
+  assert_field "Title", with: article.title
+  
+  fill_in "Title", with: "Updated via Frame"
+  click_button "Update"
+  
+  assert_selector "h1", text: "Updated via Frame"
+  assert_no_selector "form"  # Form is replaced
+end
+```
+
+### Stimulus Controllers
+
+```ruby
+test "dropdown opens on click" do
+  sign_in_as @user
+  visit root_url
+  
+  # Dropdown is initially hidden
+  assert_no_selector "#user-menu-dropdown.open"
+  
+  click_button "Menu"
+  
+  # Dropdown opens (Stimulus controller)
+  assert_selector "#user-menu-dropdown.open"
+end
+
+test "modal opens and closes" do
+  visit articles_url
+  
+  click_button "New Article"
+  
+  # Modal appears
+  assert_selector "#new-article-modal"
+  
+  click_button "Close"
+  
+  # Modal disappears
+  assert_no_selector "#new-article-modal"
+end
+```
+
+---

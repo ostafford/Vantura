@@ -1,0 +1,22 @@
+---
+description: Security checklist
+alwaysApply: false
+---
+## Security Checklist
+
+- ✅ Use strong passwords (8+ chars, mixed case, numbers)
+- ✅ Enable SSL/HTTPS
+- ✅ Use CSRF protection
+- ✅ Sanitize user input
+- ✅ Use strong parameters
+- ✅ Keep secrets secure
+- ✅ Update dependencies regularly
+- ✅ Use security headers
+- ✅ Implement rate limiting
+- ✅ Enable authentication
+- ✅ Validate authorization
+- ✅ Log security events
+
+---
+
+**Previous:** [← Performance](performance.md) | **Next:** [Code Quality →](../07-quality/code-quality.md)

@@ -1,0 +1,24 @@
+---
+description: testing strong parameters
+alwaysApply: false
+---
+## Testing Strong Parameters
+
+```ruby
+test "filters unpermitted parameters" do
+  sign_in_as @user
+  
+  post articles_url, params: {
+    article: {
+      title: "Test",
+      body: "Body",
+      admin_only_field: "hacked"
+    }
+  }
+  
+  article = Article.last
+  assert_nil article.admin_only_field
+end
+```
+
+---

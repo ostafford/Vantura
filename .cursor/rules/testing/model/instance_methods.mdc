@@ -1,0 +1,34 @@
+---
+description: testing instance methods
+alwaysApply: false
+---
+## Testing Instance Methods
+
+```ruby
+test "reading_time calculates correct minutes" do
+  article = articles(:one)
+  # Assuming body has 1000 words
+  assert_equal 5, article.reading_time
+end
+
+test "publish! updates status and published_at" do
+  article = articles(:draft)
+  
+  article.publish!
+  
+  assert_equal 'published', article.status
+  assert_not_nil article.published_at
+end
+
+test "published? returns true for published articles" do
+  article = articles(:published)
+  assert article.published?
+end
+
+test "published? returns false for draft articles" do
+  article = articles(:draft)
+  assert_not article.published?
+end
+```
+
+---

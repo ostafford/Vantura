@@ -1,0 +1,103 @@
+---
+description: Solid queue, key benefits, configuration, creating jobs, Enqueuing Jobs, Recurring Jobs
+alwaysApply: false
+---
+## 2. Solid Queue (Background Jobs)
+
+Solid Queue is Rails 8's default background job processor, replacing Redis-based solutions like Sidekiq or Resque.
+
+### Key Benefits
+
+- **No Redis dependency** - Uses database with `FOR UPDATE SKIP LOCKED`
+- **Supports recurring jobs** - Built-in cron-like scheduling
+- **Concurrency controls** - Thread and process configuration
+- **Proven at scale** - HEY processes 20M+ jobs/day
+- **Works with PostgreSQL 9.5+, MySQL 8.0+, SQLite**
+
+### Configuration
+
+```yaml
+# config/queue.yml
+
+production:
+  dispatchers:
+    - polling_interval: 1
+      batch_size: 500
+  workers:
+    - queues: "*"
+      threads: 5
+      processes: 3
+    - queues: "high_priority"
+      threads: 10
+      processes: 5
+      
+development:
+  workers:
+    - queues: "*"
+      threads: 1
+```
+
+### Creating Jobs
+
+```bash
+# Generate a job
+rails generate job ArticleNotification
+```
+
+```ruby
+# app/jobs/article_notification_job.rb
+class ArticleNotificationJob < ApplicationJob
+  queue_as :default
+  
+  retry_on StandardError, wait: 5.seconds, attempts: 3
+  
+  def perform(article_id)
+    article = Article.find(article_id)
+    
+    article.user.followers.each do |follower|
+      ArticleMailer.new_article(follower, article).deliver_now
+    end
+  end
+end
+```
+
+### Enqueuing Jobs
+
+```ruby
+# Enqueue job to run ASAP
+ArticleNotificationJob.perform_later(@article.id)
+
+# Enqueue with delay
+ArticleNotificationJob.set(wait: 1.hour).perform_later(@article.id)
+
+# Enqueue at specific time
+ArticleNotificationJob.set(wait_until: Date.tomorrow.noon).perform_later(@article.id)
+
+# Enqueue with priority
+ArticleNotificationJob.set(priority: 10).perform_later(@article.id)
+
+# Custom queue
+ArticleNotificationJob.set(queue: :high_priority).perform_later(@article.id)
+```
+
+### Recurring Jobs
+
+```yaml
+# config/recurring.yml
+
+# Run every day at 3am
+daily_cleanup:
+  class: DailyCleanupJob
+  schedule: "0 3 * * *"
+  queue: maintenance
+
+# Run every hour
+cache_refresh:
+  class: CacheRefreshJob
+  schedule: "0 * * * *"
+  
+# Run every 15 minutes
+status_check:
+  class: StatusCheckJob
+  schedule: "*/15 * * * *"
+```

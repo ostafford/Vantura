@@ -1,0 +1,18 @@
+---
+description: Dark mode
+alwaysApply: false
+---
+## Dark Mode (Optional)
+
+```html
+<!-- Add dark: prefix for dark mode styles -->
+<div class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+  Content adapts to dark mode
+</div>
+
+<button class="bg-blue-600 dark:bg-blue-500 text-white">
+  Button in dark mode
+</button>
+```
+
+---

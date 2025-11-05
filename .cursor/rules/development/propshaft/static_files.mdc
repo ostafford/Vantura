@@ -1,0 +1,32 @@
+---
+description: Static Files (Public Directory), 
+alwaysApply: false
+---
+## Static Files (Public Directory)
+
+Files in `public/` are served directly without processing.
+
+```
+public/
+├── 404.html              # Custom 404 page
+├── 422.html              # Unprocessable entity page
+├── 500.html              # Server error page
+├── robots.txt            # Search engine instructions
+├── sitemap.xml           # Site map
+└── uploads/              # User-uploaded files (via ActiveStorage)
+```
+
+### robots.txt
+
+```
+# public/robots.txt
+
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Allow: /
+
+Sitemap: https://example.com/sitemap.xml
+```
+
+---

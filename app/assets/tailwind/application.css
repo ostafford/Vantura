@@ -113,6 +113,17 @@
       font-size: clamp(2rem, 2.5vw, 3rem);
     }
   }
+
+  /* Sidebar navigation styles */
+  /* Hide labels when sidebar is collapsed (w-16) */
+  .w-16 .sidebar-label {
+    display: none;
+  }
+
+  /* Show labels when sidebar is expanded (w-64) */
+  .w-64 .sidebar-label {
+    display: inline;
+  }
 }
 
 /* Custom utilities layer */

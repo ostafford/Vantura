@@ -1,0 +1,27 @@
+---
+description: testing philosophy, test pyramid
+alwaysApply: false
+---
+## Testing Philosophy
+
+### Test Pyramid
+
+```
+        /\
+       /  \      Few, slow, expensive
+      / UI \     System/Integration Tests
+     /------\
+    /        \   
+   / Service  \  More, medium speed
+  /------------\ 
+ /              \
+/  Unit Tests    \ Many, fast, cheap
+------------------
+```
+
+**Distribution:**
+- **70%** Unit tests (models, helpers, services)
+- **20%** Integration tests (controllers, requests)
+- **10%** System tests (full user flows)
+
+---

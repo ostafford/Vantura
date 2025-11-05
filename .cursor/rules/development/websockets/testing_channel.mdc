@@ -1,0 +1,49 @@
+---
+description: testing channels, channel tests, related documentations 
+alwaysApply: false
+---
+## Testing Channels
+
+### Channel Tests
+
+```ruby
+# test/channels/notification_channel_test.rb
+
+require "test_helper"
+
+class NotificationChannelTest < ActionCable::Channel::TestCase
+  test "subscribes to stream" do
+    user = users(:john)
+    
+    stub_connection current_user: user
+    subscribe
+    
+    assert subscription.confirmed?
+    assert_has_stream "notifications_#{user.id}"
+  end
+  
+  test "broadcasts notification" do
+    user = users(:john)
+    notification = notifications(:one)
+    
+    assert_broadcasts("notifications_#{user.id}", 1) do
+      ActionCable.server.broadcast(
+        "notifications_#{user.id}",
+        { message: "Test" }
+      )
+    end
+  end
+end
+```
+
+---
+
+## Related Documentation
+
+- [Rails 8 Features](../01-overview/rails-8-features.md) - Solid Cable overview
+- [Hotwire Guidelines](hotwire.md) - Turbo Streams alternative
+- [JavaScript Guidelines](javascript.md) - Client-side integration
+
+---
+
+**Previous:** [← Caching](caching.md) | **Next:** [Assets →](assets.md)

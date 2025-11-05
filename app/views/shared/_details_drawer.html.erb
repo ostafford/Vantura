@@ -1,11 +1,11 @@
 <!-- Generic Details Drawer (used by Calendar on mobile) -->
-<div id="detailsDrawer"
+<div id="details-drawer-modal"
      class="hidden z-50"
      data-calendar-target="detailsModal">
 
   <!-- Drawer Panel -->
   <div class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-primary-700 shadow-deep flex flex-col transform translate-x-full transition-transform duration-500 ease-in-out border-l-2 border-gray-300 dark:border-gray-700 md:top-16 md:bottom-0"
-       id="detailsDrawerPanel">
+       id="details-drawer-panel">
 
     <!-- Drawer Header -->
     <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-primary-600 dark:from-primary-700 dark:via-primary-900 dark:to-primary-700 px-6 py-5 flex-shrink-0">
@@ -21,7 +21,7 @@
             <p class="text-white/80 text-sm mt-0.5">Transactions for the selected day</p>
           </div>
         </div>
-        <button type="button" id="detailsDrawerClose" class="text-white/70 hover:text-white hover:bg-white/10 rounded-lg p-2 transition-all">
+        <button type="button" id="details-drawer-close-button" class="text-white/70 hover:text-white hover:bg-white/10 rounded-lg p-2 transition-all">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -30,7 +30,7 @@
     </div>
 
     <!-- Drawer Content (Scrollable) -->
-    <div class="flex-1 overflow-y-auto p-0" id="detailsDrawerContent">
+    <div class="flex-1 overflow-y-auto p-0" id="details-drawer-content">
       <!-- Injected content goes here -->
     </div>
   </div>

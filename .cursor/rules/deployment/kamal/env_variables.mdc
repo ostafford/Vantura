@@ -1,0 +1,35 @@
+---
+description: environment variables, passing to servers, 
+alwaysApply: false
+---
+## Environment Variables
+
+### .env File
+
+```bash
+# .env (gitignored)
+
+KAMAL_REGISTRY_PASSWORD=your_docker_password
+RAILS_MASTER_KEY=your_rails_master_key
+DATABASE_URL=postgresql://user:pass@host/db
+REDIS_URL=redis://host:6379/0
+```
+
+### Passing to Servers
+
+```yaml
+# config/deploy.yml
+
+env:
+  # Secret (encrypted)
+  secret:
+    - RAILS_MASTER_KEY
+    - DATABASE_URL
+  
+  # Clear (not encrypted)
+  clear:
+    RAILS_ENV: production
+    RAILS_LOG_LEVEL: info
+```
+
+---

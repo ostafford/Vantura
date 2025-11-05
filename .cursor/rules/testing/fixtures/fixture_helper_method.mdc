@@ -1,0 +1,33 @@
+---
+description: fixture helper methods
+alwaysApply: false
+---
+## Fixture Helper Methods
+
+```ruby
+# test/test_helper.rb
+
+module ActiveSupport
+  class TestCase
+    fixtures :all
+    
+    # Access fixture by name
+    def article_one
+      articles(:one)
+    end
+    
+    # Create fixture data programmatically
+    def create_published_article(user: users(:john))
+      Article.create!(
+        user: user,
+        title: "Test Article",
+        body: "Test body",
+        status: 'published',
+        published_at: Time.current
+      )
+    end
+  end
+end
+```
+
+---

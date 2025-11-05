@@ -1,5 +1,5 @@
 <%# Update the Expenses Card %>
-<%= turbo_stream.replace "expenses_card" do %>
+<%= turbo_stream.replace "dashboard-expenses-card" do %>
   <%= render "dashboard/transaction_type_card",
       type: 'expense',
       expense_total: @expense_total,
@@ -9,7 +9,7 @@
 <% end %>
 
 <%# Update the Income Card %>
-<%= turbo_stream.replace "income_card" do %>
+<%= turbo_stream.replace "dashboard-income-card" do %>
   <%= render "dashboard/transaction_type_card",
       type: 'income',
       income_total: @income_total,
@@ -19,7 +19,7 @@
 <% end %>
 
 <%# Update the End of Month Projection %>
-<%= turbo_stream.replace "projection_card" do %>
+<%= turbo_stream.replace "dashboard-projection-card" do %>
   <%= render "dashboard/projection_card",
       income_total: @income_total,
       expense_total: @expense_total,
@@ -31,13 +31,13 @@
 <% end %>
 
 <%# Prepend the new transaction to Recent Transactions %>
-<%= turbo_stream.prepend "recent_transactions" do %>
+<%= turbo_stream.prepend "recent-transactions-table-body" do %>
   <%= render "dashboard/recent_transaction_row", transaction: @transaction %>
 <% end %>
 
 <%# Show success notification %>
 <% transaction_type = @transaction.amount > 0 ? 'income' : 'expense' %>
-<%= turbo_stream.append "notifications" do %>
+<%= turbo_stream.append "notifications-container" do %>
   <div data-controller="notification" 
        data-notification-type="success"
        data-notification-auto-dismiss-value="true"
@@ -92,7 +92,7 @@
 </script>
 
 <%# Close the modal drawer %>
-<%= turbo_stream.replace "transactionModal" do %>
+<%= turbo_stream.replace "transaction-modal" do %>
   <%= render "shared/transaction_drawer", default_transaction_date: Date.today %>
 <% end %>
 

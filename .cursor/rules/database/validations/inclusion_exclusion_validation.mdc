@@ -1,0 +1,32 @@
+---
+description: inclusion, exclusion validation,
+alwaysApply: false
+---
+## Inclusion/Exclusion Validation
+
+Validates value is in or not in a set.
+
+```ruby
+class Article < ApplicationRecord
+  # Inclusion (whitelist)
+  validates :status, inclusion: { 
+    in: ['draft', 'published', 'archived'],
+    message: "%{value} is not a valid status"
+  }
+  
+  # Using constant
+  STATUSES = ['draft', 'published', 'archived'].freeze
+  validates :status, inclusion: { in: STATUSES }
+  
+  # Numeric range
+  validates :age, inclusion: { in: 18..100 }
+  
+  # Exclusion (blacklist)
+  validates :username, exclusion: { 
+    in: ['admin', 'root', 'system'],
+    message: "%{value} is reserved"
+  }
+end
+```
+
+---

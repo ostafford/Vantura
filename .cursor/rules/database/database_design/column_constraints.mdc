@@ -1,0 +1,57 @@
+---
+description: column constraints, not null, default values, unique constraints, length limits, 
+alwaysApply: false
+---
+## Column Constraints
+
+### NOT NULL
+
+```ruby
+# Require value (cannot be NULL)
+t.string :title, null: false
+t.string :email, null: false
+t.integer :user_id, null: false
+
+# Allow NULL (default)
+t.string :middle_name  # Can be NULL
+```
+
+### Default Values
+
+```ruby
+# Set default value
+t.boolean :published, default: false
+t.integer :views_count, default: 0
+t.string :status, default: "draft"
+t.datetime :created_at, default: -> { "CURRENT_TIMESTAMP" }
+
+# Array default
+t.string :tags, array: true, default: []
+```
+
+### Unique Constraints
+
+```ruby
+# Single column unique
+t.string :email, null: false
+add_index :users, :email, unique: true
+
+# Multiple column unique (composite)
+add_index :article_tags, [:article_id, :tag_id], unique: true
+
+# Unique with condition
+add_index :users, :email, 
+          unique: true,
+          where: "deleted_at IS NULL"
+```
+
+### Length Limits
+
+```ruby
+# String length limit
+t.string :title, limit: 200
+t.string :slug, limit: 100
+t.string :phone, limit: 20
+```
+
+---

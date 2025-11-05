@@ -1,0 +1,92 @@
+---
+description: creating tables, basic table, table with references, join table, table with UUID primary key
+alwaysApply: false
+---
+## Creating Tables
+
+### Basic Table
+
+```ruby
+class CreateArticles < ActiveRecord::Migration[8.0]
+  def change
+    create_table :articles do |t|
+      t.string :title, null: false
+      t.text :body, null: false
+      t.boolean :published, default: false
+      
+      t.timestamps
+    end
+  end
+end
+```
+
+### Table with References
+
+```ruby
+class CreateArticles < ActiveRecord::Migration[8.0]
+  def change
+    create_table :articles do |t|
+      t.references :user, null: false, foreign_key: true
+      t.references :category, foreign_key: true
+      
+      t.string :title, null: false
+      t.text :body, null: false
+      t.string :status, default: "draft"
+      
+      t.timestamps
+    end
+    
+    add_index :articles, :status
+    add_index :articles, [:user_id, :status]
+  end
+end
+```
+
+### Join Table
+
+```ruby
+class CreateJoinTableArticleTag < ActiveRecord::Migration[8.0]
+  def change
+    create_join_table :articles, :tags do |t|
+      t.index :article_id
+      t.index :tag_id
+      t.index [:article_id, :tag_id], unique: true
+      
+      t.timestamps
+    end
+  end
+end
+
+# Or manually:
+class CreateArticleTags < ActiveRecord::Migration[8.0]
+  def change
+    create_table :article_tags do |t|
+      t.references :article, null: false, foreign_key: { on_delete: :cascade }
+      t.references :tag, null: false, foreign_key: { on_delete: :cascade }
+      
+      t.timestamps
+    end
+    
+    add_index :article_tags, [:article_id, :tag_id], unique: true
+  end
+end
+```
+
+### Table with UUID Primary Key
+
+```ruby
+class CreateArticles < ActiveRecord::Migration[8.0]
+  def change
+    enable_extension 'pgcrypto' unless extension_enabled?('pgcrypto')
+    
+    create_table :articles, id: :uuid do |t|
+      t.string :title, null: false
+      t.text :body, null: false
+      
+      t.timestamps
+    end
+  end
+end
+```
+
+---

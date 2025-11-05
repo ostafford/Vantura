@@ -1,0 +1,38 @@
+---
+description: monitoring cache performance, rails console, logging cache operation
+alwaysApply: false
+---
+## Monitoring Cache Performance
+
+### Rails Console
+
+```ruby
+# Check cache statistics (if supported)
+Rails.cache.stats
+
+# Test cache read/write
+Rails.cache.write('test_key', 'test_value')
+Rails.cache.read('test_key')
+# => "test_value"
+
+# Clear all cache (development only!)
+Rails.cache.clear
+
+# Check if caching is enabled
+Rails.cache.class
+# => ActiveSupport::Cache::SolidCacheStore
+```
+
+### Logging Cache Operations
+
+```ruby
+# Enable cache logging in development
+# config/environments/development.rb
+
+config.cache_store = :solid_cache_store, {
+  logger: Rails.logger,
+  log_level: :debug
+}
+```
+
+---

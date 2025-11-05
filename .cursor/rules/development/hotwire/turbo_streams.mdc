@@ -1,0 +1,147 @@
+---
+description: Turbo streams, controller response, turbo stream views, turbo stream actions, Partial Rendering, Turbo Stream Rules
+alwaysApply: false
+---
+## Turbo Streams
+
+Turbo Streams enable real-time updates by streaming partial page changes.
+
+### Controller Response
+
+```ruby
+# app/controllers/comments_controller.rb
+
+class CommentsController < ApplicationController
+  def create
+    @article = Article.find(params[:article_id])
+    @comment = @article.comments.build(comment_params)
+    
+    respond_to do |format|
+      if @comment.save
+        # Turbo Stream response
+        format.turbo_stream
+        # HTML fallback
+        format.html { redirect_to @article }
+      else
+        # Error handling
+        format.turbo_stream {
+          render turbo_stream: turbo_stream.replace(
+            "comment-form",
+            partial: "comments/form",
+            locals: { article: @article, comment: @comment }
+          )
+        }
+        format.html { render :new, status: :unprocessable_entity }
+      end
+    end
+  end
+  
+  def destroy
+    @comment = Comment.find(params[:id])
+    @article = @comment.article
+    @comment.destroy
+    
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to @article }
+    end
+  end
+end
+```
+
+### Turbo Stream Views
+
+```erb
+<!-- app/views/comments/create.turbo_stream.erb -->
+
+<!-- Prepend new comment to list -->
+<%= turbo_stream.prepend "comments-list", @comment %>
+
+<!-- Replace form with fresh form (clears inputs) -->
+<%= turbo_stream.replace "comment-form" do %>
+  <%= render "comments/form", article: @article, comment: Comment.new %>
+<% end %>
+
+<!-- Update comment count -->
+<%= turbo_stream.update "comment-count" do %>
+  <%= pluralize(@article.comments.count, "comment") %>
+<% end %>
+```
+
+```erb
+<!-- app/views/comments/destroy.turbo_stream.erb -->
+
+<!-- Remove comment from DOM -->
+<%= turbo_stream.remove dom_id(@comment) %>
+
+<!-- Update comment count -->
+<%= turbo_stream.update "comment-count" do %>
+  <%= pluralize(@article.comments.count, "comment") %>
+<% end %>
+```
+
+### Turbo Stream Actions
+
+```ruby
+# Available actions:
+turbo_stream.append(target, content)      # Add to end
+turbo_stream.prepend(target, content)     # Add to beginning
+turbo_stream.replace(target, content)     # Replace entire element
+turbo_stream.update(target, content)      # Replace inner content only
+turbo_stream.remove(target)               # Remove element
+turbo_stream.before(target, content)      # Insert before element
+turbo_stream.after(target, content)       # Insert after element
+```
+
+### Partial Rendering
+
+```erb
+<!-- app/views/comments/_comment.html.erb -->
+<%= turbo_frame_tag dom_id(comment) do %>
+  <div class="bg-white rounded-lg shadow p-4 mb-4"
+       id="<%= "comment-#{comment.id}-container" %>">
+    <p class="text-gray-800"><%= comment.body %></p>
+    <div class="text-sm text-gray-600 mt-2">
+      <span><%= comment.user.name %></span> •
+      <time datetime="<%= comment.created_at.iso8601 %>">
+        <%= time_ago_in_words(comment.created_at) %> ago
+      </time>
+    </div>
+    
+    <% if comment.can_be_deleted_by?(Current.user) %>
+      <%= button_to "Delete",
+          article_comment_path(comment.article, comment),
+          method: :delete,
+          id: "comment-#{comment.id}-delete-button",
+          class: "text-red-600 hover:text-red-800 text-sm mt-2" %>
+    <% end %>
+  </div>
+<% end %>
+```
+
+### Turbo Stream Rules
+
+**1. Always Provide HTML Fallback**
+```ruby
+respond_to do |format|
+  format.turbo_stream  # Modern browsers with JS
+  format.html          # Fallback for non-JS or accessibility
+end
+```
+
+**2. Use Appropriate Actions**
+- `append`/`prepend` for adding items to lists
+- `replace` for updating entire elements
+- `update` for changing content only
+- `remove` for deletions
+
+**3. Target by ID**
+```erb
+<!-- Target must have an ID -->
+<div id="comments-list">
+  <%= render @comments %>
+</div>
+
+<!-- Turbo Stream targets this ID -->
+<%= turbo_stream.prepend "comments-list", @comment %>
+```

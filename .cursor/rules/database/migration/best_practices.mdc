@@ -1,0 +1,147 @@
+---
+description: best practices, dos, dont, troubleshooting, migration failed, schema out of sync, pending migration is production
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Always include timestamps
+create_table :articles do |t|
+  t.string :title
+  t.timestamps  # Always include!
+end
+
+# Include column type for reversible column removal
+remove_column :articles, :body, :text
+
+# Add NOT NULL constraints
+t.string :title, null: false
+
+# Set default values
+t.boolean :published, default: false
+t.integer :views_count, default: 0
+
+# Add indexes for foreign keys
+add_reference :articles, :user, foreign_key: true, index: true
+
+# Use change for reversible migrations
+def change
+  add_column :articles, :slug, :string
+end
+
+# Name join tables alphabetically
+create_join_table :articles, :tags  # Not tags_articles
+
+# Test migrations locally first
+# Run: rails db:migrate
+# Then: rails db:rollback
+# Ensure both work!
+
+# Include up and down for complex migrations
+def up
+  # Complex change
+end
+
+def down
+  # Reverse change
+end
+
+# Use reversible for data migrations
+reversible do |dir|
+  dir.up { ... }
+  dir.down { ... }
+end
+```
+
+### DON'T ❌
+
+```ruby
+# Don't edit old migrations (already run in production)
+# Create new migration instead
+
+# Don't use SQL directly unless necessary
+execute "UPDATE articles SET ..."  # Avoid if possible
+Article.update_all(...)            # Prefer this
+
+# Don't forget to add indexes
+add_reference :articles, :user  # Missing index!
+add_reference :articles, :user, index: true  # Good!
+
+# Don't remove columns in use
+# 1. Deploy code that doesn't use column
+# 2. Wait for deployment to complete
+# 3. Then remove column in new migration
+
+# Don't change column types without data migration
+change_column :articles, :status, :integer  # Data loss!
+
+# Don't make migrations irreversible without reason
+def change
+  drop_table :articles  # Include structure for reversibility!
+end
+
+# Don't commit schema.rb conflicts
+# Regenerate: rails db:migrate
+# Then commit clean schema.rb
+
+# Don't use string for IDs
+t.string :user_id  # Bad!
+t.references :user # Good!
+
+# Don't forget foreign keys
+t.integer :user_id  # Missing foreign key constraint!
+t.references :user, foreign_key: true  # Good!
+```
+
+---
+## Troubleshooting
+
+### Migration Failed
+
+```bash
+# Check what went wrong
+rails db:migrate:status
+
+# If migration partially ran, fix database manually
+# Then mark migration as complete:
+rails db:migrate:up VERSION=20251103000000
+
+# Or rollback and fix migration:
+rails db:rollback
+# Edit migration file
+rails db:migrate
+```
+
+### Schema Out of Sync
+
+```bash
+# Regenerate schema from database
+rails db:schema:dump
+
+# Or load schema into database
+rails db:schema:load
+```
+
+### Pending Migrations in Production
+
+```bash
+# Check for pending migrations
+rails db:migrate:status
+
+# Run pending migrations
+rails db:migrate
+```
+
+---
+
+## Related Documentation
+
+- [Database Design](database-design.md) - Table and column design
+- [Models & Associations](models-associations.md) - ActiveRecord setup
+- [Queries & Performance](queries-performance.md) - Query optimization
+
+---
+
+**Previous:** [← Database Design](database-design.md) | **Next:** [Models & Associations →](models-associations.md)

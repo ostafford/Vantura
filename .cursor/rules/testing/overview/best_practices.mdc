@@ -1,0 +1,141 @@
+---
+description: testing best practices, dos and donts, testing associations, testing validations, testing scopes, testing callbacks
+alwaysApply: false
+---
+## Testing Best Practices
+
+### DO ✅
+
+```ruby
+# Test one thing per test
+test "validates title presence" do
+  article = Article.new(body: "Body")
+  assert_not article.valid?
+  assert_includes article.errors[:title], "can't be blank"
+end
+
+# Use descriptive test names
+test "user cannot delete other user's article" do
+  # ...
+end
+
+# Use fixtures for data
+article = articles(:published)
+
+# Test edge cases
+test "handles empty body" do
+  article = Article.new(body: "")
+  assert_equal 0, article.reading_time
+end
+
+# Test error conditions
+test "raises error when article not found" do
+  assert_raises ActiveRecord::RecordNotFound do
+    Article.find(999999)
+  end
+end
+
+# Keep tests fast
+# Use factories/fixtures, avoid unnecessary database calls
+
+# Test behavior, not implementation
+# Don't test private methods directly
+
+# Use setup for common data
+setup do
+  @user = users(:john)
+end
+```
+
+### DON'T ❌
+
+```ruby
+# Don't test framework functionality
+test "save works" do
+  article = Article.create(title: "Test")
+  assert article.persisted?
+end
+
+# Don't test multiple things in one test
+test "article validations" do
+  article = Article.new
+  assert_not article.valid?  # Too broad!
+  # Test each validation separately
+end
+
+# Don't use vague test names
+test "test 1" do
+  # What does this test?
+end
+
+# Don't test private methods directly
+# Test through public interface
+
+# Don't make tests depend on each other
+# Each test should be independent
+
+# Don't use sleep in tests
+sleep 2  # Bad!
+# Use travel_to or stub instead
+
+# Don't ignore failing tests
+# Fix or mark as skip with reason
+skip "Waiting for API fix"
+```
+
+---
+
+## Common Testing Patterns
+
+### Testing Associations
+
+```ruby
+test "article belongs to user" do
+  article = articles(:one)
+  assert_respond_to article, :user
+  assert_instance_of User, article.user
+end
+
+test "user has many articles" do
+  user = users(:john)
+  assert_respond_to user, :articles
+  assert user.articles.count > 0
+end
+```
+
+### Testing Validations
+
+```ruby
+test "requires title" do
+  article = Article.new(body: "Body")
+  assert_not article.valid?
+  assert_includes article.errors[:title], "can't be blank"
+end
+
+test "title must be at least 5 characters" do
+  article = Article.new(title: "Test")
+  assert_not article.valid?
+  assert_includes article.errors[:title], "is too short"
+end
+```
+
+### Testing Scopes
+
+```ruby
+test "published scope returns published articles" do
+  published = Article.published
+  assert_equal 2, published.count
+  assert published.all? { |a| a.status == 'published' }
+end
+```
+
+### Testing Callbacks
+
+```ruby
+test "generates slug before save" do
+  article = Article.create(title: "My Article", body: "Body")
+  assert_equal "my-article", article.slug
+end
+```
+
+---

@@ -1,0 +1,84 @@
+---
+description: Fetch API (AJAX), Basic GET Request, POST Request with CSRF Token, Form Submission, 
+alwaysApply: false
+---
+## Fetch API (AJAX)
+
+### Basic GET Request
+
+```javascript
+async function loadArticles() {
+  try {
+    const response = await fetch('/articles.json')
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const articles = await response.json()
+    displayArticles(articles)
+  } catch (error) {
+    console.error('Failed to load articles:', error)
+    showError('Unable to load articles')
+  }
+}
+```
+
+### POST Request with CSRF Token
+
+```javascript
+async function createArticle(data) {
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content
+  
+  try {
+    const response = await fetch('/articles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
+      body: JSON.stringify(data)
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const article = await response.json()
+    return article
+  } catch (error) {
+    console.error('Failed to create article:', error)
+    throw error
+  }
+}
+```
+
+### Form Submission
+
+```javascript
+async function submitForm(formElement) {
+  const formData = new FormData(formElement)
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content
+  
+  try {
+    const response = await fetch(formElement.action, {
+      method: formElement.method,
+      headers: {
+        'X-CSRF-Token': csrfToken
+      },
+      body: formData
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    return await response.json()
+  } catch (error) {
+    console.error('Form submission failed:', error)
+    throw error
+  }
+}
+```
+
+---

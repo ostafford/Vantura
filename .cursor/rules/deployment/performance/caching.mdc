@@ -1,0 +1,28 @@
+---
+description: caching, fragment caching, russian doll caching, rails.cache
+alwaysApply: false
+---
+## Caching
+
+### Fragment Caching
+```erb
+<% cache @article do %>
+  <%= render @article %>
+<% end %>
+```
+
+### Russian Doll Caching
+```erb
+<% cache ['articles-list', Article.maximum(:updated_at)] do %>
+  <%= render @articles %>
+<% end %>
+```
+
+### Rails.cache
+```ruby
+Rails.cache.fetch(['article', @article.id], expires_in: 10.minutes) do
+  expensive_operation
+end
+```
+
+---

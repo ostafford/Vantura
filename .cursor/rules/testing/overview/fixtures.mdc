@@ -1,0 +1,52 @@
+---
+description: fixtured, test data, 
+alwaysApply: false
+---
+## Fixtures (Test Data)
+
+Fixtures provide test data.
+
+```yaml
+# test/fixtures/users.yml
+
+john:
+  email: john@example.com
+  password_digest: <%= BCrypt::Password.create('password') %>
+  first_name: John
+  last_name: Doe
+  admin: false
+
+jane:
+  email: jane@example.com
+  password_digest: <%= BCrypt::Password.create('password') %>
+  first_name: Jane
+  last_name: Smith
+  admin: true
+```
+
+```yaml
+# test/fixtures/articles.yml
+
+one:
+  user: john
+  title: First Article
+  body: This is the first article body
+  status: published
+  published_at: <%= 1.day.ago %>
+
+two:
+  user: jane
+  title: Second Article
+  body: This is the second article body
+  status: draft
+```
+
+**Usage in tests:**
+```ruby
+test "user has many articles" do
+  user = users(:john)
+  assert_equal 1, user.articles.count
+end
+```
+
+---

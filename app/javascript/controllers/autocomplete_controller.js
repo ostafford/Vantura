@@ -1,8 +1,18 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Connects to data-controller="autocomplete"
+/**
+ * Autocomplete Controller
+ * 
+ * Provides autocomplete search functionality for transactions.
+ * Displays search results and handles selection with Turbo Stream navigation.
+ * 
+ * Cross-controller access: None (all elements are within controller scope)
+ * 
+ * @see .cursor/rules/conventions/code_style/stimulus_controller_style.mdc
+ * @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
+ */
 export default class extends Controller {
-  static targets = ["input", "results"]
+  static targets = ["input", "results", "resultItem"]
   static values = { 
     url: String,
     minLength: Number,
@@ -131,6 +141,8 @@ export default class extends Controller {
     this.resultsTarget.innerHTML = html
     
     // Attach click listeners to the list items
+    // Use querySelectorAll for dynamically created items (acceptable per rules)
+    // @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
     this.resultsTarget.querySelectorAll('li[data-index]').forEach((item, index) => {
       item.addEventListener('click', () => {
         this.selectItem(this.searchResults[index])

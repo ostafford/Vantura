@@ -1,0 +1,50 @@
+---
+description: testing best practices, dos and donts
+alwaysApply: false
+---
+## Best Practices
+
+### DO ✅
+
+```ruby
+# Test response codes
+assert_response :success
+assert_response :redirect
+assert_response :unprocessable_entity
+
+# Test database changes
+assert_difference('Article.count', 1)
+
+# Test redirects
+assert_redirected_to article_url(@article)
+
+# Test flash messages
+assert_equal "Success!", flash[:notice]
+
+# Test authentication
+sign_in_as @user
+get protected_url
+assert_response :success
+
+# Test authorization
+sign_in_as other_user
+get edit_article_url(@article)
+assert_redirected_to root_url
+```
+
+### DON'T ❌
+
+```ruby
+# Don't test view rendering details in controller tests
+# Use system tests for that
+
+# Don't test business logic in controllers
+# That belongs in model tests
+
+# Don't make unnecessary database calls
+# Use fixtures efficiently
+```
+
+---
+
+**Previous:** [← Model Tests](model-tests.md) | **Next:** [System Tests →](system-tests.md)

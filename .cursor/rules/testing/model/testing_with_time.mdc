@@ -1,0 +1,30 @@
+---
+description: testing with time
+alwaysApply: false
+---
+## Testing with Time
+
+```ruby
+test "article is published at scheduled time" do
+  future_time = 1.day.from_now
+  article = Article.create(
+    title: "Scheduled",
+    body: "Body",
+    published_at: future_time
+  )
+  
+  travel_to future_time do
+    assert article.published?
+  end
+end
+
+test "article expires after 30 days" do
+  article = articles(:old)
+  
+  travel 31.days do
+    assert article.expired?
+  end
+end
+```
+
+---

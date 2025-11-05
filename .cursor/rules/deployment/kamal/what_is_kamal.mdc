@@ -1,0 +1,180 @@
+---
+description: what is kamal, troubleshooting, check status, view logs, SSH debug, Common Issues, best practices, dos and donts, deployment checklist
+alwaysApply: false
+---
+## What is Kamal?
+
+Kamal 2 is Rails 8's default deployment tool. It deploys Rails apps to any server using Docker.
+
+**Key Features:**
+- ✅ Zero-downtime deployments
+- ✅ Docker-based
+- ✅ Works with any VPS (DigitalOcean, AWS, etc.)
+- ✅ Built-in SSL with Let's Encrypt
+- ✅ Asset handling via Thruster
+- ✅ Database migrations
+- ✅ Environment variables management
+
+---
+## Troubleshooting
+
+### Check Status
+
+```bash
+# Overall status
+kamal server details
+
+# App status
+kamal app details
+
+# Container status
+kamal app exec 'docker ps'
+```
+
+### View Logs
+
+```bash
+# App logs
+kamal app logs
+
+# Traefik logs
+kamal traefik logs
+
+# System logs
+kamal app exec 'journalctl -u docker'
+```
+
+### SSH Debug
+
+```bash
+# SSH into server
+kamal app exec -i bash
+
+# Check running containers
+docker ps
+
+# Check images
+docker images
+
+# Check volumes
+docker volume ls
+
+# Inspect container
+docker inspect myapp-web-latest
+```
+
+### Common Issues
+
+```bash
+# Issue: Deploy fails
+# Solution: Check logs
+kamal app logs
+
+# Issue: Can't connect to server
+# Solution: Verify SSH access
+ssh deploy@your-server
+
+# Issue: Old containers not stopping
+# Solution: Force stop and cleanup
+kamal app stop
+kamal prune --all
+
+# Issue: SSL not working
+# Solution: Check Traefik logs
+kamal traefik logs
+```
+
+---
+
+## Best Practices
+
+### DO ✅
+
+```bash
+# Use environment variables for secrets
+env:
+  secret:
+    - DATABASE_URL
+    - RAILS_MASTER_KEY
+
+# Setup proper health checks
+healthcheck:
+  path: /up
+  interval: 10s
+
+# Use staging environment
+kamal deploy -d staging
+
+# Monitor logs after deploy
+kamal app logs --follow
+
+# Cleanup old images regularly
+kamal prune
+
+# Use specific versions for rollback
+kamal deploy --version=v1.2.3
+
+# Keep config in version control
+git add config/deploy.yml
+```
+
+### DON'T ❌
+
+```bash
+# Don't commit secrets
+# Add .env to .gitignore
+
+# Don't skip healthchecks
+# Always configure healthcheck endpoint
+
+# Don't deploy without testing
+# Test in staging first
+
+# Don't ignore failed deployments
+# Check logs and fix issues
+
+# Don't accumulate old images
+# Run kamal prune regularly
+```
+
+---
+
+## Deployment Checklist
+
+```bash
+# Before first deploy:
+☐ Configure servers in deploy.yml
+☐ Setup SSH keys
+☐ Set environment variables
+☐ Configure database
+☐ Setup SSL/domain
+☐ Run kamal setup
+
+# Before each deploy:
+☐ Run tests locally (rails test)
+☐ Check staging deploy works
+☐ Backup database
+☐ Review changes
+☐ Deploy: kamal deploy
+☐ Monitor logs
+☐ Verify application works
+☐ Check health endpoint
+
+# After deploy:
+☐ Test critical features
+☐ Check error tracking
+☐ Monitor performance
+☐ Update documentation
+```
+
+---
+
+## Related Documentation
+
+- [Production Config](production-config.md) - Production settings
+- [Performance](performance.md) - Optimization
+- [Security](security.md) - Security practices
+
+---
+
+**Previous:** [← Fixtures](../05-testing/fixtures.md) | **Next:** [Production Config →](production-config.md)

@@ -1,0 +1,25 @@
+---
+description: testing authentication
+alwaysApply: false
+---
+## Testing Authentication
+
+```ruby
+test "requires login for new" do
+  get new_article_url
+  assert_redirected_to login_url
+end
+
+test "requires login for create" do
+  post articles_url, params: { article: { title: "Test" } }
+  assert_redirected_to login_url
+end
+
+test "allows access when logged in" do
+  sign_in_as @user
+  get new_article_url
+  assert_response :success
+end
+```
+
+---

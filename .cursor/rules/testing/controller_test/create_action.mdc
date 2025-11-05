@@ -1,0 +1,52 @@
+---
+description: testing create action
+alwaysApply: false
+---
+## Testing Create Action
+
+```ruby
+test "should create article" do
+  sign_in_as @user
+  
+  assert_difference('Article.count', 1) do
+    post articles_url, params: {
+      article: {
+        title: "New Article",
+        body: "Article body text"
+      }
+    }
+  end
+  
+  assert_redirected_to article_url(Article.last)
+  assert_equal "Article created successfully.", flash[:notice]
+end
+
+test "should not create article with invalid data" do
+  sign_in_as @user
+  
+  assert_no_difference('Article.count') do
+    post articles_url, params: {
+      article: {
+        title: "",
+        body: ""
+      }
+    }
+  end
+  
+  assert_response :unprocessable_entity
+  assert_template :new
+end
+
+test "requires authentication to create article" do
+  post articles_url, params: {
+    article: {
+      title: "New Article",
+      body: "Body"
+    }
+  }
+  
+  assert_redirected_to login_url
+end
+```
+
+---

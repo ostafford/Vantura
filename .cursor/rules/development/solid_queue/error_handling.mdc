@@ -1,0 +1,72 @@
+---
+description: error handling, retry configuration, discard on error, Rescue and Handle Errors
+alwaysApply: false
+---
+## Error Handling
+
+### Retry Configuration
+
+```ruby
+class ArticleNotificationJob < ApplicationJob
+  # Retry with fixed wait time
+  retry_on StandardError, wait: 5.seconds, attempts: 3
+  
+  # Retry with exponential backoff
+  retry_on StandardError, wait: :exponentially_longer, attempts: 10
+  
+  # Retry with polynomial backoff
+  retry_on StandardError, wait: :polynomially_longer, attempts: 10
+  
+  # Retry specific errors only
+  retry_on ActiveRecord::Deadlocked, wait: 5.seconds, attempts: 3
+  retry_on Net::OpenTimeout, wait: 10.seconds, attempts: 5
+  
+  # Custom retry logic
+  retry_on CustomError, wait: ->(executions) { executions * 2 }
+  
+  def perform(article_id)
+    # Job logic
+  end
+end
+```
+
+### Discard on Error
+
+```ruby
+class ArticleNotificationJob < ApplicationJob
+  # Don't retry these errors, just discard
+  discard_on ActiveJob::DeserializationError
+  discard_on ActiveRecord::RecordNotFound
+  
+  # Discard with callback
+  discard_on CustomError do |job, error|
+    # Log or notify about discarded job
+    ErrorTracker.notify(error, job: job.class.name)
+  end
+  
+  def perform(article_id)
+    # Job logic
+  end
+end
+```
+
+### Rescue and Handle Errors
+
+```ruby
+class ArticleNotificationJob < ApplicationJob
+  def perform(article_id)
+    article = Article.find(article_id)
+    
+    article.user.followers.find_each do |follower|
+      begin
+        ArticleMailer.new_article(follower, article).deliver_now
+      rescue Net::SMTPError => e
+        # Log email failure but continue with other followers
+        Rails.logger.error "Failed to send email to #{follower.email}: #{e.message}"
+      end
+    end
+  end
+end
+```
+
+---

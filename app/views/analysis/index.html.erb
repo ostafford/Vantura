@@ -13,7 +13,7 @@
     </div>
   <% end %>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" data-modal-target="content">
+  <%= content_wrapper class: "py-6", data: { modal_target: "content" } do %>
     <% if @account %>
       <!-- Hero Card -->
       <%= render 'shared/bento_cards/hero_card',
@@ -175,7 +175,7 @@
         <%= link_to "Go to Settings", settings_path, class: "inline-flex items-center mt-4 px-6 py-3 bg-primary-700 text-white rounded-lg hover:bg-primary-900 transition-colors" %>
       </div>
     <% end %>
-  </div>
+  <% end %>
 </main>
 
 <!-- Filter Drawer removed -->

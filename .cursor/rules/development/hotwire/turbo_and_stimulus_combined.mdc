@@ -1,0 +1,46 @@
+---
+description: combining turbo and stimulus, Example: Live Search with Stimulus + Turbo Frames
+alwaysApply: false
+---
+## Combining Turbo + Stimulus
+
+### Example: Live Search with Stimulus + Turbo Frames
+
+```javascript
+// app/javascript/controllers/search_controller.js
+
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static targets = ["form", "results"]
+  static values = { url: String }
+  
+  search() {
+    clearTimeout(this.timeout)
+    
+    this.timeout = setTimeout(() => {
+      this.formTarget.requestSubmit()
+    }, 300)
+  }
+}
+```
+
+```erb
+<!-- app/views/articles/index.html.erb -->
+<div data-controller="search">
+  <%= form_with url: articles_path,
+                method: :get,
+                data: {
+                  search_target: "form",
+                  turbo_frame: "search-results"
+                } do |f| %>
+    <%= f.search_field :query,
+        placeholder: "Search articles...",
+        data: { action: "input->search#search" } %>
+  <% end %>
+  
+  <%= turbo_frame_tag "search-results" do %>
+    <%= render @articles %>
+  <% end %>
+</div>
+```

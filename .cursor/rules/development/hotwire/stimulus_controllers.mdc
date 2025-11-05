@@ -1,0 +1,357 @@
+---
+description: stimulus controllers, basic stimulus controller, HTML usage, stimulus targets, stimulus values, stimulus classes, stimulus actions, real-world examples, modal controller, autosave controller, stimulus rules, 
+alwaysApply: false
+---
+## Stimulus Controllers
+
+Stimulus adds JavaScript behavior to HTML elements.
+
+### Basic Stimulus Controller
+
+```javascript
+// app/javascript/controllers/dropdown_controller.js
+
+import { Controller } from "@hotwired/stimulus"
+
+// Connects to data-controller="dropdown"
+export default class extends Controller {
+  // Define targets (elements to reference)
+  static targets = ["menu", "button"]
+  
+  // Define CSS classes (for dynamic styling)
+  static classes = ["open", "closed"]
+  
+  // Define values (dynamic data from HTML)
+  static values = {
+    openDuration: { type: Number, default: 300 }
+  }
+  
+  // Lifecycle: runs when controller connects to DOM
+  connect() {
+    this.close()
+  }
+  
+  // Lifecycle: runs when controller disconnects
+  disconnect() {
+    // Cleanup if needed
+  }
+  
+  // Actions (called from HTML via data-action)
+  toggle(event) {
+    event.preventDefault()
+    this.isOpen ? this.close() : this.open()
+  }
+  
+  open() {
+    this.menuTarget.classList.remove(this.closedClass)
+    this.menuTarget.classList.add(this.openClass)
+    this.buttonTarget.setAttribute('aria-expanded', 'true')
+  }
+  
+  close() {
+    this.menuTarget.classList.add(this.closedClass)
+    this.menuTarget.classList.remove(this.openClass)
+    this.buttonTarget.setAttribute('aria-expanded', 'false')
+  }
+  
+  // Close when clicking outside
+  closeOnClickOutside(event) {
+    if (!this.element.contains(event.target)) {
+      this.close()
+    }
+  }
+  
+  // Helper methods
+  get isOpen() {
+    return this.menuTarget.classList.contains(this.openClass)
+  }
+}
+```
+
+### HTML Usage
+
+```html
+<div data-controller="dropdown"
+     data-action="click@window->dropdown#closeOnClickOutside"
+     data-dropdown-open-class="block"
+     data-dropdown-closed-class="hidden"
+     id="user-menu-dropdown-container">
+  
+  <button data-action="click->dropdown#toggle"
+          data-dropdown-target="button"
+          id="user-menu-toggle-button"
+          aria-haspopup="true"
+          aria-expanded="false">
+    Menu
+  </button>
+  
+  <div data-dropdown-target="menu"
+       class="hidden"
+       id="user-menu-dropdown-menu">
+    <a href="/profile">Profile</a>
+    <a href="/settings">Settings</a>
+  </div>
+</div>
+```
+
+### Stimulus Targets
+
+```javascript
+// Define targets in controller
+static targets = ["input", "output", "button"]
+
+// Access targets in methods
+this.inputTarget          // First matching element
+this.inputTargets         // Array of all matching elements
+this.hasInputTarget       // Boolean: does target exist?
+
+// Multiple targets example
+static targets = ["item"]
+
+addItem() {
+  // Access all items
+  this.itemTargets.forEach(item => {
+    item.classList.add('selected')
+  })
+}
+```
+
+### Stimulus Values
+
+```javascript
+// Define values with types and defaults
+static values = {
+  url: String,
+  delay: { type: Number, default: 300 },
+  enabled: { type: Boolean, default: true }
+}
+
+// Access values in methods
+this.urlValue              // Get value
+this.urlValue = "/new"     // Set value
+this.hasUrlValue           // Boolean: is value set?
+
+// Value change callbacks
+urlValueChanged(value, previousValue) {
+  console.log(`URL changed from ${previousValue} to ${value}`)
+}
+```
+
+### Stimulus Classes
+
+```javascript
+// Define CSS class names
+static classes = ["active", "loading", "error"]
+
+// Use in methods
+this.element.classList.add(this.activeClass)
+this.element.classList.remove(this.loadingClass)
+
+// Check if class is defined
+if (this.hasActiveClass) {
+  this.element.classList.add(this.activeClass)
+}
+```
+
+### Stimulus Actions
+
+```javascript
+// Action format: event->controller#method
+// Examples:
+
+// Click event
+<button data-action="click->form#submit">
+
+// Multiple actions
+<input data-action="keyup->search#filter blur->search#save">
+
+// Window/document events
+<div data-action="resize@window->layout#adjust">
+
+// Custom events
+<div data-action="custom:event->handler#process">
+
+// Keyboard events
+<input data-action="keydown.enter->form#submit">
+
+// Prevent default
+<form data-action="submit->form#save:prevent">
+
+// Stop propagation
+<button data-action="click->modal#close:stop">
+```
+
+### Real-World Examples
+
+#### Modal Controller
+
+```javascript
+// app/javascript/controllers/modal_controller.js
+
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static targets = ["dialog", "backdrop"]
+  
+  open() {
+    this.dialogTarget.showModal()
+    document.body.style.overflow = 'hidden'
+  }
+  
+  close() {
+    this.dialogTarget.close()
+    document.body.style.overflow = ''
+  }
+  
+  closeOnBackdropClick(event) {
+    if (event.target === this.dialogTarget) {
+      this.close()
+    }
+  }
+  
+  closeOnEscape(event) {
+    if (event.key === 'Escape') {
+      this.close()
+    }
+  }
+}
+```
+
+```html
+<div data-controller="modal">
+  <button data-action="click->modal#open">Open Modal</button>
+  
+  <dialog data-modal-target="dialog"
+          data-action="click->modal#closeOnBackdropClick keydown->modal#closeOnEscape">
+    <div id="modal-content">
+      <button data-action="click->modal#close">Close</button>
+      <p>Modal content here</p>
+    </div>
+  </dialog>
+</div>
+```
+
+#### Autosave Controller
+
+```javascript
+// app/javascript/controllers/autosave_controller.js
+
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static values = {
+    url: String,
+    interval: { type: Number, default: 30000 }
+  }
+  
+  static classes = ["saving", "saved"]
+  
+  connect() {
+    this.save = this.save.bind(this)
+    this.startAutosave()
+  }
+  
+  disconnect() {
+    this.stopAutosave()
+  }
+  
+  startAutosave() {
+    this.timer = setInterval(this.save, this.intervalValue)
+  }
+  
+  stopAutosave() {
+    if (this.timer) {
+      clearInterval(this.timer)
+    }
+  }
+  
+  async save() {
+    this.element.classList.add(this.savingClass)
+    
+    try {
+      const formData = new FormData(this.element)
+      const response = await fetch(this.urlValue, {
+        method: 'PATCH',
+        body: formData,
+        headers: {
+          'X-CSRF-Token': this.csrfToken
+        }
+      })
+      
+      if (response.ok) {
+        this.element.classList.remove(this.savingClass)
+        this.element.classList.add(this.savedClass)
+        
+        setTimeout(() => {
+          this.element.classList.remove(this.savedClass)
+        }, 2000)
+      }
+    } catch (error) {
+      console.error('Autosave failed:', error)
+      this.element.classList.remove(this.savingClass)
+    }
+  }
+  
+  get csrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').content
+  }
+}
+```
+
+```erb
+<%= form_with model: @article,
+              data: {
+                controller: "autosave",
+                autosave_url_value: article_path(@article),
+                autosave_interval_value: 5000,
+                autosave_saving_class: "opacity-50",
+                autosave_saved_class: "border-green-500"
+              },
+              id: "article-edit-form" do |f| %>
+  <%= f.text_field :title %>
+  <%= f.text_area :body %>
+<% end %>
+```
+
+### Stimulus Rules
+
+**1. One Controller Per Behavior**
+- `dropdown_controller.js` - handles dropdowns
+- `modal_controller.js` - handles modals
+- `autosave_controller.js` - handles autosave
+
+**2. Keep Controllers Focused**
+- Under 200 lines
+- Single responsibility
+- Reusable across the app
+
+**3. Use Lifecycle Hooks**
+```javascript
+connect() {
+  // Setup when element appears
+}
+
+disconnect() {
+  // Cleanup when element removed
+}
+
+[target]TargetConnected(element) {
+  // When target appears
+}
+
+[target]TargetDisconnected(element) {
+  // When target removed
+}
+```
+
+**4. Naming Conventions**
+```javascript
+// File: snake_case with _controller.js suffix
+dropdown_controller.js
+autosave_controller.js
+
+// HTML: kebab-case
+data-controller="dropdown"
+data-controller="autosave"
+```
+

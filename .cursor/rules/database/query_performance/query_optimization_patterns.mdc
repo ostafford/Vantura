@@ -1,0 +1,75 @@
+---
+description: query optimization patterns, select only needed columns, use pluck instead of map, use exists, instead of any, use find_each for large datasets, avoid N+1 queries, use counter cache
+alwaysApply: false
+---
+## Query Optimization Patterns
+
+### Select Only Needed Columns
+
+```ruby
+# Bad: Load everything
+articles = Article.all
+articles.each { |a| puts a.title }
+
+# Good: Load only needed columns
+articles = Article.select(:id, :title)
+articles.each { |a| puts a.title }
+```
+
+### Use pluck Instead of map
+
+```ruby
+# Bad: Loads all records
+Article.all.map(&:title)
+
+# Good: Single query, returns array
+Article.pluck(:title)
+```
+
+### Use exists? Instead of any?
+
+```ruby
+# Bad: Loads records
+Article.where(user_id: 1).any?
+
+# Good: Doesn't load records
+Article.where(user_id: 1).exists?
+```
+
+### Use find_each for Large Datasets
+
+```ruby
+# Bad: Loads all records into memory
+Article.all.each { |a| process(a) }
+
+# Good: Batch processing
+Article.find_each { |a| process(a) }
+```
+
+### Avoid N+1 Queries
+
+```ruby
+# Bad: N+1 queries
+articles = Article.all
+articles.each { |a| puts a.user.name }
+
+# Good: Eager load
+articles = Article.includes(:user)
+articles.each { |a| puts a.user.name }
+```
+
+### Use Counter Cache
+
+```ruby
+# Bad: Count query every time
+user.articles.count
+
+# Good: Use counter cache
+class Article < ApplicationRecord
+  belongs_to :user, counter_cache: true
+end
+
+user.articles_count  # No query!
+```
+
+---

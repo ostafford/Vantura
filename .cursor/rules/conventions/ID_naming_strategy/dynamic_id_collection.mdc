@@ -1,0 +1,33 @@
+---
+description: dynamic ids for collections
+alwaysApply: false
+---
+## Dynamic IDs for Collections
+
+When rendering collections, include a unique identifier:
+
+```erb
+<!-- Rails ERB example -->
+<% @articles.each do |article| %>
+  <%= turbo_frame_tag dom_id(article) do %>
+    <article id="<%= "article-#{article.id}-card" %>">
+      <h2 id="<%= "article-#{article.id}-title" %>">
+        <%= article.title %>
+      </h2>
+      <div id="<%= "article-#{article.id}-metadata" %>">
+        <%= article.created_at %>
+      </div>
+      <div id="<%= "article-#{article.id}-actions" %>">
+        <%= link_to "Edit", edit_article_path(article), 
+            id: "article-#{article.id}-edit-link" %>
+        <%= link_to "Delete", article_path(article), 
+            id: "article-#{article.id}-delete-link",
+            method: :delete %>
+      </div>
+    </article>
+  <% end %>
+<% end %>
+```
+
+**Pattern:** `[resource]-[id]-[element]-[type]`
+

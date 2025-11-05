@@ -1,0 +1,117 @@
+---
+description: ruby and rails files, models, controllers, views, jobs, solid queue, channels, solid cable, mailers
+alwaysApply: false
+---
+## Ruby & Rails Files
+
+### Models
+
+**File naming:**
+- **Singular, snake_case**: `user.rb`, `blog_post.rb`, `article_comment.rb`
+
+**Class naming:**
+- **Singular, PascalCase**: `User`, `BlogPost`, `ArticleComment`
+
+**Table naming:**
+- **Plural, snake_case**: `users`, `blog_posts`, `article_comments`
+
+```ruby
+# Good
+class BlogPost < ApplicationRecord
+end
+# File: app/models/blog_post.rb
+# Table: blog_posts
+
+# Bad
+class Blogpost < ApplicationRecord
+end
+# File: app/models/blogpost.rb  # Wrong!
+```
+
+### Controllers
+
+**File naming:**
+- **Plural, snake_case, ends with `_controller.rb`**: `users_controller.rb`, `blog_posts_controller.rb`
+
+**Class naming:**
+- **Plural, PascalCase, ends with `Controller`**: `UsersController`, `BlogPostsController`
+
+```ruby
+# Good
+class BlogPostsController < ApplicationController
+end
+# File: app/controllers/blog_posts_controller.rb
+
+# Bad
+class BlogPostController < ApplicationController  # Wrong! Should be plural
+end
+```
+
+### Views
+
+**Directory:**
+- **Plural, snake_case**: `app/views/users/`, `app/views/blog_posts/`
+
+**Files:**
+- **Action name, snake_case**: `index.html.erb`, `show.html.erb`, `edit.html.erb`
+
+**Partials:**
+- **Start with underscore**: `_form.html.erb`, `_blog_post.html.erb`, `_user_card.html.erb`
+
+```
+# Good structure
+app/views/blog_posts/
+├── index.html.erb
+├── show.html.erb
+├── new.html.erb
+├── edit.html.erb
+├── _form.html.erb          # Partial
+└── _blog_post.html.erb     # Partial
+```
+
+### Jobs (Solid Queue)
+
+**File naming:**
+- **snake_case, ends with `_job.rb`**: `article_notification_job.rb`, `data_export_job.rb`
+
+**Class naming:**
+- **PascalCase, ends with `Job`**: `ArticleNotificationJob`, `DataExportJob`
+
+```ruby
+# Good
+class ArticleNotificationJob < ApplicationJob
+end
+# File: app/jobs/article_notification_job.rb
+```
+
+### Channels (Solid Cable)
+
+**File naming:**
+- **snake_case, ends with `_channel.rb`**: `comments_channel.rb`, `notifications_channel.rb`
+
+**Class naming:**
+- **PascalCase, ends with `Channel`**: `CommentsChannel`, `NotificationsChannel`
+
+```ruby
+# Good
+class CommentsChannel < ApplicationCable::Channel
+end
+# File: app/channels/comments_channel.rb
+```
+
+### Mailers
+
+**File naming:**
+- **snake_case, ends with `_mailer.rb`**: `user_mailer.rb`, `article_mailer.rb`
+
+**Class naming:**
+- **PascalCase, ends with `Mailer`**: `UserMailer`, `ArticleMailer`
+
+```ruby
+# Good
+class ArticleMailer < ApplicationMailer
+end
+# File: app/mailers/article_mailer.rb
+```
+
+---

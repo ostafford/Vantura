@@ -1,0 +1,23 @@
+---
+description: basic structure
+alwaysApply: false
+---
+## Basic Structure
+
+```ruby
+# test/models/article_test.rb
+
+require "test_helper"
+
+class ArticleTest < ActiveSupport::TestCase
+  setup do
+    @article = articles(:one)
+  end
+  
+  test "should be valid" do
+    assert @article.valid?
+  end
+end
+```
+
+---

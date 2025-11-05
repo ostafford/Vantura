@@ -1,0 +1,13 @@
+---
+description: code quality
+alwaysApply: false
+---
+# Code Quality
+
+**Last Updated:** November 3, 2025
+
+Best practices: DRY, KISS, SOLID, method length <10 lines, class length <100 lines, clear naming, meaningful comments, avoid code smells, refactor with service objects, use RuboCop linting.
+
+---
+
+**Previous:** [← Security](../06-deployment/security.md) | **Next:** [Accessibility →](accessibility.md)

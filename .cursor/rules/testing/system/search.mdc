@@ -1,0 +1,20 @@
+---
+description: testing search
+alwaysApply: false
+---
+## Testing Search
+
+```ruby
+test "searches articles" do
+  visit articles_url
+  
+  fill_in "Search", with: "Ruby"
+  click_button "Search"
+  
+  assert_selector ".article", count: 2
+  assert_text "Ruby on Rails"
+  assert_no_text "Python Tutorial"
+end
+```
+
+---

@@ -10,9 +10,9 @@
     <% end %>
   <% end %>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <%= content_wrapper class: "py-6" do %>
     <!-- Bento Grid Layout -->
-    <section id="projects_bento_grid" class="bento-grid mb-6" aria-label="Projects statistics">
+    <section id="projects-bento-grid-section" class="bento-grid mb-6" aria-label="Projects statistics">
       <%= render 'projects/bento_cards' %>
     </section>
 
@@ -31,7 +31,7 @@
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody id="projects_table_body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody id="projects-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <% if @projects.any? %>
               <% @projects.each do |project| %>
                 <tr>
@@ -64,5 +64,5 @@
         </table>
       </div>
     </section>
-  </div>
+  <% end %>
 </main>

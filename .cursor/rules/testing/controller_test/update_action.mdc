@@ -1,0 +1,52 @@
+---
+description: testing update action, 
+alwaysApply: false
+---
+## Testing Update Action
+
+```ruby
+test "should update article" do
+  sign_in_as @article.user
+  
+  patch article_url(@article), params: {
+    article: {
+      title: "Updated Title"
+    }
+  }
+  
+  assert_redirected_to article_url(@article)
+  assert_equal "Article updated successfully.", flash[:notice]
+  
+  @article.reload
+  assert_equal "Updated Title", @article.title
+end
+
+test "should not update with invalid data" do
+  sign_in_as @article.user
+  
+  patch article_url(@article), params: {
+    article: {
+      title: ""
+    }
+  }
+  
+  assert_response :unprocessable_entity
+  assert_template :edit
+end
+
+test "cannot update other user's article" do
+  other_user = users(:jane)
+  sign_in_as other_user
+  
+  patch article_url(@article), params: {
+    article: { title: "Hacked" }
+  }
+  
+  assert_redirected_to articles_url
+  
+  @article.reload
+  assert_not_equal "Hacked", @article.title
+end
+```
+
+---

@@ -1,0 +1,23 @@
+---
+description: database directory
+alwaysApply: false
+---
+## Database Directory
+
+```
+db/
+├── migrate/                   # All migrations (timestamped)
+│   ├── 20251103120000_create_users.rb
+│   ├── 20251103120001_create_articles.rb
+│   └── 20251103120002_add_published_to_articles.rb
+├── schema.rb                  # Current schema (auto-generated)
+└── seeds.rb                   # Seed data for development
+```
+
+**Rules:**
+- Never edit `schema.rb` directly
+- Never delete old migrations
+- Use descriptive migration names
+- Keep migrations focused (one change per migration)
+
+---

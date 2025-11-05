@@ -1,0 +1,33 @@
+---
+description: naming anti-patterns, avoid these. 
+alwaysApply: false
+---
+## Naming Anti-Patterns
+
+### ❌ Avoid These
+
+```ruby
+# Bad: Abbreviations
+usr = User.first           # Use: user
+art = Article.find(1)      # Use: article
+cat = Category.all         # Use: category/categories
+
+# Bad: Single letter variables (except loops)
+u = User.first             # Use: user
+a = 5                      # Use: count, total, etc.
+
+# Bad: Hungarian notation
+strName = "John"           # Use: name
+intCount = 5               # Use: count
+boolActive = true          # Use: active
+
+# Bad: Vague names
+data = fetch_something()   # Use: articles, users, etc.
+result = calculate()       # Use: total, sum, average, etc.
+temp = x + y              # Use: total, sum, etc.
+
+# Bad: Redundant names
+user_user = User.first            # Just: user
+article_model = Article.first     # Just: article
+get_article = Article.find(1)     # Just: article
+```

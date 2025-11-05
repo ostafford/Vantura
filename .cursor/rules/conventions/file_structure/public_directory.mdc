@@ -1,0 +1,18 @@
+---
+description: public directory
+alwaysApply: false
+---
+## Public Directory
+
+```
+public/
+├── 404.html                   # Not found page
+├── 422.html                   # Unprocessable entity page
+├── 500.html                   # Server error page
+├── robots.txt                 # Search engine instructions
+└── favicon.ico                # Favicon
+```
+
+**Rules:**
+- Only static files that don't need processing
+- Error pages are plain HTML

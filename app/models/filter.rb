@@ -1,18 +1,18 @@
 class Filter < ApplicationRecord
-  belongs_to :user
+  # Constants
+  FILTER_TYPES = %w[category merchant status recurring_transactions].freeze
 
-  validates :name, presence: true, uniqueness: { scope: :user_id }
-  validates :filter_types, presence: true
+  # Associations
+  belongs_to :user
 
   # Serialize filter_params, filter_types, and date_range as JSON
   serialize :filter_params, coder: JSON
   serialize :filter_types, coder: JSON
   serialize :date_range, coder: JSON
 
-  # Filter types
-  FILTER_TYPES = %w[category merchant status recurring_transactions].freeze
-
-  # Validate all filter types
+  # Validations
+  validates :name, presence: true, uniqueness: { scope: :user_id }
+  validates :filter_types, presence: true
   validate :validate_filter_types
   validate :validate_filter_params
 

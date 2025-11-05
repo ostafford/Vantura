@@ -1,0 +1,30 @@
+---
+description: testing index action
+alwaysApply: false
+---
+## Testing Index Action
+
+```ruby
+test "should get index" do
+  get articles_url
+  
+  assert_response :success
+  assert_not_nil assigns(:articles)
+end
+
+test "assigns published articles to @articles" do
+  get articles_url
+  
+  articles = assigns(:articles)
+  assert articles.all?(&:published?)
+end
+
+test "renders index template" do
+  get articles_url
+  
+  assert_template :index
+  assert_select "h1", "Articles"
+end
+```
+
+---

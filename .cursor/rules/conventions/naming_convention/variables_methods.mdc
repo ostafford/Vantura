@@ -1,0 +1,111 @@
+---
+description: variables and methods, ruby, javascript
+alwaysApply: false
+---
+## Variables & Methods
+
+### Ruby
+
+```ruby
+# Variables: snake_case
+user_name = "John"
+total_count = 100
+blog_post = BlogPost.first
+article_id = 1
+
+# Methods: snake_case
+def calculate_total
+  # ...
+end
+
+def find_published_articles
+  # ...
+end
+
+def generate_report_data
+  # ...
+end
+
+# Constants: SCREAMING_SNAKE_CASE
+MAX_LOGIN_ATTEMPTS = 3
+DEFAULT_STATUS = 'draft'
+API_BASE_URL = 'https://api.example.com'
+ALLOWED_ROLES = ['admin', 'editor', 'viewer'].freeze
+
+# Boolean methods: end with ?
+def active?
+  status == 'active'
+end
+
+def published?
+  published_at.present? && published_at <= Time.current
+end
+
+def expired?
+  expires_at < Time.current
+end
+
+# Dangerous methods (raise exceptions): end with !
+def save!
+  # raises exception if fails
+end
+
+def publish!
+  # raises exception if can't publish
+  update!(status: 'published', published_at: Time.current)
+end
+
+def delete_all_data!
+  # destructive action, raises on error
+end
+
+# Private methods (convention): can use underscore prefix
+private
+
+def _internal_calculation
+  # private implementation detail
+end
+```
+
+### JavaScript
+
+```javascript
+// Variables: camelCase
+const userName = "John";
+let totalCount = 100;
+const articleId = 1;
+
+// Functions: camelCase
+function calculateTotal() {
+  // ...
+}
+
+function findPublishedArticles() {
+  // ...
+}
+
+function generateReportData() {
+  // ...
+}
+
+// Constants: SCREAMING_SNAKE_CASE
+const MAX_ATTEMPTS = 3;
+const DEFAULT_STATUS = 'draft';
+const API_BASE_URL = 'https://api.example.com';
+
+// Classes: PascalCase
+class ArticleManager {
+  constructor() {
+    // ...
+  }
+}
+
+// Private methods (convention): prefix with _
+_privateMethod() {
+  // internal use only
+}
+
+_calculateDiscount() {
+  // ...
+}
+```

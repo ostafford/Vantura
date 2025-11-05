@@ -1,0 +1,19 @@
+---
+description: Database migrations
+alwaysApply: false
+---
+## Database Migrations
+
+```bash
+# Migrations run automatically during deploy
+# To run manually:
+kamal app exec 'bin/rails db:migrate'
+
+# Check migration status
+kamal app exec 'bin/rails db:migrate:status'
+
+# Rollback migration
+kamal app exec 'bin/rails db:rollback'
+```
+
+---

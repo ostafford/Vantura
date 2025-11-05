@@ -1,0 +1,75 @@
+---
+description: assertions, selector assertions, text assertions, link assertions, button assertions, field assertions
+alwaysApply: false
+---
+## Assertions
+
+### Selector Assertions
+
+```ruby
+# Element exists
+assert_selector "h1", text: "Title"
+assert_selector ".article", count: 3
+assert_selector "form#new_article"
+
+# Element doesn't exist
+assert_no_selector ".error-message"
+assert_no_selector "button", text: "Delete"
+
+# CSS selector
+assert_selector "div.card > h2.title"
+
+# XPath selector
+assert_selector :xpath, "//div[@id='content']"
+```
+
+### Text Assertions
+
+```ruby
+# Text present on page
+assert_text "Article created successfully"
+assert_text /Published \d+ minutes ago/
+
+# Text not present
+assert_no_text "Error"
+assert_no_text "Failed"
+```
+
+### Link Assertions
+
+```ruby
+# Link exists
+assert_link "Edit"
+assert_link "Delete", href: article_path(@article)
+
+# Link doesn't exist
+assert_no_link "Admin Panel"
+```
+
+### Button Assertions
+
+```ruby
+# Button exists
+assert_button "Submit"
+assert_button "Save", disabled: false
+
+# Button doesn't exist
+assert_no_button "Delete"
+```
+
+### Field Assertions
+
+```ruby
+# Field exists
+assert_field "Email"
+assert_field "Email", with: "user@example.com"
+
+# Checked checkbox
+assert_checked_field "Published"
+assert_unchecked_field "Featured"
+
+# Selected option
+assert_select "Category", selected: "Technology"
+```
+
+---

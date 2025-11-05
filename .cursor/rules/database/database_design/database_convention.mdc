@@ -1,0 +1,43 @@
+---
+description: database conventions, table naming, column naming
+alwaysApply: false
+---
+## Database Conventions
+
+Rails uses **convention over configuration** for database design.
+
+### Table Naming
+
+```ruby
+# Model name (singular, CamelCase)
+Article
+
+# Table name (plural, snake_case)
+articles
+
+# Examples:
+User          → users
+Comment       → comments
+ArticleTag    → article_tags
+Category      → categories
+Person        → people (irregular plural)
+```
+
+### Column Naming
+
+```ruby
+# Use snake_case for column names
+user_id
+created_at
+published_at
+article_title
+first_name
+email_address
+
+# Avoid:
+userId        # camelCase
+CreatedAt     # PascalCase
+article-id    # kebab-case
+```
+
+---

@@ -1,0 +1,41 @@
+---
+description: CSS and TailwindCSS style, class order, custom css
+alwaysApply: false
+---
+## CSS/TailwindCSS Style
+
+### Class Order
+
+```html
+<!-- Good: Organized class order -->
+<div class="flex items-center justify-between w-full max-w-4xl mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow md:flex-col sm:p-4">
+  <!-- 1. Layout: flex, items-center, justify-between -->
+  <!-- 2. Sizing: w-full, max-w-4xl -->
+  <!-- 3. Spacing: mx-auto, p-6 -->
+  <!-- 4. Visual: bg-white, border, rounded-lg, shadow-md -->
+  <!-- 5. Interactive: hover:shadow-lg, transition-shadow -->
+  <!-- 6. Responsive: md:flex-col, sm:p-4 -->
+</div>
+```
+
+### Custom CSS
+
+```css
+/* Good: Use @layer and @apply */
+@layer components {
+  .btn-primary {
+    @apply bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg;
+    @apply hover:bg-blue-700 focus:ring-2 focus:ring-blue-500;
+    @apply transition-colors;
+  }
+}
+
+/* Bad: Don't use arbitrary custom CSS */
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  /* Use Tailwind utilities instead */
+}
+```
+
+---

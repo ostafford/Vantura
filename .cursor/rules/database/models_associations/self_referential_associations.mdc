@@ -1,0 +1,109 @@
+---
+description: self referential associations, example user follows, example nested comments
+alwaysApply: false
+---
+## Self-Referential Associations
+
+Model references itself.
+
+### Example: User Follows
+
+```ruby
+# app/models/follow.rb
+class Follow < ApplicationRecord
+  belongs_to :follower, class_name: 'User'
+  belongs_to :followee, class_name: 'User'
+  
+  validates :follower_id, uniqueness: { scope: :followee_id }
+end
+
+# app/models/user.rb
+class User < ApplicationRecord
+  # Followers (users who follow me)
+  has_many :follows_as_followee, 
+           class_name: 'Follow',
+           foreign_key: :followee_id,
+           dependent: :destroy
+  has_many :followers, through: :follows_as_followee, source: :follower
+  
+  # Following (users I follow)
+  has_many :follows_as_follower,
+           class_name: 'Follow',
+           foreign_key: :follower_id,
+           dependent: :destroy
+  has_many :following, through: :follows_as_follower, source: :followee
+  
+  # Helper methods
+  def follow(user)
+    following << user
+  end
+  
+  def unfollow(user)
+    following.delete(user)
+  end
+  
+  def following?(user)
+    following.include?(user)
+  end
+end
+```
+
+**Database Structure:**
+```ruby
+# follows table
+- id
+- follower_id (references users.id)
+- followee_id (references users.id)
+- created_at
+```
+
+**Usage:**
+```ruby
+user1 = User.first
+user2 = User.last
+
+user1.follow(user2)
+user1.following?(user2)  # true
+user1.following          # Array of users user1 follows
+user2.followers          # Array of users following user2
+
+user1.unfollow(user2)
+user1.following?(user2)  # false
+```
+
+### Example: Nested Comments
+
+```ruby
+# app/models/comment.rb
+class Comment < ApplicationRecord
+  belongs_to :article
+  belongs_to :user
+  belongs_to :parent, class_name: 'Comment', optional: true
+  has_many :replies, class_name: 'Comment', foreign_key: :parent_id, dependent: :destroy
+  
+  def reply_to(user:, body:)
+    replies.create(user: user, body: body, article: article)
+  end
+end
+```
+
+**Database Structure:**
+```ruby
+# comments table
+- id
+- article_id
+- user_id
+- parent_id (references comments.id, nullable)
+- body
+```
+
+**Usage:**
+```ruby
+comment = Comment.first
+reply = comment.reply_to(user: user, body: "Reply to your comment")
+
+comment.replies      # All direct replies
+reply.parent        # Original comment
+```
+
+---

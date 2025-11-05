@@ -1,0 +1,1028 @@
+---
+alwaysApply: true
+---
+# Web Development Standards for Rails 8 + Hotwire + TailwindCSS
+
+You are an expert in Ruby on Rails 8, Hotwire (Turbo + Stimulus), TailwindCSS, and modern web application development.
+
+## Core Tech Stack
+
+- Ruby 3.4+
+- Ruby on Rails 8.0+
+- Hotwire (Turbo + Stimulus)
+- TailwindCSS 3.x
+- SQLite3 (production-ready with Rails 8)
+- Propshaft (default asset pipeline)
+- Importmap (JavaScript management)
+
+## Rails 8 Specific Features
+
+- **Authentication Generator**: Use `rails generate authentication` for session-based authentication
+- **Solid Queue**: Default background job processor (replaces Sidekiq/Resque)
+- **Solid Cache**: Database-backed caching (replaces Redis)
+- **Solid Cable**: Database-backed WebSocket adapter for Action Cable
+- **Propshaft**: Default asset pipeline (replaces Sprockets)
+- **Kamal 2**: Deployment configuration included by default
+
+## Architecture Principles
+
+### Strict Rails Conventions
+- Follow MVC pattern rigidly: Models contain business logic, Views handle presentation, Controllers coordinate
+- RESTful routing is mandatory - use standard REST actions (index, show, new, create, edit, update, destroy)
+- Convention over Configuration - follow Rails defaults unless absolutely necessary
+- DRY (Don't Repeat Yourself) - extract repeated code into helpers, partials, or concerns
+- KISS (Keep It Simple, Stupid) - always choose the simplest solution
+
+### Desktop-First Responsive Design
+- Primary target: 1280px (desktop)
+- Tablet: 768px (use `md:` prefix)
+- Mobile: 375px (use `sm:` prefix)
+- Always write desktop styles first, then scale down with responsive prefixes
+
+## File Structure & Naming
+
+### Models
+- File: singular, snake_case (`user.rb`, `blog_post.rb`)
+- Class: singular, PascalCase (`User`, `BlogPost`)
+- Table: plural, snake_case (`users`, `blog_posts`)
+
+### Controllers
+- File: plural, snake_case with `_controller.rb` suffix (`users_controller.rb`)
+- Class: plural, PascalCase with `Controller` suffix (`UsersController`)
+- Keep actions under 10 lines
+- Maximum 2 instance variables per action
+
+### Views
+- Directory: plural, snake_case (`app/views/users/`)
+- Files: action name, snake_case (`index.html.erb`, `show.html.erb`)
+- Partials: start with underscore (`_form.html.erb`, `_user_card.html.erb`)
+- Use `app/views/shared/` for cross-controller partials
+
+### Stimulus Controllers
+- File: snake_case with `_controller.js` suffix (`dropdown_controller.js`)
+- Location: `app/javascript/controllers/`
+- HTML identifier: kebab-case (`data-controller="dropdown"`)
+
+## ID Naming Strategy
+
+IDs are critical for debugging, JavaScript targeting, and maintainability. Use clear, descriptive, natural language IDs.
+
+### ID Naming Patterns
+
+**General Format**: `[context]-[element]-[purpose]`
+
+**Forms & Inputs**:
+```html
+<!-- Form containers -->
+<form id="user-login-form">
+<form id="article-edit-form">
+<form id="comment-create-form">
+
+<!-- Input fields -->
+<input id="user-email-input" type="email">
+<input id="user-password-input" type="password">
+<input id="article-title-input" type="text">
+<textarea id="article-body-textarea"></textarea>
+
+<!-- Submit buttons -->
+<button id="login-submit-button" type="submit">
+<button id="save-draft-button" type="button">
+```
+
+**Navigation Elements**:
+```html
+<!-- Main navigation -->
+<nav id="main-navigation">
+<nav id="mobile-navigation">
+<nav id="user-account-menu">
+
+<!-- Navigation items -->
+<a id="nav-home-link" href="/">
+<a id="nav-articles-link" href="/articles">
+<button id="mobile-menu-toggle-button">
+```
+
+**Content Sections**:
+```html
+<!-- Page sections -->
+<div id="hero-section">
+<div id="user-dashboard-container">
+<div id="article-list-section">
+<div id="comments-section">
+
+<!-- Specific content areas -->
+<div id="user-profile-header">
+<div id="article-metadata-panel">
+<div id="sidebar-widget-container">
+```
+
+**Interactive Components**:
+```html
+<!-- Modals -->
+<div id="delete-confirmation-modal">
+<div id="user-settings-modal">
+<div id="image-preview-modal">
+
+<!-- Dropdowns -->
+<div id="user-menu-dropdown">
+<div id="sort-options-dropdown">
+
+<!-- Tabs -->
+<div id="profile-tabs-container">
+<button id="profile-overview-tab">
+<button id="profile-settings-tab">
+
+<!-- Dynamic content -->
+<div id="notification-badge">
+<div id="search-results-container">
+<div id="loading-spinner">
+```
+
+**Stimulus Targets** (prefer data-targets, but when IDs needed):
+```html
+<!-- When ID is needed for both Stimulus and other purposes -->
+<div data-controller="dropdown" id="user-dropdown-container">
+  <button data-action="dropdown#toggle" id="user-dropdown-toggle">
+  <div data-dropdown-target="menu" id="user-dropdown-menu">
+</div>
+```
+
+**Debugging-Friendly Patterns**:
+```html
+<!-- Bad: Cryptic IDs -->
+<div id="d1">
+<div id="container2">
+<button id="btn">
+
+<!-- Good: Self-documenting IDs -->
+<div id="user-profile-container">
+<div id="article-comments-container">
+<button id="edit-profile-button">
+```
+
+### ID Naming Rules
+
+1. **Always use kebab-case**: `user-profile-form` not `userProfileForm` or `user_profile_form`
+2. **Be specific**: `user-login-form` not just `form`
+3. **Include context**: `article-title-input` not just `title`
+4. **Use purpose suffixes**:
+   - `-container` for wrapper divs
+   - `-section` for major page sections
+   - `-button` for buttons
+   - `-input` for input fields
+   - `-link` for links
+   - `-modal` for modals
+   - `-dropdown` for dropdowns
+   - `-menu` for menus
+   - `-panel` for panels/cards
+5. **Prefix with resource name**: `user-`, `article-`, `comment-` when relevant
+6. **Never use generic IDs**: Avoid `id="container"`, `id="wrapper"`, `id="button"`
+7. **Use sparingly**: Only add IDs when needed for:
+   - Form label associations
+   - JavaScript/Stimulus targeting
+   - Deep linking/anchors
+   - CSS styling (when classes won't work)
+
+## Ruby & Rails Code Standards
+
+### Controllers
+
+```ruby
+class ArticlesController < ApplicationController
+  # Always use before_action for authentication/authorization
+  before_action :require_login
+  before_action :set_article, only: [:show, :edit, :update, :destroy]
+  
+  def index
+    @articles = Article.published.recent.limit(20)
+  end
+  
+  def create
+    @article = Article.new(article_params)
+    
+    if @article.save
+      redirect_to @article, notice: "Article created successfully."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+  
+  private
+  
+  def set_article
+    @article = Article.find(params[:id])
+  end
+  
+  # Always use strong parameters
+  def article_params
+    params.require(:article).permit(:title, :body, :status)
+  end
+end
+```
+
+**Controller Rules**:
+- Keep actions under 10 lines
+- Use `before_action` for common logic
+- Always use strong parameters
+- Set proper HTTP status codes (`:unprocessable_entity` for validation errors)
+- Use `redirect_to` for successful actions, `render` for errors
+- Maximum 2 instance variables per action
+
+### Models
+
+```ruby
+class Article < ApplicationRecord
+  # 1. Constants
+  STATUSES = ['draft', 'published', 'archived'].freeze
+  
+  # 2. Associations (belongs_to first, then has_many/has_one)
+  belongs_to :user
+  has_many :comments, dependent: :destroy
+  has_many :tags, through: :article_tags
+  
+  # 3. Validations
+  validates :title, presence: true, length: { minimum: 5, maximum: 200 }
+  validates :body, presence: true, length: { minimum: 100 }
+  validates :status, inclusion: { in: STATUSES }
+  validates :slug, uniqueness: { scope: :user_id, case_sensitive: false }
+  
+  # 4. Scopes
+  scope :published, -> { where(status: 'published') }
+  scope :recent, -> { order(created_at: :desc) }
+  scope :popular, -> { where('views_count > ?', 1000) }
+  
+  # 5. Callbacks (use sparingly)
+  before_validation :generate_slug
+  before_save :sanitize_title
+  
+  # 6. Public methods
+  def publish!
+    update!(status: 'published', published_at: Time.current)
+  end
+  
+  def draft?
+    status == 'draft'
+  end
+  
+  # 7. Private methods
+  private
+  
+  def generate_slug
+    self.slug = title.parameterize if title.present?
+  end
+  
+  def sanitize_title
+    self.title = title.strip
+  end
+end
+```
+
+**Model Rules**:
+- Always follow order: constants, associations, validations, scopes, callbacks, public methods, private methods
+- Put `belongs_to` before `has_many`/`has_one`
+- Always specify `dependent:` option on associations (`:destroy`, `:delete_all`, or `:nullify`)
+- Use `!` suffix for methods that raise exceptions (`save!`, `update!`, `publish!`)
+- Use `?` suffix for boolean methods (`draft?`, `active?`, `expired?`)
+- Avoid callbacks - use service objects for complex logic
+- Keep models under 200 lines
+
+### Migrations
+
+```ruby
+class CreateArticles < ActiveRecord::Migration[8.0]
+  def change
+    create_table :articles do |t|
+      t.string :title, null: false
+      t.text :body, null: false
+      t.string :slug, null: false
+      t.string :status, default: 'draft', null: false
+      t.integer :views_count, default: 0, null: false
+      t.references :user, null: false, foreign_key: true
+      t.datetime :published_at
+      
+      t.timestamps
+    end
+    
+    # Always add indexes for foreign keys and frequently queried columns
+    add_index :articles, :slug, unique: true
+    add_index :articles, :status
+    add_index :articles, :published_at
+    add_index :articles, [:user_id, :status]
+  end
+end
+```
+
+**Migration Rules**:
+- Always include `null:` constraint (use `null: false` for required fields)
+- Always include `default:` for boolean and enum fields
+- Always use `t.timestamps` (creates `created_at` and `updated_at`)
+- Use `t.references` for foreign keys (automatically adds index and type)
+- Add `foreign_key: true` to maintain referential integrity
+- Add indexes for:
+  - Foreign keys (automatic with `t.references`)
+  - Frequently queried columns
+  - Unique columns
+  - Composite indexes for multi-column queries
+- Never edit `schema.rb` directly
+- Never delete old migrations
+
+### Routes
+
+```ruby
+# config/routes.rb
+
+Rails.application.routes.draw do
+  # Root route
+  root "articles#index"
+  
+  # Standard RESTful resources
+  resources :articles do
+    # Nested resources (max 1 level deep)
+    resources :comments, only: [:create, :destroy]
+    
+    # Member routes (act on single resource)
+    member do
+      post :publish
+      post :archive
+    end
+    
+    # Collection routes (act on collection)
+    collection do
+      get :drafts
+    end
+  end
+  
+  # Shallow nesting for nested resources
+  resources :users do
+    resources :articles, shallow: true
+  end
+  
+  # Custom routes (avoid when possible)
+  get '/about', to: 'pages#about'
+  
+  # Health check endpoint
+  get "up" => "rails/health#show", as: :rails_health_check
+end
+```
+
+**Routing Rules**:
+- Always use `resources` for RESTful routes
+- Nest resources maximum 1 level deep
+- Use `shallow: true` for deeper nesting
+- Use `only:` or `except:` to limit routes
+- Use `member` for single-resource actions
+- Use `collection` for collection actions
+- Avoid custom routes unless absolutely necessary
+
+## Hotwire (Turbo + Stimulus)
+
+### Turbo Frames
+
+```erb
+<!-- List page with turbo frame -->
+<%= turbo_frame_tag "articles" do %>
+  <div id="articles-list-container">
+    <%= render @articles %>
+  </div>
+<% end %>
+
+<!-- Individual article partial -->
+<%= turbo_frame_tag dom_id(article) do %>
+  <article id="<%= "article-#{article.id}-container" %>">
+    <h2><%= article.title %></h2>
+    <%= link_to "Edit", edit_article_path(article) %>
+  </article>
+<% end %>
+```
+
+**Turbo Frame Rules**:
+- Use `turbo_frame_tag` with unique IDs
+- Use `dom_id(record)` helper for model-based frames
+- Use `data-turbo-frame="_top"` to break out of frame
+- Target frames with `data-turbo-frame="frame_id"`
+- Keep frame interactions simple
+
+### Turbo Streams
+
+```ruby
+# Controller
+def create
+  @comment = @article.comments.build(comment_params)
+  
+  respond_to do |format|
+    if @comment.save
+      format.turbo_stream
+      format.html { redirect_to @article }
+    else
+      format.turbo_stream { render turbo_stream: turbo_stream.replace("comment_form", partial: "form", locals: { comment: @comment }) }
+      format.html { render :new, status: :unprocessable_entity }
+    end
+  end
+end
+```
+
+```erb
+<!-- app/views/comments/create.turbo_stream.erb -->
+<%= turbo_stream.prepend "comments-list", @comment %>
+<%= turbo_stream.replace "comment-form" do %>
+  <%= render "comments/form", article: @article, comment: Comment.new %>
+<% end %>
+```
+
+**Turbo Stream Rules**:
+- Always provide `format.html` fallback
+- Use stream actions: `append`, `prepend`, `replace`, `update`, `remove`
+- Name files: `action.turbo_stream.erb`
+- Target elements by ID (not class)
+
+### Stimulus Controllers
+
+```javascript
+// app/javascript/controllers/dropdown_controller.js
+
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static targets = ["menu", "button"]
+  static classes = ["open", "closed"]
+  static values = {
+    openDuration: { type: Number, default: 300 }
+  }
+  
+  connect() {
+    // Runs when controller connects to DOM
+    console.log("Dropdown controller connected")
+  }
+  
+  disconnect() {
+    // Cleanup when controller disconnects
+  }
+  
+  toggle() {
+    if (this.menuTarget.classList.contains(this.openClass)) {
+      this.close()
+    } else {
+      this.open()
+    }
+  }
+  
+  open() {
+    this.menuTarget.classList.remove(this.closedClass)
+    this.menuTarget.classList.add(this.openClass)
+  }
+  
+  close() {
+    this.menuTarget.classList.remove(this.openClass)
+    this.menuTarget.classList.add(this.closedClass)
+  }
+  
+  // Close dropdown when clicking outside
+  hide(event) {
+    if (!this.element.contains(event.target)) {
+      this.close()
+    }
+  }
+}
+```
+
+```html
+<!-- HTML usage -->
+<div data-controller="dropdown"
+     data-action="click@window->dropdown#hide"
+     data-dropdown-open-class="block"
+     data-dropdown-closed-class="hidden"
+     id="user-menu-dropdown">
+  <button data-action="dropdown#toggle"
+          data-dropdown-target="button"
+          id="user-menu-toggle-button">
+    Menu
+  </button>
+  <div data-dropdown-target="menu"
+       class="hidden"
+       id="user-menu-dropdown-menu">
+    <!-- menu items -->
+  </div>
+</div>
+```
+
+**Stimulus Rules**:
+- One controller per behavior (dropdown, modal, autosave, etc.)
+- Use `static targets` to reference DOM elements
+- Use `static values` for dynamic data (URLs, IDs, options)
+- Use `static classes` for CSS class names
+- Use `data-action` for event binding
+- Format: `event->controller#action` or `event@window->controller#action`
+- Keep controllers under 200 lines
+- Export as default: `export default class extends Controller`
+
+## TailwindCSS Standards
+
+### Using Utility Classes
+
+```erb
+<!-- Always use Tailwind utilities directly in HTML -->
+<div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">Title</h2>
+  <p class="text-gray-600 leading-relaxed">Content</p>
+  <button class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+    Click me
+  </button>
+</div>
+```
+
+### Class Order Convention
+
+1. Layout: `flex`, `grid`, `block`, `inline`, `relative`, `absolute`
+2. Position: `top-0`, `left-0`, `z-10`
+3. Box Model: `w-full`, `h-screen`, `m-4`, `p-6`
+4. Typography: `text-lg`, `font-bold`, `text-center`
+5. Visual: `bg-white`, `border`, `rounded`, `shadow`
+6. Interactive: `hover:`, `focus:`, `active:`
+7. Responsive: `sm:`, `md:`, `lg:`, `xl:`
+
+```erb
+<!-- Good: Organized class order -->
+<div class="flex items-center justify-between w-full max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow md:p-4 sm:flex-col sm:p-2">
+```
+
+### Responsive Design
+
+```erb
+<!-- Desktop-first approach -->
+<div class="grid grid-cols-4 gap-8 p-8
+            lg:grid-cols-3 lg:gap-6 lg:p-6
+            md:grid-cols-2 md:gap-4 md:p-4
+            sm:grid-cols-1 sm:gap-2 sm:p-2">
+  <!-- Content -->
+</div>
+
+<!-- Typography scaling -->
+<h1 class="text-5xl font-bold md:text-4xl sm:text-3xl">
+  Page Title
+</h1>
+
+<!-- Show/hide elements -->
+<div class="block md:hidden">Desktop only</div>
+<div class="hidden sm:block">Mobile only</div>
+```
+
+**Breakpoints**:
+- Default (no prefix): 1280px+ (desktop)
+- `lg:` - 1024px (laptops)
+- `md:` - 768px (tablets)
+- `sm:` - 640px (large mobile)
+
+**Responsive Rules**:
+- Write desktop styles first (no prefix)
+- Add tablet styles with `md:` prefix
+- Add mobile styles with `sm:` prefix
+- Scale down: `text-5xl md:text-4xl sm:text-3xl`
+- Scale spacing: `p-8 md:p-6 sm:p-4`
+
+### Custom CSS (Minimal Use)
+
+```css
+/* app/assets/stylesheets/application.tailwind.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Only add custom CSS when Tailwind can't handle it */
+@layer components {
+  .btn-primary {
+    @apply bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+  }
+}
+```
+
+**Custom CSS Rules**:
+- Avoid custom CSS whenever possible
+- Use `@layer` directive for organization
+- Use `@apply` with Tailwind utilities
+- Limit to <100 lines total
+- Document why custom CSS is needed
+
+## Database Standards
+
+### Column Types
+
+- `string` - Short text (max 255 characters)
+- `text` - Long text (articles, descriptions)
+- `integer` - Whole numbers, foreign keys
+- `bigint` - Large integers
+- `decimal` - Money, precise numbers (use `precision:` and `scale:`)
+- `float` - Approximate numbers
+- `boolean` - True/false
+- `date` - Date only
+- `datetime` - Date and time
+- `time` - Time only
+- `json` - JSON data (PostgreSQL/MySQL)
+- `jsonb` - Binary JSON (PostgreSQL, faster queries)
+
+### Indexing Strategy
+
+```ruby
+# Always add indexes for:
+add_index :articles, :user_id              # Foreign keys (automatic with t.references)
+add_index :articles, :status               # Frequently queried columns
+add_index :articles, :slug, unique: true   # Unique columns
+add_index :articles, [:user_id, :status]   # Composite indexes for multi-column queries
+add_index :articles, :published_at         # Date/time columns used in queries
+```
+
+## Testing Standards
+
+### Model Tests
+
+```ruby
+# test/models/article_test.rb
+
+require "test_helper"
+
+class ArticleTest < ActiveSupport::TestCase
+  test "should not save article without title" do
+    article = Article.new(body: "Content")
+    assert_not article.save
+    assert_includes article.errors[:title], "can't be blank"
+  end
+  
+  test "title should be at least 5 characters" do
+    article = Article.new(title: "Hi", body: "Content")
+    assert_not article.valid?
+    assert_includes article.errors[:title], "is too short"
+  end
+  
+  test "publish! should set status and timestamp" do
+    article = articles(:draft)
+    article.publish!
+    
+    assert_equal "published", article.status
+    assert_not_nil article.published_at
+  end
+  
+  test "published scope returns only published articles" do
+    published_count = Article.where(status: 'published').count
+    assert_equal published_count, Article.published.count
+  end
+end
+```
+
+### Controller Tests
+
+```ruby
+# test/controllers/articles_controller_test.rb
+
+require "test_helper"
+
+class ArticlesControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @article = articles(:one)
+  end
+  
+  test "should get index" do
+    get articles_url
+    assert_response :success
+    assert_select "h1", "Articles"
+  end
+  
+  test "should create article with valid params" do
+    assert_difference("Article.count") do
+      post articles_url, params: { 
+        article: { title: "New Article", body: "Content goes here" * 10 }
+      }
+    end
+    
+    assert_redirected_to article_url(Article.last)
+    follow_redirect!
+    assert_select "h1", "New Article"
+  end
+  
+  test "should not create article with invalid params" do
+    assert_no_difference("Article.count") do
+      post articles_url, params: { article: { title: "", body: "" } }
+    end
+    
+    assert_response :unprocessable_entity
+  end
+end
+```
+
+### System Tests
+
+```ruby
+# test/system/articles_test.rb
+
+require "application_system_test_case"
+
+class ArticlesTest < ApplicationSystemTestCase
+  test "creating an article" do
+    visit articles_url
+    click_on "New Article"
+    
+    fill_in "Title", with: "System Test Article"
+    fill_in "Body", with: "This is a system test article with enough content"
+    click_on "Create Article"
+    
+    assert_text "Article was successfully created"
+    assert_text "System Test Article"
+  end
+  
+  test "editing article with Turbo Frame" do
+    article = articles(:one)
+    visit article_url(article)
+    
+    click_on "Edit"
+    fill_in "Title", with: "Updated Title"
+    click_on "Update Article"
+    
+    # Turbo Frame should update without full page reload
+    assert_text "Updated Title"
+    assert_no_text "Article was successfully updated" # No flash since Turbo Frame
+  end
+end
+```
+
+**Testing Rules**:
+- Test all model validations
+- Test all model public methods
+- Test critical controller actions (create, update, destroy)
+- Test important user flows with system tests
+- Run tests frequently: `rails test`
+- Keep tests fast (use fixtures, avoid external calls)
+
+## Rails 8 Authentication
+
+```bash
+# Generate authentication system
+rails generate authentication
+```
+
+**Generated Files**:
+- `app/models/user.rb` - User model with `has_secure_password`
+- `app/models/session.rb` - Session model for tracking
+- `app/controllers/sessions_controller.rb` - Login/logout
+- `app/controllers/passwords_controller.rb` - Password reset
+- `app/views/sessions/` - Login views
+- `app/views/passwords/` - Password reset views
+- Migration for users and sessions tables
+
+**Usage**:
+```ruby
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  before_action :require_authentication
+  
+  private
+  
+  def require_authentication
+    redirect_to sign_in_path unless authenticated?
+  end
+  
+  def authenticated?
+    Current.user.present?
+  end
+end
+```
+
+## Code Quality Rules
+
+### DRY Principle
+
+```ruby
+# Bad: Repetition
+class ArticlesController
+  def show
+    redirect_to login_path unless current_user
+  end
+end
+
+class CommentsController
+  def create
+    redirect_to login_path unless current_user
+  end
+end
+
+# Good: Extract to parent
+class ApplicationController < ActionController::Base
+  before_action :require_login
+  
+  private
+  def require_login
+    redirect_to login_path unless current_user
+  end
+end
+```
+
+### KISS Principle
+
+```ruby
+# Bad: Overly complex
+def formatted_date
+  if published_at.present?
+    if published_at > 1.year.ago
+      published_at.strftime("%B %d, %Y")
+    else
+      published_at.strftime("%Y")
+    end
+  else
+    "Draft"
+  end
+end
+
+# Good: Simple and clear
+def formatted_date
+  return "Draft" unless published_at
+  published_at > 1.year.ago ? published_at.strftime("%B %d, %Y") : published_at.year
+end
+```
+
+### Semantic HTML
+
+```erb
+<!-- Good: Semantic elements -->
+<article id="article-content-container">
+  <header id="article-header">
+    <h1>Article Title</h1>
+    <time datetime="2025-11-03">November 3, 2025</time>
+  </header>
+  
+  <section id="article-body">
+    <p>Content...</p>
+  </section>
+  
+  <footer id="article-footer">
+    <nav aria-label="Article actions" id="article-actions-nav">
+      <a href="#" id="article-edit-link">Edit</a>
+      <button type="button" id="article-delete-button">Delete</button>
+    </nav>
+  </footer>
+</article>
+
+<!-- Bad: Non-semantic divs -->
+<div id="article">
+  <div id="header">
+    <div>Article Title</div>
+  </div>
+</div>
+```
+
+## Accessibility Requirements
+
+### ARIA Labels
+
+```erb
+<!-- Navigation -->
+<nav aria-label="Main navigation" id="main-navigation">
+  <ul>
+    <li><a href="/" id="nav-home-link">Home</a></li>
+  </ul>
+</nav>
+
+<!-- Forms -->
+<form role="search" aria-label="Search articles" id="article-search-form">
+  <label for="search-input" class="sr-only">Search</label>
+  <input id="search-input" type="search" placeholder="Search...">
+  <button type="submit" aria-label="Submit search" id="search-submit-button">
+    <svg aria-hidden="true"><!-- icon --></svg>
+  </button>
+</form>
+
+<!-- Icon-only buttons -->
+<button type="button" aria-label="Close modal" id="modal-close-button">
+  <span aria-hidden="true">&times;</span>
+</button>
+```
+
+### Keyboard Navigation
+
+```erb
+<!-- Good: Native button (keyboard accessible) -->
+<button type="button" id="user-menu-button">Menu</button>
+
+<!-- If using non-button (avoid): -->
+<div role="button" 
+     tabindex="0" 
+     data-action="click->menu#toggle keydown->menu#handleKey"
+     id="custom-menu-button">
+  Menu
+</div>
+```
+
+**Accessibility Rules**:
+- All images need `alt` attributes
+- Use semantic HTML (`<button>`, `<nav>`, `<header>`)
+- Ensure keyboard navigation works (test with Tab key)
+- Use `<label>` for all form inputs
+- Provide ARIA labels for icon-only buttons
+- Use `.sr-only` class for screen reader only text
+- Ensure color contrast meets WCAG AA (4.5:1 for normal text)
+
+## Performance Guidelines
+
+### Database Optimization
+
+```ruby
+# Bad: N+1 query
+@articles = Article.all
+@articles.each do |article|
+  article.user.name  # Separate query for each article!
+end
+
+# Good: Eager loading
+@articles = Article.includes(:user).all
+@articles.each do |article|
+  article.user.name  # No additional queries
+end
+
+# Good: Scoped queries with limits
+@recent_articles = Article.published.recent.limit(10)
+```
+
+**Query Rules**:
+- Always use `includes()` when accessing associations
+- Use `limit()` for paginated results
+- Use `select()` to load only needed columns
+- Add indexes for frequently queried columns
+
+### Caching with Solid Cache
+
+```ruby
+# Fragment caching in views
+<% cache @article do %>
+  <%= render @article %>
+<% end %>
+
+# Russian Doll caching
+<% cache ['articles', @articles.maximum(:updated_at)] do %>
+  <%= render @articles %>
+<% end %>
+```
+
+## Command Reference
+
+```bash
+# Generate authentication
+rails generate authentication
+
+# Generate resources
+rails generate scaffold Article title:string body:text
+rails generate model User email:string
+rails generate controller Articles index show
+rails generate migration AddPublishedToArticles published:boolean
+
+# Generate Stimulus controller
+rails generate stimulus dropdown
+
+# Database
+rails db:create           # Create database
+rails db:migrate          # Run migrations
+rails db:rollback         # Rollback last migration
+rails db:reset            # Drop, create, migrate, seed
+rails db:seed             # Load seed data
+
+# Testing
+rails test                     # Run all tests
+rails test test/models/        # Run model tests
+rails test:system              # Run system tests
+
+# Server
+bin/dev                   # Start server with all services
+rails server              # Start Rails server only
+rails console             # Open Rails console
+
+# Assets
+rails assets:precompile   # Compile assets for production
+
+# Routes
+rails routes              # Show all routes
+rails routes -g articles  # Filter routes
+
+# Stats
+bin/rails stats           # Show code statistics
+```
+
+## Critical Rules Summary
+
+1. **Always follow Rails 8 conventions** - Authentication generator, Solid Queue, Solid Cache, Propshaft
+2. **Desktop-first responsive design** - Write for 1280px, scale down with `md:` and `sm:`
+3. **ID naming is critical** - Use `[context]-[element]-[purpose]` format: `user-login-form`, `article-title-input`
+4. **Controllers stay thin** - Under 10 lines per action, max 2 instance variables
+5. **Models contain business logic** - Validations, associations, scopes, methods
+6. **Use Turbo for interactivity** - Turbo Frames for page sections, Turbo Streams for updates
+7. **Stimulus for JavaScript** - One controller per behavior, keep under 200 lines
+8. **TailwindCSS utilities only** - Avoid custom CSS, use `@apply` when necessary
+9. **Test everything important** - Models, critical controllers, user flows
+10. **Semantic HTML always** - `<article>`, `<nav>`, `<button>`, proper heading hierarchy
+11. **Accessibility is mandatory** - ARIA labels, keyboard nav, color contrast
+12. **Eager load associations** - Use `includes()` to prevent N+1 queries
+
+## Documentation
+
+Refer to official documentation:
+- Rails Guides: https://guides.rubyonrails.org/
+- Rails API: https://api.rubyonrails.org/
+- Turbo Handbook: https://turbo.hotwired.dev/handbook/
+- Stimulus Reference: https://stimulus.hotwired.dev/reference/
+- TailwindCSS Docs: https://tailwindcss.com/docs
+- Ruby Docs: https://docs.ruby-lang.org/en/3.4/

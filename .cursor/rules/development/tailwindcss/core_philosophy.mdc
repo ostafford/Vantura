@@ -1,0 +1,11 @@
+---
+description: core philosophy
+alwaysApply: false
+---
+## Core Philosophy
+
+**Use Tailwind utility classes directly in HTML. Avoid custom CSS unless absolutely necessary.**
+
+TailwindCSS is a utility-first CSS framework that provides low-level utility classes to build custom designs without leaving your HTML.
+
+---

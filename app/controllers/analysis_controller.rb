@@ -39,11 +39,11 @@ class AnalysisController < ApplicationController
     if params[:filter_id].present?
       @selected_filter = Current.user.filters.find_by(id: params[:filter_id])
       if @selected_filter
-        @transactions = Transaction.apply_filter(@selected_filter)
+        filtered_relation = TransactionFilterService.call(@account, @selected_filter)
         # Re-fetch only the filtered transactions for this account with eager loading
         @transactions = @account.transactions
                               .includes(:account)
-                              .where(id: @transactions.select(:id))
+                              .where(id: filtered_relation.select(:id))
       end
     end
 

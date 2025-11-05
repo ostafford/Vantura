@@ -1,8 +1,18 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Connects to data-controller="theme"
+/**
+ * Theme Controller
+ * 
+ * Manages theme switching between light, dark, and auto modes.
+ * Updates theme button UI and listens for system theme changes.
+ * 
+ * Cross-controller access: None (all elements are within controller scope)
+ * 
+ * @see .cursor/rules/conventions/code_style/stimulus_controller_style.mdc
+ * @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
+ */
 export default class extends Controller {
-  static targets = ["button"]
+  static targets = ["button", "buttonSvg", "buttonSpan"]
 
   connect() {
     // Theme is already initialized in the <head> to prevent FOUC
@@ -75,8 +85,10 @@ export default class extends Controller {
       auto: 'Auto'
     }
     
-    const svg = btn.querySelector('svg')
-    const span = btn.querySelector('span')
+    // Use Stimulus targets instead of querySelector
+    // Per rules: Elements within controller scope should use targets
+    const svg = this.hasButtonSvgTarget ? this.buttonSvgTarget : btn.querySelector('svg')
+    const span = this.hasButtonSpanTarget ? this.buttonSpanTarget : btn.querySelector('span')
     
     if (svg) svg.innerHTML = icons[theme]
     if (span) span.textContent = labels[theme]

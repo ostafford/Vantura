@@ -1,0 +1,31 @@
+---
+description: testing destroy action
+alwaysApply: false
+---
+## Testing Destroy Action
+
+```ruby
+test "should destroy article" do
+  sign_in_as @article.user
+  
+  assert_difference('Article.count', -1) do
+    delete article_url(@article)
+  end
+  
+  assert_redirected_to articles_url
+  assert_equal "Article deleted successfully.", flash[:notice]
+end
+
+test "cannot destroy other user's article" do
+  other_user = users(:jane)
+  sign_in_as other_user
+  
+  assert_no_difference('Article.count') do
+    delete article_url(@article)
+  end
+  
+  assert_redirected_to articles_url
+end
+```
+
+---

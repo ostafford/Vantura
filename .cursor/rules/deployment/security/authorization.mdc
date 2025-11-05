@@ -1,0 +1,21 @@
+---
+description: authorization
+alwaysApply: false
+---
+## Authorization
+
+```ruby
+# In controllers
+before_action :require_authentication
+before_action :require_admin, only: [:admin_action]
+
+def require_authentication
+  redirect_to login_path unless Current.user
+end
+
+def require_admin
+  redirect_to root_path unless Current.user&.admin?
+end
+```
+
+---

@@ -1,0 +1,12 @@
+---
+description: SSL HTTPS
+alwaysApply: false
+---
+## SSL/HTTPS
+
+```ruby
+# config/environments/production.rb
+config.force_ssl = true
+```
+
+---

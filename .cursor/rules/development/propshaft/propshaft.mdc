@@ -1,0 +1,29 @@
+---
+description: what is propshaft
+alwaysApply: false
+---
+## What is Propshaft?
+
+Propshaft is Rails 8's default asset pipeline. It replaces Sprockets with a simpler, faster approach.
+
+**Key Benefits:**
+- ✅ Simpler than Sprockets
+- ✅ Faster compilation
+- ✅ HTTP/2 optimized (no concatenation needed)
+- ✅ Automatic fingerprinting
+- ✅ Works with Importmap for JavaScript
+- ✅ CDN-ready
+
+**What Propshaft Does:**
+- Serves assets in development
+- Fingerprints assets for production
+- Compiles assets for deployment
+- Handles CSS, images, fonts, and static files
+
+**What Propshaft Doesn't Do:**
+- No Sass/SCSS compilation (use `cssbundling-rails`)
+- No CoffeeScript
+- No asset concatenation (HTTP/2 makes this unnecessary)
+- No ERB in asset files
+
+---

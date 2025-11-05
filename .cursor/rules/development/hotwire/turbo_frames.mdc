@@ -1,0 +1,106 @@
+---
+description: Turbo Frames, basic usage, frame targeting, frame swapping between pages, Lazy-Loading Frames, Turbo Frame Rules
+alwaysApply: false
+---
+## Turbo Frames
+
+Turbo Frames update specific parts of the page without reloading.
+
+### Basic Usage
+
+```erb
+<!-- app/views/articles/index.html.erb -->
+<div id="articles-page-container">
+  <h1>Articles</h1>
+  
+  <!-- Turbo Frame wraps the articles list -->
+  <%= turbo_frame_tag "articles-list" do %>
+    <div id="articles-list-container">
+      <%= render @articles %>
+    </div>
+    <%= link_to "Load More", articles_path(page: @next_page) %>
+  <% end %>
+</div>
+```
+
+### Frame Targeting
+
+```erb
+<!-- app/views/articles/_article.html.erb -->
+<!-- Each article has its own frame -->
+<%= turbo_frame_tag dom_id(article) do %>
+  <article id="<%= "article-#{article.id}-card" %>">
+    <h2><%= link_to article.title, article %></h2>
+    <p><%= article.body.truncate(200) %></p>
+    
+    <!-- Edit link stays within frame -->
+    <%= link_to "Edit", edit_article_path(article) %>
+    
+    <!-- Delete button breaks out of frame to update whole page -->
+    <%= button_to "Delete", article_path(article),
+        method: :delete,
+        data: { turbo_frame: "_top" } %>
+  </article>
+<% end %>
+```
+
+### Frame Swapping Between Pages
+
+```erb
+<!-- app/views/articles/show.html.erb -->
+<div id="article-show-container">
+  <!-- Frame with matching ID from index page -->
+  <%= turbo_frame_tag dom_id(@article) do %>
+    <article id="article-content">
+      <h1><%= @article.title %></h1>
+      <div><%= @article.body %></div>
+      
+      <!-- Clicking Edit loads edit form in same frame -->
+      <%= link_to "Edit", edit_article_path(@article) %>
+    </article>
+  <% end %>
+</div>
+
+<!-- app/views/articles/edit.html.erb -->
+<!-- Same frame ID - replaces content in place -->
+<%= turbo_frame_tag dom_id(@article) do %>
+  <div id="article-edit-form-container">
+    <h1>Edit Article</h1>
+    <%= render "form", article: @article %>
+  </div>
+<% end %>
+```
+
+### Lazy-Loading Frames
+
+```erb
+<!-- Load content on demand -->
+<%= turbo_frame_tag "comments", src: article_comments_path(@article) do %>
+  <p>Loading comments...</p>
+<% end %>
+
+<!-- When frame appears in viewport, it fetches content from src URL -->
+```
+
+### Turbo Frame Rules
+
+**1. Matching Frame IDs**
+- Frames with same ID on different pages swap content
+- Use `dom_id(record)` for consistent IDs
+
+**2. Breaking Out of Frames**
+```erb
+<!-- Update entire page instead of just frame -->
+<%= link_to "View All", articles_path, data: { turbo_frame: "_top" } %>
+
+<!-- Target a different frame -->
+<%= link_to "Update Sidebar", path, data: { turbo_frame: "sidebar" } %>
+```
+
+**3. Frame Responses Must Include Frame**
+```erb
+<!-- Controller response must include matching frame tag -->
+<%= turbo_frame_tag "articles-list" do %>
+  <%= render @articles %>
+<% end %>
+```

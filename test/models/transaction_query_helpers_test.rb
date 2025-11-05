@@ -7,7 +7,7 @@ class TransactionQueryHelpersTest < ActiveSupport::TestCase
     @end_date = Date.today.end_of_month
   end
 
-  test "top_merchants_by_type returns merchants for expenses" do
+  test "TransactionMerchantService returns merchants for expenses" do
     # Create test transactions with merchant names
     transaction1 = @account.transactions.create!(
       description: "Test Expense 1",
@@ -27,11 +27,11 @@ class TransactionQueryHelpersTest < ActiveSupport::TestCase
       is_hypothetical: false
     )
 
-    result = Transaction.top_merchants_by_type(
+    result = TransactionMerchantService.call(
+      @account,
       "expense",
-      account: @account,
-      start_date: @start_date,
-      end_date: @end_date,
+      @start_date,
+      @end_date,
       limit: 3
     )
 
@@ -46,7 +46,7 @@ class TransactionQueryHelpersTest < ActiveSupport::TestCase
     assert merchant.key?(:hypothetical)
   end
 
-  test "top_merchants_by_type returns merchants for income" do
+  test "TransactionMerchantService returns merchants for income" do
     # Create test transactions
     @account.transactions.create!(
       description: "Salary",
@@ -57,11 +57,11 @@ class TransactionQueryHelpersTest < ActiveSupport::TestCase
       is_hypothetical: false
     )
 
-    result = Transaction.top_merchants_by_type(
+    result = TransactionMerchantService.call(
+      @account,
       "income",
-      account: @account,
-      start_date: @start_date,
-      end_date: @end_date,
+      @start_date,
+      @end_date,
       limit: 3
     )
 
@@ -69,7 +69,7 @@ class TransactionQueryHelpersTest < ActiveSupport::TestCase
     assert result.any? { |m| m[:merchant] == "Employer Inc" }
   end
 
-  test "top_merchants_by_type includes hypothetical flag" do
+  test "TransactionMerchantService includes hypothetical flag" do
     # Create real and hypothetical transactions
     @account.transactions.create!(
       description: "Real Transaction",
@@ -88,11 +88,11 @@ class TransactionQueryHelpersTest < ActiveSupport::TestCase
       is_hypothetical: true
     )
 
-    result = Transaction.top_merchants_by_type(
+    result = TransactionMerchantService.call(
+      @account,
       "expense",
-      account: @account,
-      start_date: @start_date,
-      end_date: @end_date,
+      @start_date,
+      @end_date,
       limit: 5
     )
 
@@ -104,51 +104,7 @@ class TransactionQueryHelpersTest < ActiveSupport::TestCase
     assert merchant[:hypothetical], "Should detect hypothetical transactions"
   end
 
-  test "merchant_has_hypothetical? returns true for merchants with hypothetical transactions" do
-    # Create hypothetical transaction
-    @account.transactions.create!(
-      description: "Hypothetical Transaction",
-      amount: -50.00,
-      merchant: "Shop A",
-      transaction_date: Date.today,
-      status: "HYPOTHETICAL",
-      is_hypothetical: true
-    )
-
-    result = Transaction.merchant_has_hypothetical?(
-      "Shop A",
-      "expense",
-      account: @account,
-      start_date: @start_date,
-      end_date: @end_date
-    )
-
-    assert result
-  end
-
-  test "merchant_has_hypothetical? returns false for merchants without hypothetical transactions" do
-    # Create real transaction only
-    @account.transactions.create!(
-      description: "Real Transaction",
-      amount: -50.00,
-      merchant: "Shop A",
-      transaction_date: Date.today,
-      status: "SETTLED",
-      is_hypothetical: false
-    )
-
-    result = Transaction.merchant_has_hypothetical?(
-      "Shop A",
-      "expense",
-      account: @account,
-      start_date: @start_date,
-      end_date: @end_date
-    )
-
-    assert_not result
-  end
-
-  test "top_merchants_by_type respects limit parameter" do
+  test "TransactionMerchantService respects limit parameter" do
     # Create 5 test transactions
     5.times do |i|
       @account.transactions.create!(
@@ -161,11 +117,11 @@ class TransactionQueryHelpersTest < ActiveSupport::TestCase
       )
     end
 
-    result = Transaction.top_merchants_by_type(
+    result = TransactionMerchantService.call(
+      @account,
       "expense",
-      account: @account,
-      start_date: @start_date,
-      end_date: @end_date,
+      @start_date,
+      @end_date,
       limit: 3
     )
 

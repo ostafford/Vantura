@@ -1,0 +1,30 @@
+---
+description: confirmation validation
+alwaysApply: false
+---
+## Confirmation Validation
+
+Validates two fields match (e.g., password confirmation).
+
+```ruby
+class User < ApplicationRecord
+  # Requires password_confirmation attribute
+  validates :password, confirmation: true
+  
+  # With presence (to ensure confirmation is provided)
+  validates :password, confirmation: true
+  validates :password_confirmation, presence: true
+  
+  # Email confirmation
+  validates :email, confirmation: true
+  validates :email_confirmation, presence: true
+end
+```
+
+**In view:**
+```erb
+<%= form.password_field :password %>
+<%= form.password_field :password_confirmation %>
+```
+
+---

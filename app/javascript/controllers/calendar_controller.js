@@ -1,14 +1,29 @@
 import { Controller } from "@hotwired/stimulus"
 
+/**
+ * Calendar Controller
+ * 
+ * Manages calendar view switching, scroll preservation, and day detail toggling.
+ * Handles transaction creation events and refreshes calendar display.
+ * 
+ * Cross-controller access:
+ * - getElementById('calendar_content') - Turbo Frame accessed by multiple controllers
+ * - getElementById('main-content-container') - Shared layout element accessed by sidebar
+ * - getElementById('details-drawer-*') - Drawer elements accessed outside controller scope
+ * 
+ * @see .cursor/rules/conventions/ID_naming_strategy/id_naming_category.mdc (lines 668-678)
+ * @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
+ */
 // Global flag to ensure scroll listeners are only added once
 let scrollListenersAdded = false
 
-// Connects to data-controller="calendar"
 export default class extends Controller {
+  static targets = ["viewLink", "dayDetails"]
+
   connect() {
     // Save current view to localStorage for persistence
-    const viewLinks = this.element.querySelectorAll('[data-view]')
-    viewLinks.forEach(link => {
+    // Use Stimulus targets instead of querySelector for elements within controller scope
+    this.viewLinkTargets.forEach(link => {
       link.addEventListener('click', (e) => {
         const view = e.currentTarget.dataset.view
         localStorage.setItem('calendarView', view)
@@ -34,6 +49,9 @@ export default class extends Controller {
   handleTransactionCreated(event) {
     // Refresh the calendar frame when a transaction is created
     console.log('Transaction created event received, refreshing calendar...')
+    // Cross-controller access: calendar_content Turbo Frame is accessed by multiple controllers
+    // Per rules: Keep getElementById for elements accessed outside controller scope
+    // @see .cursor/rules/conventions/ID_naming_strategy/id_naming_category.mdc (lines 668-678)
     const calendarFrame = document.getElementById('calendar_content')
     if (calendarFrame) {
       const currentUrl = new URL(window.location.href)
@@ -83,6 +101,8 @@ export default class extends Controller {
   // Toggle day details (for month view expandable details)
   toggleDay(event) {
     const dayId = event.currentTarget.dataset.dayId
+    // Cross-controller access: day details element may be outside controller scope
+    // Per rules: Keep getElementById for dynamic ID-based access
     const detailsEl = document.getElementById(dayId)
     if (!detailsEl) return
 
@@ -90,12 +110,15 @@ export default class extends Controller {
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     if (isMobile) {
       // Inject details into the mobile drawer and open it
+      // Cross-controller access: drawer elements are accessed outside controller scope
+      // Per rules: Keep getElementById for elements accessed by multiple controllers
+      // @see .cursor/rules/conventions/ID_naming_strategy/id_naming_category.mdc (lines 668-678)
       try {
-        const drawer = document.getElementById('detailsDrawer')
-        const panel = document.getElementById('detailsDrawerPanel')
-        const content = document.getElementById('detailsDrawerContent')
-        const mainContent = document.getElementById('mainContent')
-        const closeBtn = document.getElementById('detailsDrawerClose')
+        const drawer = document.getElementById('details-drawer-modal')
+        const panel = document.getElementById('details-drawer-panel')
+        const content = document.getElementById('details-drawer-content')
+        const mainContent = document.getElementById('main-content-container')
+        const closeBtn = document.getElementById('details-drawer-close-button')
 
         if (drawer && panel && content && mainContent) {
           // Insert cloned HTML so desktop inline panel can remain hidden/independent
@@ -146,10 +169,15 @@ export default class extends Controller {
     const weekContainer = event.currentTarget.closest('[data-week-index]')
     if (!weekContainer) return
     const weekIndex = weekContainer.getAttribute('data-week-index')
+    // Cross-controller access: week details slot is dynamically created and accessed
+    // Per rules: Keep getElementById for dynamic ID-based access outside controller scope
     const slot = document.getElementById(`week-details-${weekIndex}`)
     if (!slot) return
 
     // Ensure we have a cache of all detail elements to hide when needed
+    // Use Stimulus targets where possible, but day elements are dynamically created
+    // Per rules: For dynamic elements with ID patterns, querySelector is acceptable
+    // @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
     if (!this.allDayElements) {
       this.allDayElements = document.querySelectorAll('[id^="day-"]')
     }

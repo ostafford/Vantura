@@ -1,0 +1,51 @@
+---
+description: indexes, add index, remove index
+alwaysApply: false
+---
+## Indexes
+
+### Add Index
+
+```ruby
+class AddIndexToArticles < ActiveRecord::Migration[8.0]
+  def change
+    # Single column index
+    add_index :articles, :status
+    add_index :articles, :published_at
+    
+    # Unique index
+    add_index :articles, :slug, unique: true
+    
+    # Compound index
+    add_index :articles, [:user_id, :status]
+    add_index :articles, [:category_id, :published_at]
+    
+    # Named index
+    add_index :articles, :title, name: 'index_articles_on_title'
+    
+    # Partial index
+    add_index :articles, :email, 
+              where: "deleted_at IS NULL",
+              name: 'index_active_users_on_email'
+  end
+end
+```
+
+### Remove Index
+
+```ruby
+class RemoveIndexFromArticles < ActiveRecord::Migration[8.0]
+  def change
+    # By column name
+    remove_index :articles, :status
+    
+    # By index name
+    remove_index :articles, name: 'index_articles_on_title'
+    
+    # By column array
+    remove_index :articles, [:user_id, :status]
+  end
+end
+```
+
+---

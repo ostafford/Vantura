@@ -1,0 +1,42 @@
+---
+description: monitoring, health checks, logs
+alwaysApply: false
+---
+## Monitoring
+
+### Health Checks
+
+```yaml
+# config/deploy.yml
+
+healthcheck:
+  path: /up
+  port: 3000
+  interval: 10s
+  timeout: 5s
+  max_attempts: 7
+```
+
+```ruby
+# config/routes.rb
+
+get '/up', to: 'rails/health#show', as: :rails_health_check
+```
+
+### Logs
+
+```bash
+# Application logs
+kamal app logs --follow
+
+# Last 100 lines
+kamal app logs --tail 100
+
+# Since specific time
+kamal app logs --since 1h
+
+# Filter by string
+kamal app logs | grep ERROR
+```
+
+---

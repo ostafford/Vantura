@@ -1,0 +1,17 @@
+---
+description: what is a solid cable
+alwaysApply: false
+---
+## What is Solid Cable?
+
+Solid Cable is Rails 8's default WebSocket solution for Action Cable. It uses your database instead of Redis.
+
+**Key Benefits:**
+- ✅ No Redis dependency
+- ✅ Uses database for pub/sub
+- ✅ Real-time bidirectional communication
+- ✅ Works with all Rails features
+- ✅ Supports presence, typing indicators, live updates
+- ✅ Works with PostgreSQL, MySQL (with polling)
+
+---

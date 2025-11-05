@@ -1,0 +1,14 @@
+---
+description: What is Hotwire
+alwaysApply: false
+---
+## What is Hotwire?
+
+**Hotwire = Turbo + Stimulus**
+
+- **Turbo:** Provides SPA-like interactivity without writing much JavaScript
+- **Stimulus:** Adds JavaScript behavior to HTML elements
+
+Together, they enable modern, interactive web applications while keeping HTML as the primary interface.
+
+---

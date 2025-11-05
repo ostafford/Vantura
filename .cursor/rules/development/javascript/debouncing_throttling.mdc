@@ -1,0 +1,60 @@
+---
+description: Debouncing & Throttling, Debounce (Wait for User to Stop), Throttle (Limit Execution Rate)
+alwaysApply: false
+---
+## Debouncing & Throttling
+
+### Debounce (Wait for User to Stop)
+
+```javascript
+// Debounce function
+function debounce(func, delay) {
+  let timeoutId
+  
+  return function(...args) {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => func.apply(this, args), delay)
+  }
+}
+
+// Usage: Search input
+const searchInput = document.getElementById('search-query-input')
+const debouncedSearch = debounce(performSearch, 300)
+
+searchInput.addEventListener('input', (event) => {
+  debouncedSearch(event.target.value)
+})
+
+function performSearch(query) {
+  console.log('Searching for:', query)
+  // Perform actual search
+}
+```
+
+### Throttle (Limit Execution Rate)
+
+```javascript
+// Throttle function
+function throttle(func, limit) {
+  let inThrottle
+  
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args)
+      inThrottle = true
+      setTimeout(() => inThrottle = false, limit)
+    }
+  }
+}
+
+// Usage: Scroll event
+const throttledScroll = throttle(handleScroll, 200)
+
+window.addEventListener('scroll', throttledScroll)
+
+function handleScroll() {
+  console.log('Scroll position:', window.scrollY)
+}
+```
+
+---

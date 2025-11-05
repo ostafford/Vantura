@@ -1,0 +1,46 @@
+---
+description: TDD, red green refactor cycle, 
+alwaysApply: false
+---
+## TDD (Test-Driven Development)
+
+### Red-Green-Refactor Cycle
+
+1. **Red:** Write failing test
+2. **Green:** Write minimal code to pass
+3. **Refactor:** Improve code while keeping tests green
+
+### Example
+
+```ruby
+# 1. RED: Write failing test
+test "article has reading time" do
+  article = articles(:one)
+  assert_equal 5, article.reading_time
+end
+# Run: Fails (method doesn't exist)
+
+# 2. GREEN: Make it pass
+class Article < ApplicationRecord
+  def reading_time
+    words = body.split.size
+    (words / 200.0).ceil
+  end
+end
+# Run: Passes
+
+# 3. REFACTOR: Improve (if needed)
+class Article < ApplicationRecord
+  WORDS_PER_MINUTE = 200
+  
+  def reading_time
+    return 0 if body.blank?
+    
+    words = body.split.size
+    (words.to_f / WORDS_PER_MINUTE).ceil
+  end
+end
+# Run: Still passes
+```
+
+---

@@ -1,0 +1,52 @@
+---
+description: migration. breaking changes, migratoin steps
+alwaysApply: false
+---
+## Migration from Rails 7
+
+### Breaking Changes
+
+1. **Propshaft replaces Sprockets**
+   - Asset compilation works differently
+   - May need to update asset paths
+
+2. **Solid Queue replaces Active Job defaults**
+   - Configure queue.yml
+   - May need to adjust job configurations
+
+3. **bin/rake stats deprecated**
+   - Use `bin/rails stats` instead
+
+### Migration Steps
+
+```bash
+# 1. Update Gemfile
+gem 'rails', '~> 8.0'
+
+# 2. Update dependencies
+bundle update rails
+
+# 3. Run update command
+rails app:update
+
+# 4. Review and merge changes
+
+# 5. Update database
+rails db:migrate
+
+# 6. Run tests
+rails test
+```
+
+---
+
+## Related Documentation
+
+- [Tech Stack Overview](tech-stack.md) - Architecture and principles
+- [Background Jobs](../03-development/background-jobs.md) - Detailed Solid Queue usage
+- [Caching](../03-development/caching.md) - Detailed Solid Cache usage
+- [Deployment](../06-deployment/kamal.md) - Detailed Kamal 2 usage
+
+---
+
+**Previous:** [← Tech Stack](tech-stack.md) | **Next:** [File Structure →](../02-conventions/file-structure.md)

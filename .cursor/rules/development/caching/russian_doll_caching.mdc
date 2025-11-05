@@ -1,0 +1,75 @@
+---
+description: Russian doll caching, parent-child pattern, collection russian doll, 
+alwaysApply: false
+---
+## Russian Doll Caching
+
+Nested caches that automatically invalidate when parent or child changes.
+
+### Parent-Child Pattern
+
+```erb
+<!-- app/views/articles/show.html.erb -->
+
+<!-- Parent cache (article) -->
+<% cache @article do %>
+  <article class="bg-white rounded-lg shadow-md p-6">
+    <header>
+      <h1><%= @article.title %></h1>
+      <p class="text-gray-600">By <%= @article.user.name %></p>
+    </header>
+    
+    <div class="prose mb-8">
+      <%= @article.body %>
+    </div>
+    
+    <!-- Child cache (comments) -->
+    <section id="comments-section">
+      <h2 class="text-2xl font-bold mb-4">Comments</h2>
+      
+      <% cache ['article-comments', @article, @article.comments.maximum(:updated_at)] do %>
+        <div id="comments-list-container">
+          <%= render @article.comments %>
+        </div>
+      <% end %>
+    </section>
+  </article>
+<% end %>
+```
+
+### Collection Russian Doll
+
+```erb
+<!-- app/views/articles/index.html.erb -->
+
+<!-- Outer cache for entire list -->
+<% cache ['articles-list', Article.maximum(:updated_at)] do %>
+  <div id="articles-list-container">
+    
+    <!-- Each article cached individually (automatically by Rails) -->
+    <% @articles.each do |article| %>
+      <%= render article %>
+    <% end %>
+    
+  </div>
+<% end %>
+
+<!-- app/views/articles/_article.html.erb -->
+
+<!-- Individual article cache -->
+<% cache article do %>
+  <article class="bg-white rounded-lg shadow-md p-6 mb-4">
+    <h2><%= link_to article.title, article %></h2>
+    <p><%= article.body.truncate(200) %></p>
+    
+    <!-- Nested comments count cache -->
+    <% cache ['article-comments-count', article, article.comments.maximum(:updated_at)] do %>
+      <p class="text-gray-600">
+        <%= pluralize(article.comments.count, 'comment') %>
+      </p>
+    <% end %>
+  </article>
+<% end %>
+```
+
+---

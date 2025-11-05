@@ -1,0 +1,29 @@
+---
+description: multiple validations
+alwaysApply: false
+---
+## Multiple Validations
+
+```ruby
+class User < ApplicationRecord
+  # Combine multiple validations
+  validates :email,
+            presence: true,
+            uniqueness: { case_sensitive: false },
+            format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
+  
+  validates :username,
+            presence: true,
+            uniqueness: true,
+            length: { in: 3..20 },
+            format: { with: /\A[a-zA-Z0-9_]+\z/ }
+  
+  validates :password,
+            presence: true,
+            length: { minimum: 8 },
+            confirmation: true,
+            on: :create
+end
+```
+
+---

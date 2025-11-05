@@ -1,0 +1,153 @@
+---
+description: directory rules, never modify these directories, app directory organization, controllers, models, views, javascript, assests, jobs, channels
+alwaysApply: false
+---
+## Directory Rules
+
+### Never Modify These Directories
+
+- **`tmp/`** - Temporary files (cache, pids, sockets)
+- **`log/`** - Application logs
+- **`public/assets/`** - Compiled assets (generated automatically)
+- **`db/schema.rb`** - Database schema (generated from migrations)
+
+### App Directory Organization
+
+#### Controllers (`app/controllers/`)
+
+```
+controllers/
+├── concerns/
+│   ├── authenticatable.rb     # Shared authentication logic
+│   └── authorizable.rb         # Shared authorization logic
+├── application_controller.rb
+├── articles_controller.rb
+├── comments_controller.rb
+└── sessions_controller.rb
+```
+
+**Rules:**
+- One controller per resource
+- Use concerns for shared logic
+- Keep controllers thin (<10 lines per action)
+
+#### Models (`app/models/`)
+
+```
+models/
+├── concerns/
+│   ├── publishable.rb         # Shared publishing logic
+│   ├── searchable.rb          # Shared search logic
+│   └── sluggable.rb           # Shared slug generation
+├── application_record.rb
+├── current.rb                 # Rails 8 authentication
+├── user.rb
+├── article.rb
+├── comment.rb
+└── session.rb
+```
+
+**Rules:**
+- One model per database table
+- Use concerns for shared behavior
+- Keep models focused (single responsibility)
+
+#### Views (`app/views/`)
+
+```
+views/
+├── layouts/
+│   ├── application.html.erb   # Main layout
+│   ├── admin.html.erb          # Admin layout
+│   └── mailer.html.erb         # Email layout
+├── shared/
+│   ├── _header.html.erb
+│   ├── _footer.html.erb
+│   ├── _navigation.html.erb
+│   └── _flash.html.erb
+├── articles/
+│   ├── index.html.erb
+│   ├── show.html.erb
+│   ├── new.html.erb
+│   ├── edit.html.erb
+│   ├── _form.html.erb          # Form partial
+│   └── _article.html.erb       # Display partial
+└── comments/
+    ├── _comment.html.erb
+    └── _form.html.erb
+```
+
+**Rules:**
+- Organize by resource (plural names)
+- Use `shared/` for cross-resource partials
+- Partials start with underscore
+- Form partials named `_form.html.erb`
+
+#### JavaScript (`app/javascript/`)
+
+```
+javascript/
+├── controllers/               # Stimulus controllers
+│   ├── application.js
+│   ├── dropdown_controller.js
+│   ├── modal_controller.js
+│   ├── autosave_controller.js
+│   └── flash_controller.js
+└── application.js             # Entry point
+```
+
+**Rules:**
+- One Stimulus controller per behavior
+- Name with `_controller.js` suffix
+- Keep controllers under 200 lines
+
+#### Assets (`app/assets/`)
+
+```
+assets/
+├── stylesheets/
+│   └── application.tailwind.css  # Main stylesheet
+└── images/
+    ├── logo.png
+    ├── hero.jpg
+    └── icons/
+        ├── edit.svg
+        └── delete.svg
+```
+
+**Rules:**
+- Use Propshaft for asset management
+- Keep images organized in subdirectories
+- Prefer SVG for icons
+
+#### Jobs (`app/jobs/`)
+
+```
+jobs/
+├── application_job.rb
+├── article_notification_job.rb
+├── data_export_job.rb
+└── cache_refresh_job.rb
+```
+
+**Rules:**
+- One job per background task
+- Name with `_job.rb` suffix
+- Keep jobs focused (single responsibility)
+
+#### Channels (`app/channels/`)
+
+```
+channels/
+├── application_cable/
+│   ├── channel.rb
+│   └── connection.rb
+├── comments_channel.rb
+└── notifications_channel.rb
+```
+
+**Rules:**
+- One channel per real-time feature
+- Name with `_channel.rb` suffix
+
+---

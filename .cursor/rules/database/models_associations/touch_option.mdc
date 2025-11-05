@@ -1,0 +1,22 @@
+---
+description: touch option
+alwaysApply: false
+---
+## Touch Option
+
+Update parent's `updated_at` when child changes.
+
+```ruby
+class Comment < ApplicationRecord
+  belongs_to :article, touch: true
+  # Updates article.updated_at when comment is created/updated/destroyed
+end
+
+# Custom attribute to touch
+class Comment < ApplicationRecord
+  belongs_to :article, touch: :comments_updated_at
+  # Updates article.comments_updated_at instead
+end
+```
+
+---

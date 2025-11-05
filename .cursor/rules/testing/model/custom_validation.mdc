@@ -1,0 +1,30 @@
+---
+description: testing custom validation
+alwaysApply: false
+---
+## Testing Custom Validations
+
+```ruby
+test "validates published_at is in future" do
+  article = Article.new(
+    title: "Title",
+    body: "Body",
+    published_at: 1.day.ago
+  )
+  
+  assert_not article.valid?
+  assert_includes article.errors[:published_at], "must be in the future"
+end
+
+test "custom validation prevents spam words" do
+  article = Article.new(
+    title: "Buy cheap viagra now!",
+    body: "Body"
+  )
+  
+  assert_not article.valid?
+  assert article.errors[:title].any?
+end
+```
+
+---

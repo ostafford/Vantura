@@ -186,6 +186,16 @@ class TrendsStatsCalculatorTest < ActiveSupport::TestCase
   end
 
   test "should handle month with only income" do
+    # Ensure we have income in the current month
+    @account.transactions.create!(
+      description: "Test Income",
+      amount: 1000.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    # Remove expenses for current month
     @account.transactions.expenses.where(
       transaction_date: @current_date.beginning_of_month..@current_date.end_of_month
     ).destroy_all

@@ -1,0 +1,13 @@
+---
+description: database connection pooling
+alwaysApply: false
+---
+## Database Connection Pooling
+
+```yaml
+# config/database.yml
+production:
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+```
+
+---

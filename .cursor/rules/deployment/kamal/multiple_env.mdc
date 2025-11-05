@@ -1,0 +1,49 @@
+---
+description: multiple environments, staging, production. 
+alwaysApply: false
+---
+## Multiple Environments
+
+### Staging
+
+```yaml
+# config/deploy.staging.yml
+
+service: myapp-staging
+image: your-username/myapp
+
+servers:
+  web:
+    hosts:
+      - staging.example.com
+    labels:
+      traefik.http.routers.myapp-staging.rule: Host(`staging.myapp.com`)
+
+env:
+  clear:
+    RAILS_ENV: staging
+```
+
+```bash
+# Deploy to staging
+kamal deploy -d staging
+```
+
+### Production
+
+```yaml
+# config/deploy.yml (production)
+
+service: myapp
+servers:
+  web:
+    hosts:
+      - 192.168.1.1
+```
+
+```bash
+# Deploy to production
+kamal deploy
+```
+
+---

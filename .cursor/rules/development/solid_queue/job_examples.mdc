@@ -1,0 +1,148 @@
+---
+description: job examples, email notification job, data export job, Image Processing Job, Cleanup Job, Batch Processing Job
+alwaysApply: false
+---
+## Job Examples
+
+### Email Notification Job
+
+```ruby
+# app/jobs/article_notification_job.rb
+
+class ArticleNotificationJob < ApplicationJob
+  queue_as :default
+  
+  retry_on StandardError, wait: 5.seconds, attempts: 3
+  
+  def perform(article_id)
+    article = Article.find(article_id)
+    
+    article.user.followers.find_each do |follower|
+      ArticleMailer.new_article(follower, article).deliver_now
+    end
+  end
+end
+```
+
+### Data Export Job
+
+```ruby
+# app/jobs/data_export_job.rb
+
+class DataExportJob < ApplicationJob
+  queue_as :low_priority
+  
+  retry_on StandardError, wait: 10.seconds, attempts: 5
+  discard_on ActiveJob::DeserializationError
+  
+  def perform(user, format: :csv)
+    data = generate_export_data(user, format)
+    
+    # Send email with attachment
+    ExportMailer.send_export(user, data).deliver_now
+  end
+  
+  private
+  
+  def generate_export_data(user, format)
+    articles = user.articles.includes(:comments, :tags)
+    
+    case format
+    when :csv
+      generate_csv(articles)
+    when :json
+      articles.to_json
+    else
+      raise "Unsupported format: #{format}"
+    end
+  end
+  
+  def generate_csv(articles)
+    require 'csv'
+    
+    CSV.generate do |csv|
+      csv << ['Title', 'Status', 'Published At', 'Views']
+      
+      articles.each do |article|
+        csv << [
+          article.title,
+          article.status,
+          article.published_at,
+          article.views_count
+        ]
+      end
+    end
+  end
+end
+```
+
+### Image Processing Job
+
+```ruby
+# app/jobs/image_processing_job.rb
+
+class ImageProcessingJob < ApplicationJob
+  queue_as :default
+  
+  retry_on StandardError, wait: :polynomially_longer, attempts: 5
+  
+  def perform(article_id, image_blob_id)
+    article = Article.find(article_id)
+    blob = ActiveStorage::Blob.find(image_blob_id)
+    
+    # Process image (resize, optimize, etc.)
+    process_image(blob)
+    
+    # Update article
+    article.update(image_processed: true)
+  end
+  
+  private
+  
+  def process_image(blob)
+    # Image processing logic
+    # Using ImageMagick, libvips, etc.
+  end
+end
+```
+
+### Cleanup Job
+
+```ruby
+# app/jobs/cleanup_old_sessions_job.rb
+
+class CleanupOldSessionsJob < ApplicationJob
+  queue_as :maintenance
+  
+  def perform
+    # Delete sessions older than 30 days
+    Session.where('created_at < ?', 30.days.ago).delete_all
+    
+    # Delete expired password reset tokens
+    User.where('password_reset_sent_at < ?', 2.hours.ago)
+        .update_all(password_reset_token: nil, password_reset_sent_at: nil)
+  end
+end
+```
+
+### Batch Processing Job
+
+```ruby
+# app/jobs/batch_user_notification_job.rb
+
+class BatchUserNotificationJob < ApplicationJob
+  queue_as :default
+  
+  def perform(user_ids, message)
+    User.where(id: user_ids).find_each do |user|
+      NotificationMailer.custom_message(user, message).deliver_now
+    end
+  end
+end
+
+# Enqueue
+user_ids = User.active.pluck(:id)
+BatchUserNotificationJob.perform_later(user_ids, "Important announcement")
+```
+
+---

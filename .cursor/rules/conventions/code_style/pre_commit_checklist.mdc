@@ -1,0 +1,30 @@
+---
+description: pre-commit checklist
+alwaysApply: false
+---
+## Pre-commit Checklist
+
+Before committing code:
+
+- [ ] Code is properly indented (2 spaces)
+- [ ] No trailing whitespace
+- [ ] Line length under 120 characters
+- [ ] Comments explain WHY, not WHAT
+- [ ] No commented-out code
+- [ ] Proper Ruby/JS/ERB style followed
+- [ ] Variables have descriptive names
+- [ ] Methods are focused and small
+- [ ] Run linter: `bundle exec rubocop`
+- [ ] Run tests: `rails test`
+- [ ] Commit message is descriptive
+
+---
+## Related Documentation
+
+- [Naming Conventions](naming-conventions.md) - Variable and file naming
+- [Ruby & Rails Guidelines](../03-development/ruby-rails.md) - Ruby code standards
+- [JavaScript Guidelines](../03-development/javascript.md) - JavaScript standards
+
+---
+
+**Previous:** [← ID Naming Strategy](id-naming-strategy.md) | **Next:** [Ruby & Rails Guidelines →](../03-development/ruby-rails.md)

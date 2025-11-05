@@ -1,0 +1,57 @@
+---
+description: When to Use What, Use Stimulus Controllers (Preferred), Use Vanilla JavaScript, 
+alwaysApply: false
+---
+## When to Use What
+
+### Use Stimulus Controllers (Preferred)
+
+**For:** Interactive UI components, form enhancements, reusable behaviors
+
+```javascript
+// app/javascript/controllers/dropdown_controller.js
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  toggle() {
+    this.element.classList.toggle('open')
+  }
+}
+```
+
+```html
+<div data-controller="dropdown">
+  <button data-action="click->dropdown#toggle">Toggle</button>
+</div>
+```
+
+**Benefits:**
+- Organized, reusable
+- Automatic lifecycle management
+- Works with Turbo
+- Easy to test
+
+---
+
+### Use Vanilla JavaScript
+
+**For:** Simple one-off scripts, utilities, non-interactive code
+
+```javascript
+// app/javascript/application.js
+
+// Simple utility function
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(amount)
+}
+
+// One-time setup
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('App initialized')
+})
+```
+
+---

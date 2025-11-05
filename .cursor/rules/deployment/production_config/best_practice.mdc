@@ -1,0 +1,20 @@
+---
+description: Best Practices
+alwaysApply: false
+---
+## Best Practices
+
+- Use environment variables for all secrets
+- Enable SSL/HTTPS
+- Use managed database (not Docker)
+- Use cloud storage (S3) for file uploads
+- Enable caching
+- Set up error tracking (Sentry)
+- Configure email delivery
+- Use CDN for assets
+- Enable logging
+- Monitor performance
+
+---
+
+**Previous:** [← Kamal](kamal.md) | **Next:** [Performance →](performance.md)

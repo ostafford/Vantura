@@ -1,0 +1,29 @@
+---
+description: testing custom actions
+alwaysApply: false
+---
+## Testing Custom Actions
+
+```ruby
+test "should publish article" do
+  sign_in_as @article.user
+  article = articles(:draft)
+  
+  post publish_article_url(article)
+  
+  article.reload
+  assert_equal 'published', article.status
+  assert_redirected_to article_url(article)
+end
+
+test "should archive article" do
+  sign_in_as @article.user
+  
+  post archive_article_url(@article)
+  
+  @article.reload
+  assert_equal 'archived', @article.status
+end
+```
+
+---

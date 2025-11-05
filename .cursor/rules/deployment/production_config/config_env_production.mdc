@@ -1,0 +1,59 @@
+---
+description: config/environment/production, 
+alwaysApply: false
+---
+## config/environments/production.rb
+
+```ruby
+Rails.application.configure do
+  # Code is loaded once at startup
+  config.enable_reloading = false
+  config.eager_load = true
+  
+  # Full error reports disabled
+  config.consider_all_requests_local = false
+  
+  # Caching enabled
+  config.action_controller.perform_caching = true
+  config.cache_store = :solid_cache_store
+  
+  # Asset serving
+  config.public_file_server.enabled = true
+  config.assets.compile = false
+  config.asset_host = ENV['ASSET_HOST']
+  
+  # SSL/HTTPS
+  config.force_ssl = true
+  config.ssl_options = { redirect: { exclude: ->(request) { request.path == '/up' } } }
+  
+  # Logging
+  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.log_tags = [:request_id]
+  
+  # Action Cable
+  config.action_cable.mount_path = '/cable'
+  config.action_cable.url = 'wss://example.com/cable'
+  config.action_cable.allowed_request_origins = ['https://example.com']
+  
+  # Active Storage
+  config.active_storage.service = :amazon
+  
+  # Action Mailer
+  config.action_mailer.perform_caching = false
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: ENV['SMTP_ADDRESS'],
+    port: ENV['SMTP_PORT'],
+    authentication: :plain,
+    user_name: ENV['SMTP_USERNAME'],
+    password: ENV['SMTP_PASSWORD'],
+    enable_starttls_auto: true
+  }
+  config.action_mailer.default_url_options = { host: 'example.com', protocol: 'https' }
+  
+  # Error reporting
+  config.active_support.report_deprecations = false
+end
+```
+
+---

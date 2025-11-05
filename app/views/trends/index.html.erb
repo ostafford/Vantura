@@ -4,7 +4,7 @@
   <!-- Page Header -->
   <%= render 'shared/page_header_simple', title: "Trends & Insights", subtitle: "Analyze your financial patterns and trends" %>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <%= content_wrapper class: "py-6" do %>
     <% if @account %>
       <!-- Bento Grid Layout -->
       <div class="bento-grid mb-6">
@@ -254,5 +254,5 @@
         <%= link_to "Go to Settings", settings_path, class: "inline-flex items-center mt-4 px-6 py-3 bg-primary-700 text-white rounded-lg hover:bg-primary-900 transition-colors" %>
       </div>
     <% end %>
-  </div>
+  <% end %>
 </div>

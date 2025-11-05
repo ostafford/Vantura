@@ -1,0 +1,28 @@
+---
+description: testing redirects
+alwaysApply: false
+---
+## Testing Redirects
+
+```ruby
+test "redirects to article after create" do
+  sign_in_as @user
+  
+  post articles_url, params: {
+    article: { title: "Test", body: "Body" }
+  }
+  
+  assert_redirected_to article_url(Article.last)
+  follow_redirect!
+  assert_response :success
+end
+
+test "redirects to login when not authenticated" do
+  get new_article_url
+  
+  assert_redirected_to login_url
+  assert_equal "Please log in.", flash[:alert]
+end
+```
+
+---

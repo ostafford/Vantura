@@ -1,0 +1,25 @@
+---
+description: important file organization rules
+alwaysApply: false
+---
+## Important File Organization Rules
+
+1. **Keep related files together** - All article-related code in `articles/`
+2. **Use concerns for shared logic** - Don't repeat code across files
+3. **Partials for reusable views** - Extract repeated view code
+4. **One class per file** - No multiple classes in one file
+5. **Descriptive file names** - `article_notification_job.rb` not `job1.rb`
+6. **Follow Rails conventions** - Singular models, plural controllers
+7. **Organize by feature** - Group related functionality
+8. **Keep directories shallow** - Max 2-3 levels deep
+
+---
+## Related Documentation
+
+- [Naming Conventions](naming-conventions.md) - Detailed naming rules
+- [Ruby & Rails Guidelines](../03-development/ruby-rails.md) - Code organization
+- [Tech Stack](../01-overview/tech-stack.md) - Architecture overview
+
+---
+
+**Previous:** [← Rails 8 Features](../01-overview/rails-8-features.md) | **Next:** [Naming Conventions →](naming-conventions.md)

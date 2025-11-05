@@ -1,0 +1,54 @@
+---
+description: working with turbo, turbo events, Turbo Stream Actions
+alwaysApply: false
+---
+## Working with Turbo
+
+### Turbo Events
+
+```javascript
+// Listen for Turbo navigation
+document.addEventListener('turbo:load', () => {
+  console.log('Page loaded via Turbo')
+  initializePage()
+})
+
+// Before navigation
+document.addEventListener('turbo:before-visit', (event) => {
+  // Clean up or prevent navigation
+  if (unsavedChanges) {
+    if (!confirm('You have unsaved changes. Continue?')) {
+      event.preventDefault()
+    }
+  }
+})
+
+// After form submission
+document.addEventListener('turbo:submit-end', (event) => {
+  if (event.detail.success) {
+    showSuccessMessage()
+  }
+})
+
+// Frame loaded
+document.addEventListener('turbo:frame-load', (event) => {
+  console.log('Frame loaded:', event.target.id)
+})
+```
+
+### Turbo Stream Actions
+
+```javascript
+// Manually trigger Turbo Stream
+import { StreamActions } from '@hotwired/turbo'
+
+// Custom stream action
+StreamActions.highlight = function() {
+  this.targetElements.forEach(element => {
+    element.classList.add('highlight')
+    setTimeout(() => element.classList.remove('highlight'), 2000)
+  })
+}
+```
+
+---

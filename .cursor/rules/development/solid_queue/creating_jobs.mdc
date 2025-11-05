@@ -1,0 +1,42 @@
+---
+description: creating jobs, generate a job, basic job structure
+alwaysApply: false
+---
+## Creating Jobs
+
+### Generate a Job
+
+```bash
+rails generate job ArticleNotification
+```
+
+**Creates:** `app/jobs/article_notification_job.rb`
+
+### Basic Job Structure
+
+```ruby
+# app/jobs/article_notification_job.rb
+
+class ArticleNotificationJob < ApplicationJob
+  # Set queue name
+  queue_as :default
+  
+  # Retry configuration
+  retry_on StandardError, wait: 5.seconds, attempts: 3
+  
+  # Discard on certain errors (don't retry)
+  discard_on ActiveJob::DeserializationError
+  
+  # Main job logic
+  def perform(article_id)
+    article = Article.find(article_id)
+    
+    # Send notifications to followers
+    article.user.followers.each do |follower|
+      ArticleMailer.new_article(follower, article).deliver_now
+    end
+  end
+end
+```
+
+---

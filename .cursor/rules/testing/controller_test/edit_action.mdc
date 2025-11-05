@@ -1,0 +1,27 @@
+---
+description: testing edit action 
+alwaysApply: false
+---
+## Testing Edit Action
+
+```ruby
+test "should get edit" do
+  sign_in_as @article.user
+  get edit_article_url(@article)
+  
+  assert_response :success
+  assert_not_nil assigns(:article)
+end
+
+test "cannot edit other user's article" do
+  other_user = users(:jane)
+  sign_in_as other_user
+  
+  get edit_article_url(@article)
+  
+  assert_redirected_to articles_url
+  assert_equal "Not authorized.", flash[:alert]
+end
+```
+
+---

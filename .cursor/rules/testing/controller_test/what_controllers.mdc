@@ -1,0 +1,15 @@
+---
+description: what to test in controllers
+alwaysApply: false
+---
+## What to Test in Controllers
+
+Test:
+- ✅ HTTP responses (success, redirect, error)
+- ✅ Response formats (HTML, JSON, Turbo Stream)
+- ✅ Authentication/Authorization
+- ✅ Database changes
+- ✅ Flash messages
+- ✅ Variable assignments
+
+---

@@ -1,0 +1,14 @@
+---
+description: what are migration
+alwaysApply: false
+---
+## What are Migrations?
+
+Migrations are version control for your database schema. They allow you to:
+- Create and modify tables
+- Add/remove/change columns
+- Add indexes
+- Modify data
+- Rollback changes
+
+---

@@ -1,0 +1,14 @@
+---
+description: bin directory
+alwaysApply: false
+---
+## Bin Directory
+
+```
+bin/
+├── dev                        # Start all services (Rails + CSS + JS)
+├── rails                      # Rails command
+├── rake                       # Rake command
+├── setup                      # Setup script for new developers
+└── docker-entrypoint          # Docker entry point
+```

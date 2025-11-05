@@ -1,0 +1,391 @@
+---
+description: real-world examples, live notifications, live chat, live comments, live presence (whos online), 
+alwaysApply: false
+---
+## Real-World Examples
+
+### Live Notifications
+
+```ruby
+# app/channels/notification_channel.rb
+
+class NotificationChannel < ApplicationCable::Channel
+  def subscribed
+    stream_from "notifications_#{current_user.id}"
+  end
+  
+  def unsubscribed
+    stop_all_streams
+  end
+end
+```
+
+```javascript
+// app/javascript/channels/notification_channel.js
+
+import consumer from "./consumer"
+
+consumer.subscriptions.create("NotificationChannel", {
+  received(data) {
+    // Add notification to dropdown
+    const dropdown = document.getElementById('notifications-dropdown')
+    dropdown.insertAdjacentHTML('afterbegin', data.html)
+    
+    // Update badge count
+    const badge = document.getElementById('notification-count-badge')
+    const currentCount = parseInt(badge.textContent) || 0
+    badge.textContent = currentCount + 1
+    badge.classList.remove('hidden')
+    
+    // Show toast notification
+    this.showToast(data.message)
+  },
+  
+  showToast(message) {
+    // Simple toast implementation
+    const toast = document.createElement('div')
+    toast.className = 'fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg'
+    toast.textContent = message
+    document.body.appendChild(toast)
+    
+    setTimeout(() => toast.remove(), 5000)
+  }
+})
+```
+
+```ruby
+# app/models/notification.rb
+
+class Notification < ApplicationRecord
+  belongs_to :user
+  
+  after_create_commit :broadcast_notification
+  
+  private
+  
+  def broadcast_notification
+    ActionCable.server.broadcast(
+      "notifications_#{user.id}",
+      {
+        message: message,
+        html: ApplicationController.render(
+          partial: 'notifications/notification',
+          locals: { notification: self }
+        )
+      }
+    )
+  end
+end
+```
+
+### Live Chat
+
+```ruby
+# app/channels/chat_channel.rb
+
+class ChatChannel < ApplicationCable::Channel
+  def subscribed
+    room = Room.find(params[:room_id])
+    reject unless room.user_ids.include?(current_user.id)
+    
+    stream_from "chat_room_#{room.id}"
+    
+    # Broadcast user joined
+    broadcast_user_status('joined')
+  end
+  
+  def unsubscribed
+    broadcast_user_status('left')
+    stop_all_streams
+  end
+  
+  def speak(data)
+    room = Room.find(params[:room_id])
+    message = room.messages.create!(
+      user: current_user,
+      content: data['message']
+    )
+    
+    ActionCable.server.broadcast(
+      "chat_room_#{room.id}",
+      {
+        type: 'message',
+        html: render_message(message)
+      }
+    )
+  end
+  
+  def typing
+    ActionCable.server.broadcast(
+      "chat_room_#{params[:room_id]}",
+      {
+        type: 'typing',
+        user: current_user.name,
+        user_id: current_user.id
+      }
+    )
+  end
+  
+  private
+  
+  def broadcast_user_status(status)
+    ActionCable.server.broadcast(
+      "chat_room_#{params[:room_id]}",
+      {
+        type: 'user_status',
+        user: current_user.name,
+        status: status
+      }
+    )
+  end
+  
+  def render_message(message)
+    ApplicationController.render(
+      partial: 'messages/message',
+      locals: { message: message }
+    )
+  end
+end
+```
+
+```javascript
+// app/javascript/channels/chat_channel.js
+
+import consumer from "./consumer"
+
+const roomId = document.getElementById('chat-room-container')?.dataset.roomId
+
+if (roomId) {
+  const chatChannel = consumer.subscriptions.create(
+    { channel: "ChatChannel", room_id: roomId },
+    {
+      received(data) {
+        if (data.type === 'message') {
+          this.appendMessage(data.html)
+        } else if (data.type === 'typing') {
+          this.showTypingIndicator(data.user, data.user_id)
+        } else if (data.type === 'user_status') {
+          this.updateUserStatus(data.user, data.status)
+        }
+      },
+
+      appendMessage(html) {
+        const container = document.getElementById('messages-container')
+        container.insertAdjacentHTML('beforeend', html)
+        container.scrollTop = container.scrollHeight
+      },
+
+      showTypingIndicator(userName, userId) {
+        // Don't show typing for current user
+        const currentUserId = document.body.dataset.currentUserId
+        if (userId === parseInt(currentUserId)) return
+        
+        const indicator = document.getElementById('typing-indicator')
+        indicator.textContent = `${userName} is typing...`
+        indicator.classList.remove('hidden')
+        
+        // Clear after 3 seconds
+        clearTimeout(this.typingTimeout)
+        this.typingTimeout = setTimeout(() => {
+          indicator.classList.add('hidden')
+        }, 3000)
+      },
+
+      updateUserStatus(userName, status) {
+        const statusElement = document.getElementById('user-status')
+        statusElement.textContent = `${userName} ${status} the chat`
+        
+        setTimeout(() => {
+          statusElement.textContent = ''
+        }, 3000)
+      }
+    }
+  )
+
+  // Send message on form submit
+  const form = document.getElementById('chat-form')
+  const input = document.getElementById('message-input')
+  
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault()
+    
+    const message = input.value.trim()
+    if (message) {
+      chatChannel.speak(message)
+      input.value = ''
+    }
+  })
+  
+  // Typing indicator
+  let typingTimer
+  input?.addEventListener('input', () => {
+    clearTimeout(typingTimer)
+    
+    typingTimer = setTimeout(() => {
+      chatChannel.perform('typing')
+    }, 500)
+  })
+}
+```
+
+### Live Comments
+
+```ruby
+# app/channels/article_channel.rb
+
+class ArticleChannel < ApplicationCable::Channel
+  def subscribed
+    article = Article.find(params[:article_id])
+    stream_from "article_#{article.id}_comments"
+  end
+  
+  def unsubscribed
+    stop_all_streams
+  end
+end
+```
+
+```javascript
+// app/javascript/channels/article_channel.js
+
+import consumer from "./consumer"
+
+const articleId = document.getElementById('article-content-container')?.dataset.articleId
+
+if (articleId) {
+  consumer.subscriptions.create(
+    { channel: "ArticleChannel", article_id: articleId },
+    {
+      received(data) {
+        // Prepend new comment
+        const container = document.getElementById('comments-list-container')
+        container.insertAdjacentHTML('afterbegin', data.comment)
+        
+        // Update comment count
+        const countElement = document.getElementById('comment-count')
+        const currentCount = parseInt(countElement.textContent)
+        countElement.textContent = currentCount + 1
+        
+        // Highlight new comment briefly
+        const newComment = container.firstElementChild
+        newComment.classList.add('bg-yellow-100')
+        setTimeout(() => {
+          newComment.classList.remove('bg-yellow-100')
+        }, 2000)
+      }
+    }
+  )
+}
+```
+
+```ruby
+# app/models/comment.rb
+
+class Comment < ApplicationRecord
+  belongs_to :article
+  belongs_to :user
+  
+  after_create_commit :broadcast_comment
+  
+  private
+  
+  def broadcast_comment
+    ActionCable.server.broadcast(
+      "article_#{article.id}_comments",
+      {
+        comment: ApplicationController.render(
+          partial: 'comments/comment',
+          locals: { comment: self }
+        )
+      }
+    )
+  end
+end
+```
+
+### Live Presence (Who's Online)
+
+```ruby
+# app/channels/presence_channel.rb
+
+class PresenceChannel < ApplicationCable::Channel
+  def subscribed
+    stream_from "presence"
+    
+    # Add user to online list
+    user_joined
+  end
+  
+  def unsubscribed
+    # Remove user from online list
+    user_left
+  end
+  
+  private
+  
+  def user_joined
+    ActionCable.server.broadcast(
+      "presence",
+      {
+        type: 'user_joined',
+        user_id: current_user.id,
+        user_name: current_user.name
+      }
+    )
+  end
+  
+  def user_left
+    ActionCable.server.broadcast(
+      "presence",
+      {
+        type: 'user_left',
+        user_id: current_user.id
+      }
+    )
+  end
+end
+```
+
+```javascript
+// app/javascript/channels/presence_channel.js
+
+import consumer from "./consumer"
+
+const onlineUsers = new Set()
+
+consumer.subscriptions.create("PresenceChannel", {
+  received(data) {
+    if (data.type === 'user_joined') {
+      this.addUser(data.user_id, data.user_name)
+    } else if (data.type === 'user_left') {
+      this.removeUser(data.user_id)
+    }
+    
+    this.updateOnlineCount()
+  },
+  
+  addUser(userId, userName) {
+    onlineUsers.add(userId)
+    
+    const list = document.getElementById('online-users-list')
+    const userElement = document.createElement('li')
+    userElement.id = `user-${userId}`
+    userElement.textContent = userName
+    list.appendChild(userElement)
+  },
+  
+  removeUser(userId) {
+    onlineUsers.delete(userId)
+    
+    const userElement = document.getElementById(`user-${userId}`)
+    userElement?.remove()
+  },
+  
+  updateOnlineCount() {
+    const badge = document.getElementById('online-count-badge')
+    badge.textContent = onlineUsers.size
+  }
+})
+```
+
+---

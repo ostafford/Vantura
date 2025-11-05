@@ -1,0 +1,38 @@
+---
+description: dependent options
+alwaysApply: false
+---
+## Dependent Options
+
+Control what happens to associated records when parent is destroyed.
+
+```ruby
+class User < ApplicationRecord
+  # :destroy - Delete associated records and run callbacks
+  has_many :articles, dependent: :destroy
+  
+  # :delete_all - Delete associated records without callbacks (faster)
+  has_many :comments, dependent: :delete_all
+  
+  # :nullify - Set foreign key to NULL
+  has_many :drafts, dependent: :nullify
+  
+  # :restrict_with_error - Prevent deletion, add error
+  has_many :published_articles, dependent: :restrict_with_error
+  
+  # :restrict_with_exception - Prevent deletion, raise exception
+  has_many :orders, dependent: :restrict_with_exception
+  
+  # No option - Do nothing (orphan records)
+  has_many :views
+end
+```
+
+**Choosing dependent option:**
+- `:destroy` - When associated records should be deleted with callbacks
+- `:delete_all` - When associated records should be deleted fast (no callbacks)
+- `:nullify` - When associated records should remain but not be connected
+- `:restrict_with_error` - When deletion should be prevented (soft)
+- `:restrict_with_exception` - When deletion must be prevented (hard)
+
+---
