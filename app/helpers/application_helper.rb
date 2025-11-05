@@ -197,4 +197,11 @@ module ApplicationHelper
     return user&.email_address if user.nil?
     user.respond_to?(:name) && user.name.present? ? user.name : user.email_address
   end
+  
+  # Calculate days remaining in a month
+  # @param date [Date] Date to calculate from
+  # @return [Integer] Days remaining in the month
+  def days_remaining_in_month(date)
+    date.end_of_month.day - date.day
+  end
 end

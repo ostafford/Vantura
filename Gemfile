@@ -59,7 +59,7 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
 # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-gem "brakeman", "~> 7.1"
+gem "brakeman", "~> 7.1", ">= 7.1.1"
 
 gem "bundler-audit", "~> 0.9.2"
 

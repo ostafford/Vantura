@@ -34,7 +34,7 @@ class TransactionBroadcastService < ApplicationService
     @transaction.broadcast_replace_to(
       @account.user,
       target: "expenses_card",
-      partial: "dashboard/transaction_type_card",
+      partial: "shared/bento_cards/transaction_type_card",
       locals: {
         type: "expense",
         expense_total: expense_total,
@@ -47,7 +47,7 @@ class TransactionBroadcastService < ApplicationService
     @transaction.broadcast_replace_to(
       @account.user,
       target: "income_card",
-      partial: "dashboard/transaction_type_card",
+      partial: "shared/bento_cards/transaction_type_card",
       locals: {
         type: "income",
         income_total: income_total,

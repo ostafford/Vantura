@@ -73,4 +73,36 @@ module CalendarHelper
     today_class = is_today ? " border-2 border-primary-700/40 dark:border-primary-500/40" : ""
     base + today_class
   end
+  
+  # Calculate end of week balance for a given account and date
+  # @param account [Account] Account to calculate balance for
+  # @param date [Date] Date to calculate from
+  # @return [Numeric] Projected end of week balance
+  def calculate_week_end_balance(account, date)
+    week_end = date.end_of_week(:monday)
+    week_transactions = account.transactions.where(transaction_date: Date.today..week_end)
+    account.current_balance + week_transactions.sum(:amount)
+  end
+  
+  # Calculate hypothetical total from income and expenses
+  # @param income [Numeric] Total income amount
+  # @param expenses [Numeric] Total expenses amount
+  # @return [Numeric] Net hypothetical amount (income - expenses)
+  def calculate_hypothetical_total(income, expenses)
+    income - expenses
+  end
+  
+  # Format date range with transaction count
+  # @param start_date [Date] Start of the range
+  # @param end_date [Date] End of the range
+  # @param count [Integer] Number of transactions
+  # @param year [Integer] Year to display
+  # @return [Hash] Hash with formatted value, subtitle, and detail
+  def format_date_range_with_count(start_date, end_date, count, year)
+    {
+      value: "#{start_date.strftime('%b %d')} - #{end_date.strftime('%b %d')}".html_safe,
+      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{count} transactions</span>".html_safe,
+      detail: year.to_s
+    }
+  end
 end

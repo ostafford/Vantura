@@ -10,9 +10,7 @@
     <!-- Line 1: Current Balance -->
     <div class="flex items-center justify-between">
       <span class="text-blue-50 text-base font-medium">Current Balance:</span>
-      <span class="text-3xl font-bold <%= @account.current_balance >= 0 ? 'text-green-400 dark:text-green-300' : 'text-red-400 dark:text-red-300' %>">
-        <%= number_to_currency(@account.current_balance) %>
-      </span>
+      <%= formatted_balance_with_color(@account.current_balance) %>
     </div>
     
     <!-- Line 2: End of Period -->
@@ -21,23 +19,18 @@
         <span class="text-blue-50 text-base font-medium"><%= @view == 'week' ? 'End of Week' : 'End of Month' %>:</span>
         <% 
           if @view == 'week'
-            # Calculate end of week balance
-            week_end = @date.end_of_week(:monday)
-            week_transactions = @account.transactions.where(transaction_date: Date.today..week_end)
-            end_value = @account.current_balance + week_transactions.sum(:amount)
-            end_date = week_end
+            end_value = calculate_week_end_balance(@account, @date)
+            end_date = @date.end_of_week(:monday)
           else
             end_value = @end_of_month_balance
             end_date = @date.end_of_month
           end
         %>
         <span class="text-blue-100 text-xs">
-          (<%= end_date.strftime('%b %d') %>)
+          (<time datetime="<%= end_date.iso8601 %>"><%= end_date.strftime('%b %d') %></time>)
         </span>
       </div>
-      <span class="text-3xl font-bold <%= end_value >= 0 ? 'text-green-400 dark:text-green-300' : 'text-red-400 dark:text-red-300' %>">
-        <%= number_to_currency(end_value) %>
-      </span>
+      <%= formatted_balance_with_color(end_value) %>
     </div>
   </div>
 <% end %>
@@ -48,7 +41,7 @@
   <!-- 1. Week Expenses - Using Dashboard Partial -->
   <% week_start = @date.beginning_of_week(:monday) %>
   <% week_end = @date.end_of_week(:monday) %>
-  <%= render partial: 'dashboard/transaction_type_card',
+  <%= render partial: 'shared/bento_cards/transaction_type_card',
       locals: {
         type: 'expense',
         expense_total: @week_expenses,
@@ -59,7 +52,7 @@
       } %>
 
   <!-- 2. Week Income - Using Dashboard Partial -->
-  <%= render partial: 'dashboard/transaction_type_card',
+  <%= render partial: 'shared/bento_cards/transaction_type_card',
       locals: {
         type: 'income',
         income_total: @week_income,
@@ -72,31 +65,27 @@
   <!-- 3. Week Range -->
   <% week_start = @date.beginning_of_week(:monday) %>
   <% week_end = @date.end_of_week(:monday) %>
+  <% week_range_data = format_date_range_with_count(week_start, week_end, @week_transaction_count, @date.year) %>
   <%= render 'shared/bento_cards/stat_card',
       title: "Week Range",
-      value: "#{week_start.strftime('%b %d')} - #{week_end.strftime('%b %d')}".html_safe,
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@week_transaction_count} transactions</span>".html_safe,
-      detail: "#{@date.year}",
+      value: week_range_data[:value],
+      subtitle: week_range_data[:subtitle],
+      detail: week_range_data[:detail],
       icon: 'calendar',
       color: 'blue',
       size: 'bento-span-2 bento-row-span-1' %>
   
   <!-- 4. Week Hypothetical -->
-  <% hypothetical_total = @hypothetical_income - @hypothetical_expenses %>
-  <%= render 'shared/bento_cards/stat_card',
-      title: "Hypothetical",
-      value: "#{hypothetical_total < 0 ? '-' : ''}#{number_to_currency(hypothetical_total.abs)}",
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Projected</span>".html_safe,
-      detail: "#{number_to_currency(@hypothetical_income)} income • #{number_to_currency(@hypothetical_expenses)} expenses",
-      icon: 'refresh',
-      color: 'blue',
+  <%= render 'shared/bento_cards/hypothetical_card',
+      hypothetical_income: @hypothetical_income,
+      hypothetical_expenses: @hypothetical_expenses,
       size: 'bento-span-2 bento-row-span-1' %>
   
 <% else %>
   <!-- Month View: 4 Vertical Stat Cards -->
   
   <!-- 1. Month Expenses - Using Dashboard Partial -->
-  <%= render partial: 'dashboard/transaction_type_card',
+  <%= render partial: 'shared/bento_cards/transaction_type_card',
       locals: {
         type: 'expense',
         expense_total: @actual_expenses,
@@ -107,7 +96,7 @@
       } %>
 
   <!-- 2. Month Income - Using Dashboard Partial -->
-  <%= render partial: 'dashboard/transaction_type_card',
+  <%= render partial: 'shared/bento_cards/transaction_type_card',
       locals: {
         type: 'income',
         income_total: @actual_income,
@@ -128,14 +117,9 @@
       size: 'bento-span-2 bento-row-span-1' %>
   
   <!-- 4. Month Hypothetical -->
-  <% hypothetical_total = @hypothetical_income - @hypothetical_expenses %>
-  <%= render 'shared/bento_cards/stat_card',
-      title: "Hypothetical",
-      value: "#{hypothetical_total < 0 ? '-' : ''}#{number_to_currency(hypothetical_total.abs)}",
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Projected</span>".html_safe,
-      detail: "#{number_to_currency(@hypothetical_income)} income • #{number_to_currency(@hypothetical_expenses)} expenses",
-      icon: 'refresh',
-      color: 'blue',
+  <%= render 'shared/bento_cards/hypothetical_card',
+      hypothetical_income: @hypothetical_income,
+      hypothetical_expenses: @hypothetical_expenses,
       size: 'bento-span-2 bento-row-span-1' %>
 <% end %>
 

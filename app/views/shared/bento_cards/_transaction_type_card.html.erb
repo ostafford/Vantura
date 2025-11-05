@@ -1,16 +1,4 @@
 <%
-  # Helper method to generate period text
-  def period_text(period)
-    case period
-    when 'week'
-      "This week"
-    when 'search'
-      "Search Results"
-    else
-      "This month"
-    end
-  end
-  
   # Determine if this is expense or income
   is_expense = local_assigns.fetch(:type) == 'expense'
   
