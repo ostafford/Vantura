@@ -10,8 +10,8 @@ Rails.application.routes.draw do
   # Settings
   resource :settings, only: [ :show, :update ]
 
-  # Account deletion
-  delete "account", to: "account#destroy", as: :delete_account
+  # Account management
+  resource :account, only: [ :show, :edit, :update, :destroy ], controller: "account"
 
   # Dashboard
   root "dashboard#index"

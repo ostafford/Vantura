@@ -36,8 +36,13 @@
   <% end %>
   
   <% if show_add %>
-    <button type="button" data-action="click->modal#open" class="inline-flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 shadow-lg hover:shadow-xl transition-all" title="Add Transaction">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <button type="button" 
+            id="add-transaction-button"
+            data-action="click->modal#open" 
+            aria-label="Add Transaction"
+            class="inline-flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 shadow-lg hover:shadow-xl transition-all" 
+            title="Add Transaction">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
       </svg>
     </button>

@@ -35,8 +35,12 @@
       <div class="flex gap-2">
         <% can_manage = (@project.owner_id == Current.user.id) || @project.project_memberships.where(user_id: Current.user.id, access_level: ProjectMembership.access_levels[:full]).exists? %>
         <% if can_manage %>
-          <%= link_to new_project_expense_path(@project), class: "inline-flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 hover:shadow-lg transition-all", title: "Add expense" do %>
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= link_to new_project_expense_path(@project), 
+              id: "project-expense-add-link",
+              "aria-label" => "Add Expense",
+              class: "inline-flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110 hover:shadow-lg transition-all", 
+              title: "Add expense" do %>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
           <% end %>
@@ -138,7 +142,10 @@
               <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No expenses yet</h3>
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by adding your first expense.</p>
               <% if @project.owner_id == Current.user.id %>
-                <%= link_to "Add Expense", new_project_expense_path(@project), class: "mt-4 inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg font-medium transition-colors" %>
+                <%= link_to "Add Expense", 
+                    new_project_expense_path(@project), 
+                    id: "project-expense-add-empty-link",
+                    class: "mt-4 inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg font-medium transition-colors" %>
               <% end %>
             </td>
           </tr>

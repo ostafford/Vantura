@@ -1,0 +1,110 @@
+<% content_for :title, "Account - Vantura" %>
+
+<div>
+  <!-- Header -->
+  <%= render 'shared/page_header_simple', title: "Account", subtitle: "Manage your account information" %>
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Account Information Section -->
+    <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep overflow-hidden">
+      <div class="bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-900 dark:to-primary-700 px-6 py-5">
+        <h2 class="text-2xl font-bold text-white">Account Information</h2>
+        <p class="text-orange-100 text-sm mt-1">Your account details and statistics</p>
+      </div>
+
+      <div class="p-6">
+        <!-- Email Address -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Email Address
+          </label>
+          <div class="flex items-center justify-between">
+            <p class="text-gray-900 dark:text-white font-mono"><%= @user.email_address %></p>
+            <%= link_to "Edit", edit_account_path, class: "px-4 py-2 bg-primary-700 hover:bg-primary-900 text-white rounded-lg hover:shadow-md hover:scale-105 transition-all font-semibold text-sm" %>
+          </div>
+        </div>
+
+        <!-- Member Since -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Member Since
+          </label>
+          <p class="text-gray-900 dark:text-white">
+            <%= @user.created_at.strftime("%B %d, %Y") %>
+          </p>
+        </div>
+
+        <!-- Account Statistics -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Connected Accounts</p>
+            <p class="text-2xl font-bold text-primary-700 dark:text-primary-500"><%= @accounts_count %></p>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Projects</p>
+            <p class="text-2xl font-bold text-primary-700 dark:text-primary-500"><%= @projects_count %></p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Account Actions</h3>
+          <div class="flex gap-3">
+            <%= link_to "Change Password", new_password_path, class: "px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 hover:shadow-md hover:scale-105 transition-all font-semibold text-sm" %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone - Account Deletion -->
+    <div class="mt-6 bg-gradient-to-br from-red-50 to-white dark:from-red-900/10 dark:to-gray-800 rounded-2xl shadow-deep overflow-hidden">
+      <div class="bg-red-50 dark:bg-red-900/20 px-6 py-4 border-b border-red-200 dark:border-red-800">
+        <h2 class="text-xl font-bold text-red-900 dark:text-red-100 flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          Danger Zone
+        </h2>
+      </div>
+
+      <div class="p-6">
+        <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Delete Account</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Permanently delete your Vantura account and all associated data. This action cannot be undone.
+        </p>
+
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+          <p class="text-sm font-medium text-red-900 dark:text-red-100 mb-2">This will permanently delete:</p>
+          <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
+            <li>Your user account and login credentials</li>
+            <li>Your encrypted Up Bank token</li>
+            <li>All synced bank accounts (<%= @accounts_count %> account<%= @accounts_count == 1 ? '' : 's' %>)</li>
+            <li>All transactions (hypothetical and real)</li>
+            <li>All recurring transaction patterns</li>
+            <li>All session data</li>
+          </ul>
+        </div>
+
+        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+          <p class="text-sm text-yellow-800 dark:text-yellow-200">
+            <strong>Note:</strong> This only deletes your Vantura account. Your actual Up Bank account and 
+            transactions remain unaffected. You can always sign up again and re-sync your data.
+          </p>
+        </div>
+
+        <%= button_to account_path, 
+            method: :delete,
+            data: { 
+              turbo_confirm: "Are you absolutely sure?\n\nThis will permanently delete:\n- Your Vantura account\n- All #{@accounts_count} synced bank account(s)\n- All transaction data\n- All recurring patterns\n\nThis action CANNOT be undone!\n\nType 'DELETE' to confirm:" 
+            },
+            class: "inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg" do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          Delete My Account
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+

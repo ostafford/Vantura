@@ -25,9 +25,11 @@
             </div>
           </div>
           <button type="button" 
+                  id="transaction-modal-close-button"
                   data-action="click->modal#close" 
+                  aria-label="Close modal"
                   class="text-white/70 hover:text-white hover:bg-white/10 rounded-lg p-2 transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
@@ -138,6 +140,7 @@
                   id: "transaction-submit-button",
                   class: "flex-1 bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-700 dark:to-primary-900 hover:from-primary-900 hover:to-primary-700 text-white px-5 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all" %>
               <button type="button" 
+                      id="transaction-form-cancel-button"
                       data-action="click->modal#close" 
                       class="px-5 py-3 bg-white dark:bg-primary-950 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-primary-900 font-semibold transition-all">
                 Cancel

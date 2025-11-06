@@ -82,10 +82,13 @@ class ProjectExpensesController < ApplicationController
     def expense_params
       permitted = params.require(:project_expense).permit(:merchant, :category, :total_dollars, :due_on, :notes)
 
-      # Convert dollars to cents if total_dollars is provided
-      if permitted[:total_dollars].present?
-        dollars = permitted[:total_dollars].to_f
-        permitted[:total_cents] = (dollars * 100).round.to_i
+      # Convert dollars to cents if total_dollars is provided and not blank
+      # Always remove total_dollars from permitted params since model doesn't have this attribute
+      if permitted.key?(:total_dollars)
+        if permitted[:total_dollars].present? && permitted[:total_dollars].to_s.strip.present?
+          dollars = permitted[:total_dollars].to_f
+          permitted[:total_cents] = (dollars * 100).round.to_i
+        end
         permitted.delete(:total_dollars)
       end
 

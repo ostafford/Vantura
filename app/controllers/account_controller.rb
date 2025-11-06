@@ -1,4 +1,24 @@
 class AccountController < ApplicationController
+  def show
+    @user = Current.user
+    @accounts_count = @user.accounts.count
+    @projects_count = user_projects_count
+  end
+
+  def edit
+    @user = Current.user
+  end
+
+  def update
+    @user = Current.user
+
+    if @user.update(account_params)
+      redirect_to account_path, notice: "Account updated successfully."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     # Delete the user and all associated data
     user = Current.user
@@ -17,8 +37,22 @@ class AccountController < ApplicationController
     cookies.delete(:session_id)
 
     # Log successful deletion
-    Rails.logger.info "✅ User account deleted: #{accounts_count} accounts, #{transactions_count} transactions removed"
+    Rails.logger.info "User account deleted: #{accounts_count} accounts, #{transactions_count} transactions removed"
 
     redirect_to new_session_path, notice: "Your account and all associated data have been permanently deleted. Thank you for using Vantura."
+  end
+
+  private
+
+  def account_params
+    params.require(:user).permit(:email_address)
+  end
+
+  def user_projects_count
+    Project
+      .joins("LEFT JOIN project_memberships ON project_memberships.project_id = projects.id")
+      .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
+      .distinct
+      .count
   end
 end
