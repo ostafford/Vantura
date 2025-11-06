@@ -3,31 +3,31 @@
   <div id="projects-hero-card">
     <%= render 'shared/bento_cards/hero_card',
         title: "Projects Hub",
-        subtitle: @total_expenses_cents > 0 ? format_cents(@total_expenses_cents) : "No expenses yet",
+        subtitle: @projects_data[:total_expenses_cents] > 0 ? format_cents(@projects_data[:total_expenses_cents]) : "No expenses yet",
         description: "Track and manage shared expense projects. Collaborate with team members, split costs equally, and monitor project spending across all your active projects.",
         icon: 'chart',
         size: 'bento-span-2 bento-row-span-2',
         color: 'primary' do %>
     <div class="mt-6 space-y-4">
-      <% if @total_projects > 0 %>
+      <% if @projects_data[:total_projects] > 0 %>
         <div class="flex items-center justify-between pb-3 border-b border-white/20">
           <span class="text-white/80 text-sm">Total Projects</span>
-          <span class="text-2xl font-bold text-white"><%= @total_projects %></span>
+          <span class="text-2xl font-bold text-white"><%= @projects_data[:total_projects] %></span>
         </div>
         <div class="flex items-center justify-between pb-3 border-b border-white/20">
           <span class="text-white/80 text-sm">Active Projects</span>
-          <span class="text-xl font-semibold text-white"><%= @active_projects %></span>
+          <span class="text-xl font-semibold text-white"><%= @projects_data[:active_projects] %></span>
         </div>
-        <% if @largest_expense %>
+        <% if @projects_data[:largest_expense] %>
           <div class="flex items-center justify-between pb-3 border-b border-white/20">
             <span class="text-white/80 text-sm">Largest Expense</span>
-            <span class="text-xl font-semibold text-white"><%= format_cents(@largest_expense.total_cents) %></span>
+            <span class="text-xl font-semibold text-white"><%= format_cents(@projects_data[:largest_expense].total_cents) %></span>
           </div>
         <% end %>
-        <% if @most_active_project %>
+        <% if @projects_data[:most_active_project] %>
           <div class="flex items-center justify-between">
             <span class="text-white/80 text-sm">Most Active</span>
-            <span class="text-lg font-semibold text-white truncate ml-2"><%= @most_active_project.name %></span>
+            <span class="text-lg font-semibold text-white truncate ml-2"><%= @projects_data[:most_active_project].name %></span>
           </div>
         <% end %>
       <% else %>
@@ -45,8 +45,8 @@
   <%= render 'shared/bento_cards/stat_card',
       id: 'total-projects-card',
       title: "Total Projects",
-      value: @total_projects.to_s,
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@active_projects}</span> active".html_safe,
+      value: @projects_data[:total_projects].to_s,
+      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@projects_data[:active_projects]}</span> active".html_safe,
       detail: "Across all projects",
       icon: 'chart',
       color: 'blue',
@@ -57,8 +57,8 @@
   <%= render 'shared/bento_cards/stat_card',
       id: 'total-expenses-card',
       title: "Total Expenses",
-      value: format_cents(@total_expenses_cents),
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@total_projects}</span> projects".html_safe,
+      value: format_cents(@projects_data[:total_expenses_cents]),
+      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@projects_data[:total_projects]}</span> projects".html_safe,
       detail: "All time",
       icon: 'dollar',
       color: 'red',
@@ -69,8 +69,8 @@
   <%= render 'shared/bento_cards/stat_card',
       id: 'total-participants-card',
       title: "Total Participants",
-      value: @total_participants.to_s,
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@total_projects}</span> projects".html_safe,
+      value: @projects_data[:total_participants].to_s,
+      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@projects_data[:total_projects]}</span> projects".html_safe,
       detail: "Unique members",
       icon: 'chart',
       color: 'blue',
@@ -81,8 +81,8 @@
   <%= render 'shared/bento_cards/stat_card',
       id: 'active-projects-card',
       title: "Active Projects",
-      value: @active_projects.to_s,
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@total_projects - @active_projects}</span> inactive".html_safe,
+      value: @projects_data[:active_projects].to_s,
+      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@projects_data[:total_projects] - @projects_data[:active_projects]}</span> inactive".html_safe,
       detail: "With expenses",
       icon: 'arrow-up',
       color: 'green',
@@ -92,8 +92,8 @@
 <%# Update the table body %>
 <%= turbo_stream.replace "projects-table-body" do %>
   <tbody id="projects-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-    <% if @projects.any? %>
-      <% @projects.each do |project| %>
+    <% if @projects_data[:projects].any? %>
+      <% @projects_data[:projects].each do |project| %>
         <tr>
           <td class="px-6 py-4 whitespace-nowrap">
             <%= link_to project.name, project_path(project), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 font-medium" %>

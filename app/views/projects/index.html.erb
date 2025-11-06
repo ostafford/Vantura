@@ -32,8 +32,8 @@
             </tr>
           </thead>
           <tbody id="projects-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <% if @projects.any? %>
-              <% @projects.each do |project| %>
+            <% if @projects_data[:projects].any? %>
+              <% @projects_data[:projects].each do |project| %>
                 <tr>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <%= link_to project.name, project_path(project), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 font-medium" %>

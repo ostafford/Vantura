@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between gap-4">
       <!-- Left: Previous/Today/Next Navigation Buttons -->
       <div class="flex gap-3" data-controller="month-nav" data-month-nav-turbo-frame-value="calendar_content">
-        <%= link_to project_path(@project, year: (@date.prev_month.year), month: (@date.prev_month.month)),
+        <%= link_to project_path(@project, year: (@project_show_data[:date].prev_month.year), month: (@project_show_data[:date].prev_month.month)),
                     class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
                     data: { action: 'click->month-nav#navigate', turbo_frame: 'calendar_content' } do %>
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,7 +18,7 @@
           Today
         <% end %>
 
-        <%= link_to project_path(@project, year: (@date.next_month.year), month: (@date.next_month.month)),
+        <%= link_to project_path(@project, year: (@project_show_data[:date].next_month.year), month: (@project_show_data[:date].next_month.month)),
                     class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
                     data: { action: 'click->month-nav#navigate', turbo_frame: 'calendar_content' } do %>
           Next
@@ -79,8 +79,8 @@
         </tr>
       </thead>
       <tbody id="project-expenses-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-        <% if @expenses.any? %>
-          <% @expenses.each do |expense| %>
+        <% if @project_show_data[:expenses].any? %>
+          <% @project_show_data[:expenses].each do |expense| %>
             <tr data-controller="expense-row" data-action="click->expense-row#toggle" class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-2">
