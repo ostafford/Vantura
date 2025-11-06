@@ -10,7 +10,7 @@
   <% if @account %>
     <%= content_wrapper class: "py-6" do %>
       <!-- Turbo Frame for changing content -->
-      <%= turbo_frame_tag "calendar_content" do %>
+      <%= turbo_frame_tag "calendar_content", data: { turbo_preserve_scroll: true } do %>
         <!-- Calendar Overview Section -->
         <section id="calendar-bento-cards-section" class="bento-grid mb-6" aria-label="Calendar overview statistics">
           <%= render partial: "calendar/bento_cards" %>

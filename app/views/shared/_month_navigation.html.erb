@@ -75,7 +75,7 @@
     <div class="flex gap-3">
       <%= link_to prev_path,
                   class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                  data: { action: "click->#{view_mode == 'week' ? 'week-nav' : 'month-nav'}#navigate", turbo_frame: local_assigns[:turbo_frame] || 'calendar_content' } do %>
+                  data: { turbo_frame: local_assigns[:turbo_frame] || 'calendar_content' } do %>
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
@@ -85,14 +85,14 @@
       <% if local_assigns[:today_path].present? %>
         <%= link_to today_path,
                     class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                    data: { action: "click->#{view_mode == 'week' ? 'week-nav' : 'month-nav'}#navigate", turbo_frame: local_assigns[:turbo_frame] || 'calendar_content' } do %>
+                    data: { turbo_frame: local_assigns[:turbo_frame] || 'calendar_content' } do %>
           Today
         <% end %>
       <% end %>
 
       <%= link_to next_path,
                   class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                  data: { action: "click->#{view_mode == 'week' ? 'week-nav' : 'month-nav'}#navigate", turbo_frame: local_assigns[:turbo_frame] || 'calendar_content' } do %>
+                  data: { turbo_frame: local_assigns[:turbo_frame] || 'calendar_content' } do %>
         Next
         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

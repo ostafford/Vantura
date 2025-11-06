@@ -1,19 +1,16 @@
 import { Controller } from "@hotwired/stimulus"
 import { buildUrl } from "../helpers/navigation_helper.js"
-import { restoreScrollAfterStream } from "../helpers/scroll_helper.js"
 
 /**
  * Month Navigation Controller
  * 
  * Handles month/year selection and navigation for calendar and projects pages.
- * Manages dropdown toggle, year/month selection, and month navigation with scroll preservation.
+ * Manages dropdown toggle, year/month selection, and month navigation using Turbo Drive.
+ * 
+ * Navigation uses Turbo Drive with Turbo Frames for automatic URL updates and browser history.
+ * Scroll preservation is handled automatically by Turbo Drive.
  * 
  * Coordinates with: week_nav_controller.js (both use shared helpers)
- * 
- * Cross-controller access:
- * - getElementById('main-content-container') - Shared layout element accessed by
- *   multiple controllers (sidebar, month_nav, calendar). This is acceptable as the
- *   element is accessed outside controller scope.
  * 
  * @see .cursor/rules/conventions/ID_naming_strategy/id_naming_category.mdc (lines 668-678)
  * @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
@@ -126,7 +123,7 @@ export default class extends Controller {
   }
 
   navigateToMonth(year, month) {
-    // Use shared helper instead of local buildUrl method
+    // Use shared helper to build URL
     const url = buildUrl(this.urlPatternValue, this.urlTypeValue || 'path', year, month)
     
     if (!url) {
@@ -134,124 +131,21 @@ export default class extends Controller {
       return
     }
 
-    // Save current scroll position before navigation
-    // Cross-controller access: main-content-container is shared layout element
-    // Per rules: Keep getElementById for elements accessed outside controller scope
-    const scrollableElement = document.getElementById('main-content-container') || window
-    const scrollY = scrollableElement === window ? window.scrollY : scrollableElement.scrollTop
-    
-    // Make the request with Turbo Stream accept header
-    fetch(url, { 
-      headers: { 
-        'Accept': 'text/vnd.turbo-stream.html'
-      }
+    // Use Turbo Drive to navigate with proper frame targeting
+    // Turbo Drive automatically handles URL updates and browser history
+    const frameId = this.hasTurboFrameValue ? this.turboFrameValue : 'calendar_content'
+    Turbo.visit(url, { 
+      frame: frameId,
+      action: 'replace'
     })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        return response.text()
-      })
-      .then(html => {
-        // IMPORTANT: Render Turbo Streams and immediately prevent scroll
-        const scrollableElement = document.getElementById('main-content-container') || window
-        const isWindow = scrollableElement === window
-        const savedPosition = scrollY
-        
-        // Lock scroll before rendering
-        if (!isWindow) {
-          scrollableElement.scrollTop = savedPosition
-        }
-        
-        // Render the Turbo Stream updates
-        Turbo.renderStreamMessage(html)
-        
-        // Immediately lock scroll again after rendering starts
-        if (!isWindow) {
-          scrollableElement.scrollTop = savedPosition
-        } else {
-          window.scrollTo(0, savedPosition)
-        }
-        
-        // Update browser URL without full page reload
-        if (url.includes('?')) {
-          const urlObj = new URL(url, window.location.origin)
-          window.history.pushState({ turbo: true }, '', urlObj.pathname + urlObj.search)
-        } else {
-          window.history.pushState({ turbo: true }, '', url)
-        }
-        
-        // Dispatch custom event to notify other controllers of month change
-        window.dispatchEvent(new CustomEvent('month:changed', { 
-          detail: { year, month, url } 
-        }))
-        
-        // Close the picker after navigation
-        this.closePicker()
-        
-        // Use shared helper instead of local restoreScrollAfterStream method
-        const frameId = this.hasTurboFrameValue ? this.turboFrameValue : null
-        restoreScrollAfterStream(scrollY, frameId)
-      })
-      .catch(err => {
-        console.error('Navigation error:', err)
-        // Fallback: allow default navigation if Turbo Stream fails
-        window.location.href = url
-      })
+    
+    // Dispatch custom event to notify other controllers of month change
+    window.dispatchEvent(new CustomEvent('month:changed', { 
+      detail: { year, month, url } 
+    }))
+    
+    // Close the picker after navigation
+    this.closePicker()
   }
 
-  navigate(event) {
-    event.preventDefault()
-    event.stopPropagation()
-    const link = event.currentTarget
-    const url = new URL(link.href, window.location.origin)
-    
-    // Save current scroll position before navigation
-    // Cross-controller access: main-content-container is shared layout element
-    const scrollableElement = document.getElementById('main-content-container') || window
-    const scrollY = scrollableElement === window ? window.scrollY : scrollableElement.scrollTop
-    
-    // Make the request with Turbo Stream accept header
-    fetch(url, { 
-      headers: { 
-        'Accept': 'text/vnd.turbo-stream.html'
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        return response.text()
-      })
-      .then(html => {
-        // IMPORTANT: Render Turbo Streams and immediately prevent scroll
-        const scrollableElement = document.getElementById('main-content-container') || window
-        const isWindow = scrollableElement === window
-        const savedPosition = scrollY
-        
-        // Lock scroll before rendering
-        if (!isWindow) {
-          scrollableElement.scrollTop = savedPosition
-        }
-        
-        // Render the Turbo Stream updates
-        Turbo.renderStreamMessage(html)
-        
-        // Immediately lock scroll again after rendering starts
-        if (!isWindow) {
-          scrollableElement.scrollTop = savedPosition
-        } else {
-          window.scrollTo(0, savedPosition)
-        }
-        
-        // Use shared helper instead of local restoreScrollAfterStream method
-        const frameId = this.hasTurboFrameValue ? this.turboFrameValue : null
-        restoreScrollAfterStream(scrollY, frameId)
-      })
-      .catch(err => {
-        console.error('Navigation error:', err)
-        // Fallback: allow default navigation if Turbo Stream fails
-        window.location.href = url.toString()
-      })
-  }
 }
