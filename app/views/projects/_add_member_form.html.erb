@@ -1,0 +1,45 @@
+<% project = local_assigns[:project] || @project %>
+<%= form_with model: [project, ProjectMembership.new], url: project_memberships_path(project), local: false, data: { turbo: true }, id: "add-member-form", class: "space-y-4", html: { "data-modal-target": "form" } do |f| %>
+  <% if defined?(error) && error.present? %>
+    <div class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+      <p class="text-sm text-red-800 dark:text-red-300"><%= error %></p>
+    </div>
+  <% end %>
+
+  <% if defined?(membership) && membership&.errors&.any? %>
+    <div class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+      <ul class="list-disc list-inside text-sm text-red-800 dark:text-red-300">
+        <% membership.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <label for="membership_user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select User</label>
+    <select name="user_id" id="membership_user_id" required class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+      <option value="">Choose a user...</option>
+      <% User.order(:email_address).limit(100).each do |user| %>
+        <% next if user.id == Current.user.id || project.owner_id == user.id || project.members.exists?(id: user.id) %>
+        <option value="<%= user.id %>"><%= user_display_name(user) %> (<%= user.email_address %>)</option>
+      <% end %>
+    </select>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Owner and existing members are excluded</p>
+  </div>
+
+  <div>
+    <label for="membership_access_level" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Access Level</label>
+    <select name="access_level" id="membership_access_level" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+      <option value="limited" <%= (defined?(membership) && membership&.limited?) ? 'selected' : '' %>>Limited access</option>
+      <option value="full" <%= (defined?(membership) && membership&.full?) ? 'selected' : '' %>>Full access</option>
+    </select>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Full access allows editing expenses and managing members</p>
+  </div>
+
+  <div class="flex gap-3 pt-2">
+    <%= f.submit "Add Member", class: "px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2" %>
+    <button type="button" data-action="click->modal#close" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Cancel</button>
+  </div>
+<% end %>
+

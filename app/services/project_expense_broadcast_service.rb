@@ -9,7 +9,7 @@
 class ProjectExpenseBroadcastService < ApplicationService
   include ProjectsHelper
   include ActionView::Helpers::NumberHelper
-  
+
   def initialize(expense)
     @expense = expense
     @project = expense.project
@@ -155,6 +155,4 @@ class ProjectExpenseBroadcastService < ApplicationService
       html: html
     )
   end
-
 end
-

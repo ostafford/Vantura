@@ -17,6 +17,7 @@ export default class extends Controller {
     "form", 
     "drawer", 
     "content",
+    "overlay",
     "typeRadio",
     "typeCard",
     "descriptionLabel",
@@ -107,8 +108,15 @@ export default class extends Controller {
 
   // Close on background click
   closeOnBackground(event) {
-    if (event.target === this.modalTarget) {
+    // Close if clicking on the overlay itself, or on the modal container but not on content
+    if (this.hasOverlayTarget && event.target === this.overlayTarget) {
       this.close(event)
+    } else if (!this.hasOverlayTarget && event.target === this.modalTarget) {
+      // Fallback for modals without overlay target (check if click is on modal but not content)
+      const content = this.modalTarget.querySelector('[class*="relative z-10"], [class*="z-10"]')
+      if (!content || !content.contains(event.target)) {
+        this.close(event)
+      }
     }
   }
 

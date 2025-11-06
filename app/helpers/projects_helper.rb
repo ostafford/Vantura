@@ -25,6 +25,12 @@ module ProjectsHelper
     content_tag(:span, "#{sign}#{value}%", class: "font-semibold #{color_class}")
   end
 
+  def can_manage_members?(project)
+    return false unless Current.user
+    return true if project.owner_id == Current.user.id
+    project.project_memberships.where(user_id: Current.user.id, access_level: ProjectMembership.access_levels[:full]).exists?
+  end
+
   # Render top categories list for stat cards
   # categories: Array of {category: "Name", total_cents: 12345}
   # total_cents: Total amount for percentage calculation

@@ -47,6 +47,8 @@ export default class extends Controller {
   close(event) {
     event?.preventDefault()
     
+    if (!this.hasModalTarget) return
+    
     // Slide out drawer and restore content width
     if (this.hasDrawerTarget && this.hasContentTarget) {
       this.contentTarget.style.marginRight = '0'
@@ -57,14 +59,18 @@ export default class extends Controller {
       setTimeout(() => {
         this.modalTarget.classList.add('hidden')
         this.modalTarget.classList.remove('flex')
-        this.formTarget.reset()
+        if (this.hasFormTarget) {
+          this.formTarget.reset()
+        }
         this.currentTransactionId = null
         this.currentTransactionDate = null
       }, 300)
     } else {
       this.modalTarget.classList.add('hidden')
       this.modalTarget.classList.remove('flex')
-      this.formTarget.reset()
+      if (this.hasFormTarget) {
+        this.formTarget.reset()
+      }
       this.currentTransactionId = null
       this.currentTransactionDate = null
     }
@@ -110,7 +116,7 @@ export default class extends Controller {
 
   // Handle escape key
   handleEscape(event) {
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' && this.hasModalTarget) {
       this.close()
     }
   }

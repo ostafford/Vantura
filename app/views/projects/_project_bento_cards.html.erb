@@ -19,28 +19,67 @@
     </div>
     
     <!-- Members Section -->
-    <% if @project.members.any? %>
+    <%= turbo_frame_tag "project-members-section" do %>
       <div>
-        <div class="text-white/80 text-xs font-medium mb-2 uppercase tracking-wider">Members</div>
-        <div class="flex flex-wrap gap-2">
-          <% membership_by_user = @project.project_memberships.index_by(&:user_id) %>
-          <% @project.members.each do |member| %>
-            <% level = membership_by_user[member.id]&.access_level || 'limited' %>
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/15 backdrop-blur-sm rounded-lg border border-white/25">
-              <div class="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center text-white font-medium text-xs">
-                <%= user_display_name(member).first.upcase %>
-              </div>
-              <span class="text-white/90 text-sm"><%= user_display_name(member) %></span>
-              <span class="ml-2 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded bg-white/20 text-white/90 border border-white/30">
-                <%= level == 'full' ? 'Full' : 'Limited' %>
-              </span>
-            </div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-white/80 text-xs font-medium uppercase tracking-wider">Members</div>
+          <% if can_manage_members?(@project) %>
+            <button type="button" data-action="click->modal#open" class="text-white/80 hover:text-white text-xs font-medium uppercase tracking-wider transition-colors">
+              + Add Member
+            </button>
           <% end %>
         </div>
+        <% if @project.members.any? %>
+          <div id="project-members-list" class="flex flex-wrap gap-2">
+            <% membership_by_user = @project.project_memberships.index_by(&:user_id) %>
+            <% @project.members.each do |member| %>
+              <% membership = membership_by_user[member.id] %>
+              <% level = membership&.access_level || 'limited' %>
+              <div id="<%= dom_id(membership || member) %>" class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/15 backdrop-blur-sm rounded-lg border border-white/25">
+                <div class="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center text-white font-medium text-xs">
+                  <%= user_display_name(member).first.upcase %>
+                </div>
+                <span class="text-white/90 text-sm"><%= user_display_name(member) %></span>
+                <span class="ml-2 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded bg-white/20 text-white/90 border border-white/30">
+                  <%= level == 'full' ? 'Full' : 'Limited' %>
+                </span>
+                <% if can_manage_members?(@project) && membership %>
+                  <%= button_to project_membership_path(@project, membership), method: :delete, form: { data: { turbo: true }, class: "ml-2" }, class: "text-white/60 hover:text-white transition-colors", title: "Remove member" do %>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div id="project-members-empty" class="text-white/60 text-sm italic">
+            No additional members
+          </div>
+        <% end %>
       </div>
-    <% else %>
-      <div class="text-white/60 text-sm italic">
-        No additional members
+    <% end %>
+
+    <!-- Add Member Modal -->
+    <% if can_manage_members?(@project) %>
+      <div data-modal-target="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Overlay: absolute, behind content -->
+        <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-0" data-action="click->modal#closeOnBackground" data-modal-target="overlay" aria-hidden="true"></div>
+        <!-- Content: relative, above overlay -->
+        <div class="relative z-10 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full mx-4">
+          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white" id="modal-title">Add Member</h3>
+              <button type="button" data-action="click->modal#close" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <%= render "projects/add_member_form", project: @project %>
+          </div>
+        </div>
       </div>
     <% end %>
   </div>

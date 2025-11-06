@@ -1,4 +1,6 @@
 class ProjectsController < ApplicationController
+  include ProjectAuthorization
+
   before_action :set_project, only: [ :show, :edit, :update, :destroy ]
   before_action :authorize_member!, only: [ :show ]
   before_action :authorize_owner_or_editor!, only: [ :edit, :update ]
@@ -59,14 +61,6 @@ class ProjectsController < ApplicationController
 
     def authorize_owner!
       return if @project.owner_id == Current.user.id
-      head :forbidden
-    end
-
-    def authorize_owner_or_editor!
-      return if @project.owner_id == Current.user.id
-      if @project.project_memberships.where(user_id: Current.user.id, access_level: ProjectMembership.access_levels[:full]).exists?
-        return
-      end
       head :forbidden
     end
 
