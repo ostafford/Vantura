@@ -4,7 +4,6 @@ class User < ApplicationRecord
   # Associations
   has_many :sessions, dependent: :destroy
   has_many :accounts, dependent: :destroy
-  has_many :filters, dependent: :destroy
   has_many :owned_projects, class_name: "Project", foreign_key: "owner_id", dependent: :destroy
 
   # Validations

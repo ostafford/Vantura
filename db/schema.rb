@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_31_090000) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_06_051321) do
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -35,18 +35,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_090000) do
     t.index ["project_expense_id", "user_id"], name: "index_contributions_on_expense_and_user", unique: true
     t.index ["project_expense_id"], name: "index_expense_contributions_on_project_expense_id"
     t.index ["user_id"], name: "index_expense_contributions_on_user_id"
-  end
-
-  create_table "filters", force: :cascade do |t|
-    t.string "name"
-    t.text "filter_params"
-    t.integer "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.text "filter_types"
-    t.text "date_range"
-    t.index ["user_id", "created_at"], name: "index_filters_on_user_id_and_created_at"
-    t.index ["user_id"], name: "index_filters_on_user_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -166,7 +154,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_31_090000) do
   add_foreign_key "accounts", "users"
   add_foreign_key "expense_contributions", "project_expenses"
   add_foreign_key "expense_contributions", "users"
-  add_foreign_key "filters", "users"
   add_foreign_key "notifications", "users"
   add_foreign_key "project_expenses", "projects"
   add_foreign_key "project_memberships", "projects"

@@ -49,7 +49,6 @@ class AccountControllerTest < ActionDispatch::IntegrationTest
     transaction_count = @user.accounts.joins(:transactions).count
 
     # Clean up associations that might cause issues
-    @user.filters.destroy_all
     @user.owned_projects.destroy_all
     ProjectMembership.where(user: @user).destroy_all
 
@@ -76,7 +75,6 @@ class AccountControllerTest < ActionDispatch::IntegrationTest
     )
 
     # Clean up all associations to avoid constraint issues
-    @user.filters.destroy_all
     @user.owned_projects.destroy_all
     ProjectMembership.where(user: @user).destroy_all
 

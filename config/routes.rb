@@ -26,12 +26,6 @@ Rails.application.routes.draw do
   # Trends (Analytics and Data Insights)
   get "trends", to: "trends#index"
 
-  # Analysis (Advanced Analytics)
-  get "analysis", to: "analysis#index"
-
-  # Custom Filters
-  resources :filters, only: [ :index, :show, :new, :create, :edit, :update, :destroy ]
-
   # Projects
   resources :projects do
     member do
