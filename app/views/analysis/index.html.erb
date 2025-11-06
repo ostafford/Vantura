@@ -1,0 +1,946 @@
+<% content_for :title, "Advanced Analysis - Vantura" %>
+
+<main role="main">
+  <!-- Page Header -->
+  <%= render 'shared/page_header_simple', title: "Advanced Analysis", subtitle: "Deep insights into your financial patterns" do %>
+    <div class="flex gap-3">
+      <%= link_to trends_path, class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors", aria: { label: "Navigate back to trends page" } do %>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Trends
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= content_wrapper class: "py-6", data: { modal_target: "content" } do %>
+    <% if @account %>
+      <!-- Hero Card -->
+      <%= render 'shared/bento_cards/hero_card',
+          title: "Advanced Analysis",
+          subtitle: @selected_filter ? @selected_filter.name : @current_date.strftime('%B %Y'),
+          description: "Deep insights into your spending patterns with interactive pie charts, bar charts, and line graphs. Create custom filters by category, merchant, status, or recurring patterns. Analyze your financial data from multiple perspectives to identify trends and make informed decisions.",
+          icon: 'chart',
+          size: 'bento-span-2 bento-row-span-2',
+          color: 'blue' do %>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-blue-50 text-sm">Total: <%= number_to_currency(@breakdown_data.values.sum(&:abs)) %></p>
+          <p class="text-blue-100 text-xs">
+            Income: <%= number_to_currency(@current_month_income) %> • Expenses: <%= number_to_currency(@current_month_expenses) %>
+          </p>
+        </div>
+        <p class="text-blue-50 text-xs">Views: Pie Chart • Bar Chart • Line Chart • Custom Filters</p>
+      <% end %>
+      
+      <!-- Bento Grid Layout -->
+      <section aria-labelledby="summary-heading" class="bento-grid mb-6">
+        <h2 id="summary-heading" class="sr-only">Financial Summary</h2>
+        
+        <!-- Category Breakdown Card (1x1) -->
+        <article class="bento-span-1 bento-row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+          <div class="flex flex-col h-full">
+            <!-- Header -->
+            <header class="mb-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top Categories</h3>
+                <div class="inline-flex items-center justify-center w-8 h-8 bg-primary-700/10 dark:bg-primary-500/20 rounded-lg" aria-hidden="true">
+                  <svg class="w-4 h-4 text-primary-700 dark:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                <%= @current_date.strftime('%B %Y') %>
+              </p>
+            </header>
+
+            <!-- Category List -->
+            <div class="flex-1">
+              <% if @category_breakdown.any? %>
+                <div class="space-y-2">
+                  <% @category_breakdown.sort_by { |_, amount| -amount }.first(3).each do |category, amount| %>
+                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-primary-500"></div>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          <%= truncate(category&.humanize || "Uncategorized", length: 15) %>
+                        </span>
+                      </div>
+                      <span class="text-sm font-semibold <%= amount < 0 ? 'text-expense-500 dark:text-expense-400' : 'text-income-500 dark:text-income-400' %>">
+                        $<%= number_with_precision(amount.abs, precision: 0) %>
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="flex items-center justify-center h-full">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 text-center">No data</p>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </article>
+
+        <!-- Top Merchants Card (1x1) -->
+        <article class="bento-span-1 bento-row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+          <div class="flex flex-col h-full">
+            <!-- Header -->
+            <header class="mb-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top Merchants</h3>
+                <div class="inline-flex items-center justify-center w-8 h-8 bg-primary-700/10 dark:bg-primary-500/20 rounded-lg" aria-hidden="true">
+                  <svg class="w-4 h-4 text-primary-700 dark:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                This month
+              </p>
+            </header>
+
+            <!-- Merchant List -->
+            <div class="flex-1">
+              <% if @merchant_breakdown.any? %>
+                <div class="space-y-2">
+                  <% @merchant_breakdown.first(3).each_with_index do |(merchant, amount), index| %>
+                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div class="flex items-center gap-2">
+                        <div class="flex items-center justify-center w-6 h-6 bg-primary-100 dark:bg-primary-900/30 rounded-full">
+                          <span class="text-xs font-bold text-primary-700 dark:text-primary-400">#<%= index + 1 %></span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          <%= truncate(merchant, length: 12) %>
+                        </span>
+                      </div>
+                      <span class="text-sm font-semibold text-expense-500 dark:text-expense-400">
+                        $<%= number_with_precision(amount.abs, precision: 0) %>
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="flex items-center justify-center h-full">
+                  <p class="text-xs text-gray-500 dark:text-gray-400 text-center">No data</p>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      
+
+      <!-- Additional Analysis Coming Soon -->
+      <section class="mt-8 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-success-500/10 dark:bg-success-700/20 rounded-2xl mb-4" aria-hidden="true">
+            <svg class="w-8 h-8 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">More Analysis Features Coming Soon</h2>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            We're working on adding more advanced analytics including trend charts, spending patterns, and predictive insights.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
+            <div class="flex items-center justify-center gap-2">
+              <svg class="w-4 h-4 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Trend Charts</span>
+            </div>
+            <div class="flex items-center justify-center gap-2">
+              <svg class="w-4 h-4 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Spending Patterns</span>
+            </div>
+            <div class="flex items-center justify-center gap-2">
+              <svg class="w-4 h-4 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Predictive Insights</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <% else %>
+      <!-- No Account Message -->
+      <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-deep p-12 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">No account found</h2>
+        <p class="text-gray-600 dark:text-gray-400">Please sync your Up Bank account first.</p>
+        <%= link_to "Go to Settings", settings_path, class: "inline-flex items-center mt-4 px-6 py-3 bg-primary-700 text-white rounded-lg hover:bg-primary-900 transition-colors" %>
+      </div>
+    <% end %>
+  <% end %>
+</main>
+
+<!-- Filter Drawer removed -->
+
+<script>
+// Initialize filter dropdown functionality
+function initializeFilterDropdown() {
+  // Available filter options from database
+  const availableCategories = <%= raw @available_categories.to_json %>;
+  const availableMerchants = <%= raw @available_merchants.to_json %>;
+  const availableStatuses = <%= raw @available_statuses.to_json %>;
+  const merchantCategories = <%= raw @merchant_categories.to_json %>;
+  const merchantStatuses = <%= raw @merchant_statuses.to_json %>;
+  const categoryStatuses = <%= raw @category_statuses.to_json %>;
+  const statusMerchants = <%= raw @status_merchants.to_json %>;
+  const statusCategories = <%= raw @status_categories.to_json %>;
+  
+  // Filter dropdown change handler
+  const filterDropdown = document.getElementById('analysis-filter');
+  const editFilterBtn = document.getElementById('edit-filter-btn');
+  const deleteFilterBtn = document.getElementById('delete-filter-btn');
+  
+  // Return early if elements don't exist or already initialized
+  if (!filterDropdown || !editFilterBtn || !deleteFilterBtn || filterDropdown.dataset.initialized === 'true') {
+    return;
+  }
+  
+  // Mark as initialized
+  filterDropdown.dataset.initialized = 'true';
+  
+  function updateButtonVisibility() {
+    if (filterDropdown && editFilterBtn && deleteFilterBtn) {
+      const filterValue = filterDropdown.value;
+      if (filterValue.startsWith('custom_')) {
+        editFilterBtn.classList.remove('hidden');
+        editFilterBtn.classList.add('inline-flex');
+        deleteFilterBtn.classList.remove('hidden');
+        deleteFilterBtn.classList.add('inline-flex');
+      } else {
+        editFilterBtn.classList.add('hidden');
+        editFilterBtn.classList.remove('inline-flex');
+        deleteFilterBtn.classList.add('hidden');
+        deleteFilterBtn.classList.remove('inline-flex');
+      }
+    }
+  }
+  
+  if (filterDropdown) {
+    filterDropdown.addEventListener('change', function() {
+      const filterValue = this.value;
+      
+      // Update button visibility
+      updateButtonVisibility();
+      
+      // Build URL with filter parameter
+      let url = '/analysis';
+      if (filterValue.startsWith('custom_')) {
+        const filterId = filterValue.replace('custom_', '');
+        url += '?filter_id=' + filterId;
+      }
+      
+      // Navigate to filtered view using Turbo
+      Turbo.visit(url);
+    });
+  }
+  
+  // Initial button visibility check
+  updateButtonVisibility();
+  
+  // Store filter data for editing
+  const filterDataMap = {};
+  <% @custom_filters.each do |filter| %>
+    filterDataMap[<%= filter.id %>] = {
+      name: <%= raw filter.name.to_json %>,
+      filter_types: <%= raw filter.filter_types.to_json %>,
+      filter_params: <%= raw filter.filter_params.to_json %>,
+      date_range: <%= raw filter.date_range.to_json %>
+    };
+  <% end %>
+  
+  // Edit filter button handler
+  if (editFilterBtn) {
+    editFilterBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const filterValue = filterDropdown.value;
+      
+      if (!filterValue.startsWith('custom_')) {
+        return;
+      }
+      
+      const filterId = filterValue.replace('custom_', '');
+      const filterData = filterDataMap[filterId];
+      
+      if (!filterData) {
+        alert('Filter data not found');
+        return;
+      }
+      
+      // Populate the form with existing data
+      populateFilterForm(filterData, filterId);
+      
+      // Open the modal
+      const modalElement = document.querySelector('[data-modal-target="modal"]');
+      if (modalElement) {
+        modalElement.classList.remove('hidden');
+        const drawer = modalElement.querySelector('[data-modal-target="drawer"]');
+        if (drawer) {
+          drawer.classList.remove('translate-x-full');
+        }
+      }
+    });
+  }
+  
+  // Function to populate filter form
+  function populateFilterForm(filterData, filterId) {
+    // Set the form mode
+    const form = document.getElementById('filter-form');
+    form.dataset.mode = 'edit';
+    form.dataset.filterId = filterId;
+    
+    // Update modal title
+    const modalTitle = document.getElementById('filter-modal-title');
+    if (modalTitle) {
+      modalTitle.textContent = 'Edit Custom Filter';
+    }
+    
+    // Update submit button text
+    const submitBtn = document.getElementById('submit-filter-btn');
+    if (submitBtn) {
+      submitBtn.textContent = 'Update Filter';
+    }
+    
+    // Set the filter name
+    document.getElementById('filter-name').value = filterData.name || '';
+    
+    // Check the filter type checkboxes
+    const filterTypeCheckboxes = document.querySelectorAll('input[name="filter_types[]"]');
+    filterTypeCheckboxes.forEach(checkbox => {
+      checkbox.checked = filterData.filter_types && filterData.filter_types.includes(checkbox.value);
+    });
+    
+    // Trigger the change event to populate filter parameters
+    filterTypeCheckboxes.forEach(checkbox => {
+      if (checkbox.checked) {
+        checkbox.dispatchEvent(new Event('change'));
+      }
+    });
+    
+    // Populate filter parameters based on types
+    setTimeout(() => {
+      filterData.filter_types.forEach(type => {
+        if (type === 'category' && filterData.filter_params.categories) {
+          filterData.filter_params.categories.forEach(cat => {
+            const checkbox = document.querySelector(`input[name="filter_params[categories][]"][value="${cat}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        } else if (type === 'merchant' && filterData.filter_params.merchants) {
+          filterData.filter_params.merchants.forEach(merchant => {
+            const checkbox = document.querySelector(`input[name="filter_params[merchants][]"][value="${merchant}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        } else if (type === 'status' && filterData.filter_params.statuses) {
+          filterData.filter_params.statuses.forEach(status => {
+            const checkbox = document.querySelector(`input[name="filter_params[statuses][]"][value="${status}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        } else if (type === 'recurring_transactions' && filterData.filter_params.recurring_transactions) {
+          const radio = document.querySelector(`input[name="filter_params[recurring_transactions]"][value="${filterData.filter_params.recurring_transactions}"]`);
+          if (radio) radio.checked = true;
+        }
+      });
+      
+      // Populate date range
+      if (filterData.date_range && filterData.date_range.type) {
+        const dateRadio = document.querySelector(`input[name="date_range"][value="${filterData.date_range.type}"]`);
+        if (dateRadio) {
+          dateRadio.checked = true;
+          dateRadio.dispatchEvent(new Event('change'));
+          
+          if (filterData.date_range.type === 'custom') {
+            if (filterData.date_range.start_date) {
+              document.getElementById('custom_start_date').value = filterData.date_range.start_date;
+            }
+            if (filterData.date_range.end_date) {
+              document.getElementById('custom_end_date').value = filterData.date_range.end_date;
+            }
+          }
+        }
+      }
+    }, 100);
+  }
+  
+  // Function to reset filter form to create mode
+  function resetFilterForm() {
+    const form = document.getElementById('filter-form');
+    if (form) {
+      form.dataset.mode = 'create';
+      form.dataset.filterId = '';
+      form.reset();
+      
+      // Reset modal title
+      const modalTitle = document.getElementById('filter-modal-title');
+      if (modalTitle) {
+        modalTitle.textContent = 'Create Custom Filter';
+      }
+      
+      // Reset submit button text
+      const submitBtn = document.getElementById('submit-filter-btn');
+      if (submitBtn) {
+        submitBtn.textContent = 'Save Filter';
+      }
+      
+      // Clear filter parameters
+      const filterParamsDiv = document.getElementById('filter-params');
+      if (filterParamsDiv) {
+        filterParamsDiv.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 italic">Select at least one filter type above</p>';
+      }
+      
+      // Hide custom date range
+      const customDateRangeDiv = document.getElementById('custom-date-range');
+      if (customDateRangeDiv) {
+        customDateRangeDiv.classList.add('hidden');
+      }
+      
+      // Reset button states
+      const filterTypeCheckboxes = document.querySelectorAll('input[name="filter_types[]"]');
+      filterTypeCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+        const label = checkbox.closest('.filter-type-label');
+        if (label) {
+          label.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
+          label.classList.add('border-gray-200', 'dark:border-gray-600');
+        }
+      });
+      
+      // Reset date range buttons
+      const dateRangeRadios = document.querySelectorAll('input[name="date_range"]');
+      dateRangeRadios.forEach(radio => {
+        radio.checked = false;
+        const label = radio.closest('.date-range-label');
+        if (label) {
+          label.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
+          label.classList.add('border-gray-200', 'dark:border-gray-600');
+        }
+      });
+    }
+  }
+  
+  // Reset form when modal opens for create
+  const createFilterBtn = document.querySelector('[data-action="click->modal#open"]');
+  if (createFilterBtn) {
+    createFilterBtn.addEventListener('click', function() {
+      resetFilterForm();
+    });
+  }
+  
+  // Reset form when modal closes
+  const closeModalBtns = document.querySelectorAll('[data-action="click->modal#close"]');
+  closeModalBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      setTimeout(resetFilterForm, 500); // Delay to allow close animation
+    });
+  });
+  
+  // Delete filter button handler
+  if (deleteFilterBtn) {
+    deleteFilterBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const filterValue = filterDropdown.value;
+      
+      if (!filterValue.startsWith('custom_')) {
+        return;
+      }
+      
+      const filterId = filterValue.replace('custom_', '');
+      
+      // Confirm deletion
+      if (!confirm('Are you sure you want to delete this filter?')) {
+        return;
+      }
+      
+      // Delete the filter
+      fetch(`/filters/${filterId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+      })
+      .then(response => {
+        if (response.ok || response.status === 404) {
+          // Reload the page to update the filter list (even if already deleted)
+          Turbo.visit('/analysis');
+        } else {
+          return response.text().then(text => {
+            throw new Error(`Server error: ${response.status}`);
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting filter: ' + error.message);
+      });
+    });
+  }
+  
+  
+  
+  // Pie chart hover effects
+  const pieSlices = document.querySelectorAll('.pie-slice');
+  pieSlices.forEach(slice => {
+    slice.addEventListener('mouseenter', function() {
+      const category = this.dataset.category;
+      const amount = this.dataset.amount;
+      const percentage = this.dataset.percentage;
+      
+      // Create tooltip
+      const tooltip = document.createElement('div');
+      tooltip.className = 'absolute bg-gray-900 text-white px-3 py-2 rounded-lg text-sm pointer-events-none z-10';
+      tooltip.innerHTML = `
+        <div class="font-semibold">${category}</div>
+        <div>$${parseFloat(amount).toLocaleString()} (${percentage}%)</div>
+      `;
+      
+      document.body.appendChild(tooltip);
+      
+      // Position tooltip
+      const rect = this.getBoundingClientRect();
+      tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+      tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+      
+      this.tooltip = tooltip;
+    });
+    
+    slice.addEventListener('mouseleave', function() {
+      if (this.tooltip) {
+        this.tooltip.remove();
+        this.tooltip = null;
+      }
+    });
+  });
+  
+  // Filter type change handler - now handles multiple selections
+  const filterCheckboxes = document.querySelectorAll('input[name="filter_types[]"]');
+  const filterParamsDiv = document.getElementById('filter-params');
+  
+  // Render parameters for a specific filter type with dynamic filtering based on all selected params
+  function renderFilterParams(filterType, selectedParams = {}) {
+    let html = '';
+    const selectedCategories = selectedParams.categories || [];
+    const selectedStatuses = selectedParams.statuses || [];
+    const selectedMerchants = selectedParams.merchants || [];
+    
+    console.log(`Rendering ${filterType} with selected params:`, selectedParams);
+    
+    if (filterType === 'category') {
+      // Filter categories based on selected merchants and statuses
+      let filteredCategories = availableCategories;
+      
+      if (selectedMerchants.length > 0) {
+        filteredCategories = filteredCategories.filter(cat => {
+          // Always include already selected categories
+          if (selectedCategories.includes(cat)) return true;
+          
+          return selectedMerchants.some(merchant => {
+            const merchantCats = merchantCategories[merchant] || [];
+            return merchantCats.includes(cat);
+          });
+        });
+      }
+      
+      if (selectedStatuses.length > 0) {
+        filteredCategories = filteredCategories.filter(cat => {
+          // Always include already selected categories
+          if (selectedCategories.includes(cat)) return true;
+          
+          const catStatuses = categoryStatuses[cat] || [];
+          return selectedStatuses.some(status => catStatuses.includes(status));
+        });
+      }
+      
+      const categoriesHtml = filteredCategories.map(cat => `
+            <label class="flex items-center">
+          <input type="checkbox" name="filter_params[categories][]" value="${cat}" class="mr-2 category-checkbox" ${selectedCategories.includes(cat) ? 'checked' : ''}>
+          <span class="text-sm text-gray-700 dark:text-gray-300">${cat}</span>
+            </label>
+      `).join('');
+      
+      const filterNote = (selectedMerchants.length > 0 || selectedStatuses.length > 0) ? ' (filtered)' : '';
+      
+      html = `
+        <div class="bg-gray-50 dark:bg-primary-950 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Category Filter${filterNote}</h4>
+          <div class="space-y-2 max-h-48 overflow-y-auto">
+            ${categoriesHtml || '<p class="text-sm text-gray-500 dark:text-gray-400 italic">No categories found</p>'}
+          </div>
+        </div>
+      `;
+    } else if (filterType === 'merchant') {
+      // Filter merchants based on selected categories and statuses
+      let filteredMerchants = availableMerchants;
+      
+      console.log(`Initial merchant count: ${filteredMerchants.length}`);
+      
+      if (selectedCategories.length > 0) {
+        console.log(`Filtering by categories: ${selectedCategories.join(', ')}`);
+        filteredMerchants = filteredMerchants.filter(merchant => {
+          // Always include already selected merchants
+          if (selectedMerchants.includes(merchant)) return true;
+          
+          const merchantCats = merchantCategories[merchant] || [];
+          return selectedCategories.some(cat => merchantCats.includes(cat));
+        });
+        console.log(`After category filter: ${filteredMerchants.length} merchants`);
+      }
+      
+      if (selectedStatuses.length > 0) {
+        console.log(`Filtering by statuses: ${selectedStatuses.join(', ')}`);
+        filteredMerchants = filteredMerchants.filter(merchant => {
+          // Always include already selected merchants
+          if (selectedMerchants.includes(merchant)) return true;
+          
+          const merchantStats = merchantStatuses[merchant] || [];
+          return selectedStatuses.some(status => merchantStats.includes(status));
+        });
+        console.log(`After status filter: ${filteredMerchants.length} merchants`);
+      }
+      
+      const merchantsHtml = filteredMerchants.map(merchant => `
+            <label class="flex items-center">
+          <input type="checkbox" name="filter_params[merchants][]" value="${merchant}" class="mr-2" ${selectedMerchants.includes(merchant) ? 'checked' : ''}>
+          <span class="text-sm text-gray-700 dark:text-gray-300">${merchant}</span>
+            </label>
+      `).join('');
+      
+      const filterNote = (selectedCategories.length > 0 || selectedStatuses.length > 0) ? ' (filtered)' : '';
+      
+      html = `
+        <div class="merchant-filter-section bg-gray-50 dark:bg-primary-950 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Merchant Filter${filterNote}</h4>
+          <div class="space-y-2 max-h-48 overflow-y-auto">
+            ${merchantsHtml || '<p class="text-sm text-gray-500 dark:text-gray-400 italic">No merchants found</p>'}
+          </div>
+        </div>
+      `;
+    } else if (filterType === 'status') {
+      // Filter statuses based on selected categories and merchants
+      let filteredStatuses = availableStatuses;
+      
+      if (selectedCategories.length > 0) {
+        filteredStatuses = filteredStatuses.filter(status => {
+          // Always include already selected statuses
+          if (selectedStatuses.includes(status)) return true;
+          
+          const statusCats = statusCategories[status] || [];
+          return selectedCategories.some(cat => statusCats.includes(cat));
+        });
+      }
+      
+      if (selectedMerchants.length > 0) {
+        filteredStatuses = filteredStatuses.filter(status => {
+          // Always include already selected statuses
+          if (selectedStatuses.includes(status)) return true;
+          
+          return selectedMerchants.some(merchant => {
+            const merchantStats = merchantStatuses[merchant] || [];
+            return merchantStats.includes(status);
+          });
+        });
+      }
+      
+      const statusesHtml = filteredStatuses.map(status => `
+        <label class="flex items-center">
+          <input type="checkbox" name="filter_params[statuses][]" value="${status}" class="mr-2" ${selectedStatuses.includes(status) ? 'checked' : ''}>
+          <span class="text-sm text-gray-700 dark:text-gray-300">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+        </label>
+      `).join('');
+      
+      const filterNote = (selectedCategories.length > 0 || selectedMerchants.length > 0) ? ' (filtered)' : '';
+      
+      html = `
+        <div class="bg-gray-50 dark:bg-primary-950 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Status Filter${filterNote}</h4>
+          <div class="space-y-2">
+            ${statusesHtml || '<p class="text-sm text-gray-500 dark:text-gray-400 italic">No statuses found</p>'}
+          </div>
+        </div>
+      `;
+    } else if (filterType === 'recurring_transactions') {
+      const selectedRecurring = selectedParams.recurring_transactions;
+      html = `
+        <div class="bg-gray-50 dark:bg-primary-950 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+          <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Recurring Transactions</h4>
+          <div class="space-y-2">
+            <label class="flex items-center">
+              <input type="radio" name="filter_params[recurring_transactions]" value="true" class="mr-2" ${selectedRecurring === 'true' ? 'checked' : ''}>
+              <span class="text-sm text-gray-700 dark:text-gray-300">From Recurring Only</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="filter_params[recurring_transactions]" value="false" class="mr-2" ${selectedRecurring === 'false' ? 'checked' : ''}>
+              <span class="text-sm text-gray-700 dark:text-gray-300">Non-Recurring Only</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="filter_params[recurring_transactions]" value="both" class="mr-2" ${selectedRecurring === 'both' ? 'checked' : ''}>
+              <span class="text-sm text-gray-700 dark:text-gray-300">Both</span>
+            </label>
+          </div>
+        </div>
+      `;
+    }
+    
+    return html;
+  }
+  
+  // Collect all currently selected parameters
+  function getAllSelectedParams() {
+    const params = {
+      categories: Array.from(document.querySelectorAll('input[name="filter_params[categories][]"]:checked')).map(cb => cb.value),
+      merchants: Array.from(document.querySelectorAll('input[name="filter_params[merchants][]"]:checked')).map(cb => cb.value),
+      statuses: Array.from(document.querySelectorAll('input[name="filter_params[statuses][]"]:checked')).map(cb => cb.value),
+      recurring_transactions: document.querySelector('input[name="filter_params[recurring_transactions]]:checked')?.value
+    };
+    console.log('getAllSelectedParams:', params);
+    return params;
+  }
+  
+  // Update filter parameters display when checkboxes change
+  function updateFilterParams() {
+    const selectedTypes = Array.from(filterCheckboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+    
+    // Get all selected parameters for cross-filtering
+    const selectedParams = getAllSelectedParams();
+    
+    // Update visual state of checkbox labels
+    filterCheckboxes.forEach(checkbox => {
+      const label = checkbox.closest('.filter-type-label');
+      if (label) {
+        if (checkbox.checked) {
+          label.classList.add('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
+          label.classList.remove('border-gray-200', 'dark:border-gray-600');
+        } else {
+          label.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
+          label.classList.add('border-gray-200', 'dark:border-gray-600');
+        }
+      }
+    });
+    
+    if (selectedTypes.length === 0) {
+      filterParamsDiv.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 italic">Select at least one filter type above</p>';
+      return;
+    }
+    
+    // Render parameters for each selected type with all selected params for cross-filtering
+    filterParamsDiv.innerHTML = selectedTypes.map(type => renderFilterParams(type, selectedParams)).join('');
+  }
+  
+  // Use event delegation for parameter checkboxes to avoid re-attaching listeners
+  filterParamsDiv.addEventListener('change', function(e) {
+    if (e.target.matches('input[name^="filter_params["]')) {
+      updateFilterParams();
+    }
+  });
+  
+  // Add event listeners to all checkboxes
+  filterCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateFilterParams);
+  });
+  
+  // Initial update
+  updateFilterParams();
+  
+  // Date range selection handler
+  const dateRangeRadios = document.querySelectorAll('input[name="date_range"]');
+  const customDateRangeDiv = document.getElementById('custom-date-range');
+  
+  function updateDateRangeDisplay() {
+    const selectedRange = document.querySelector('input[name="date_range"]:checked');
+    
+    // Update visual state of radio button labels
+    document.querySelectorAll('.date-range-label').forEach(label => {
+      const radio = label.querySelector('input[type="radio"]');
+      if (radio.checked) {
+        label.classList.add('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
+        label.classList.remove('border-gray-200', 'dark:border-gray-600');
+      } else {
+        label.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
+        label.classList.add('border-gray-200', 'dark:border-gray-600');
+      }
+    });
+    
+    // Show/hide custom date range inputs
+    if (selectedRange && selectedRange.value === 'custom') {
+      customDateRangeDiv.classList.remove('hidden');
+    } else {
+      customDateRangeDiv.classList.add('hidden');
+    }
+  }
+  
+  // Add event listeners to date range radio buttons
+  dateRangeRadios.forEach(radio => {
+    radio.addEventListener('change', updateDateRangeDisplay);
+  });
+  
+  // Form submission
+  const filterForm = document.getElementById('filter-form');
+  filterForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const selectedTypes = formData.getAll('filter_types[]');
+    
+    if (selectedTypes.length === 0) {
+      alert('Please select at least one filter type');
+      return;
+    }
+    
+    // Collect date range
+    const dateRange = formData.get('date_range');
+    let startDate = null;
+    let endDate = null;
+    
+    if (dateRange) {
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth();
+      const currentDate = today.getDate();
+      
+      switch(dateRange) {
+        case 'today':
+          startDate = today.toISOString().split('T')[0];
+          endDate = today.toISOString().split('T')[0];
+          break;
+        case 'current_week':
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - today.getDay());
+          startDate = startOfWeek.toISOString().split('T')[0];
+          endDate = today.toISOString().split('T')[0];
+          break;
+        case 'current_month':
+          startDate = new Date(currentYear, currentMonth, 1).toISOString().split('T')[0];
+          endDate = today.toISOString().split('T')[0];
+          break;
+        case 'last_month':
+          const lastMonth = new Date(currentYear, currentMonth - 1, 1);
+          const lastDayOfLastMonth = new Date(currentYear, currentMonth, 0);
+          startDate = lastMonth.toISOString().split('T')[0];
+          endDate = lastDayOfLastMonth.toISOString().split('T')[0];
+          break;
+        case '3_months':
+          const threeMonthsAgo = new Date(currentYear, currentMonth - 3, 1);
+          startDate = threeMonthsAgo.toISOString().split('T')[0];
+          endDate = today.toISOString().split('T')[0];
+          break;
+        case '6_months':
+          const sixMonthsAgo = new Date(currentYear, currentMonth - 6, 1);
+          startDate = sixMonthsAgo.toISOString().split('T')[0];
+          endDate = today.toISOString().split('T')[0];
+          break;
+        case 'current_year':
+          startDate = new Date(currentYear, 0, 1).toISOString().split('T')[0];
+          endDate = today.toISOString().split('T')[0];
+          break;
+        case 'custom':
+          startDate = formData.get('custom_start_date');
+          endDate = formData.get('custom_end_date');
+          break;
+      }
+    }
+    
+    const filterData = {
+      name: formData.get('name'),
+      filter_types: selectedTypes,
+      filter_params: {},
+      date_range: {
+        type: dateRange,
+        start_date: startDate,
+        end_date: endDate
+      }
+    };
+    
+    // Collect filter parameters for all selected types
+    if (selectedTypes.includes('category')) {
+      const categories = formData.getAll('filter_params[categories][]');
+      if (categories.length > 0) {
+      filterData.filter_params.categories = categories;
+      }
+    }
+    
+    if (selectedTypes.includes('merchant')) {
+      const merchants = formData.getAll('filter_params[merchants][]');
+      if (merchants.length > 0) {
+        filterData.filter_params.merchants = merchants;
+      }
+    }
+    
+    if (selectedTypes.includes('status')) {
+      const statuses = formData.getAll('filter_params[statuses][]');
+      if (statuses.length > 0) {
+        filterData.filter_params.statuses = statuses;
+      }
+    }
+    
+    if (selectedTypes.includes('recurring_transactions')) {
+      const recurring = formData.get('filter_params[recurring_transactions]');
+      if (recurring) {
+        filterData.filter_params.recurring_transactions = recurring;
+      }
+    }
+    
+    // Determine if we're creating or updating
+    const isEditMode = this.dataset.mode === 'edit';
+    const filterId = this.dataset.filterId;
+    const url = isEditMode ? `/filters/${filterId}` : '/filters';
+    const method = isEditMode ? 'PATCH' : 'POST';
+    
+    // Submit the form
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ filter: filterData })
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(data => {
+          throw new Error(data.error || `Server error: ${response.status}`);
+        }).catch(() => {
+          return response.text().then(text => {
+            throw new Error(`Server error: ${response.status} - ${text.substring(0, 200)}`);
+          });
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        // If editing a filter, reload with the filter_id to show updated chart
+        if (isEditMode && filterId) {
+          window.location.href = `/analysis?filter_id=${filterId}`;
+        } else {
+        location.reload(); // Reload to show the new filter
+        }
+      } else {
+        alert('Error saving filter: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error creating filter: ' + error.message);
+    });
+  });
+}
+
+// Run on initial load
+initializeFilterDropdown();
+
+// Re-run on Turbo navigation
+document.addEventListener('turbo:load', initializeFilterDropdown);
+
+</script>

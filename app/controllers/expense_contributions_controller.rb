@@ -4,25 +4,12 @@ class ExpenseContributionsController < ApplicationController
 
   # Members can only update their own contribution paid state
   def update
-    unless @contribution.user_id == Current.user.id
-      head :forbidden and return
-    end
+    return head(:forbidden) unless @contribution.user_id == Current.user.id
 
-    permitted = params.fetch(:expense_contribution, {}).permit(:paid)
-    paid = ActiveModel::Type::Boolean.new.cast(permitted[:paid])
-    paid = false if permitted[:paid].nil?
-
-    if @contribution.update(paid: paid, paid_at: paid ? Time.current : nil)
-      respond_to do |format|
-        format.html { redirect_to project_path(@project), notice: "Updated" }
-        format.turbo_stream
-        format.json { render json: { success: true } }
-      end
+    if @contribution.update(contribution_params)
+      handle_success_response
     else
-      respond_to do |format|
-        format.html { redirect_to project_path(@project), alert: @contribution.errors.full_messages.join(", ") }
-        format.json { render json: { success: false, errors: @contribution.errors.full_messages }, status: :unprocessable_entity }
-      end
+      handle_error_response
     end
   end
 
@@ -38,5 +25,25 @@ class ExpenseContributionsController < ApplicationController
     def authorize_member!
       return if @project.owner_id == Current.user.id || @project.members.exists?(id: Current.user.id)
       head :forbidden
+    end
+
+    def contribution_params
+      permitted = params.fetch(:expense_contribution, {}).permit(:paid)
+      paid = ActiveModel::Type::Boolean.new.cast(permitted[:paid])
+      { paid: paid, paid_at: paid ? Time.current : nil }
+    end
+
+    def handle_success_response
+      respond_to do |format|
+        format.html { redirect_to project_path(@project), notice: "Updated" }
+        format.json { render json: { success: true } }
+      end
+    end
+
+    def handle_error_response
+      respond_to do |format|
+        format.html { redirect_to project_path(@project), alert: @contribution.errors.full_messages.join(", ") }
+        format.json { render json: { success: false, errors: @contribution.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
 end
