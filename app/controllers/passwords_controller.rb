@@ -20,12 +20,12 @@ class PasswordsController < ApplicationController
   end
 
   def update
-    if @user.update(params.permit(:password, :password_confirmation))
+    if @user.update(password_params)
       Rails.logger.info "[SECURITY] Password successfully reset for: #{@user.email_address} from IP: #{request.remote_ip}"
       redirect_to new_session_path, notice: "Password has been reset."
     else
       Rails.logger.warn "[SECURITY] Failed password reset attempt for: #{@user.email_address} from IP: #{request.remote_ip}"
-      redirect_to edit_password_path(params[:token]), alert: "Passwords did not match."
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -34,5 +34,9 @@ class PasswordsController < ApplicationController
       @user = User.find_by_password_reset_token!(params[:token])
     rescue ActiveSupport::MessageVerifier::InvalidSignature
       redirect_to new_password_path, alert: "Password reset link is invalid or has expired."
+    end
+
+    def password_params
+      params.permit(:password, :password_confirmation)
     end
 end

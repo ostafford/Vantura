@@ -1,6 +1,9 @@
 class User < ApplicationRecord
   has_secure_password
 
+  # Password reset token generation (Rails 8 authentication)
+  generates_token_for :password_reset, expires_in: 15.minutes
+
   # Associations
   has_many :sessions, dependent: :destroy
   has_many :accounts, dependent: :destroy

@@ -1,17 +1,66 @@
 <div class="mx-auto md:w-2/3 w-full">
   <h1 class="font-bold text-4xl">Update your password</h1>
 
-  <%= form_with url: password_path(params[:token]), method: :put, class: "contents" do |form| %>
+  <%= form_with model: @user, url: password_path(params[:token]), method: :put, id: "password-reset-form", class: "contents" do |form| %>
+    <!-- Error Messages -->
+    <% if @user.errors.any? %>
+      <div id="password-reset-errors-container" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-5" role="alert">
+        <h3 class="font-semibold text-red-900 dark:text-red-100 mb-2">
+          <%= pluralize(@user.errors.count, "error") %> prevented your password from being reset:
+        </h3>
+        <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- Password Field -->
     <div class="my-5">
-      <%= form.password_field :password, required: true, autocomplete: "new-password", placeholder: "Enter new password", maxlength: 72, class: "block shadow-sm rounded-md border border-gray-400 focus:outline-solid focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
+      <%= form.label :password, "New Password", for: "password-reset-password-input", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= form.password_field :password,
+          id: "password-reset-password-input",
+          required: true,
+          autocomplete: "new-password",
+          placeholder: "Enter new password",
+          maxlength: 72,
+          aria_required: true,
+          aria_invalid: (@user.errors[:password].any? ? "true" : "false"),
+          aria_describedby: (@user.errors[:password].any? ? "password-reset-password-error" : nil),
+          class: "block shadow-sm rounded-md border border-gray-400 focus:outline-solid focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
+      <% if @user.errors[:password].any? %>
+        <div id="password-reset-password-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+          <%= @user.errors[:password].first %>
+        </div>
+      <% end %>
     </div>
 
+    <!-- Password Confirmation Field -->
     <div class="my-5">
-      <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", placeholder: "Repeat new password", maxlength: 72, class: "block shadow-sm rounded-md border border-gray-400 focus:outline-solid focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
+      <%= form.label :password_confirmation, "Confirm New Password", for: "password-reset-confirmation-input", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= form.password_field :password_confirmation,
+          id: "password-reset-confirmation-input",
+          required: true,
+          autocomplete: "new-password",
+          placeholder: "Repeat new password",
+          maxlength: 72,
+          aria_required: true,
+          aria_invalid: (@user.errors[:password_confirmation].any? ? "true" : "false"),
+          aria_describedby: (@user.errors[:password_confirmation].any? ? "password-reset-confirmation-error" : nil),
+          class: "block shadow-sm rounded-md border border-gray-400 focus:outline-solid focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
+      <% if @user.errors[:password_confirmation].any? %>
+        <div id="password-reset-confirmation-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+          <%= @user.errors[:password_confirmation].first %>
+        </div>
+      <% end %>
     </div>
 
+    <!-- Submit Button -->
     <div class="inline">
-      <%= form.submit "Save", class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+      <%= form.submit "Save",
+          id: "password-reset-submit-button",
+          class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
     </div>
   <% end %>
 </div>

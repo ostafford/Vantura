@@ -6,6 +6,16 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Load environment variables from .env files BEFORE environment configs are loaded
+# This ensures ENV variables are available when config/environments/*.rb files run
+if File.exist?(".env.#{ENV.fetch('RAILS_ENV', 'development')}")
+  require "dotenv"
+  Dotenv.load(".env.#{ENV.fetch('RAILS_ENV', 'development')}")
+elsif File.exist?(".env")
+  require "dotenv"
+  Dotenv.load(".env")
+end
+
 module Vantura
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
