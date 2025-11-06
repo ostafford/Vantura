@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   include Authentication
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  # allow_browser versions: :modern
 
   # Set global error context for all requests
   before_action :set_error_context
