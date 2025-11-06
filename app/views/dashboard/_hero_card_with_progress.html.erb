@@ -1,0 +1,28 @@
+<%= render 'shared/bento_cards/hero_card',
+    title: "Current Balance",
+    subtitle: formatted_balance(account.current_balance),  # Changed from @account to account
+    description: "Monitor your account balance in real-time with month-to-date progress tracking. Track your financial activity as you progress through the month with visual indicators and detailed breakdowns.",
+    icon: 'wallet',
+    size: 'bento-span-2 bento-row-span-2',
+    color: 'primary',
+    id: 'dashboard-current-balance-card' do %>
+  <div class="flex items-center justify-between mb-3">
+    <!-- Left: Full date -->
+    <div class="text-left">
+      <p class="text-orange-50 text-sm">
+        <%= day_name(current_date) %> <time datetime="<%= current_date.iso8601 %>"><%= current_date.strftime("%B %d, %Y") %></time>
+      </p>
+    </div>
+    
+    <!-- Right: Month progress -->
+    <div class="text-right">
+      <div class="flex items-center justify-end gap-2">
+        <div class="h-2 w-24 bg-white/20 rounded-full overflow-hidden relative" role="progressbar" aria-label="Month progress" aria-valuenow="<%= month_progress(current_date) %>" aria-valuemin="0" aria-valuemax="100">
+          <div class="absolute inset-0 bg-gradient-to-r from-white via-orange-100 to-orange-200 rounded-full" style="width: <%= month_progress(current_date) %>%"></div>
+        </div>
+        <span class="text-sm text-orange-100 font-semibold whitespace-nowrap"><%= month_progress(current_date) %>%</span>
+      </div>
+    </div>
+  </div>
+<% end %>
+

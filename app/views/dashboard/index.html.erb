@@ -31,22 +31,23 @@
             description: "Monitor your account balance in real-time with month-to-date progress tracking. Track your financial activity as you progress through the month with visual indicators and detailed breakdowns.",
             icon: 'wallet',
             size: 'bento-span-2 bento-row-span-2',
-            color: 'primary' do %>
+            color: 'primary',
+            id: 'dashboard-current-balance-card' do %>
           <div class="flex items-center justify-between mb-3">
             <!-- Left: Full date -->
             <div class="text-left">
               <p class="text-orange-50 text-sm">
-                <%= day_name(@current_date) %> <time datetime="<%= @current_date.iso8601 %>"><%= @current_date.strftime("%B %d, %Y") %></time>
+                <%= day_name(current_date) %> <time datetime="<%= current_date.iso8601 %>"><%= current_date.strftime("%B %d, %Y") %></time>
               </p>
             </div>
             
             <!-- Right: Month progress -->
             <div class="text-right">
               <div class="flex items-center justify-end gap-2">
-                <div class="h-2 w-24 bg-white/20 rounded-full overflow-hidden relative">
-                  <div class="absolute inset-0 bg-gradient-to-r from-white via-orange-100 to-orange-200 rounded-full" style="width: <%= month_progress(@current_date) %>%"></div>
+                <div class="h-2 w-24 bg-white/20 rounded-full overflow-hidden relative" role="progressbar" aria-label="Month progress" aria-valuenow="<%= month_progress(current_date) %>" aria-valuemin="0" aria-valuemax="100">
+                  <div class="absolute inset-0 bg-gradient-to-r from-white via-orange-100 to-orange-200 rounded-full" style="width: <%= month_progress(current_date) %>%"></div>
                 </div>
-                <span class="text-sm text-orange-100 font-semibold whitespace-nowrap"><%= month_progress(@current_date) %>%</span>
+                <span class="text-sm text-orange-100 font-semibold whitespace-nowrap"><%= month_progress(current_date) %>%</span>
               </div>
             </div>
           </div>
@@ -56,39 +57,39 @@
         <%= render partial: 'shared/bento_cards/transaction_type_card',
             locals: {
               type: 'expense',
-              expense_total: @expense_total,
-              expense_count: @expense_count,
-              current_date: @current_date,
-              top_expense_merchants: @top_expense_merchants
+              expense_total: expense_total,
+              expense_count: expense_count,
+              current_date: current_date,
+              top_expense_merchants: top_expense_merchants
             } %>
 
         <!-- Income Card (1x2) - Using Unified Partial -->
         <%= render partial: 'shared/bento_cards/transaction_type_card',
             locals: {
               type: 'income',
-              income_total: @income_total,
-              income_count: @income_count,
-              current_date: @current_date,
-              top_income_merchants: @top_income_merchants
+              income_total: income_total,
+              income_count: income_count,
+              current_date: current_date,
+              top_income_merchants: top_income_merchants
             } %>
 
         <!-- End of Month Projection (2x1) - Using Reusable Partial -->
         <%= render 'dashboard/projection_card',
-            income_total: @income_total,
-            expense_total: @expense_total,
-            end_of_month_balance: @end_of_month_balance,
-            current_date: @current_date,
-            upcoming_recurring_expenses: @upcoming_recurring_expenses,
-            upcoming_recurring_income: @upcoming_recurring_income,
-            upcoming_recurring_total: @upcoming_recurring_total %>
+            income_total: income_total,
+            expense_total: expense_total,
+            end_of_month_balance: end_of_month_balance,
+            current_date: current_date,
+            upcoming_recurring_expenses: upcoming_recurring_expenses,
+            upcoming_recurring_income: upcoming_recurring_income,
+            upcoming_recurring_total: upcoming_recurring_total %>
 
         <!-- Net Cash Flow Card (1x2) -->
         <%= render 'dashboard/net_cash_flow_card',
-            income_total: @income_total,
-            expense_total: @expense_total,
-              expense_count: @expense_count,
-              income_count: @income_count,
-              current_date: @current_date %>
+            income_total: income_total,
+            expense_total: expense_total,
+              expense_count: expense_count,
+              income_count: income_count,
+              current_date: current_date %>
       </section>
 
       <!-- Recent Transactions -->
@@ -98,7 +99,7 @@
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Recent Transactions</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Your latest activity this month</p>
           </div>
-          <%= link_to transactions_path(year: @current_date.year, month: @current_date.month), 
+          <%= link_to transactions_path(year: current_date.year, month: current_date.month), 
                       class: "inline-flex items-center px-4 py-2 bg-primary-700/10 dark:bg-primary-500/30 text-primary-700 dark:text-primary-300 border border-primary-700/20 dark:border-primary-400/40 text-sm font-medium rounded-lg hover:bg-primary-700/20 dark:hover:bg-primary-500/40 hover:shadow-md hover:scale-105 transition-all" do %>
             View All
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,7 +109,7 @@
         </div>
 
             <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" aria-label="Recent transactions for current week">
                 <thead class="bg-gray-50 dark:bg-gray-900">
                   <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
@@ -119,8 +120,8 @@
                   </tr>
                 </thead>
                 <tbody id="recent-transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  <% if @recent_transactions.any? %>
-                    <% @recent_transactions.each do |transaction| %>
+                  <% if recent_transactions.any? %>
+                    <% recent_transactions.each do |transaction| %>
                       <%= render 'dashboard/recent_transaction_row', transaction: transaction %>
                     <% end %>
                   <% else %>

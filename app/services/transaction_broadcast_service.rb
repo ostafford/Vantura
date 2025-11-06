@@ -23,6 +23,8 @@ class TransactionBroadcastService < ApplicationService
     income_count = stats[:income_count]
     income_total = stats[:income_total]
     end_of_month_balance = stats[:end_of_month_balance]
+    top_expense_merchants = stats[:top_expense_merchants] || []
+    top_income_merchants = stats[:top_income_merchants] || []
 
     # Calculate upcoming recurring transactions for projection
     upcoming_recurring = get_upcoming_recurring_transactions
@@ -33,33 +35,33 @@ class TransactionBroadcastService < ApplicationService
     # Broadcast Turbo Stream updates to user's channel using transaction's broadcast methods
     @transaction.broadcast_replace_to(
       @account.user,
-      target: "expenses_card",
+      target: "dashboard-expenses-card",
       partial: "shared/bento_cards/transaction_type_card",
       locals: {
         type: "expense",
         expense_total: expense_total,
         expense_count: expense_count,
         current_date: current_date,
-        top_expense_merchants: []
+        top_expense_merchants: top_expense_merchants
       }
     )
 
     @transaction.broadcast_replace_to(
       @account.user,
-      target: "income_card",
+      target: "dashboard-income-card",
       partial: "shared/bento_cards/transaction_type_card",
       locals: {
         type: "income",
         income_total: income_total,
         income_count: income_count,
         current_date: current_date,
-        top_income_merchants: []
+        top_income_merchants: top_income_merchants
       }
     )
 
     @transaction.broadcast_replace_to(
       @account.user,
-      target: "projection_card",
+      target: "dashboard-projection-card",
       partial: "dashboard/projection_card",
       locals: {
         income_total: income_total,
