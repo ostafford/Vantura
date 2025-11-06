@@ -1,9 +1,19 @@
 class ProjectExpense < ApplicationRecord
+  include Turbo::Broadcastable
+
   belongs_to :project
   has_many :expense_contributions, dependent: :destroy
 
   validates :merchant, presence: true
   validates :total_cents, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  # Temporary storage for contributor IDs from controller params
+  attr_accessor :contributor_user_ids
+
+  # Callbacks
+  after_save :rebuild_contributions_automatically
+  after_create_commit :broadcast_projects_index_update
+  after_destroy_commit :broadcast_projects_index_update
 
   # Helper to recompute equal split across participants
   def rebuild_contributions!
@@ -47,5 +57,19 @@ class ProjectExpense < ApplicationRecord
       end
       expense_contributions.create!(user: participant, share_cents: share, paid: false, paid_at: nil)
     end
+  end
+
+  private
+
+  # Automatically rebuild contributions when expense is created or updated
+  def rebuild_contributions_automatically
+    # Use contributor_user_ids if provided, otherwise default to all participants
+    contributor_ids = contributor_user_ids.presence || project.participants.pluck(:id)
+    rebuild_contributions_for_participants!(contributor_ids)
+  end
+
+  # Broadcast projects index updates after expense changes
+  def broadcast_projects_index_update
+    ProjectExpenseBroadcastService.call(self)
   end
 end

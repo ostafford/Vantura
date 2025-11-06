@@ -10,10 +10,15 @@ class ProjectExpensesController < ApplicationController
 
   def create
     @expense = @project.project_expenses.new(expense_params)
+    @expense.contributor_user_ids = params[:contributor_user_ids]
+
     if @expense.save
-      contributor_ids = params[:contributor_user_ids].presence || @project.participants.pluck(:id)
-      @expense.rebuild_contributions_for_participants!(contributor_ids) && assign_projects_index_stats
-      respond_to { |format| format.turbo_stream { redirect_to project_path(@project), status: :see_other if should_redirect_to_project? }; format.html { redirect_to project_path(@project), notice: "Expense added" } }
+      respond_to do |format|
+        format.turbo_stream do
+          redirect_to project_path(@project), status: :see_other if should_redirect_to_project?
+        end
+        format.html { redirect_to project_path(@project), notice: "Expense added" }
+      end
     else
       render :new, status: :unprocessable_entity
     end
@@ -23,10 +28,13 @@ class ProjectExpensesController < ApplicationController
   end
 
   def update
+    @expense.contributor_user_ids = params[:contributor_user_ids]
+
     if @expense.update(expense_params)
-      contributor_ids = params[:contributor_user_ids].presence || @project.participants.pluck(:id)
-      @expense.rebuild_contributions_for_participants!(contributor_ids)
-      respond_to { |format| format.turbo_stream { redirect_to project_path(@project), notice: "Expense updated successfully!" }; format.html { redirect_to project_path(@project), notice: "Expense updated" } }
+      respond_to do |format|
+        format.turbo_stream { redirect_to project_path(@project), notice: "Expense updated successfully!" }
+        format.html { redirect_to project_path(@project), notice: "Expense updated" }
+      end
     else
       render :edit, status: :unprocessable_entity
     end
@@ -34,8 +42,13 @@ class ProjectExpensesController < ApplicationController
 
   def destroy
     @expense.destroy
-    assign_projects_index_stats
-    respond_to { |format| format.turbo_stream { redirect_to project_path(@project), status: :see_other if should_redirect_to_project? }; format.html { redirect_to project_path(@project), notice: "Expense deleted" } }
+
+    respond_to do |format|
+      format.turbo_stream do
+        redirect_to project_path(@project), status: :see_other if should_redirect_to_project?
+      end
+      format.html { redirect_to project_path(@project), notice: "Expense deleted" }
+    end
   end
 
   def templates
@@ -105,10 +118,5 @@ class ProjectExpensesController < ApplicationController
 
     def should_redirect_to_project?
       referer_path != projects_path && referer_path != "/projects"
-    end
-
-    def assign_projects_index_stats
-      stats = ProjectsIndexStatisticsService.call(Current.user)
-      @projects, @total_projects, @total_expenses_cents, @total_expenses, @total_participants, @active_projects, @largest_expense, @most_active_project = stats.values_at(:projects, :total_projects, :total_expenses_cents, :total_expenses, :total_participants, :active_projects, :largest_expense, :most_active_project)
     end
 end

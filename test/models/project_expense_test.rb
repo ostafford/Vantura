@@ -179,4 +179,71 @@ class ProjectExpenseTest < ActiveSupport::TestCase
 
     assert_equal 0, expense.expense_contributions.count
   end
+
+  # Callback tests
+  test "after_save callback automatically rebuilds contributions on create" do
+    expense = @project.project_expenses.create!(
+      merchant: "Test Merchant",
+      total_cents: 100,
+      due_on: Date.today
+    )
+
+    # Contributions should be automatically created by callback
+    assert_equal 2, expense.expense_contributions.count
+    assert_equal 100, expense.expense_contributions.sum(&:share_cents)
+  end
+
+  test "after_save callback automatically rebuilds contributions on update" do
+    expense = @project.project_expenses.create!(
+      merchant: "Test Merchant",
+      total_cents: 100,
+      due_on: Date.today
+    )
+
+    # Update total_cents
+    expense.update!(total_cents: 200)
+
+    # Contributions should be automatically rebuilt
+    assert_equal 2, expense.expense_contributions.count
+    assert_equal 200, expense.expense_contributions.sum(&:share_cents)
+  end
+
+  test "after_save callback uses contributor_user_ids when provided" do
+    expense = @project.project_expenses.new(
+      merchant: "Test Merchant",
+      total_cents: 100,
+      due_on: Date.today
+    )
+    expense.contributor_user_ids = [ @owner.id ]
+
+    expense.save!
+
+    # Should only create contribution for owner
+    assert_equal 1, expense.expense_contributions.count
+    assert_equal @owner.id, expense.expense_contributions.first.user_id
+    assert_equal 100, expense.expense_contributions.first.share_cents
+  end
+
+  test "after_save callback defaults to all participants when contributor_user_ids not set" do
+    expense = @project.project_expenses.create!(
+      merchant: "Test Merchant",
+      total_cents: 100,
+      due_on: Date.today
+    )
+
+    # Should create contributions for all participants (owner + member)
+    assert_equal 2, expense.expense_contributions.count
+    participant_ids = expense.expense_contributions.pluck(:user_id)
+    assert_includes participant_ids, @owner.id
+    assert_includes participant_ids, @member.id
+  end
+
+  test "includes Turbo::Broadcastable" do
+    expense = @project.project_expenses.new(
+      merchant: "Test Merchant",
+      total_cents: 100,
+      due_on: Date.today
+    )
+    assert_includes expense.class.included_modules, Turbo::Broadcastable
+  end
 end

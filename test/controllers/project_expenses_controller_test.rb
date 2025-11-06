@@ -100,7 +100,7 @@ class ProjectExpensesControllerTest < ActionDispatch::IntegrationTest
     assert json_response.any?
   end
 
-  test "rebuilds contributions on create" do
+  test "rebuilds contributions on create via callback" do
     other_user = users(:two)
     @project.project_memberships.create!(user: other_user)
 
@@ -114,7 +114,25 @@ class ProjectExpensesControllerTest < ActionDispatch::IntegrationTest
     }
 
     expense = ProjectExpense.last
+    # Contributions should be automatically rebuilt by callback
     assert_equal 2, expense.expense_contributions.count
+  end
+
+  test "rebuilds contributions on update via callback" do
+    other_user = users(:two)
+    @project.project_memberships.create!(user: other_user)
+
+    patch expense_url(@expense), params: {
+      project_expense: {
+        total_dollars: "200.00"
+      },
+      contributor_user_ids: [ @user.id, other_user.id ]
+    }
+
+    @expense.reload
+    # Contributions should be automatically rebuilt by callback
+    assert_equal 2, @expense.expense_contributions.count
+    assert_equal 20000, @expense.expense_contributions.sum(&:share_cents)
   end
 
   test "requires project membership to view" do
@@ -142,16 +160,30 @@ class ProjectExpensesControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "uses ProjectsIndexStatisticsService after create" do
-    post project_expenses_url(project_id: @project.id), params: {
-      project_expense: {
-        merchant: "Merchant",
-        total_dollars: "50.00",
-        due_on: Date.today
+  test "broadcasts updates after create via callback" do
+    # The broadcast is triggered by model callback, not controller
+    # We verify the expense is created successfully, which triggers the callback
+    assert_difference("ProjectExpense.count", 1) do
+      post project_expenses_url(project_id: @project.id), params: {
+        project_expense: {
+          merchant: "Merchant",
+          total_dollars: "50.00",
+          due_on: Date.today
+        }
       }
-    }
+    end
 
     assert_response :redirect
-    # Service should be called (indirectly verified through redirect)
+    # Broadcast is handled by model callback (after_create_commit)
+  end
+
+  test "broadcasts updates after destroy via callback" do
+    # The broadcast is triggered by model callback, not controller
+    assert_difference("ProjectExpense.count", -1) do
+      delete expense_url(@expense)
+    end
+
+    assert_response :redirect
+    # Broadcast is handled by model callback (after_destroy_commit)
   end
 end

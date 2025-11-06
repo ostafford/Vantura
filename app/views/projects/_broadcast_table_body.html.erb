@@ -1,0 +1,31 @@
+<tbody id="projects-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+  <% if projects.any? %>
+    <% projects.each do |project| %>
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <%= link_to project.name, project_path(project), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 font-medium" %>
+        </td>
+        <td class="px-6 py-4">
+          <div class="text-sm text-gray-900 dark:text-gray-100">
+            <%= (project.participants.map { |u| user_display_name(u) }).join(", ") %>
+          </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          <%= link_to "View", project_path(project), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300" %>
+        </td>
+      </tr>
+    <% end %>
+  <% else %>
+    <tr>
+      <td colspan="3" class="px-6 py-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No projects</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating your first project.</p>
+        <%= link_to "New Project", new_project_path, class: "mt-4 inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg font-medium transition-colors" %>
+      </td>
+    </tr>
+  <% end %>
+</tbody>
+

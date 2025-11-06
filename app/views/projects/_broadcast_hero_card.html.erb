@@ -1,0 +1,39 @@
+<div id="projects-hero-card">
+  <%= render 'shared/bento_cards/hero_card',
+      title: "Projects Hub",
+      subtitle: subtitle,
+      description: "Track and manage shared expense projects. Collaborate with team members, split costs equally, and monitor project spending across all your active projects.",
+      icon: 'chart',
+      size: 'bento-span-2 bento-row-span-2',
+      color: 'primary' do %>
+    <div class="mt-6 space-y-4">
+      <% if total_projects > 0 %>
+        <div class="flex items-center justify-between pb-3 border-b border-white/20">
+          <span class="text-white/80 text-sm">Total Projects</span>
+          <span class="text-2xl font-bold text-white"><%= total_projects %></span>
+        </div>
+        <div class="flex items-center justify-between pb-3 border-b border-white/20">
+          <span class="text-white/80 text-sm">Active Projects</span>
+          <span class="text-xl font-semibold text-white"><%= active_projects %></span>
+        </div>
+        <% if largest_expense_formatted %>
+          <div class="flex items-center justify-between pb-3 border-b border-white/20">
+            <span class="text-white/80 text-sm">Largest Expense</span>
+            <span class="text-xl font-semibold text-white"><%= largest_expense_formatted %></span>
+          </div>
+        <% end %>
+        <% if most_active_project %>
+          <div class="flex items-center justify-between">
+            <span class="text-white/80 text-sm">Most Active</span>
+            <span class="text-lg font-semibold text-white truncate ml-2"><%= most_active_project.name %></span>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center py-4">
+          <p class="text-white/80 text-sm">Get started by creating your first project</p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
