@@ -584,6 +584,7 @@ class RecurringTransactionTest < ActiveSupport::TestCase
     assert @recurring.valid?
 
     @recurring.tolerance_type = "percentage"
+    @recurring.tolerance_percentage = 5.0
     assert @recurring.valid?
   end
 end

@@ -9,7 +9,7 @@ class ExpenseContributionTest < ActiveSupport::TestCase
       total_cents: 10000,
       due_on: Date.today
     )
-    @contribution = @expense.expense_contributions.create!(
+    @contribution = @expense.expense_contributions.first || @expense.expense_contributions.create!(
       user: @user,
       share_cents: 5000,
       paid: false

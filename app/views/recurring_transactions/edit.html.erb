@@ -56,13 +56,17 @@
 
     <div>
       <%= form.label :recurring_category, "Recurring Category (optional)", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <% 
+        # Build category options, ensuring "other" only appears once
+        category_options = [["None", ""]] + 
+          @recurring.available_categories.map { |cat| [cat.humanize, cat] }
+        # Only add "Other" if it's not already in the list
+        unless @recurring.available_categories.include?('other')
+          category_options << ["Other", "other"]
+        end
+      %>
       <%= form.select :recurring_category, 
-          options_for_select(
-            [["None", ""]] + 
-            @recurring.available_categories.map { |cat| [cat.humanize, cat] } +
-            [["Other...", "other"]],
-            @recurring.recurring_category
-          ),
+          options_for_select(category_options, @recurring.recurring_category),
           {},
           { 
             id: "edit-recurring-category-select",

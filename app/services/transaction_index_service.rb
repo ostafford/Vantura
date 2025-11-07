@@ -79,11 +79,27 @@ class TransactionIndexService < ApplicationService
   end
 
   def start_date
-    @start_date ||= date.beginning_of_month
+    @start_date ||= begin
+      if @date_params[:start_date].present?
+        Date.parse(@date_params[:start_date])
+      else
+        date.beginning_of_month
+      end
+    rescue ArgumentError
+      date.beginning_of_month
+    end
   end
 
   def end_date
-    @end_date ||= date.end_of_month
+    @end_date ||= begin
+      if @date_params[:end_date].present?
+        Date.parse(@date_params[:end_date])
+      else
+        date.end_of_month
+      end
+    rescue ArgumentError
+      date.end_of_month
+    end
   end
 
   def filtered_transactions
@@ -100,10 +116,16 @@ class TransactionIndexService < ApplicationService
   end
 
   def transactions
-    @transactions ||= filtered_transactions
-                       .where(transaction_date: start_date..end_date)
-                       .includes(:recurring_transaction)
-                       .order(transaction_date: :desc)
+    @transactions ||= begin
+      base = filtered_transactions.includes(:recurring_transaction)
+      
+      # Use in_date_range scope if date range is provided, otherwise use month range
+      if @date_params[:start_date].present? && @date_params[:end_date].present?
+        base.in_date_range(start_date, end_date).order(transaction_date: :desc)
+      else
+        base.where(transaction_date: start_date..end_date).order(transaction_date: :desc)
+      end
+    end
   end
 
   def stats

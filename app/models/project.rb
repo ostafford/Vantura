@@ -8,8 +8,11 @@ class Project < ApplicationRecord
 
   validates :name, presence: true
 
-  # Returns unique list of participants (owner + members)
+  # Returns unique list of participants (owner + members) as an ActiveRecord relation
   def participants
-    (members + [ owner ]).uniq
+    User
+      .where(id: owner_id)
+      .or(User.where(id: project_memberships.select(:user_id)))
+      .distinct
   end
 end

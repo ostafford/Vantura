@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="recurring-modal"
 export default class extends Controller {
-  static targets = ["modal", "form", "description", "amount", "transactionId", "nextOccurrenceDate", "frequencySelect", "drawer", "content", "categorySelect"]
+  static targets = ["modal", "form", "description", "amount", "transactionId", "nextOccurrenceDate", "frequencySelect", "drawer", "content", "categorySelect", "categoryFrame"]
   
   currentTransactionId = null
   currentTransactionDate = null
@@ -30,8 +30,31 @@ export default class extends Controller {
     this.amountTarget.textContent = formattedAmount
     this.amountTarget.className = 'font-semibold ' + amountColor
     
-    // Populate category options based on transaction type
-    this.populateCategories(amount > 0 ? 'income' : 'expense')
+    // Load categories via Turbo Frame lazy-loading
+    if (this.hasCategoryFrameTarget) {
+      const url = `/recurring_transactions/available_categories?transaction_id=${this.currentTransactionId}`
+      
+      // Set src attribute directly - Turbo Frame will automatically load when src is set
+      this.categoryFrameTarget.src = url
+      
+      // Smart defaults for income transactions - wait for frame to load
+      if (amount > 0) {
+        const handleCategoryLoad = (event) => {
+          // Only handle if this is our frame
+          if (event.target === this.categoryFrameTarget) {
+            // Pre-select "salary" category for income
+            if (this.hasCategorySelectTarget) {
+              const salaryOption = this.categorySelectTarget.querySelector('option[value="salary"]')
+              if (salaryOption) {
+                this.categorySelectTarget.value = 'salary'
+              }
+            }
+            this.categoryFrameTarget.removeEventListener('turbo:frame-load', handleCategoryLoad)
+          }
+        }
+        this.categoryFrameTarget.addEventListener('turbo:frame-load', handleCategoryLoad)
+      }
+    }
     
     // Smart defaults for income transactions
     if (amount > 0) {
@@ -39,11 +62,6 @@ export default class extends Controller {
       if (this.frequencySelectTarget && !this.frequencySelectTarget.value) {
         this.frequencySelectTarget.value = 'monthly'
         this.updateNextOccurrenceDate({ target: this.frequencySelectTarget })
-      }
-      
-      // Pre-select "salary" category for income
-      if (this.hasCategorySelectTarget && !this.categorySelectTarget.value) {
-        this.categorySelectTarget.value = 'salary'
       }
     }
     
@@ -90,6 +108,10 @@ export default class extends Controller {
         if (this.hasFormTarget) {
           this.formTarget.reset()
         }
+        // Reset category frame for next open
+        if (this.hasCategoryFrameTarget) {
+          this.categoryFrameTarget.src = ''
+        }
         this.currentTransactionId = null
         this.currentTransactionDate = null
       }, 300)
@@ -98,6 +120,10 @@ export default class extends Controller {
       this.modalTarget.classList.remove('flex')
       if (this.hasFormTarget) {
         this.formTarget.reset()
+      }
+      // Reset category frame for next open
+      if (this.hasCategoryFrameTarget) {
+        this.categoryFrameTarget.src = ''
       }
       this.currentTransactionId = null
       this.currentTransactionDate = null
@@ -212,40 +238,6 @@ export default class extends Controller {
     }
   }
 
-  // Populate category options based on transaction type
-  populateCategories(transactionType) {
-    if (!this.hasCategorySelectTarget) return
-    
-    const select = this.categorySelectTarget
-    const currentValue = select.value
-    
-    // Clear existing options (except "None")
-    while (select.options.length > 1) {
-      select.remove(1)
-    }
-    
-    // Get predefined categories
-    const predefined = transactionType === 'income' ? this.PREDEFINED_INCOME : this.PREDEFINED_EXPENSE
-    
-    // Add predefined options
-    predefined.forEach(category => {
-      const option = document.createElement('option')
-      option.value = category
-      option.textContent = category.charAt(0).toUpperCase() + category.slice(1)
-      select.appendChild(option)
-    })
-    
-    // TODO: Fetch custom categories from account via AJAX if needed
-    // For now, we'll rely on the server to handle custom categories
-    
-    // Restore previous value if it still exists
-    if (currentValue) {
-      const option = Array.from(select.options).find(opt => opt.value === currentValue)
-      if (option) {
-        select.value = currentValue
-      }
-    }
-  }
 
   // Toggle custom category input when "other" is selected
   toggleCustomCategory(event) {

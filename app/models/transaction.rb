@@ -30,19 +30,41 @@ class Transaction < ApplicationRecord
 
   # Filtering scopes
   scope :in_date_range, ->(start_date, end_date) {
-    where(transaction_date: start_date..end_date) if start_date.present? && end_date.present?
+    if start_date.present? && end_date.present?
+      where(transaction_date: start_date..end_date)
+    else
+      all
+    end
   }
 
   scope :by_categories, ->(categories) {
-    where(category: categories) if categories.present? && categories.any?
+    normalized = Array.wrap(categories).compact_blank
+
+    if normalized.any?
+      where(category: normalized)
+    else
+      all
+    end
   }
 
   scope :by_merchants, ->(merchants) {
-    where(merchant: merchants) if merchants.present? && merchants.any?
+    normalized = Array.wrap(merchants).compact_blank
+
+    if normalized.any?
+      where(merchant: normalized)
+    else
+      all
+    end
   }
 
   scope :by_statuses, ->(statuses) {
-    where(status: statuses) if statuses.present? && statuses.any?
+    normalized = Array.wrap(statuses).compact_blank
+
+    if normalized.any?
+      where(status: normalized)
+    else
+      all
+    end
   }
 
   scope :by_recurring, ->(recurring_value) {
@@ -82,7 +104,7 @@ class Transaction < ApplicationRecord
     # Check velocity asynchronously when real expense transactions are created
     # Only check once per day per account to avoid excessive job runs
     return if is_hypothetical || amount >= 0 # Only for real expenses
-    
+
     cache_key = "velocity_check_#{account_id}_#{Date.today}"
     unless Rails.cache.exist?(cache_key)
       VelocityCheckJob.perform_later(account_id)

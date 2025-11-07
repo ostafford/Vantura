@@ -7,7 +7,7 @@ class TransactionsController < ApplicationController
   before_action :set_transaction, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @transactions_data = TransactionIndexService.call(@account, params[:filter] || "all", params.slice(:year, :month))
+    @transactions_data = TransactionIndexService.call(@account, params[:filter] || "all", params.slice(:year, :month, :start_date, :end_date))
     respond_to { |format| format.html; format.turbo_stream }
   end
 

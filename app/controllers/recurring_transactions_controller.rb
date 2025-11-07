@@ -2,7 +2,7 @@ class RecurringTransactionsController < ApplicationController
   include AccountLoadable
 
   before_action :authorize_account_ownership!, only: [ :index ]
-  before_action :load_account, except: [ :create, :suggest_frequency ]
+  before_action :load_account, except: [ :create, :suggest_frequency, :available_categories ]
   before_action :set_recurring_transaction, only: [ :edit, :update, :destroy, :toggle_active ]
 
   def index
@@ -117,6 +117,31 @@ class RecurringTransactionsController < ApplicationController
     result = RecurringTransactions::FrequencyDetectionService.call(@account, @transaction)
 
     render json: result
+  end
+
+  def available_categories
+    # Get transaction type from either transaction_id or direct param
+    if params[:transaction_id].present?
+      @transaction = Transaction.find(params[:transaction_id])
+      @account = @transaction.account
+      transaction_type = @transaction.transaction_type
+    elsif params[:transaction_type].present?
+      # For cases where we only have the type (e.g., from JavaScript)
+      transaction_type = params[:transaction_type]
+      # Need account - try to get from Current.user's default account or require account_id
+      @account = Current.user&.accounts&.first
+      return head :bad_request unless @account
+    else
+      return head :bad_request
+    end
+
+    # Get available categories (predefined + custom)
+    predefined = RecurringCategory.predefined_for_type(transaction_type)
+    custom = @account.recurring_categories.for_transaction_type(transaction_type).pluck(:name)
+    @categories = (predefined + custom).uniq.sort_by(&:downcase)
+    @transaction_type = transaction_type
+
+    render partial: "recurring_transactions/category_options"
   end
 
   def destroy

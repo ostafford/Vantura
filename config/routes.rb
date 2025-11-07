@@ -64,6 +64,7 @@ Rails.application.routes.draw do
   resources :recurring_transactions, only: [ :index, :create, :edit, :update, :destroy ] do
     collection do
       get :suggest_frequency
+      get :available_categories
     end
     member do
       post :toggle_active

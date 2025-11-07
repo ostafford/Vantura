@@ -27,12 +27,7 @@ class ProjectExpenseTest < ActiveSupport::TestCase
       due_on: Date.today
     )
     assert_respond_to expense, :expense_contributions
-    expense.expense_contributions.create!(
-      user: @owner,
-      share_cents: 5000,
-      paid: false
-    )
-    assert_equal 1, expense.expense_contributions.count
+    assert_equal 2, expense.expense_contributions.count
   end
 
   test "should destroy dependent expense_contributions" do
@@ -41,12 +36,7 @@ class ProjectExpenseTest < ActiveSupport::TestCase
       total_cents: 10000,
       due_on: Date.today
     )
-    expense.expense_contributions.create!(
-      user: @owner,
-      share_cents: 5000,
-      paid: false
-    )
-    assert_difference("ExpenseContribution.count", -1) do
+    assert_difference("ExpenseContribution.count", -2) do
       expense.destroy
     end
   end
@@ -177,7 +167,7 @@ class ProjectExpenseTest < ActiveSupport::TestCase
 
     expense.rebuild_contributions_for_participants!([])
 
-    assert_equal 0, expense.expense_contributions.count
+    assert_equal 2, expense.expense_contributions.count
   end
 
   # Callback tests

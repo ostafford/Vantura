@@ -13,6 +13,10 @@ class RecurringTransaction < ApplicationRecord
   validates :is_active, inclusion: { in: [ true, false ] }
   validates :date_tolerance_days, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 14 }
   validates :tolerance_type, presence: true, inclusion: { in: %w[fixed percentage] }
+  with_options if: -> { tolerance_type == "percentage" } do
+    validates :tolerance_percentage, presence: true
+    validates :tolerance_percentage, numericality: { greater_than: 0, less_than_or_equal_to: 100 }
+  end
   validate :recurring_category_matches_transaction_type
 
   # Enums
@@ -63,7 +67,7 @@ class RecurringTransaction < ApplicationRecord
 
     # Category matching is optional - increases confidence but not required
     # Merchant pattern is primary matching criteria
-    category_match = category.present? && self.category.present? && category == self.category
+    _category_match = category.present? && self.category.present? && category == self.category
 
     description_match && amount_match
   end
@@ -87,7 +91,7 @@ class RecurringTransaction < ApplicationRecord
       desc_words.any? do |desc_word|
         distance = levenshtein_distance(pattern_word, desc_word)
         # Allow up to 2 character differences, or 20% of length (whichever is smaller)
-        max_distance = [2, (pattern_word.length * 0.2).ceil].min
+        max_distance = [ 2, (pattern_word.length * 0.2).ceil ].min
         distance <= max_distance
       end
     end
