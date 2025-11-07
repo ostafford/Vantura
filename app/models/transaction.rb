@@ -60,6 +60,7 @@ class Transaction < ApplicationRecord
   after_create_commit :broadcast_dashboard_update
   after_update_commit :broadcast_dashboard_update
   after_destroy_commit :broadcast_dashboard_update
+  after_create_commit :check_velocity, if: -> { !is_hypothetical && amount < 0 }
 
   # Public methods
   def recurring?
@@ -75,5 +76,17 @@ class Transaction < ApplicationRecord
 
   def broadcast_dashboard_update
     TransactionBroadcastService.call(self)
+  end
+
+  def check_velocity
+    # Check velocity asynchronously when real expense transactions are created
+    # Only check once per day per account to avoid excessive job runs
+    return if is_hypothetical || amount >= 0 # Only for real expenses
+    
+    cache_key = "velocity_check_#{account_id}_#{Date.today}"
+    unless Rails.cache.exist?(cache_key)
+      VelocityCheckJob.perform_later(account_id)
+      Rails.cache.write(cache_key, true, expires_in: 1.day)
+    end
   end
 end

@@ -20,19 +20,19 @@
           <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep p-4">
             <div class="flex items-center justify-between">
               <!-- Month Navigation -->
-              <div id="transactions-month-navigation" class="flex gap-3" data-controller="transactions-nav">
-                <%= link_to transactions_path(year: @date.prev_month.year, month: @date.prev_month.month, filter: @filter_type),
+              <div id="transactions-month-navigation" class="flex gap-3">
+                <%= link_to transactions_path(year: @transactions_data[:date].prev_month.year, month: @transactions_data[:date].prev_month.month, filter: @transactions_data[:filter_type]),
                             class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                            data: { action: 'click->transactions-nav#navigate' } do %>
+                            data: { turbo_frame: "transactions_content" } do %>
                   <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                   </svg>
                   Previous
                 <% end %>
 
-                <%= link_to transactions_path(year: @date.next_month.year, month: @date.next_month.month, filter: @filter_type),
+                <%= link_to transactions_path(year: @transactions_data[:date].next_month.year, month: @transactions_data[:date].next_month.month, filter: @transactions_data[:filter_type]),
                             class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                            data: { action: 'click->transactions-nav#navigate' } do %>
+                            data: { turbo_frame: "transactions_content" } do %>
                   Next
                   <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -42,7 +42,7 @@
 
               <!-- Month Display -->
               <h2 id="transactions-current-month-heading" class="text-2xl font-bold text-gray-900 dark:text-white">
-                <%= @date.strftime("%B %Y") %>
+                <%= @transactions_data[:date].strftime("%B %Y") %>
               </h2>
 
               <!-- Filter Dropdown -->
@@ -50,13 +50,13 @@
                 <label for="transaction-filter-select" class="sr-only">Filter transactions</label>
                 <select id="transaction-filter-select" name="filter" 
                         data-action="change->filter#change"
-                        data-filter-url-value="<%= transactions_path(year: @year, month: @month) %>"
+                        data-filter-url-value="<%= transactions_path(year: @transactions_data[:year], month: @transactions_data[:month]) %>"
                         data-filter-turbo-frame-value="transactions_content"
                         class="block px-4 py-2 pr-10 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
-                  <option value="all" <%= 'selected' if @filter_type == 'all' %>>All Transactions</option>
-                  <option value="expenses" <%= 'selected' if @filter_type == 'expenses' %>>Expenses Only</option>
-                  <option value="income" <%= 'selected' if @filter_type == 'income' %>>Income Only</option>
-                  <option value="hypothetical" <%= 'selected' if @filter_type == 'hypothetical' %>>Hypothetical Only</option>
+                  <option value="all" <%= 'selected' if @transactions_data[:filter_type] == 'all' %>>All Transactions</option>
+                  <option value="expenses" <%= 'selected' if @transactions_data[:filter_type] == 'expenses' %>>Expenses Only</option>
+                  <option value="income" <%= 'selected' if @transactions_data[:filter_type] == 'income' %>>Income Only</option>
+                  <option value="hypothetical" <%= 'selected' if @transactions_data[:filter_type] == 'hypothetical' %>>Hypothetical Only</option>
                 </select>
               </div>
             </div>
@@ -67,8 +67,8 @@
         <div class="mb-4" data-controller="autocomplete" 
              data-autocomplete-url-value="<%= search_transactions_path %>"
              data-autocomplete-min-length-value="3"
-             data-autocomplete-month-value="<%= @month %>"
-             data-autocomplete-year-value="<%= @year %>">
+             data-autocomplete-month-value="<%= @transactions_data[:month] %>"
+             data-autocomplete-year-value="<%= @transactions_data[:year] %>">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +96,7 @@
         <section class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep" aria-label="Transaction list">
           <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-              <%= case @filter_type
+              <%= case @transactions_data[:filter_type]
                   when "expenses" then "Expense Transactions"
                   when "income" then "Income Transactions"
                   when "hypothetical" then "Hypothetical Transactions"
@@ -119,12 +119,12 @@
                 </tr>
               </thead>
               <tbody id="transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                <%= render partial: "transactions/table_body", locals: { transactions: @transactions } %>
+                <%= render partial: "transactions/table_body", locals: { transactions: @transactions_data[:transactions] } %>
               </tbody>
             </table>
           </div>
 
-          <% if @transactions.empty? %>
+          <% if @transactions_data[:transactions].empty? %>
             <div class="px-6 py-12 text-center">
               <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

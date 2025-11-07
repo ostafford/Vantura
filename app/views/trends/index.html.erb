@@ -6,13 +6,118 @@
 
   <%= content_wrapper class: "py-6" do %>
     <% if @account %>
+      <!-- Time Range Selector and View Type Toggle -->
+      <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <!-- Time Range Selector -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Time Range:</span>
+          <% [3, 6, 12, "all"].each do |months| %>
+            <% active = (session[:trends_months] || 6).to_s == months.to_s %>
+            <%= link_to trends_path(months: months),
+                        class: "px-4 py-2 text-sm font-medium rounded-lg transition-colors #{active ? 'bg-primary-700 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}" do %>
+              <%= months == "all" ? "All" : "#{months}M" %>
+            <% end %>
+          <% end %>
+        </div>
+
+        <!-- View Type Toggle -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">View by:</span>
+          <% ["category", "merchant"].each do |view_type| %>
+            <% active = (session[:trends_view_type] || "category") == view_type %>
+            <%= button_to update_preference_trends_path,
+                          method: :patch,
+                          params: { view_type: view_type },
+                          class: "px-4 py-2 text-sm font-medium rounded-lg transition-colors #{active ? 'bg-primary-700 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}" do %>
+              <%= view_type.capitalize %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Insights Panel -->
+      <% if @trends_stats&.dig(:insights)&.present? %>
+        <section class="mb-6" aria-label="Financial insights">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Actionable Insights</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% @trends_stats[:insights].each do |insight| %>
+              <%= render 'shared/insight_card', insight: insight %>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+
+      <!-- Charts Section -->
+      <% if trends_historical_data.present? %>
+        <section class="mb-6" aria-label="Financial trends charts">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Trends & Visualizations</h2>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Spending Trends Chart (Line Chart) -->
+            <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+              <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Spending Trends</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Income vs Expenses over time</p>
+              </div>
+              <div data-controller="chart"
+                   data-chart-type-value="line"
+                   data-chart-series-value="<%= [
+                     { name: 'Income', data: trends_historical_data.map { |d| d[:income] } },
+                     { name: 'Expenses', data: trends_historical_data.map { |d| d[:expenses] } },
+                     { name: 'Net Savings', data: trends_historical_data.map { |d| d[:net_savings] } }
+                   ].to_json %>"
+                   data-chart-labels-value="<%= trends_historical_data.map { |d| d[:month_name] }.to_json %>"
+                   data-chart-colors-value="<%= ['#10B981', '#EF4444', '#3B82F6'].to_json %>"
+                   data-chart-height-value="300"
+                   id="spending-trends-chart">
+              </div>
+            </div>
+
+            <!-- Category/Merchant Breakdown Chart (Donut Chart) -->
+            <% if trends_category_breakdown.present? %>
+              <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+                <div class="mb-4">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top <%= (session[:trends_view_type] || "category").capitalize %> Breakdown</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Distribution of spending</p>
+                </div>
+                <div data-controller="chart"
+                     data-chart-type-value="donut"
+                     data-chart-series-value="<%= trends_category_breakdown.map { |item| item[:amount] }.to_json %>"
+                     data-chart-labels-value="<%= trends_category_breakdown.map { |item| item[:name] }.to_json %>"
+                     data-chart-colors-value="<%= ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6B7280'].to_json %>"
+                     data-chart-height-value="300"
+                     id="category-breakdown-chart">
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Savings Rate Trend Chart (Line Chart) -->
+          <% if trends_savings_rate_trend.present? %>
+            <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+              <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Savings Rate Trend</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Percentage of income saved over time</p>
+              </div>
+              <div data-controller="chart"
+                   data-chart-type-value="line"
+                   data-chart-series-value="<%= [{ name: 'Savings Rate', data: trends_savings_rate_trend.map { |d| d[:savings_rate] } }].to_json %>"
+                   data-chart-labels-value="<%= trends_savings_rate_trend.map { |d| d[:month_name] }.to_json %>"
+                   data-chart-colors-value="<%= ['#10B981'].to_json %>"
+                   data-chart-height-value="300"
+                   id="savings-rate-chart">
+              </div>
+            </div>
+          <% end %>
+        </section>
+      <% end %>
+
       <!-- Bento Grid Layout -->
       <div class="bento-grid mb-6">
         
         <!-- 1. Key Insights Hub (2x2 Hero Card) -->
         <%= render 'shared/bento_cards/hero_card',
             title: "Financial Insights",
-            subtitle: "#{@current_date.strftime('%B %Y')}",
+            subtitle: "#{trends_current_date.strftime('%B %Y')}",
             description: "Track your financial trends, compare month-over-month changes, and gain insights into your spending patterns.",
             icon: 'chart',
             size: 'bento-span-2 bento-row-span-2',
@@ -21,29 +126,29 @@
             <div class="flex items-center justify-between pb-3 border-b border-white/20">
               <span class="text-white/80 text-sm">Net Savings</span>
               <%# White for positive, expense color for negative - both have good contrast on sage green background %>
-              <span class="text-2xl font-bold <%= @net_savings >= 0 ? 'text-white' : 'text-expense-400 dark:text-expense-200 drop-shadow-md' %>">
-                <%= @net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(@net_savings.abs, precision: 2) %>
+              <span class="text-2xl font-bold <%= trends_net_savings >= 0 ? 'text-white' : 'text-expense-400 dark:text-expense-200 drop-shadow-md' %>">
+                <%= trends_net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(trends_net_savings.abs, precision: 2) %>
               </span>
             </div>
             <div class="flex items-center justify-between pb-3 border-b border-white/20">
               <span class="text-white/80 text-sm">Active Recurring</span>
-              <span class="text-xl font-semibold text-white"><%= @active_recurring_count %> patterns</span>
+              <span class="text-xl font-semibold text-white"><%= trends_active_recurring_count %> patterns</span>
             </div>
           </div>
         <% end %>
 
         <!-- 2. Net Savings Card (1x1) -->
         <%
-          savings_positive = @net_savings >= 0
+          savings_positive = trends_net_savings >= 0
           savings_color = savings_positive ? 'green' : 'red'  # Green for positive, Red for negative
           savings_icon = savings_positive ? 'arrow-up' : 'arrow-down'
           savings_subtitle = savings_positive ? "Surplus" : "Deficit"
         %>
         <%= render 'shared/bento_cards/stat_card',
             title: "Net Savings",
-            value: "#{savings_positive ? '+' : '-'}$#{number_with_precision(@net_savings.abs, precision: 2)}",
+            value: "#{savings_positive ? '+' : '-'}$#{number_with_precision(trends_net_savings.abs, precision: 2)}",
             subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{savings_subtitle}</span>".html_safe,
-            detail: "#{@current_date.strftime('%B %Y')}",
+            detail: "#{trends_current_date.strftime('%B %Y')}",
             icon: savings_icon,
             color: savings_color,  # Stat card uses red/green correctly
             size: 'bento-span-1 bento-row-span-1',
@@ -52,8 +157,8 @@
         <!-- 3. Active Recurring Card (1x1) - Clickable -->
         <%= render 'shared/bento_cards/stat_card',
             title: "Active Recurring",
-            value: @active_recurring_count.to_s,
-            subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@active_recurring_count == 1 ? 'pattern' : 'patterns'}</span>".html_safe,
+            value: trends_active_recurring_count.to_s,
+            subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{trends_active_recurring_count == 1 ? 'pattern' : 'patterns'}</span>".html_safe,
             detail: "Click to manage",
             icon: 'refresh',
             color: 'blue',
@@ -67,7 +172,7 @@
             <div class="mb-3">
               <h3 class="text-base font-semibold text-gray-900 dark:text-white">Month Comparison</h3>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                <%= @current_date.strftime('%b') %> vs <%= @current_date.prev_month.strftime('%b') %>
+                <%= trends_current_date.strftime('%b') %> vs <%= trends_current_date.prev_month.strftime('%b') %>
               </p>
             </div>
 
@@ -81,11 +186,11 @@
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-xs font-semibold text-success-500 dark:text-success-300">
-                    $<%= number_with_precision(@current_month_income, precision: 0) %>
+                    $<%= number_with_precision(trends_current_month_income, precision: 0) %>
                   </span>
-                  <% if @income_change_pct != 0 %>
-                    <span class="text-xs <%= @income_change_pct > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
-                      <%= @income_change_pct > 0 ? "↑" : "↓" %><%= @income_change_pct.abs %>%
+                  <% if trends_income_change_pct != 0 %>
+                    <span class="text-xs <%= trends_income_change_pct > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                      <%= trends_income_change_pct > 0 ? "↑" : "↓" %><%= trends_income_change_pct.abs %>%
                     </span>
                   <% end %>
                 </div>
@@ -99,11 +204,11 @@
                 </div>
                 <div class="flex items-center gap-1">
                   <span class="text-xs font-semibold text-expense-500 dark:text-expense-400">
-                    $<%= number_with_precision(@current_month_expenses, precision: 0) %>
+                    $<%= number_with_precision(trends_current_month_expenses, precision: 0) %>
                   </span>
-                  <% if @expense_change_pct != 0 %>
-                    <span class="text-xs <%= @expense_change_pct > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
-                      <%= @expense_change_pct > 0 ? "↑" : "↓" %><%= @expense_change_pct.abs %>%
+                  <% if trends_expense_change_pct != 0 %>
+                    <span class="text-xs <%= trends_expense_change_pct > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+                      <%= trends_expense_change_pct > 0 ? "↑" : "↓" %><%= trends_expense_change_pct.abs %>%
                     </span>
                   <% end %>
                 </div>
@@ -116,12 +221,12 @@
                   <span class="text-xs font-semibold text-gray-900 dark:text-white">Net</span>
                 </div>
                 <div class="flex items-center gap-1">
-                  <span class="text-xs font-bold <%= @net_savings >= 0 ? 'text-success-600 dark:text-success-400' : 'text-expense-600 dark:text-expense-400' %>">
-                    <%= @net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(@net_savings.abs, precision: 0) %>
+                  <span class="text-xs font-bold <%= trends_net_savings >= 0 ? 'text-success-600 dark:text-success-400' : 'text-expense-600 dark:text-expense-400' %>">
+                    <%= trends_net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(trends_net_savings.abs, precision: 0) %>
                   </span>
-                  <% if @net_change_pct != 0 %>
-                    <span class="text-xs <%= @net_change_pct > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
-                      <%= @net_change_pct > 0 ? "↑" : "↓" %><%= @net_change_pct.abs %>%
+                  <% if trends_net_change_pct != 0 %>
+                    <span class="text-xs <%= trends_net_change_pct > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                      <%= trends_net_change_pct > 0 ? "↑" : "↓" %><%= trends_net_change_pct.abs %>%
                     </span>
                   <% end %>
                 </div>
@@ -135,19 +240,20 @@
           <div class="flex flex-col h-full">
             <!-- Header -->
             <div class="mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top Merchant</h3>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top <%= (session[:trends_view_type] || "category").capitalize %></h3>
               <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                <%= @current_date.strftime('%B %Y') %>
+                <%= trends_current_date.strftime('%B %Y') %>
               </p>
             </div>
 
-            <!-- Merchant Details -->
+            <!-- Category/Merchant Details -->
             <div class="flex-1 space-y-4">
-              <!-- Merchant Name -->
+              <% top_item = trends_category_breakdown.first || { name: "No data", amount: 0, count: 0 } %>
+              <!-- Item Name -->
               <div class="pb-3 border-b border-gray-200 dark:border-gray-700">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Merchant Name</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1"><%= (session[:trends_view_type] || "category").capitalize %> Name</p>
                 <p class="text-lg font-bold text-gray-900 dark:text-white">
-                  <%= truncate(@top_merchant[:name], length: 25) %>
+                  <%= truncate(top_item[:name], length: 25) %>
                 </p>
               </div>
 
@@ -155,18 +261,18 @@
               <div class="pb-3 border-b border-gray-200 dark:border-gray-700">
                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Spent</p>
                 <p class="text-2xl font-bold text-income-500 dark:text-income-400">
-                  $<%= number_with_precision(@top_merchant[:amount], precision: 2) %>
+                  $<%= number_with_precision(top_item[:amount], precision: 2) %>
                 </p>
               </div>
 
               <!-- Percentage -->
-              <% total_expenses = @current_month_expenses %>
+              <% total_expenses = trends_current_month_expenses %>
               <% if total_expenses > 0 %>
-                <% merchant_pct = ((@top_merchant[:amount] / total_expenses) * 100).round(1) %>
+                <% item_pct = ((top_item[:amount] / total_expenses) * 100).round(1) %>
                 <div>
                   <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">of Total Expenses</p>
                   <p class="text-3xl font-bold text-primary-700 dark:text-primary-400">
-                    <%= merchant_pct %>%
+                    <%= item_pct %>%
                   </p>
                 </div>
               <% else %>

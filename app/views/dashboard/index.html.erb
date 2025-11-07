@@ -22,6 +22,31 @@
   
   <%= content_wrapper class: "py-6" do %>
     <% if @account %>
+      <!-- Key Insights Section -->
+      <% if @key_insights.present? %>
+        <section class="mb-6" aria-label="Financial insights">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Financial Insights</h2>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Actionable recommendations based on your spending patterns</p>
+            </div>
+            <%= link_to trends_path, 
+                        class: "inline-flex items-center px-4 py-2 bg-primary-700/10 dark:bg-primary-500/30 text-primary-700 dark:text-primary-300 border border-primary-700/20 dark:border-primary-400/40 text-sm font-medium rounded-lg hover:bg-primary-700/20 dark:hover:bg-primary-500/40 hover:shadow-md hover:scale-105 transition-all" do %>
+              View Full Analysis
+              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            <% end %>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% @key_insights.each do |insight| %>
+              <%= render 'shared/insight_card', insight: insight %>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+
       <!-- Financial Overview Section -->
       <section class="bento-grid mb-6" aria-label="Financial overview statistics">
         <!-- Current Balance Hero Card (2x2) - Using Reusable Partial -->

@@ -7,14 +7,13 @@ class TransactionsController < ApplicationController
   before_action :set_transaction, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    data = TransactionIndexService.call(@account, params[:filter] || "all", params.slice(:year, :month))
-    assign_transaction_index_variables(data)
+    @transactions_data = TransactionIndexService.call(@account, params[:filter] || "all", params.slice(:year, :month))
     respond_to { |format| format.html; format.turbo_stream }
   end
 
   def show
     # Transaction is already loaded by before_action
-    respond_to { |format| format.html; format.turbo_stream }
+    respond_to { |format| format.html }
   end
 
   def edit
@@ -50,12 +49,11 @@ class TransactionsController < ApplicationController
 
   def search
     return unless load_account
-    data = TransactionSearchService.call(@account, params[:q], params.slice(:year, :month), params[:filter] || "all")
-    assign_transaction_index_variables(data)
+    @transactions_data = TransactionSearchService.call(@account, params[:q], params.slice(:year, :month), params[:filter] || "all")
     respond_to do |format|
-      format.html { redirect_to transactions_path(filter: @filter_type, year: @year, month: @month, q: params[:q]) }
+      format.html { redirect_to transactions_path(filter: @transactions_data[:filter_type], year: @transactions_data[:year], month: @transactions_data[:month], q: params[:q]) }
       format.turbo_stream
-      format.json { render json: @transactions }
+      format.json { render json: @transactions_data[:transactions] }
     end
   end
 
@@ -63,7 +61,6 @@ class TransactionsController < ApplicationController
 
   def load_account_for_index
     load_account_or_return
-    nil unless @account
   end
 
   def set_transaction
@@ -82,38 +79,25 @@ class TransactionsController < ApplicationController
     @account = transaction.account
   end
 
-  def filter_transactions_by_type(type)
-    case type
-    when "expenses"
-      @account.transactions.expenses
-    when "income"
-      @account.transactions.income
-    when "hypothetical"
-      @account.transactions.hypothetical
-    else
-      @account.transactions
-    end
-  end
-
   def transaction_params
     params.require(:transaction).permit(:description, :amount, :transaction_date, :category, :merchant)
   end
 
   def assign_dashboard_stats
     stats = DashboardStatsCalculator.call(@account)
-    @current_date, @recent_transactions = stats.values_at(:current_date, :recent_transactions)
-    @expense_count, @expense_total, @income_count, @income_total = stats.values_at(:expense_count, :expense_total, :income_count, :income_total)
-    @end_of_month_balance = stats[:end_of_month_balance]
     upcoming = RecurringTransactionsService.upcoming(@account, Date.today.end_of_month)
-    @upcoming_recurring_expenses, @upcoming_recurring_income = upcoming.values_at(:expenses, :income)
-    @upcoming_recurring_total = upcoming[:expense_total] + upcoming[:income_total]
-  end
-
-  def assign_transaction_index_variables(data)
-    @transactions, @date, @year, @month, @filter_type = data.values_at(:transactions, :date, :year, :month, :filter_type)
-    @expense_total, @income_total, @expense_count, @income_count = data.values_at(:expense_total, :income_total, :expense_count, :income_count)
-    @net_cash_flow, @transaction_count, @top_category, @top_category_amount = data.values_at(:net_cash_flow, :transaction_count, :top_category, :top_category_amount)
-    @top_expense_merchants, @top_income_merchants = data.values_at(:top_expense_merchants, :top_income_merchants)
+    @dashboard_data = {
+      current_date: stats[:current_date],
+      recent_transactions: stats[:recent_transactions],
+      expense_count: stats[:expense_count],
+      expense_total: stats[:expense_total],
+      income_count: stats[:income_count],
+      income_total: stats[:income_total],
+      end_of_month_balance: stats[:end_of_month_balance],
+      upcoming_recurring_expenses: upcoming[:expenses],
+      upcoming_recurring_income: upcoming[:income],
+      upcoming_recurring_total: upcoming[:expense_total] + upcoming[:income_total]
+    }
   end
 
   def build_transaction

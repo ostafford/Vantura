@@ -26,7 +26,11 @@ Rails.application.routes.draw do
   get "calendar/:year/:month(/:day)", to: "calendar#index", as: :calendar_month
 
   # Trends (Analytics and Data Insights)
-  get "trends", to: "trends#index"
+  resources :trends, only: [:index] do
+    collection do
+      patch :update_preference
+    end
+  end
 
   # Projects
   resources :projects do

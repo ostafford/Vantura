@@ -6,28 +6,28 @@
 <%# Replace the entire tbody to avoid nested <tbody> causing header misalignment %>
 <%= turbo_stream.replace "transactions-table-body" do %>
   <tbody id="transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-    <%= render partial: "transactions/table_body", locals: { transactions: @transactions } %>
+    <%= render partial: "transactions/table_body", locals: { transactions: @transactions_data[:transactions] } %>
   </tbody>
 <% end %>
 
 <%# Update the month heading %>
 <%= turbo_stream.update "transactions-current-month-heading" do %>
-  <%= @date.strftime("%B %Y") %>
+  <%= @transactions_data[:date].strftime("%B %Y") %>
 <% end %>
 
 <%# Update the navigation links %>
 <%= turbo_stream.update "transactions-month-navigation" do %>
-  <%= link_to transactions_path(year: @date.prev_month.year, month: @date.prev_month.month, filter: @filter_type),
+  <%= link_to transactions_path(year: @transactions_data[:date].prev_month.year, month: @transactions_data[:date].prev_month.month, filter: @transactions_data[:filter_type]),
               class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-              data: { action: 'click->transactions-nav#navigate' } do %>
+              data: { turbo_frame: "transactions_content" } do %>
     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
     </svg>
     Previous
   <% end %>
-  <%= link_to transactions_path(year: @date.next_month.year, month: @date.next_month.month, filter: @filter_type),
+  <%= link_to transactions_path(year: @transactions_data[:date].next_month.year, month: @transactions_data[:date].next_month.month, filter: @transactions_data[:filter_type]),
               class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-              data: { action: 'click->transactions-nav#navigate' } do %>
+              data: { turbo_frame: "transactions_content" } do %>
     Next
     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_07_043227) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_07_065741) do
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -35,6 +35,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_043227) do
     t.index ["project_expense_id", "user_id"], name: "index_contributions_on_expense_and_user", unique: true
     t.index ["project_expense_id"], name: "index_expense_contributions_on_project_expense_id"
     t.index ["user_id"], name: "index_expense_contributions_on_user_id"
+  end
+
+  create_table "financial_insights", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.string "insight_type", null: false
+    t.string "title", null: false
+    t.text "message", null: false
+    t.json "evidence_data", default: {}
+    t.text "suggested_action"
+    t.decimal "suggested_amount", precision: 10, scale: 2
+    t.date "suggested_date"
+    t.boolean "is_actioned", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "is_actioned"], name: "index_financial_insights_on_account_id_and_is_actioned"
+    t.index ["account_id"], name: "index_financial_insights_on_account_id"
+    t.index ["created_at"], name: "index_financial_insights_on_created_at"
+    t.index ["insight_type"], name: "index_financial_insights_on_insight_type"
+    t.index ["is_actioned"], name: "index_financial_insights_on_is_actioned"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -171,6 +190,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_043227) do
   add_foreign_key "accounts", "users"
   add_foreign_key "expense_contributions", "project_expenses"
   add_foreign_key "expense_contributions", "users"
+  add_foreign_key "financial_insights", "accounts"
   add_foreign_key "notifications", "users"
   add_foreign_key "project_expenses", "projects"
   add_foreign_key "project_memberships", "projects"

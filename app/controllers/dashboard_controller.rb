@@ -6,6 +6,10 @@ class DashboardController < ApplicationController
     return unless @account
     @dashboard_data = build_dashboard_data
     @sync_result = session.delete(:sync_result)
+
+    # Generate key insights for dashboard (2-3 top insights)
+    insights_service = FinancialInsightsService.new(@account)
+    @key_insights = insights_service.generate_key_insights(3)
   end
 
   def sync

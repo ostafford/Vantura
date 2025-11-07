@@ -2,9 +2,9 @@
 <%= turbo_stream.replace "dashboard-expenses-card" do %>
   <%= render "shared/bento_cards/transaction_type_card",
       type: 'expense',
-      expense_total: @expense_total,
-      expense_count: @expense_count,
-      current_date: @current_date,
+      expense_total: @dashboard_data[:expense_total],
+      expense_count: @dashboard_data[:expense_count],
+      current_date: @dashboard_data[:current_date],
       top_expense_merchants: [] %>
 <% end %>
 
@@ -12,22 +12,22 @@
 <%= turbo_stream.replace "dashboard-income-card" do %>
   <%= render "shared/bento_cards/transaction_type_card",
       type: 'income',
-      income_total: @income_total,
-      income_count: @income_count,
-      current_date: @current_date,
+      income_total: @dashboard_data[:income_total],
+      income_count: @dashboard_data[:income_count],
+      current_date: @dashboard_data[:current_date],
       top_income_merchants: [] %>
 <% end %>
 
 <%# Update the End of Month Projection %>
 <%= turbo_stream.replace "dashboard-projection-card" do %>
   <%= render "dashboard/projection_card",
-      income_total: @income_total,
-      expense_total: @expense_total,
-      end_of_month_balance: @end_of_month_balance,
-      current_date: @current_date,
-      upcoming_recurring_expenses: @upcoming_recurring_expenses,
-      upcoming_recurring_income: @upcoming_recurring_income,
-      upcoming_recurring_total: @upcoming_recurring_total %>
+      income_total: @dashboard_data[:income_total],
+      expense_total: @dashboard_data[:expense_total],
+      end_of_month_balance: @dashboard_data[:end_of_month_balance],
+      current_date: @dashboard_data[:current_date],
+      upcoming_recurring_expenses: @dashboard_data[:upcoming_recurring_expenses],
+      upcoming_recurring_income: @dashboard_data[:upcoming_recurring_income],
+      upcoming_recurring_total: @dashboard_data[:upcoming_recurring_total] %>
 <% end %>
 
 <%# Prepend the new transaction to Recent Transactions %>

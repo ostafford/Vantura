@@ -1,0 +1,116 @@
+<%
+  # Insight Card - Display actionable financial insights with evidence
+  insight = local_assigns.fetch(:insight, {})
+  return if insight.blank?
+  
+  title = insight[:title] || "Financial Insight"
+  message = insight[:message] || ""
+  evidence = insight[:evidence] || {}
+  suggested_action = insight[:suggested_action]
+  suggested_amount = insight[:suggested_amount]
+  suggested_date = insight[:suggested_date]
+  priority = insight[:priority] || "medium"
+  insight_id = "insight-#{insight[:type]}-#{rand(10000..99999)}"
+  
+  # Priority-based colors
+  case priority
+  when "high"
+    bg_gradient = "bg-gradient-to-br from-success-100 to-success-50 dark:from-success-900/30 dark:to-success-800/20"
+    icon_bg = "bg-success-200 dark:bg-success-900/40"
+    icon_text = "text-success-600 dark:text-success-400"
+    border_color = "border-success-300 dark:border-success-700"
+  when "medium"
+    bg_gradient = "bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800"
+    icon_bg = "bg-blue-100 dark:bg-blue-900/30"
+    icon_text = "text-primary-700 dark:text-primary-500"
+    border_color = "border-blue-200 dark:border-blue-800"
+  else # low
+    bg_gradient = "bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900"
+    icon_bg = "bg-gray-100 dark:bg-gray-800"
+    icon_text = "text-gray-600 dark:text-gray-400"
+    border_color = "border-gray-200 dark:border-gray-700"
+  end
+  
+  # Icon based on insight type
+  icon_paths = {
+    "spending_velocity" => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />',
+    "savings_opportunity" => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />',
+    "investment_suggestion" => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />',
+    "category_merchant" => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />'
+  }
+  
+  insight_type = insight[:type] || "spending_velocity"
+  icon_svg = icon_paths[insight_type] || icon_paths["spending_velocity"]
+%>
+
+<div class="insight-card <%= bg_gradient %> rounded-2xl shadow-deep p-6 border <%= border_color %>" 
+     id="<%= insight_id %>"
+     data-controller="insight-card"
+     data-insight-card-id-value="<%= insight_id %>">
+  <div class="flex flex-col h-full">
+    <!-- Header: Icon and Title -->
+    <div class="flex items-start gap-4 mb-3">
+      <div class="inline-flex items-center justify-center w-12 h-12 <%= icon_bg %> rounded-xl flex-shrink-0">
+        <svg class="w-6 h-6 <%= icon_text %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= icon_svg.html_safe %>
+        </svg>
+      </div>
+      
+      <div class="flex-1 min-w-0">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1"><%= title %></h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed"><%= message %></p>
+      </div>
+    </div>
+    
+    <!-- Evidence Section (Accordion) -->
+    <% if evidence.present? %>
+      <div class="mt-4" data-insight-card-target="evidenceContainer">
+        <button type="button"
+                class="flex items-center gap-2 text-sm font-medium text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 transition-colors"
+                data-action="click->insight-card#toggleEvidence"
+                data-insight-card-target="evidenceToggle">
+          <span>Why?</span>
+          <svg class="w-4 h-4 transition-transform" 
+               data-insight-card-target="evidenceIcon"
+               fill="none" 
+               stroke="currentColor" 
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        
+        <div class="hidden mt-3 pt-3 border-t <%= border_color %>" 
+             data-insight-card-target="evidenceContent">
+          <%= render "shared/insight_evidence", evidence: evidence, insight_type: insight_type %>
+        </div>
+      </div>
+    <% end %>
+    
+    <!-- Action Buttons -->
+    <div class="mt-4 pt-4 border-t <%= border_color %> flex items-center gap-3">
+      <% if suggested_action.present? && suggested_amount.present? %>
+        <button type="button"
+                class="inline-flex items-center px-4 py-2 bg-primary-700 text-white text-sm font-medium rounded-lg hover:bg-primary-900 transition-colors"
+                data-action="click->modal#open"
+                data-insight-amount="<%= suggested_amount %>"
+                data-insight-date="<%= suggested_date&.strftime('%Y-%m-%d') %>"
+                data-insight-description="<%= "#{suggested_action}: #{title}" %>">
+          <%= suggested_action %>
+          <span class="ml-2 font-semibold">$<%= number_with_precision(suggested_amount, precision: 0) %></span>
+        </button>
+      <% elsif suggested_action.present? %>
+        <%= link_to transactions_path,
+                    class: "inline-flex items-center px-4 py-2 bg-primary-700 text-white text-sm font-medium rounded-lg hover:bg-primary-900 transition-colors" do %>
+          <%= suggested_action %>
+        <% end %>
+      <% end %>
+      
+      <button type="button"
+              class="ml-auto text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              data-action="click->insight-card#dismiss">
+        Dismiss
+      </button>
+    </div>
+  </div>
+</div>
+

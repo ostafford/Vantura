@@ -325,4 +325,155 @@ class TrendsStatsCalculatorTest < ActiveSupport::TestCase
     assert_equal "Store B", stats[:top_merchant][:name]
     assert_equal 200.00, stats[:top_merchant][:amount]
   end
+
+  test "should calculate historical_data" do
+    stats = TrendsStatsCalculator.call(@account, @current_date, months: 6)
+
+    assert_not_nil stats[:historical_data]
+    assert stats[:historical_data].is_a?(Array)
+    assert stats[:historical_data].length <= 6
+
+    # Verify structure of historical data
+    if stats[:historical_data].any?
+      month_data = stats[:historical_data].first
+      assert month_data.key?(:month)
+      assert month_data.key?(:month_name)
+      assert month_data.key?(:income)
+      assert month_data.key?(:expenses)
+      assert month_data.key?(:net_savings)
+      assert month_data.key?(:savings_rate)
+    end
+  end
+
+  test "should calculate category_breakdown for category view" do
+    # Create transactions with categories
+    @account.transactions.create!(
+      description: "Category A",
+      amount: -100.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+    @account.transactions.create!(
+      description: "Category B",
+      amount: -200.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category B"
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date, months: 6, view_type: "category")
+
+    assert_not_nil stats[:category_breakdown]
+    assert stats[:category_breakdown].is_a?(Array)
+
+    if stats[:category_breakdown].any?
+      item = stats[:category_breakdown].first
+      assert item.key?(:name)
+      assert item.key?(:amount)
+      assert item.key?(:count)
+      assert item.key?(:type)
+      assert_equal "category", item[:type]
+    end
+  end
+
+  test "should calculate category_breakdown for merchant view" do
+    # Create transactions with merchants
+    @account.transactions.create!(
+      description: "Merchant A",
+      amount: -100.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      merchant: "Merchant A"
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date, months: 6, view_type: "merchant")
+
+    assert_not_nil stats[:category_breakdown]
+    assert stats[:category_breakdown].is_a?(Array)
+
+    if stats[:category_breakdown].any?
+      item = stats[:category_breakdown].first
+      assert item.key?(:name)
+      assert item.key?(:amount)
+      assert item.key?(:count)
+      assert item.key?(:type)
+      assert_equal "merchant", item[:type]
+    end
+  end
+
+  test "should calculate savings_rate_trend" do
+    stats = TrendsStatsCalculator.call(@account, @current_date, months: 6)
+
+    assert_not_nil stats[:savings_rate_trend]
+    assert stats[:savings_rate_trend].is_a?(Array)
+
+    if stats[:savings_rate_trend].any?
+      trend_data = stats[:savings_rate_trend].first
+      assert trend_data.key?(:month)
+      assert trend_data.key?(:month_name)
+      assert trend_data.key?(:savings_rate)
+      assert trend_data[:savings_rate].is_a?(Numeric)
+    end
+  end
+
+  test "should calculate year_over_year_comparison" do
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    assert_not_nil stats[:year_over_year_comparison]
+    assert stats[:year_over_year_comparison].is_a?(Hash)
+
+    yoy = stats[:year_over_year_comparison]
+    assert yoy.key?(:last_year_month)
+    assert yoy.key?(:last_year_income)
+    assert yoy.key?(:last_year_expenses)
+    assert yoy.key?(:last_year_net)
+    assert yoy.key?(:income_change_pct)
+    assert yoy.key?(:expense_change_pct)
+    assert yoy.key?(:net_change_pct)
+  end
+
+  test "should handle all months parameter" do
+    stats = TrendsStatsCalculator.call(@account, @current_date, months: "all")
+
+    assert_not_nil stats[:historical_data]
+    # Should include all available months
+    assert stats[:historical_data].is_a?(Array)
+  end
+
+  test "should limit months to 24 for performance" do
+    stats = TrendsStatsCalculator.call(@account, @current_date, months: 100)
+
+    assert_not_nil stats[:historical_data]
+    assert stats[:historical_data].length <= 24
+  end
+
+  test "should return all required keys including new features" do
+    stats = TrendsStatsCalculator.call(@account, @current_date, months: 6, view_type: "category")
+
+    required_keys = [
+      :current_date,
+      :current_month_income,
+      :current_month_expenses,
+      :net_savings,
+      :last_month_income,
+      :last_month_expenses,
+      :income_change_pct,
+      :expense_change_pct,
+      :net_change_pct,
+      :active_recurring_count,
+      :top_merchant,
+      :historical_data,
+      :category_breakdown,
+      :savings_rate_trend,
+      :year_over_year_comparison
+    ]
+
+    required_keys.each do |key|
+      assert stats.key?(key), "Missing key: #{key}"
+    end
+  end
 end

@@ -48,26 +48,44 @@ export default class extends Controller {
 
     // Limit data points for better performance (max 20 items)
     const maxDataPoints = 20
-    let limitedSeries = this.seriesValue.slice(0, maxDataPoints)
     let limitedLabels = this.labelsValue.slice(0, maxDataPoints)
 
     let seriesData
     
+    // Check if series is already formatted as objects with name/data (for multiple series)
+    const isFormattedSeries = Array.isArray(this.seriesValue) && 
+                              this.seriesValue.length > 0 && 
+                              typeof this.seriesValue[0] === 'object' && 
+                              this.seriesValue[0].hasOwnProperty('name') && 
+                              this.seriesValue[0].hasOwnProperty('data')
+    
     // Format series data based on chart type
     if (this.typeValue === 'pie' || this.typeValue === 'donut') {
-      seriesData = limitedSeries
+      // For pie/donut, series should be array of numbers
+      seriesData = Array.isArray(this.seriesValue[0]) ? this.seriesValue[0] : this.seriesValue
+      seriesData = seriesData.slice(0, maxDataPoints)
+    } else if (isFormattedSeries) {
+      // Already formatted as [{ name: '...', data: [...] }, ...]
+      seriesData = this.seriesValue.map(series => ({
+        name: series.name,
+        data: series.data.slice(0, maxDataPoints)
+      }))
     } else if (this.typeValue === 'bar') {
+      // Single series bar chart
+      const limitedSeries = this.seriesValue.slice(0, maxDataPoints)
       seriesData = [{
         name: 'Amount',
         data: limitedSeries
       }]
     } else if (this.typeValue === 'line') {
+      // Single series line chart
+      const limitedSeries = this.seriesValue.slice(0, maxDataPoints)
       seriesData = [{
         name: 'Amount',
         data: limitedSeries
       }]
     } else {
-      seriesData = limitedSeries
+      seriesData = this.seriesValue.slice(0, maxDataPoints)
     }
 
     const options = {
@@ -104,7 +122,11 @@ export default class extends Controller {
         }.bind(this)
       },
       legend: {
-        show: false,
+        show: isFormattedSeries && this.typeValue === 'line', // Show legend for multi-series line charts
+        position: 'top',
+        horizontalAlign: 'right',
+        fontSize: '12px',
+        fontFamily: 'Inter, sans-serif'
       },
       tooltip: {
         enabled: true,
@@ -184,7 +206,7 @@ export default class extends Controller {
       }
       options.yaxis = {
         title: {
-          text: 'Amount ($)'
+          text: isFormattedSeries && seriesData.some(s => s.name.includes('Rate')) ? 'Percentage (%)' : 'Amount ($)'
         }
       }
       // Performance optimization for line charts
@@ -192,6 +214,19 @@ export default class extends Controller {
         size: 4,
         hover: {
           size: 6
+        }
+      }
+      // Tooltip formatting for line charts
+      options.tooltip = {
+        ...options.tooltip,
+        y: {
+          formatter: function (val) {
+            // Check if this is a percentage chart (savings rate)
+            if (isFormattedSeries && seriesData.some(s => s.name.includes('Rate'))) {
+              return val.toFixed(1) + "%"
+            }
+            return "$" + val.toFixed(0)
+          }
         }
       }
     }

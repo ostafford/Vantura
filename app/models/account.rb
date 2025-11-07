@@ -4,6 +4,7 @@ class Account < ApplicationRecord
   has_many :transactions, dependent: :destroy
   has_many :recurring_transactions, dependent: :destroy
   has_many :recurring_categories, dependent: :destroy
+  has_many :financial_insights, dependent: :destroy
 
   # Validations
   validates :up_account_id, presence: true, uniqueness: true

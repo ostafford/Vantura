@@ -1,0 +1,139 @@
+<%
+  # Insight Evidence - Display evidence data in an organized format
+  evidence = local_assigns.fetch(:evidence, {})
+  insight_type = local_assigns.fetch(:insight_type, "spending_velocity")
+%>
+
+<div class="space-y-3 text-sm">
+  <% case insight_type
+     when "spending_velocity" %>
+    <% if evidence[:current_daily_rate].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Current Daily Rate</span>
+        <span class="font-semibold text-gray-900 dark:text-white">$<%= number_with_precision(evidence[:current_daily_rate], precision: 2) %>/day</span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:historical_daily_rate].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">6-Month Average</span>
+        <span class="font-semibold text-gray-900 dark:text-white">$<%= number_with_precision(evidence[:historical_daily_rate], precision: 2) %>/day</span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:change_percentage].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Change</span>
+        <span class="font-semibold <%= evidence[:change_percentage] < 0 ? 'text-success-600 dark:text-success-400' : 'text-expense-600 dark:text-expense-400' %>">
+          <%= evidence[:change_percentage] > 0 ? '+' : '' %><%= number_with_precision(evidence[:change_percentage], precision: 1) %>%
+        </span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:projected_month_end].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Projected Month-End Spending</span>
+        <span class="font-semibold text-gray-900 dark:text-white">$<%= number_with_precision(evidence[:projected_month_end], precision: 0) %></span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:potential_savings].present? %>
+      <div class="flex items-center justify-between py-2 bg-success-50 dark:bg-success-900/20 rounded-lg px-3">
+        <span class="text-success-700 dark:text-success-300 font-medium">Potential Savings</span>
+        <span class="font-bold text-success-700 dark:text-success-300">$<%= number_with_precision(evidence[:potential_savings], precision: 0) %></span>
+      </div>
+    <% end %>
+    
+  <% when "savings_opportunity" %>
+    <% if evidence[:current_income].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Current Month Income</span>
+        <span class="font-semibold text-gray-900 dark:text-white">$<%= number_with_precision(evidence[:current_income], precision: 0) %></span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:projected_spending].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Projected Spending</span>
+        <span class="font-semibold text-gray-900 dark:text-white">$<%= number_with_precision(evidence[:projected_spending], precision: 0) %></span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:projected_savings].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Projected Savings</span>
+        <span class="font-semibold text-success-600 dark:text-success-400">$<%= number_with_precision(evidence[:projected_savings], precision: 0) %></span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:potential_additional_savings].present? %>
+      <div class="flex items-center justify-between py-2 bg-success-50 dark:bg-success-900/20 rounded-lg px-3">
+        <span class="text-success-700 dark:text-success-300 font-medium">Additional Opportunity</span>
+        <span class="font-bold text-success-700 dark:text-success-300">$<%= number_with_precision(evidence[:potential_additional_savings], precision: 0) %></span>
+      </div>
+    <% end %>
+    
+  <% when "investment_suggestion" %>
+    <% if evidence[:months_analyzed].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Months Analyzed</span>
+        <span class="font-semibold text-gray-900 dark:text-white"><%= evidence[:months_analyzed] %> months</span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:average_monthly_savings].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Average Monthly Savings</span>
+        <span class="font-semibold text-success-600 dark:text-success-400">$<%= number_with_precision(evidence[:average_monthly_savings], precision: 0) %></span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:suggested_monthly_investment].present? %>
+      <div class="flex items-center justify-between py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3">
+        <span class="text-blue-700 dark:text-blue-300 font-medium">Suggested Investment</span>
+        <span class="font-bold text-blue-700 dark:text-blue-300">$<%= number_with_precision(evidence[:suggested_monthly_investment], precision: 0) %>/month</span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:remaining_for_expenses].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Remaining for Expenses</span>
+        <span class="font-semibold text-gray-900 dark:text-white">$<%= number_with_precision(evidence[:remaining_for_expenses], precision: 0) %></span>
+      </div>
+    <% end %>
+    
+  <% when "category_merchant" %>
+    <% if evidence[:item_name].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400"><%= evidence[:view_type]&.capitalize || "Item" %></span>
+        <span class="font-semibold text-gray-900 dark:text-white"><%= evidence[:item_name] %></span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:total_amount].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Total Amount</span>
+        <span class="font-semibold text-gray-900 dark:text-white">$<%= number_with_precision(evidence[:total_amount], precision: 0) %></span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:transaction_count].present? %>
+      <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">Transactions</span>
+        <span class="font-semibold text-gray-900 dark:text-white"><%= evidence[:transaction_count] %></span>
+      </div>
+    <% end %>
+    
+    <% if evidence[:trend].present? && evidence[:trend][:percentage].present? %>
+      <div class="flex items-center justify-between py-2">
+        <span class="text-gray-600 dark:text-gray-400">Month-over-Month Change</span>
+        <span class="font-semibold <%= evidence[:trend][:direction] == 'up' ? 'text-expense-600 dark:text-expense-400' : 'text-success-600 dark:text-success-400' %>">
+          <%= evidence[:trend][:direction] == 'up' ? '↑' : evidence[:trend][:direction] == 'down' ? '↓' : '→' %>
+          <%= number_with_precision(evidence[:trend][:percentage].abs, precision: 1) %>%
+        </span>
+      </div>
+    <% end %>
+    
+  <% end %>
+</div>
+
