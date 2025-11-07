@@ -63,7 +63,12 @@ module Authentication
     end
 
     def terminate_session
-      Current.session.destroy
+      if Current.session
+        # Clear the per-request session reference so downstream hooks do not
+        # interact with a destroyed ActiveRecord object.
+        Current.session.destroy
+        Current.session = nil
+      end
       cookies.delete(:session_id)
     end
 end
