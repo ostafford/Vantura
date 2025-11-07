@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_06_051321) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_07_012241) do
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -85,6 +85,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_06_051321) do
     t.index ["owner_id"], name: "index_projects_on_owner_id"
   end
 
+  create_table "recurring_categories", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.string "name", null: false
+    t.string "transaction_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name", "transaction_type"], name: "index_recurring_categories_unique", unique: true
+    t.index ["account_id"], name: "index_recurring_categories_on_account_id"
+    t.index ["name"], name: "index_recurring_categories_on_name"
+  end
+
   create_table "recurring_transactions", force: :cascade do |t|
     t.integer "account_id", null: false
     t.string "description"
@@ -98,10 +109,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_06_051321) do
     t.datetime "updated_at", null: false
     t.integer "template_transaction_id"
     t.string "merchant_pattern"
-    t.decimal "amount_tolerance", precision: 10, scale: 2, default: "1.0"
+    t.decimal "amount_tolerance", precision: 10, scale: 2, default: "5.0"
     t.string "projection_months", default: "indefinite"
+    t.integer "date_tolerance_days", default: 3, null: false
+    t.string "tolerance_type", default: "fixed", null: false
+    t.decimal "tolerance_percentage", precision: 5, scale: 2
+    t.string "recurring_category"
     t.index ["account_id", "is_active"], name: "idx_recurring_account_active"
     t.index ["account_id"], name: "index_recurring_transactions_on_account_id"
+    t.index ["recurring_category"], name: "index_recurring_transactions_on_recurring_category"
     t.index ["template_transaction_id"], name: "index_recurring_transactions_on_template_transaction_id"
   end
 
@@ -159,6 +175,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_06_051321) do
   add_foreign_key "project_memberships", "projects"
   add_foreign_key "project_memberships", "users"
   add_foreign_key "projects", "users", column: "owner_id"
+  add_foreign_key "recurring_categories", "accounts"
   add_foreign_key "recurring_transactions", "accounts"
   add_foreign_key "recurring_transactions", "transactions", column: "template_transaction_id"
   add_foreign_key "sessions", "users"

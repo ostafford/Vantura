@@ -1,4 +1,4 @@
-<div class="max-w-2xl mx-auto mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+<div class="max-w-2xl mx-auto mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md" data-controller="recurring-edit">
   <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Edit Recurring Transaction</h1>
 
   <%= form_with model: @recurring, local: true, class: "space-y-6" do |form| %>
@@ -55,6 +55,37 @@
     </div>
 
     <div>
+      <%= form.label :recurring_category, "Recurring Category (optional)", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= form.select :recurring_category, 
+          options_for_select(
+            [["None", ""]] + 
+            @recurring.available_categories.map { |cat| [cat.humanize, cat] } +
+            [["Other...", "other"]],
+            @recurring.recurring_category
+          ),
+          {},
+          { 
+            id: "edit-recurring-category-select",
+            data: { action: "change->recurring-edit#toggleCustomCategory" },
+            class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+          } %>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Helps categorize your recurring transactions</p>
+      
+      <!-- Custom Category Input (shown when "Other" is selected) -->
+      <div id="edit-custom-category-field" class="hidden mt-3">
+        <label for="edit-custom-category-name-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Custom Category Name
+        </label>
+        <input type="text" 
+               name="custom_category_name" 
+               id="edit-custom-category-name-input"
+               placeholder="e.g., Gym Membership, Client Payment"
+               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This will be saved for future use</p>
+      </div>
+    </div>
+
+    <div>
       <%= form.label :merchant_pattern, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
       <%= form.text_field :merchant_pattern, class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
     </div>
@@ -71,7 +102,7 @@
 
     <div class="flex gap-4">
       <%= form.submit "Update Recurring Transaction", class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium" %>
-      <%= link_to "Cancel", recurring_transaction_path(@recurring), class: "px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium" %>
+      <%= link_to "Cancel", recurring_transactions_path(account_id: @account.id), class: "px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium" %>
     </div>
   <% end %>
 </div>

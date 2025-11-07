@@ -11,6 +11,9 @@ class RecurringTransaction < ApplicationRecord
   validates :next_occurrence_date, presence: true
   validates :transaction_type, presence: true
   validates :is_active, inclusion: { in: [ true, false ] }
+  validates :date_tolerance_days, presence: true, numericality: { greater_than: 0, less_than_or_equal_to: 14 }
+  validates :tolerance_type, presence: true, inclusion: { in: %w[fixed percentage] }
+  validate :recurring_category_matches_transaction_type
 
   # Enums
   enum :frequency, {
@@ -49,16 +52,143 @@ class RecurringTransaction < ApplicationRecord
     end
   end
 
-  def matches_transaction?(transaction)
+  def matches_transaction?(transaction, category: nil)
     return false unless merchant_pattern.present?
 
-    # Check if merchant/description contains the pattern (case insensitive)
-    description_match = transaction.description.downcase.include?(merchant_pattern.downcase)
+    # Check if merchant/description matches the pattern (exact or fuzzy)
+    description_match = exact_match?(transaction.description) || fuzzy_match?(transaction.description)
 
-    # Check if amount is within tolerance
-    amount_match = (transaction.amount.abs - amount.abs).abs <= (amount_tolerance || 1.0)
+    # Check if amount is within tolerance (fixed or percentage)
+    amount_match = amount_within_tolerance?(transaction.amount)
+
+    # Category matching is optional - increases confidence but not required
+    # Merchant pattern is primary matching criteria
+    category_match = category.present? && self.category.present? && category == self.category
 
     description_match && amount_match
+  end
+
+  # Check for exact substring match (case insensitive)
+  def exact_match?(description)
+    return false if merchant_pattern.blank? || description.blank?
+    description.downcase.include?(merchant_pattern.downcase)
+  end
+
+  # Check for fuzzy match using Levenshtein distance
+  # Allows 1-2 character differences for typos
+  def fuzzy_match?(description)
+    return false if merchant_pattern.blank? || description.blank?
+
+    pattern_words = merchant_pattern.downcase.split
+    desc_words = description.downcase.split
+
+    # Try to find a word in description that's similar to pattern
+    pattern_words.any? do |pattern_word|
+      desc_words.any? do |desc_word|
+        distance = levenshtein_distance(pattern_word, desc_word)
+        # Allow up to 2 character differences, or 20% of length (whichever is smaller)
+        max_distance = [2, (pattern_word.length * 0.2).ceil].min
+        distance <= max_distance
+      end
+    end
+  end
+
+  # Calculate Levenshtein distance between two strings
+  def levenshtein_distance(str1, str2)
+    return str2.length if str1.empty?
+    return str1.length if str2.empty?
+
+    matrix = Array.new(str1.length + 1) { Array.new(str2.length + 1, 0) }
+
+    (0..str1.length).each { |i| matrix[i][0] = i }
+    (0..str2.length).each { |j| matrix[0][j] = j }
+
+    (1..str1.length).each do |i|
+      (1..str2.length).each do |j|
+        cost = str1[i - 1] == str2[j - 1] ? 0 : 1
+        matrix[i][j] = [
+          matrix[i - 1][j] + 1,      # deletion
+          matrix[i][j - 1] + 1,      # insertion
+          matrix[i - 1][j - 1] + cost # substitution
+        ].min
+      end
+    end
+
+    matrix[str1.length][str2.length]
+  end
+
+  # Check if amount is within tolerance (fixed or percentage)
+  def amount_within_tolerance?(transaction_amount)
+    return false if amount.nil? || transaction_amount.nil?
+
+    amount_diff = (transaction_amount.abs - amount.abs).abs
+
+    if tolerance_type == "percentage"
+      return false unless tolerance_percentage.present?
+      tolerance_amount = amount.abs * (tolerance_percentage / 100.0)
+      amount_diff <= tolerance_amount
+    else
+      tolerance = amount_tolerance || 5.0
+      amount_diff <= tolerance
+    end
+  end
+
+  # Get display name for recurring category
+  def recurring_category_name
+    return nil unless recurring_category.present?
+
+    # Check if it's a predefined category (case-insensitive)
+    predefined = RecurringCategory.predefined_for_type(transaction_type)
+    return recurring_category.humanize if predefined.include?(recurring_category.downcase)
+
+    # Check if it's a custom category (case-insensitive)
+    custom_category = account.recurring_categories.find_by(
+      "LOWER(name) = ? AND transaction_type = ?",
+      recurring_category.downcase,
+      transaction_type
+    )
+    return custom_category.name if custom_category
+
+    # Fallback to the stored value
+    recurring_category.humanize
+  end
+
+  # Get available categories for this transaction type
+  def available_categories
+    predefined = RecurringCategory.predefined_for_type(transaction_type)
+    custom = account.recurring_categories.for_transaction_type(transaction_type).pluck(:name)
+    (predefined + custom).uniq.sort_by(&:downcase)
+  end
+
+  private
+
+  def recurring_category_matches_transaction_type
+    return unless recurring_category.present?
+
+    # Check if it's a predefined category for this transaction type
+    predefined = RecurringCategory.predefined_for_type(transaction_type)
+    if predefined.include?(recurring_category.downcase)
+      return # Valid predefined category for this transaction type
+    end
+
+    # Check if it's a predefined category for the other transaction type (not allowed)
+    other_type = transaction_type == "income" ? "expense" : "income"
+    other_predefined = RecurringCategory.predefined_for_type(other_type)
+    if other_predefined.include?(recurring_category.downcase)
+      errors.add(:recurring_category, "must be a valid category for #{transaction_type} transactions")
+      return
+    end
+
+    # Check if it's a custom category for this account and transaction type (case-insensitive)
+    custom_category = account.recurring_categories.find_by(
+      "LOWER(name) = ? AND transaction_type = ?",
+      recurring_category.downcase,
+      transaction_type
+    )
+
+    unless custom_category
+      errors.add(:recurring_category, "must be a valid category for #{transaction_type} transactions")
+    end
   end
 
   # Extract merchant pattern from transaction description

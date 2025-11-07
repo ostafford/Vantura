@@ -23,12 +23,12 @@
             <%= active_recurring.income_transactions.count %> income • <%= active_recurring.expense_transactions.count %> expense
           </p>
           <p class="text-blue-100 text-xs">
-            Week: <%= number_to_currency(@week_income - @week_expenses) %> • Month: <%= number_to_currency(@month_income - @month_expenses) %>
+            Week: <%= number_to_currency(@breakdown[:week_income] - @breakdown[:week_expenses]) %> • Month: <%= number_to_currency(@breakdown[:month_income] - @breakdown[:month_expenses]) %>
           </p>
         </div>
         <p class="text-blue-50 text-xs">
-          <% if @next_occurrence_date %>
-            Next: <%= truncate(@next_occurrence_desc, length: 30) %> on <%= @next_occurrence_date.strftime('%b %d') %> • <%= number_to_currency(@next_occurrence_amount) %>
+          <% if @breakdown[:next_occurrence_date] %>
+            Next: <%= truncate(@breakdown[:next_occurrence_desc], length: 30) %> on <%= @breakdown[:next_occurrence_date].strftime('%b %d') %> • <%= number_to_currency(@breakdown[:next_occurrence_amount]) %>
           <% else %>
             No upcoming occurrences
           <% end %>
@@ -37,7 +37,7 @@
       <!-- This Week - Income -->
       <%= render 'shared/bento_cards/stat_card',
           title: "This Week - Income",
-          value: number_to_currency(@week_income),
+          value: number_to_currency(@breakdown[:week_income]),
           subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>From #{active_recurring.income_transactions.count} patterns</span>".html_safe,
           detail: "Recurring income",
           icon: 'arrow-up',
@@ -47,7 +47,7 @@
       <!-- This Week - Expenses -->
       <%= render 'shared/bento_cards/stat_card',
           title: "This Week - Expenses",
-          value: number_to_currency(@week_expenses),
+          value: number_to_currency(@breakdown[:week_expenses]),
           subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>From #{active_recurring.expense_transactions.count} patterns</span>".html_safe,
           detail: "Recurring expenses",
           icon: 'arrow-down',
@@ -57,7 +57,7 @@
       <!-- This Month - Income -->
       <%= render 'shared/bento_cards/stat_card',
           title: "This Month - Income",
-          value: number_to_currency(@month_income),
+          value: number_to_currency(@breakdown[:month_income]),
           subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Recurring patterns</span>".html_safe,
           detail: "Projected income",
           icon: 'arrow-up',
@@ -67,7 +67,7 @@
       <!-- This Month - Expenses -->
       <%= render 'shared/bento_cards/stat_card',
           title: "This Month - Expenses",
-          value: number_to_currency(@month_expenses),
+          value: number_to_currency(@breakdown[:month_expenses]),
           subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Recurring patterns</span>".html_safe,
           detail: "Projected expenses",
           icon: 'arrow-down',
@@ -99,7 +99,45 @@
     
     <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recurring Patterns</h2>
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recurring Patterns</h2>
+          <div class="flex items-center gap-3">
+            <%= form_with url: recurring_transactions_path(account_id: @account.id), method: :get, local: true, class: "flex items-center gap-3" do |f| %>
+              <%= f.hidden_field :account_id, value: @account.id %>
+              <label for="category-filter-select" class="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Category:</label>
+              <select name="category" id="category-filter-select" 
+                      onchange="this.form.submit()"
+                      class="px-3 py-2 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-info-500 focus:border-info-500 dark:focus:border-info-300 transition-all text-sm">
+                <option value="" <%= params[:category].blank? ? 'selected' : '' %>>All Categories</option>
+                <% predefined_income = RecurringCategory.predefined_for_type("income") %>
+                <% predefined_expense = RecurringCategory.predefined_for_type("expense") %>
+                <% custom_categories = @account.recurring_categories.order(:transaction_type, :name) %>
+                
+                <% if predefined_income.any? || custom_categories.where(transaction_type: "income").any? %>
+                  <optgroup label="Income">
+                    <% predefined_income.each do |cat| %>
+                      <option value="<%= cat %>" <%= params[:category] == cat ? 'selected' : '' %>><%= cat.humanize %></option>
+                    <% end %>
+                    <% custom_categories.where(transaction_type: "income").each do |cat| %>
+                      <option value="<%= cat.name %>" <%= params[:category] == cat.name ? 'selected' : '' %>><%= cat.name %></option>
+                    <% end %>
+                  </optgroup>
+                <% end %>
+                
+                <% if predefined_expense.any? || custom_categories.where(transaction_type: "expense").any? %>
+                  <optgroup label="Expense">
+                    <% predefined_expense.each do |cat| %>
+                      <option value="<%= cat %>" <%= params[:category] == cat ? 'selected' : '' %>><%= cat.humanize %></option>
+                    <% end %>
+                    <% custom_categories.where(transaction_type: "expense").each do |cat| %>
+                      <option value="<%= cat.name %>" <%= params[:category] == cat.name ? 'selected' : '' %>><%= cat.name %></option>
+                    <% end %>
+                  </optgroup>
+                <% end %>
+              </select>
+            <% end %>
+          </div>
+        </div>
       </div>
 
       <div class="overflow-x-auto">

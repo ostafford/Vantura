@@ -1,9 +1,19 @@
 <%= turbo_frame_tag "recurring_transaction_#{recurring.id}" do %>
   <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 <%= recurring.is_active? ? '' : 'bg-gray-100 dark:bg-gray-700 opacity-60' %>">
     <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
-      <%= recurring.description %>
+      <div class="flex items-center gap-2">
+        <%= recurring.description %>
+        <% if recurring.recurring_category.present? %>
+          <%= recurring_category_badge(recurring) %>
+        <% end %>
+      </div>
       <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        Pattern: "<%= recurring.merchant_pattern %>" (±$<%= recurring.amount_tolerance %>)
+        Pattern: "<%= recurring.merchant_pattern %>" 
+        <% if recurring.tolerance_type == "percentage" && recurring.tolerance_percentage.present? %>
+          (±<%= recurring.tolerance_percentage %>%)
+        <% else %>
+          (±$<%= recurring.amount_tolerance %>)
+        <% end %>
       </div>
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium <%= recurring.amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">

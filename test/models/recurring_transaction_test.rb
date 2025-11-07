@@ -368,4 +368,222 @@ class RecurringTransactionTest < ActiveSupport::TestCase
     pattern = RecurringTransaction.extract_merchant_pattern("12345")
     assert_equal "", pattern
   end
+
+  # Fuzzy matching tests
+  test "fuzzy_match? should match with 1 character difference" do
+    @recurring.merchant_pattern = "Netflix"
+    @recurring.amount = -15.0
+    @recurring.amount_tolerance = 1.0
+
+    transaction = @account.transactions.build(
+      description: "Netflx subscription",
+      amount: -15.0
+    )
+
+    assert @recurring.fuzzy_match?(transaction.description)
+  end
+
+  test "fuzzy_match? should match with 2 character differences" do
+    @recurring.merchant_pattern = "Amazon"
+    @recurring.amount = -50.0
+
+    transaction = @account.transactions.build(
+      description: "Amazn purchase",
+      amount: -50.0
+    )
+
+    assert @recurring.fuzzy_match?(transaction.description)
+  end
+
+  test "fuzzy_match? should not match with too many differences" do
+    @recurring.merchant_pattern = "Netflix"
+    @recurring.amount = -15.0
+
+    transaction = @account.transactions.build(
+      description: "Hulu subscription",
+      amount: -15.0
+    )
+
+    assert_not @recurring.fuzzy_match?(transaction.description)
+  end
+
+  test "matches_transaction? should use fuzzy matching as fallback" do
+    @recurring.merchant_pattern = "Netflix"
+    @recurring.amount = -15.0
+    @recurring.amount_tolerance = 1.0
+
+    transaction = @account.transactions.build(
+      description: "Netflx subscription payment",
+      amount: -15.0
+    )
+
+    assert @recurring.matches_transaction?(transaction)
+  end
+
+  # Percentage tolerance tests
+  test "amount_within_tolerance? should use percentage tolerance when tolerance_type is percentage" do
+    @recurring.amount = 100.0
+    @recurring.tolerance_type = "percentage"
+    @recurring.tolerance_percentage = 5.0
+
+    # 5% of $100 = $5 tolerance, so $95-$105 should match
+    assert @recurring.amount_within_tolerance?(105.0)
+    assert @recurring.amount_within_tolerance?(95.0)
+    assert_not @recurring.amount_within_tolerance?(106.0)
+    assert_not @recurring.amount_within_tolerance?(94.0)
+  end
+
+  test "amount_within_tolerance? should use fixed tolerance when tolerance_type is fixed" do
+    @recurring.amount = 100.0
+    @recurring.tolerance_type = "fixed"
+    @recurring.amount_tolerance = 5.0
+
+    assert @recurring.amount_within_tolerance?(105.0)
+    assert @recurring.amount_within_tolerance?(95.0)
+    assert_not @recurring.amount_within_tolerance?(106.0)
+  end
+
+  test "matches_transaction? should work with percentage tolerance" do
+    @recurring.merchant_pattern = "subscription"
+    @recurring.amount = 100.0
+    @recurring.tolerance_type = "percentage"
+    @recurring.tolerance_percentage = 5.0
+
+    transaction = @account.transactions.build(
+      description: "Monthly subscription",
+      amount: 103.0
+    )
+
+    assert @recurring.matches_transaction?(transaction)
+  end
+
+  # Category matching tests
+  test "matches_transaction? should accept optional category parameter" do
+    @recurring.merchant_pattern = "grocery"
+    @recurring.amount = -50.0
+    @recurring.amount_tolerance = 5.0
+    @recurring.category = "groceries"
+
+    transaction = @account.transactions.build(
+      description: "Grocery Store",
+      amount: -50.0
+    )
+
+    # Should match even without category (merchant pattern is primary)
+    assert @recurring.matches_transaction?(transaction)
+    # Should also match with matching category
+    assert @recurring.matches_transaction?(transaction, category: "groceries")
+  end
+
+  test "matches_transaction? should not require category match" do
+    @recurring.merchant_pattern = "grocery"
+    @recurring.amount = -50.0
+    @recurring.amount_tolerance = 5.0
+    @recurring.category = "groceries"
+
+    transaction = @account.transactions.build(
+      description: "Grocery Store",
+      amount: -50.0
+    )
+
+    # Should match even with different category (merchant pattern is primary)
+    assert @recurring.matches_transaction?(transaction, category: "food")
+  end
+
+  # Date tolerance tests
+  test "should validate date_tolerance_days is between 1 and 14" do
+    @recurring.date_tolerance_days = 0
+    assert_not @recurring.valid?
+    assert_includes @recurring.errors[:date_tolerance_days], "must be greater than 0"
+
+    @recurring.date_tolerance_days = 15
+    assert_not @recurring.valid?
+    assert_includes @recurring.errors[:date_tolerance_days], "must be less than or equal to 14"
+
+    @recurring.date_tolerance_days = 7
+    assert @recurring.valid?
+  end
+
+  # Recurring category validation tests
+  test "should allow predefined recurring_category for income transactions" do
+    @recurring.transaction_type = "income"
+    @recurring.recurring_category = "salary"
+    assert @recurring.valid?
+  end
+
+  test "should allow predefined recurring_category for expense transactions" do
+    @recurring.transaction_type = "expense"
+    @recurring.recurring_category = "subscription"
+    assert @recurring.valid?
+  end
+
+  test "should allow custom recurring_category that exists for account" do
+    custom_category = RecurringCategory.create!(
+      account: @account,
+      name: "Gym Membership",
+      transaction_type: "expense"
+    )
+    
+    @recurring.transaction_type = "expense"
+    @recurring.recurring_category = "Gym Membership"
+    assert @recurring.valid?
+  end
+
+  test "should not allow recurring_category that doesn't match transaction_type" do
+    @recurring.transaction_type = "expense"
+    @recurring.recurring_category = "salary"  # salary is for income
+    assert_not @recurring.valid?
+    assert_includes @recurring.errors[:recurring_category], "must be a valid category for expense transactions"
+  end
+
+  test "should not allow recurring_category that doesn't exist" do
+    @recurring.transaction_type = "expense"
+    @recurring.recurring_category = "Non-existent Category"
+    assert_not @recurring.valid?
+    assert_includes @recurring.errors[:recurring_category], "must be a valid category for expense transactions"
+  end
+
+  test "recurring_category_name should return humanized predefined category" do
+    @recurring.recurring_category = "salary"
+    assert_equal "Salary", @recurring.recurring_category_name
+  end
+
+  test "recurring_category_name should return custom category name" do
+    custom_category = RecurringCategory.create!(
+      account: @account,
+      name: "Gym Membership",
+      transaction_type: "expense"
+    )
+    
+    @recurring.transaction_type = "expense"
+    @recurring.recurring_category = "Gym Membership"
+    assert_equal "Gym Membership", @recurring.recurring_category_name
+  end
+
+  test "available_categories should include predefined and custom categories" do
+    custom_category = RecurringCategory.create!(
+      account: @account,
+      name: "Custom Category",
+      transaction_type: "expense"
+    )
+    
+    @recurring.transaction_type = "expense"
+    categories = @recurring.available_categories
+    
+    assert_includes categories, "subscription"  # predefined
+    assert_includes categories, "Custom Category"  # custom
+  end
+
+  # Tolerance type validation tests
+  test "should validate tolerance_type is fixed or percentage" do
+    @recurring.tolerance_type = "invalid"
+    assert_not @recurring.valid?
+    assert_includes @recurring.errors[:tolerance_type], "is not included in the list"
+
+    @recurring.tolerance_type = "fixed"
+    assert @recurring.valid?
+
+    @recurring.tolerance_type = "percentage"
+    assert @recurring.valid?
+  end
 end

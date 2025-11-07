@@ -2,29 +2,31 @@
 <% compact = local_assigns.fetch(:compact, false) %>
 <% show_date = local_assigns.fetch(:show_date, false) %>
 
-<tr class="hover:bg-gray-50 dark:hover:bg-gray-700 <%= transaction.is_hypothetical ? 'bg-purple-50 dark:bg-purple-900/20' : '' %>">
+<tr id="transaction-<%= transaction.id %>-row"
+    class="<%= transaction.is_hypothetical ? 'bg-purple-50 dark:bg-purple-900/20' : '' %> hover:bg-gray-50 dark:hover:bg-gray-700"
+    <%= 'aria-label="Hypothetical transaction: ' + transaction.description + '"' if transaction.is_hypothetical %>>
   <% if show_date %>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+    <td id="transaction-<%= transaction.id %>-date-cell" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
       <%= transaction.transaction_date.strftime("%b %d, %Y") %>
     </td>
   <% end %>
 
-  <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
+  <td id="transaction-<%= transaction.id %>-description-cell" class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
     <%= transaction.description %>
   </td>
-  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+  <td id="transaction-<%= transaction.id %>-category-cell" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
     <%= transaction.category&.humanize || "Uncategorized" %>
   </td>
-  <td class="px-6 py-4 whitespace-nowrap">
-    <div class="flex gap-1">
+  <td id="transaction-<%= transaction.id %>-status-cell" class="px-6 py-4 whitespace-nowrap">
+    <div class="flex items-center gap-1.5">
       <%= transaction_status_badge(transaction, compact: compact) %>
       <%= transaction_recurring_badge(transaction, compact: compact) %>
     </div>
   </td>
-  <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold">
+  <td id="transaction-<%= transaction.id %>-amount-cell" class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold">
     <%= formatted_transaction_amount(transaction) %>
   </td>
-  <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+  <td id="transaction-<%= transaction.id %>-actions-cell" class="px-6 py-4 whitespace-nowrap text-sm text-right">
     <%= transaction_action_buttons(transaction) %>
   </td>
 </tr>

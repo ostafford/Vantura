@@ -187,10 +187,12 @@ module UpBank
           transaction_date: transaction_attrs[:transaction_date]
         )
 
-        # Check if date is within expected window (±3 days)
-        date_match = (temp_transaction.transaction_date - recurring.next_occurrence_date).abs <= 3
+        # Check if date is within expected window (configurable tolerance)
+        tolerance_days = recurring.date_tolerance_days || 3
+        date_match = (temp_transaction.transaction_date - recurring.next_occurrence_date).abs <= tolerance_days
 
-        date_match && recurring.matches_transaction?(temp_transaction)
+        # Pass category for optional matching
+        date_match && recurring.matches_transaction?(temp_transaction, category: transaction_attrs[:category])
       end
     end
 

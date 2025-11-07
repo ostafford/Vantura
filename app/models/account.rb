@@ -3,6 +3,7 @@ class Account < ApplicationRecord
   belongs_to :user, optional: true # Made optional for backward compatibility with existing data
   has_many :transactions, dependent: :destroy
   has_many :recurring_transactions, dependent: :destroy
+  has_many :recurring_categories, dependent: :destroy
 
   # Validations
   validates :up_account_id, presence: true, uniqueness: true

@@ -2,53 +2,20 @@ class RecurringTransactionsController < ApplicationController
   include AccountLoadable
 
   before_action :authorize_account_ownership!, only: [ :index ]
-  before_action :load_account, except: [ :create ]
-  before_action :set_recurring_transaction, only: [ :show, :edit, :update, :destroy, :toggle_active ]
+  before_action :load_account, except: [ :create, :suggest_frequency ]
+  before_action :set_recurring_transaction, only: [ :edit, :update, :destroy, :toggle_active ]
 
   def index
     return unless load_account
 
     @recurring_transactions = @account.recurring_transactions.order(created_at: :desc)
-
-    # Calculate weekly and monthly breakdowns
-    calculate_breakdowns
-  end
-
-  def calculate_breakdowns
-    # Get active recurring transactions
-    active = @account.recurring_transactions.active
-
-    # Calculate weekly breakdown
-    week_start = Date.today.beginning_of_week(:monday)
-    week_end = Date.today.end_of_week(:monday)
-
-    # Get recurring transactions due this week
-    week_recurring = active.where("next_occurrence_date <= ? AND next_occurrence_date >= ?", week_end, week_start)
-
-    @week_income = week_recurring.where(transaction_type: "income").sum(:amount)
-    @week_expenses = week_recurring.where(transaction_type: "expense").sum(:amount).abs
-
-    # Calculate monthly breakdown
-    month_start = Date.today.beginning_of_month
-    month_end = Date.today.end_of_month
-
-    # Get recurring transactions due this month
-    month_recurring = active.where("next_occurrence_date <= ? AND next_occurrence_date >= ?", month_end, month_start)
-
-    @month_income = month_recurring.where(transaction_type: "income").sum(:amount)
-    @month_expenses = month_recurring.where(transaction_type: "expense").sum(:amount).abs
-
-    # Get next occurrence
-    next_occurrence = active.where("next_occurrence_date >= ?", Date.today).order(:next_occurrence_date).first
-    @next_occurrence_date = next_occurrence&.next_occurrence_date
-    @next_occurrence_amount = next_occurrence&.amount
-    @next_occurrence_desc = next_occurrence&.description
-  end
-  private :calculate_breakdowns
-
-  def show
-    # Recurring transaction is already loaded by before_action
-    respond_to { |format| format.html; format.turbo_stream }
+    
+    # Filter by category if provided
+    if params[:category].present?
+      @recurring_transactions = @recurring_transactions.where(recurring_category: params[:category])
+    end
+    
+    @breakdown = RecurringTransactions::BreakdownService.call(@account)
   end
 
   def edit
@@ -56,8 +23,26 @@ class RecurringTransactionsController < ApplicationController
   end
 
   def update
-    if @recurring.update(recurring_transaction_params)
-      redirect_to @recurring, notice: "Recurring transaction updated successfully."
+    params_hash = recurring_transaction_params.to_h
+    
+    # Handle custom category creation if "other" is selected
+    if params_hash["recurring_category"] == "other" && params[:custom_category_name].present?
+      custom_category = @account.recurring_categories.find_or_create_by(
+        name: params[:custom_category_name].strip,
+        transaction_type: @recurring.transaction_type
+      )
+      
+      if custom_category.persisted?
+        params_hash["recurring_category"] = custom_category.name
+      else
+        @recurring.errors.add(:recurring_category, "Error creating custom category: #{custom_category.errors.full_messages.join(', ')}")
+        render :edit, status: :unprocessable_entity
+        return
+      end
+    end
+    
+    if @recurring.update(params_hash)
+      redirect_to recurring_transactions_path(account_id: @account.id), notice: "Recurring transaction updated successfully."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -67,6 +52,28 @@ class RecurringTransactionsController < ApplicationController
     @transaction = Transaction.find(params[:transaction_id])
     @account = @transaction.account
 
+    # Handle custom category creation if "other" is selected
+    recurring_category = params[:recurring_category]
+    custom_category_name = params[:custom_category_name]
+    
+    if recurring_category == "other" && custom_category_name.present?
+      # Create or find custom category
+      custom_category = @account.recurring_categories.find_or_create_by(
+        name: custom_category_name.strip,
+        transaction_type: @transaction.transaction_type
+      )
+      
+      if custom_category.persisted?
+        recurring_category = custom_category.name
+      else
+        redirect_back(
+          fallback_location: root_path,
+          alert: "Error creating custom category: #{custom_category.errors.full_messages.join(', ')}"
+        )
+        return
+      end
+    end
+
     # Create recurring transaction based on the selected transaction
     @recurring = @account.recurring_transactions.new(
       template_transaction_id: @transaction.id,
@@ -74,10 +81,14 @@ class RecurringTransactionsController < ApplicationController
       amount: @transaction.amount,
       category: @transaction.category,
       merchant_pattern: RecurringTransaction.extract_merchant_pattern(@transaction.description),
-      amount_tolerance: params[:amount_tolerance] || 1.0,
+      amount_tolerance: params[:amount_tolerance] || 5.0,
+      date_tolerance_days: params[:date_tolerance_days] || 3,
+      tolerance_type: params[:tolerance_type] || "fixed",
+      tolerance_percentage: params[:tolerance_percentage],
       frequency: params[:frequency],
       next_occurrence_date: params[:next_occurrence_date],
       transaction_type: @transaction.transaction_type,
+      recurring_category: recurring_category,
       projection_months: params[:projection_months] || "indefinite",
       is_active: true
     )
@@ -97,6 +108,15 @@ class RecurringTransactionsController < ApplicationController
         alert: "Error creating recurring transaction: #{@recurring.errors.full_messages.join(', ')}"
       )
     end
+  end
+
+  def suggest_frequency
+    @transaction = Transaction.find(params[:transaction_id])
+    @account = @transaction.account
+
+    result = RecurringTransactions::FrequencyDetectionService.call(@account, @transaction)
+
+    render json: result
   end
 
   def destroy
@@ -144,6 +164,10 @@ class RecurringTransactionsController < ApplicationController
   end
 
   def recurring_transaction_params
-    params.require(:recurring_transaction).permit(:description, :amount, :frequency, :next_occurrence_date, :transaction_type, :category, :merchant_pattern, :amount_tolerance, :projection_months, :is_active)
+    params.require(:recurring_transaction).permit(
+      :description, :amount, :frequency, :next_occurrence_date, :transaction_type,
+      :category, :merchant_pattern, :amount_tolerance, :date_tolerance_days,
+      :tolerance_type, :tolerance_percentage, :recurring_category, :projection_months, :is_active
+    )
   end
 end

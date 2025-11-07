@@ -11,6 +11,8 @@ monthly_rent:
   category: rent
   merchant_pattern: landlord
   amount_tolerance: 10.0
+  date_tolerance_days: 3
+  tolerance_type: fixed
   projection_months: indefinite
 
 weekly_grocery:
@@ -24,6 +26,8 @@ weekly_grocery:
   category: groceries
   merchant_pattern: woolworths
   amount_tolerance: 20.0
+  date_tolerance_days: 3
+  tolerance_type: fixed
   projection_months: "3"
 
 fortnightly_income:
@@ -35,6 +39,9 @@ fortnightly_income:
   is_active: true
   transaction_type: income
   category: salary
+  recurring_category: salary
+  date_tolerance_days: 3
+  tolerance_type: fixed
   projection_months: indefinite
 
 inactive_subscription:
@@ -46,4 +53,6 @@ inactive_subscription:
   is_active: false
   transaction_type: expense
   category: subscription
+  date_tolerance_days: 3
+  tolerance_type: fixed
   projection_months: "1"

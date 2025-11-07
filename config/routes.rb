@@ -55,11 +55,17 @@ Rails.application.routes.draw do
   end
 
   # Recurring transactions
-  resources :recurring_transactions, only: [ :index, :show, :create, :edit, :update, :destroy ] do
+  resources :recurring_transactions, only: [ :index, :create, :edit, :update, :destroy ] do
+    collection do
+      get :suggest_frequency
+    end
     member do
       post :toggle_active
     end
   end
+
+  # Recurring categories
+  resources :recurring_categories, only: [ :index, :create, :destroy ]
 
   # Health check and PWA routes...
   get "up" => "rails/health#show", as: :rails_health_check

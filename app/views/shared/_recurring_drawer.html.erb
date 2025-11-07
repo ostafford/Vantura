@@ -55,7 +55,15 @@
 
             <!-- Frequency Selection -->
             <div>
-              <label for="recurring-frequency-select" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">How often does this occur?</label>
+              <div class="flex items-center justify-between mb-2">
+                <label for="recurring-frequency-select" class="block text-sm font-semibold text-gray-700 dark:text-gray-200">How often does this occur?</label>
+                <button type="button" 
+                        id="auto-detect-frequency-button"
+                        data-action="click->recurring-modal#autoDetectFrequency"
+                        class="text-xs text-info-600 dark:text-info-400 hover:text-info-700 dark:hover:text-info-300 font-medium">
+                  Auto-detect
+                </button>
+              </div>
               <select name="frequency" id="recurring-frequency-select" required 
                       data-recurring-modal-target="frequencySelect"
                       data-action="change->recurring-modal#updateNextOccurrenceDate"
@@ -67,6 +75,35 @@
                 <option value="quarterly">Quarterly (every 3 months)</option>
                 <option value="yearly">Yearly</option>
               </select>
+              <div id="frequency-suggestion" class="hidden mt-2 text-xs text-info-600 dark:text-info-400"></div>
+            </div>
+
+            <!-- Recurring Category -->
+            <div id="recurring-category-field">
+              <label for="recurring-category-select" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                Category (optional)
+              </label>
+              <select name="recurring_category" id="recurring-category-select" 
+                      data-recurring-modal-target="categorySelect"
+                      data-action="change->recurring-modal#toggleCustomCategory"
+                      class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all">
+                <option value="">None</option>
+                <!-- Options will be populated by JavaScript based on transaction type -->
+              </select>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Helps categorize your recurring transactions</p>
+              
+              <!-- Custom Category Input (shown when "Other" is selected) -->
+              <div id="custom-category-field" class="hidden mt-3">
+                <label for="custom-category-name-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  Custom Category Name
+                </label>
+                <input type="text" 
+                       name="custom_category_name" 
+                       id="custom-category-name-input"
+                       placeholder="e.g., Gym Membership, Client Payment"
+                       class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all" />
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">This will be saved for future use</p>
+              </div>
             </div>
 
             <!-- Next Occurrence Date -->
@@ -98,8 +135,21 @@
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Indefinite will continue projecting as you navigate future months</p>
             </div>
 
-            <!-- Amount Tolerance -->
+            <!-- Tolerance Type -->
             <div>
+              <label for="recurring-tolerance-type-select" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                Tolerance Type
+              </label>
+              <select name="tolerance_type" id="recurring-tolerance-type-select" 
+                      data-action="change->recurring-modal#toggleToleranceType"
+                      class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all">
+                <option value="fixed" selected>Fixed Amount ($)</option>
+                <option value="percentage">Percentage (%)</option>
+              </select>
+            </div>
+
+            <!-- Amount Tolerance (Fixed) -->
+            <div id="fixed-tolerance-field">
               <label for="recurring-transaction-amount-tolerance-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                 Amount matching tolerance
               </label>
@@ -108,11 +158,43 @@
                 <%= f.number_field :amount_tolerance,
                     id: "recurring-transaction-amount-tolerance-input", 
                     step: 0.01,
-                    value: 1.0,
+                    value: 5.0,
                     class: "w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all",
                     min: 0 %>
               </div>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Allows matching transactions with slightly different amounts</p>
+            </div>
+
+            <!-- Percentage Tolerance -->
+            <div id="percentage-tolerance-field" class="hidden">
+              <label for="recurring-tolerance-percentage-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                Percentage tolerance
+              </label>
+              <div class="relative">
+                <%= f.number_field :tolerance_percentage,
+                    id: "recurring-tolerance-percentage-input",
+                    step: 0.01,
+                    placeholder: "5.0",
+                    class: "w-full px-4 py-3 pr-8 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all",
+                    min: 0,
+                    max: 100 %>
+                <span class="absolute right-4 top-3 text-gray-500 dark:text-gray-400 font-semibold">%</span>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Percentage of transaction amount (e.g., 5% of $100 = $5 tolerance)</p>
+            </div>
+
+            <!-- Date Tolerance -->
+            <div>
+              <label for="recurring-date-tolerance-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                Date matching tolerance
+              </label>
+              <%= f.number_field :date_tolerance_days,
+                  id: "recurring-date-tolerance-input",
+                  value: 3,
+                  min: 1,
+                  max: 14,
+                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all" %>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5">Days before/after expected date to still match (1-14 days)</p>
             </div>
 
             <!-- Info Box -->

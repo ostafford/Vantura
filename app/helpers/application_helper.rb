@@ -1,21 +1,28 @@
 module ApplicationHelper
   # Render transaction status badges (Hypothetical, Pending, Settled)
   def transaction_status_badge(transaction, compact: false)
+    badge_id = "transaction-#{transaction.id}-status-badge"
     if transaction.is_hypothetical
       content_tag :span, "Hypothetical",
+        id: badge_id,
         class: compact ?
           "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300" :
-          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300"
+          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300",
+        "aria-label": "Transaction status: Hypothetical"
     elsif transaction.status == "HELD"
       content_tag :span, "Pending",
+        id: badge_id,
         class: compact ?
           "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300" :
-          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300"
+          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300",
+        "aria-label": "Transaction status: Pending"
     else
       content_tag :span, "Settled",
+        id: badge_id,
         class: compact ?
           "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300" :
-          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 dark:bg-success-900/30 text-success-800 dark:text-success-300"
+          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 dark:bg-success-900/30 text-success-800 dark:text-success-300",
+        "aria-label": "Transaction status: Settled"
     end
   end
 
@@ -23,14 +30,34 @@ module ApplicationHelper
   def transaction_recurring_badge(transaction, compact: false)
     return unless transaction.recurring?
 
-    content_tag :span, class: compact ?
-      "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300" :
-      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300" do
-      concat content_tag(:svg, class: "w-3 h-3 mr-1", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
-        tag.path "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-      end
-      concat "Recurring"
+    content_tag :span, "Recurring",
+      id: "transaction-#{transaction.id}-recurring-badge",
+      class: compact ?
+        "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300" :
+        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300",
+      "aria-label": "Recurring transaction"
+  end
+
+  # Render recurring category badge
+  def recurring_category_badge(recurring_transaction, compact: false)
+    return unless recurring_transaction.recurring_category.present?
+
+    category_name = recurring_transaction.recurring_category_name
+    transaction_type = recurring_transaction.transaction_type
+
+    # Color coding based on transaction type and category
+    color_classes = if transaction_type == "income"
+      "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+    else
+      "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
     end
+
+    content_tag :span, category_name,
+      id: "recurring-transaction-#{recurring_transaction.id}-category-badge",
+      class: compact ?
+        "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium #{color_classes}" :
+        "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium #{color_classes}",
+      "aria-label": "Category: #{category_name}"
   end
 
   # Format transaction amount with color
@@ -59,10 +86,12 @@ module ApplicationHelper
     if transaction.is_hypothetical && !transaction.recurring?
       # Remove button for hypothetical transactions
       button_to transaction_path(transaction), method: :delete,
+          id: "transaction-#{transaction.id}-remove-button",
           form: { class: "inline-block", data: { turbo_confirm: "Remove this hypothetical transaction?" } },
-          class: "inline-flex items-center px-3 py-1 bg-expense-100 dark:bg-expense-900/30 text-expense-700 dark:text-expense-300 rounded-lg hover:bg-expense-200 dark:hover:bg-expense-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-expense-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium" do
+          class: "inline-flex items-center px-3 py-1 bg-expense-100 dark:bg-expense-900/30 text-expense-700 dark:text-expense-300 rounded-lg hover:bg-expense-200 dark:hover:bg-expense-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-expense-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium",
+          "aria-label": "Remove hypothetical transaction: #{transaction.description}" do
         svg_icon = <<~HTML.html_safe
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
           </svg>
         HTML
@@ -71,6 +100,7 @@ module ApplicationHelper
     elsif !transaction.is_hypothetical && !transaction.recurring?
       # Make Recurring button for real transactions
       button_tag type: "button",
+          id: "transaction-#{transaction.id}-make-recurring-button",
           data: {
             action: "click->recurring-modal#open",
             transaction_id: transaction.id,
@@ -78,9 +108,10 @@ module ApplicationHelper
             amount: transaction.amount,
             transaction_date: transaction.transaction_date
           },
-          class: "inline-flex items-center px-3 py-1 bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-300 rounded-lg hover:bg-info-200 dark:hover:bg-info-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-info-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium" do
+          class: "inline-flex items-center px-3 py-1 bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-300 rounded-lg hover:bg-info-200 dark:hover:bg-info-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-info-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium",
+          "aria-label": "Make transaction recurring: #{transaction.description}" do
         svg_icon = <<~HTML.html_safe
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
         HTML
@@ -88,9 +119,12 @@ module ApplicationHelper
       end
     elsif transaction.recurring?
       # Display Recurring badge for recurring transactions
-      content_tag :span, class: "inline-flex items-center px-3 py-1 bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-300 rounded-lg text-xs font-medium" do
+      content_tag :span, 
+        id: "transaction-#{transaction.id}-recurring-action-badge",
+        class: "inline-flex items-center px-3 py-1 bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-300 rounded-lg text-xs font-medium",
+        "aria-label": "Recurring transaction" do
         svg_icon = <<~HTML.html_safe
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
         HTML

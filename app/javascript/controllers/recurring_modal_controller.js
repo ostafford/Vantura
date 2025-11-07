@@ -2,10 +2,14 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="recurring-modal"
 export default class extends Controller {
-  static targets = ["modal", "form", "description", "amount", "transactionId", "nextOccurrenceDate", "frequencySelect", "drawer", "content"]
+  static targets = ["modal", "form", "description", "amount", "transactionId", "nextOccurrenceDate", "frequencySelect", "drawer", "content", "categorySelect"]
   
   currentTransactionId = null
   currentTransactionDate = null
+  
+  // Pre-defined categories
+  PREDEFINED_INCOME = ['salary', 'freelance', 'investment', 'rental', 'other']
+  PREDEFINED_EXPENSE = ['subscription', 'bill', 'loan', 'insurance', 'other']
 
   // Open the recurring drawer
   open(event) {
@@ -25,6 +29,30 @@ export default class extends Controller {
     const amountColor = amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
     this.amountTarget.textContent = formattedAmount
     this.amountTarget.className = 'font-semibold ' + amountColor
+    
+    // Populate category options based on transaction type
+    this.populateCategories(amount > 0 ? 'income' : 'expense')
+    
+    // Smart defaults for income transactions
+    if (amount > 0) {
+      // Pre-select monthly frequency for income
+      if (this.frequencySelectTarget && !this.frequencySelectTarget.value) {
+        this.frequencySelectTarget.value = 'monthly'
+        this.updateNextOccurrenceDate({ target: this.frequencySelectTarget })
+      }
+      
+      // Pre-select "salary" category for income
+      if (this.hasCategorySelectTarget && !this.categorySelectTarget.value) {
+        this.categorySelectTarget.value = 'salary'
+      }
+    }
+    
+    // Reset frequency suggestion
+    const suggestionDiv = document.getElementById('frequency-suggestion')
+    if (suggestionDiv) {
+      suggestionDiv.classList.add('hidden')
+      suggestionDiv.textContent = ''
+    }
     
     // Show container
     this.modalTarget.classList.remove('hidden')
@@ -111,6 +139,127 @@ export default class extends Controller {
   closeOnBackground(event) {
     if (event.target === this.modalTarget) {
       this.close(event)
+    }
+  }
+
+  // Auto-detect frequency from transaction history
+  async autoDetectFrequency(event) {
+    event.preventDefault()
+    
+    if (!this.currentTransactionId) return
+    
+    const button = event.currentTarget
+    button.disabled = true
+    button.textContent = 'Detecting...'
+    
+    try {
+      const response = await fetch(`/recurring_transactions/suggest_frequency?transaction_id=${this.currentTransactionId}`, {
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.frequency && data.confidence > 0) {
+        // Set the frequency
+        this.frequencySelectTarget.value = data.frequency
+        this.updateNextOccurrenceDate({ target: this.frequencySelectTarget })
+        
+        // Show suggestion
+        const suggestionDiv = document.getElementById('frequency-suggestion')
+        if (suggestionDiv) {
+          const frequencyLabel = data.frequency.charAt(0).toUpperCase() + data.frequency.slice(1)
+          suggestionDiv.textContent = `Suggested: ${frequencyLabel} (${data.confidence}% confidence)`
+          suggestionDiv.classList.remove('hidden')
+        }
+      } else {
+        // No suggestion found
+        const suggestionDiv = document.getElementById('frequency-suggestion')
+        if (suggestionDiv) {
+          suggestionDiv.textContent = 'No pattern detected. Please select manually.'
+          suggestionDiv.classList.remove('hidden')
+          suggestionDiv.className = 'mt-2 text-xs text-gray-500 dark:text-gray-400'
+        }
+      }
+    } catch (error) {
+      console.error('Error detecting frequency:', error)
+      const suggestionDiv = document.getElementById('frequency-suggestion')
+      if (suggestionDiv) {
+        suggestionDiv.textContent = 'Unable to detect pattern. Please select manually.'
+        suggestionDiv.classList.remove('hidden')
+        suggestionDiv.className = 'mt-2 text-xs text-red-500 dark:text-red-400'
+      }
+    } finally {
+      button.disabled = false
+      button.textContent = 'Auto-detect'
+    }
+  }
+
+  // Toggle between fixed and percentage tolerance
+  toggleToleranceType(event) {
+    const toleranceType = event.target.value
+    const fixedField = document.getElementById('fixed-tolerance-field')
+    const percentageField = document.getElementById('percentage-tolerance-field')
+    
+    if (toleranceType === 'percentage') {
+      fixedField.classList.add('hidden')
+      percentageField.classList.remove('hidden')
+    } else {
+      fixedField.classList.remove('hidden')
+      percentageField.classList.add('hidden')
+    }
+  }
+
+  // Populate category options based on transaction type
+  populateCategories(transactionType) {
+    if (!this.hasCategorySelectTarget) return
+    
+    const select = this.categorySelectTarget
+    const currentValue = select.value
+    
+    // Clear existing options (except "None")
+    while (select.options.length > 1) {
+      select.remove(1)
+    }
+    
+    // Get predefined categories
+    const predefined = transactionType === 'income' ? this.PREDEFINED_INCOME : this.PREDEFINED_EXPENSE
+    
+    // Add predefined options
+    predefined.forEach(category => {
+      const option = document.createElement('option')
+      option.value = category
+      option.textContent = category.charAt(0).toUpperCase() + category.slice(1)
+      select.appendChild(option)
+    })
+    
+    // TODO: Fetch custom categories from account via AJAX if needed
+    // For now, we'll rely on the server to handle custom categories
+    
+    // Restore previous value if it still exists
+    if (currentValue) {
+      const option = Array.from(select.options).find(opt => opt.value === currentValue)
+      if (option) {
+        select.value = currentValue
+      }
+    }
+  }
+
+  // Toggle custom category input when "other" is selected
+  toggleCustomCategory(event) {
+    const categorySelect = event.target
+    const customCategoryField = document.getElementById('custom-category-field')
+    const customCategoryInput = document.getElementById('custom-category-name-input')
+    
+    if (categorySelect.value === 'other') {
+      customCategoryField.classList.remove('hidden')
+      customCategoryInput.required = true
+    } else {
+      customCategoryField.classList.add('hidden')
+      customCategoryInput.required = false
+      customCategoryInput.value = ''
     }
   }
 
