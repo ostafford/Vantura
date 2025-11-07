@@ -1,75 +1,51 @@
 class SettingsController < ApplicationController
+  include Settings::Profile
+  include Settings::Integrations::UpBank
+
   def show
-    # Show settings page with token form
+    @user = Current.user
+    @accounts_count = @user.accounts.count
+    @projects_count = user_projects_count
   end
 
-  def update
-    token = user_params[:up_bank_token]
+  def update_profile
+    update_user_profile
+  end
 
-    # Only validate if user is actually changing the token (not just dots)
-    if token.present? && !token.match?(/^•+$/)
-      # Use Rails.error.handle to capture errors and provide fallback behavior
-      Rails.error.handle(StandardError, context: { user_id: Current.user.id, action: "update_up_bank_token" }) do
-        # Validate token by pinging Up Bank API
-        unless validate_up_bank_token(token)
-          redirect_to settings_path, alert: "❌ Invalid Up Bank token. Please check your token and try again."
-          return
-        end
+  def update_up_bank_integration
+    update_up_bank_token
+  end
 
-        # Token is valid, save it
-        if Current.user.update(up_bank_token: token)
-          Rails.logger.info "[SECURITY] UP Bank token updated for: #{Current.user.email_address} from IP: #{request.remote_ip}"
-          # Automatically sync the user's data
-          Rails.logger.info "Starting auto-sync for user #{Current.user.id} after token configuration"
-          sync_result = UpBank::SyncService.call(Current.user)
+  def destroy
+    # Delete the user and all associated data
+    user = Current.user
 
-          if sync_result[:success]
-            redirect_to root_path, notice: "✅ Token validated and data synced! Added #{sync_result[:new_transactions]} transactions."
-          else
-            redirect_to root_path, alert: "⚠️ Token saved but sync failed: #{sync_result[:error]}. Please try clicking 'Sync Now' on the Dashboard."
-          end
-        else
-          render :show, status: :unprocessable_entity, alert: "Failed to save token: #{Current.user.errors.full_messages.join(', ')}"
-        end
-      end || redirect_to(settings_path, alert: "❌ An error occurred. Please try again.")
-    else
-      redirect_to settings_path, alert: "Please enter a valid Up Bank token."
-    end
+    # Log the deletion for audit purposes
+    Rails.logger.info "User #{user.id} (#{user.email_address}) requested account deletion"
+
+    # Count data for confirmation message
+    accounts_count = user.accounts.count
+    transactions_count = user.accounts.joins(:transactions).count
+
+    # Destroy user (cascades to sessions, accounts, transactions, recurring transactions)
+    user.destroy!
+
+    # Terminate session (user is already gone)
+    cookies.delete(:session_id)
+
+    # Log successful deletion
+    Rails.logger.info "User account deleted: #{accounts_count} accounts, #{transactions_count} transactions removed"
+
+    redirect_to new_session_path, notice: "Your account and all associated data have been permanently deleted. Thank you for using Vantura."
   end
 
   private
 
-  def user_params
-    params.require(:user).permit(:up_bank_token)
-  end
-
-  def validate_up_bank_token(token)
-    # Test the token by pinging Up Bank API
-    Rails.logger.info "Validating Up Bank token..."
-    client = UpBank::Client.new(token)
-    response = client.ping
-
-    # Check if ping was successful
-    is_valid = response.present? && response.dig(:meta, :statusEmoji) == "⚡️"
-
-    if is_valid
-      Rails.logger.info "✅ Up Bank token validation successful!"
-    else
-      Rails.logger.warn "❌ Up Bank token validation failed - unexpected response"
-    end
-
-    is_valid
-  rescue StandardError => e
-    # Report validation errors to error tracker with context
-    Rails.error.report(e,
-      handled: true,
-      severity: :warning,
-      context: {
-        user_id: Current.user&.id,
-        action: "validate_up_bank_token"
-      }
-    )
-    Rails.logger.error "❌ Up Bank token validation failed: #{e.message}"
-    false
+  def user_projects_count
+    Project
+      .joins("LEFT JOIN project_memberships ON project_memberships.project_id = projects.id")
+      .where("projects.owner_id = :uid OR project_memberships.user_id = :uid", uid: Current.user.id)
+      .distinct
+      .count
   end
 end

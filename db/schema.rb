@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_07_012241) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_07_043227) do
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -128,6 +128,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_012241) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "last_active_at"
+    t.index ["last_active_at"], name: "index_sessions_on_last_active_at"
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 

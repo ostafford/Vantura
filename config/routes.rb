@@ -8,10 +8,12 @@ Rails.application.routes.draw do
   post "sign_up", to: "registrations#create"
 
   # Settings
-  resource :settings, only: [ :show, :update ]
-
-  # Account management
-  resource :account, only: [ :show, :edit, :update, :destroy ], controller: "account"
+  resource :settings, only: [ :show, :destroy ] do
+    member do
+      patch :update_profile
+      patch :update_up_bank_integration
+    end
+  end
 
   # Dashboard
   root "dashboard#index"

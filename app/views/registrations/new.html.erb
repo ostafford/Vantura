@@ -11,9 +11,9 @@
       </div>
 
       <!-- Form -->
-      <%= form_with model: @user, url: sign_up_path, class: "p-8 space-y-6" do |form| %>
+      <%= form_with model: @user, url: sign_up_path, id: "user-registration-form", class: "p-8 space-y-6" do |form| %>
         <% if @user.errors.any? %>
-          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div id="user-registration-errors-container" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
             <h3 class="font-semibold text-red-900 dark:text-red-100 mb-2">
               <%= pluralize(@user.errors.count, "error") %> prevented this account from being created:
             </h3>
@@ -27,10 +27,11 @@
 
         <!-- Email Address -->
         <div>
-          <label for="user_email_address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label for="user-email-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Email Address
           </label>
           <%= form.email_field :email_address,
+              id: "user-email-input",
               required: true,
               autofocus: true,
               autocomplete: "username",
@@ -40,10 +41,11 @@
 
         <!-- Password -->
         <div>
-          <label for="user_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label for="user-password-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Password
           </label>
           <%= form.password_field :password,
+              id: "user-password-input",
               required: true,
               autocomplete: "new-password",
               placeholder: "Create a secure password",
@@ -56,10 +58,11 @@
 
         <!-- Password Confirmation -->
         <div>
-          <label for="user_password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label for="user-password-confirmation-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Confirm Password
           </label>
           <%= form.password_field :password_confirmation,
+              id: "user-password-confirmation-input",
               required: true,
               autocomplete: "new-password",
               placeholder: "Re-enter your password",
@@ -70,6 +73,7 @@
         <!-- Submit Button -->
         <div>
           <%= form.submit "Create Account",
+              id: "user-registration-submit-button",
               class: "w-full bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white px-6 py-3 rounded-xl transition-all font-semibold shadow-lg text-center" %>
         </div>
 
