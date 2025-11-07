@@ -1,3 +1,5 @@
+require "bigdecimal"
+
 module UpBank
   class SyncService < ApplicationService
     def initialize(user, account_id: nil)
@@ -86,7 +88,7 @@ module UpBank
       account.assign_attributes(
         display_name: attrs[:displayName],
         account_type: attrs[:accountType],
-        current_balance: attrs[:balance][:value].to_f,
+        current_balance: BigDecimal(attrs[:balance][:value].to_s),
         last_synced_at: Time.current
       )
 
@@ -143,7 +145,7 @@ module UpBank
       transaction_attrs = {
         description: attrs[:description],
         merchant: extract_merchant(attrs),
-        amount: attrs[:amount][:value].to_f,
+        amount: BigDecimal(attrs[:amount][:value].to_s),
         category: category,
         transaction_date: Date.parse(attrs[:createdAt]),
         status: status,

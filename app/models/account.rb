@@ -1,4 +1,9 @@
+require "bigdecimal"
+
 class Account < ApplicationRecord
+  MAX_BALANCE = BigDecimal("99999999.99").freeze
+  MIN_BALANCE = -MAX_BALANCE
+
   # Associations
   belongs_to :user, optional: true # Made optional for backward compatibility with existing data
   has_many :transactions, dependent: :destroy
@@ -10,7 +15,12 @@ class Account < ApplicationRecord
   validates :up_account_id, presence: true, uniqueness: true
   validates :display_name, presence: true
   validates :account_type, presence: true
-  validates :current_balance, presence: true, numericality: true
+  validates :current_balance,
+            presence: true,
+            numericality: {
+              greater_than_or_equal_to: MIN_BALANCE,
+              less_than_or_equal_to: MAX_BALANCE
+            }
 
   # Enums for account types (matching Up Bank API)
   enum :account_type, {
@@ -23,21 +33,37 @@ class Account < ApplicationRecord
   # @param date [Date] The date within the month to calculate for
   # @return [Float] The projected balance at the end of the month
   def end_of_month_balance(date = Date.today)
+    normalized_date = normalized_projection_date(date)
     today = Date.today
-    month_end = date.end_of_month
+    month_end = normalized_date.end_of_month
 
     if month_end < today
       # For past months: current balance minus all transactions from after month_end up to today
       # To get the balance at end of past month, we reverse all transactions that happened after
       # Using exclusive start (> month_end) and inclusive end (<= today) to match calendar_controller pattern
       transactions_after_month = transactions.where("transaction_date > ? AND transaction_date <= ?", month_end, today)
-      sum_after = transactions_after_month.sum(:amount) || 0.0
+      sum_after = transactions_after_month.sum(:amount) || BigDecimal("0")
       current_balance - sum_after
     else
       # For current/future months: current balance plus all FUTURE transactions (after today)
       transactions_until_month_end = transactions
                                       .where(transaction_date: (today + 1.day)..month_end)
-      current_balance + transactions_until_month_end.sum(:amount)
+      future_sum = transactions_until_month_end.sum(:amount) || BigDecimal("0")
+      current_balance + future_sum
     end
+  end
+
+  private
+
+  def normalized_projection_date(date)
+    candidate = date || Date.today
+
+    if candidate.respond_to?(:to_date)
+      candidate.to_date
+    else
+      Date.parse(candidate.to_s)
+    end
+  rescue ArgumentError, TypeError
+    raise ArgumentError, "end_of_month_balance expects a Date-compatible argument"
   end
 end

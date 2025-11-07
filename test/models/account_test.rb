@@ -115,6 +115,31 @@ class AccountTest < ActiveSupport::TestCase
     assert_includes @account.errors[:current_balance], "is not a number"
   end
 
+  test "should allow negative current_balance within permitted range" do
+    account = Account.new(
+      up_account_id: "loan_account_123",
+      display_name: "Loan Account",
+      account_type: "HOME_LOAN",
+      current_balance: -50_000.25,
+      user: @user
+    )
+
+    assert account.valid?
+  end
+
+  test "should not allow current_balance beyond permitted range" do
+    account = Account.new(
+      up_account_id: "overflow_account_123",
+      display_name: "Overflow Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: Account::MAX_BALANCE + BigDecimal("1.00"),
+      user: @user
+    )
+
+    assert_not account.valid?
+    assert account.errors[:current_balance].any? { |error| error.include?("must be less than or equal to") }
+  end
+
   test "user can be optional for backward compatibility" do
     account = Account.new(
       up_account_id: "legacy_account_123",
@@ -233,5 +258,32 @@ class AccountTest < ActiveSupport::TestCase
 
     balance = account.end_of_month_balance(Date.today)
     assert_equal 750.0, balance
+  end
+
+  test "end_of_month_balance accepts string date input" do
+    account = @user.accounts.create!(
+      up_account_id: "string_date_account",
+      display_name: "String Date Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 320.0
+    )
+
+    balance = account.end_of_month_balance(Date.today.to_s)
+    assert_equal 320.0, balance
+  end
+
+  test "end_of_month_balance raises helpful error for invalid input" do
+    account = @user.accounts.create!(
+      up_account_id: "invalid_date_account",
+      display_name: "Invalid Date Account",
+      account_type: "TRANSACTIONAL",
+      current_balance: 120.0
+    )
+
+    error = assert_raises(ArgumentError) do
+      account.end_of_month_balance(:not_a_date)
+    end
+
+    assert_match "Date-compatible", error.message
   end
 end
