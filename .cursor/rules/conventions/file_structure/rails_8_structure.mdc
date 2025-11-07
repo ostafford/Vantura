@@ -18,7 +18,8 @@ app/
 ├── views/
 │   ├── layouts/               # Application layouts
 │   │   ├── application.html.erb
-│   │   └── mailer.html.erb
+│   │   ├── mailer.html.erb    # HTML email layout
+│   │   └── mailer.text.erb    # Plain text email layout
 │   ├── shared/                # Shared partials
 │   │   ├── _header.html.erb
 │   │   ├── _footer.html.erb

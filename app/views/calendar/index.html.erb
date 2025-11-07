@@ -3,7 +3,7 @@
 <%# Subscribe to Turbo Streams for real-time calendar updates %>
 <%= turbo_stream_from @account.user if @account %>
 
-<main data-modal-type-value="transaction" data-controller="calendar" aria-label="Calendar page">
+<main data-modal-type-value="transaction" data-controller="calendar recurring-modal" data-recurring-modal-target="content" aria-label="Calendar page">
   <!-- Calendar Header -->
   <%= render 'shared/page_header_simple', title: "Vantura Calendar", subtitle: "View your transactions over time" %>
 

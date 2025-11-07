@@ -59,7 +59,8 @@ views/
 ├── layouts/
 │   ├── application.html.erb   # Main layout
 │   ├── admin.html.erb          # Admin layout
-│   └── mailer.html.erb         # Email layout
+│   ├── mailer.html.erb         # HTML email layout
+│   └── mailer.text.erb         # Plain text email layout
 ├── shared/
 │   ├── _header.html.erb
 │   ├── _footer.html.erb
