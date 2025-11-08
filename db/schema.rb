@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_07_232300) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_08_112632) do
   create_table "accounts", force: :cascade do |t|
     t.string "up_account_id"
     t.string "display_name"
@@ -185,6 +185,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_07_232300) do
     t.datetime "updated_at", null: false
     t.text "up_bank_token"
     t.string "name"
+    t.json "dismissed_insight_types", default: [], null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 

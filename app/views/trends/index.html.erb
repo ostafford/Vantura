@@ -39,7 +39,7 @@
       <% if @trends_stats&.dig(:insights)&.present? %>
         <section class="mb-6" aria-label="Financial insights">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Actionable Insights</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
             <% @trends_stats[:insights].each do |insight| %>
               <%= render 'shared/insight_card', insight: insight %>
             <% end %>

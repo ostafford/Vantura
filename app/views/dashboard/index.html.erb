@@ -29,10 +29,52 @@
             <% end %>
           </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
             <% @key_insights.each do |insight| %>
               <%= render 'shared/insight_card', insight: insight %>
             <% end %>
+          </div>
+        </section>
+      <% end %>
+
+      <!-- Restore Dismissed Insights -->
+      <% if @dismissed_insight_types.present? %>
+        <section id="dashboard-dismissed-insights-section" class="mb-6" aria-label="Dismissed insights">
+          <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Dismissed Insights</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Restore insights you've previously dismissed</p>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2">
+              <% @dismissed_insight_types.each do |insight_type| %>
+                <% 
+                  insight_type_labels = {
+                    "spending_velocity" => "Spending Velocity",
+                    "savings_opportunity" => "Savings Opportunity",
+                    "investment_suggestion" => "Investment Suggestion",
+                    "category_merchant" => "Category/Merchant"
+                  }
+                  label = insight_type_labels[insight_type] || insight_type.humanize
+                %>
+                <%= form_with url: insights_undismiss_path, method: :post, local: false, class: "inline" do |f| %>
+                  <%= f.hidden_field :insight_type, value: insight_type %>
+                  <%= f.button type: :submit, 
+                      class: "inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors",
+                      data: { 
+                        controller: "insight-restore",
+                        action: "click->insight-restore#restore"
+                      } do %>
+                    <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Restore <%= label %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </div>
           </div>
         </section>
       <% end %>

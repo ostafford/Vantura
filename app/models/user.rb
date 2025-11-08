@@ -19,6 +19,25 @@ class User < ApplicationRecord
   # Encrypt the Up Bank token using Rails encrypted attributes
   encrypts :up_bank_token, deterministic: false
 
+  # Dismissed insights management
+  def dismiss_insight_type(insight_type)
+    dismissed = dismissed_insight_types || []
+    return if dismissed.include?(insight_type)
+
+    update!(dismissed_insight_types: dismissed + [ insight_type ])
+  end
+
+  def undismiss_insight_type(insight_type)
+    dismissed = dismissed_insight_types || []
+    return unless dismissed.include?(insight_type)
+
+    update!(dismissed_insight_types: dismissed - [ insight_type ])
+  end
+
+  def insight_type_dismissed?(insight_type)
+    (dismissed_insight_types || []).include?(insight_type)
+  end
+
   private
 
   def token_required?

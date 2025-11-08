@@ -13,47 +13,79 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["evidenceContainer", "evidenceToggle", "evidenceContent", "evidenceIcon"]
   static values = {
-    id: String
+    id: String,
+    type: String
   }
 
   connect() {
     // Initialize evidence as collapsed
-    if (this.hasEvidenceContentTarget) {
-      this.hasEvidenceExpanded = false
-    }
+    this.evidenceExpanded = false
   }
 
   // Toggle evidence accordion
   toggleEvidence(event) {
-    event.preventDefault()
+    event?.preventDefault()
     
     if (!this.hasEvidenceContentTarget || !this.hasEvidenceIconTarget) return
     
-    if (this.hasEvidenceExpanded) {
+    if (this.evidenceExpanded) {
       // Collapse
       this.evidenceContentTarget.classList.add("hidden")
       this.evidenceIconTarget.classList.remove("rotate-180")
-      this.hasEvidenceExpanded = false
+      this.evidenceExpanded = false
     } else {
       // Expand
       this.evidenceContentTarget.classList.remove("hidden")
       this.evidenceIconTarget.classList.add("rotate-180")
-      this.hasEvidenceExpanded = true
+      this.evidenceExpanded = true
     }
   }
 
   // Dismiss insight card
   dismiss(event) {
-    event.preventDefault()
+    event?.preventDefault()
     
-    // Animate out and remove
+    if (!this.typeValue) {
+      console.error("[InsightCard] Cannot dismiss: insight type is missing")
+      return
+    }
+
+    // Animate out first
     this.element.style.transition = "opacity 0.3s ease-out, transform 0.3s ease-out"
     this.element.style.opacity = "0"
     this.element.style.transform = "translateY(-10px)"
     
-    setTimeout(() => {
-      this.element.remove()
-    }, 300)
+    // Call API to persist dismissal
+    const formData = new FormData()
+    formData.append("insight_type", this.typeValue)
+    
+    fetch("/insights/dismiss", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || "",
+        "Accept": "application/json"
+      },
+      credentials: "same-origin"
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Failed to dismiss insight")
+      }
+      return response.json()
+    })
+    .then(data => {
+      // Remove element after successful API call
+      setTimeout(() => {
+        this.element.remove()
+      }, 300)
+    })
+    .catch(error => {
+      console.error("[InsightCard] Error dismissing insight:", error)
+      // Revert animation on error
+      this.element.style.opacity = "1"
+      this.element.style.transform = "translateY(0)"
+    })
   }
 }
 

@@ -15,7 +15,14 @@ class DashboardController < ApplicationController
 
     # Generate key insights for dashboard (2-3 top insights)
     insights_service = FinancialInsightsService.new(@account)
-    @key_insights = insights_service.generate_key_insights(3)
+    all_insights = insights_service.generate_key_insights(3)
+
+    # Filter out dismissed insight types
+    dismissed_types = Current.user.dismissed_insight_types || []
+    @key_insights = all_insights.reject { |insight| dismissed_types.include?(insight[:type]) }
+
+    # Store dismissed insight types for restore UI
+    @dismissed_insight_types = dismissed_types
   end
 
   def sync

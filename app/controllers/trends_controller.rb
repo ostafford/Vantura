@@ -8,7 +8,11 @@ class TrendsController < ApplicationController
     preferences = trends_preferences
     store_preferences(preferences[:months], preferences[:view_type])
     stats = TrendsStatsCalculator.call(@account, Date.today, months: preferences[:months], view_type: preferences[:view_type])
-    insights = FinancialInsightsService.new(@account).generate_key_insights(5)
+    all_insights = FinancialInsightsService.new(@account).generate_key_insights(5)
+
+    # Filter out dismissed insight types
+    dismissed_types = Current.user.dismissed_insight_types || []
+    insights = all_insights.reject { |insight| dismissed_types.include?(insight[:type]) }
     @trends_stats = stats.merge(insights: insights)
   end
 
