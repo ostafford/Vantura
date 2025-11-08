@@ -8,9 +8,11 @@ class InsightsController < ApplicationController
     end
 
     Current.user.dismiss_insight_type(insight_type)
+    dismissed_types = Current.user.dismissed_insight_types || []
 
     respond_to do |format|
-      format.json { render json: { success: true, dismissed_types: Current.user.dismissed_insight_types } }
+      format.turbo_stream
+      format.json { render json: { success: true, dismissed_types: dismissed_types } }
       format.html { redirect_back(fallback_location: root_path, notice: "Insight dismissed") }
     end
   end

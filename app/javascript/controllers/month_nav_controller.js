@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { buildUrl } from "../helpers/navigation_helper.js"
+import { buildUrl } from "helpers/navigation_helper"
 
 /**
  * Month Navigation Controller

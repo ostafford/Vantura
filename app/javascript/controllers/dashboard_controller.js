@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { showNotification } from "../helpers/notifications"
+import { showNotification } from "helpers/notifications"
 
 // Connects to data-controller="dashboard"
 // Handles dashboard-specific behavior including sync notification display
@@ -10,14 +10,19 @@ export default class extends Controller {
 
   connect() {
     // Show sync notification if sync result exists
-    if (this.hasSyncResultValue && this.syncResultValue?.success) {
-      const newTransactions = this.syncResultValue.new_transactions || 0
-      const message = `${newTransactions} new transaction${newTransactions !== 1 ? 's' : ''} added`
-      
-      // Small delay to ensure notification container is ready
-      setTimeout(() => {
-        showNotification('success', message)
-      }, 100)
+    try {
+      if (this.hasSyncResultValue && this.syncResultValue?.success) {
+        const newTransactions = this.syncResultValue.new_transactions || 0
+        const message = `${newTransactions} new transaction${newTransactions !== 1 ? 's' : ''} added`
+        
+        // Small delay to ensure notification container is ready
+        setTimeout(() => {
+          showNotification('success', message)
+        }, 100)
+      }
+    } catch (error) {
+      // Handle case where syncResultValue is invalid JSON or empty
+      console.warn('Dashboard controller: Could not parse sync result', error)
     }
   }
 }

@@ -24,11 +24,17 @@ export default class extends Controller {
 
   // Toggle evidence accordion
   toggleEvidence(event) {
-    event?.preventDefault()
+    event.preventDefault()
     
-    if (!this.hasEvidenceContentTarget || !this.hasEvidenceIconTarget) return
+    // Verify targets exist before accessing them
+    if (!this.hasEvidenceContentTarget || !this.hasEvidenceIconTarget) {
+      return
+    }
     
-    if (this.evidenceExpanded) {
+    // Check current state by looking at the content visibility
+    const isCurrentlyExpanded = !this.evidenceContentTarget.classList.contains("hidden")
+    
+    if (isCurrentlyExpanded) {
       // Collapse
       this.evidenceContentTarget.classList.add("hidden")
       this.evidenceIconTarget.classList.remove("rotate-180")
@@ -43,7 +49,7 @@ export default class extends Controller {
 
   // Dismiss insight card
   dismiss(event) {
-    event?.preventDefault()
+    event.preventDefault()
     
     if (!this.typeValue) {
       console.error("[InsightCard] Cannot dismiss: insight type is missing")
@@ -64,7 +70,7 @@ export default class extends Controller {
       body: formData,
       headers: {
         "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || "",
-        "Accept": "application/json"
+        "Accept": "text/vnd.turbo-stream.html, text/html, application/json"
       },
       credentials: "same-origin"
     })
@@ -72,13 +78,29 @@ export default class extends Controller {
       if (!response.ok) {
         throw new Error("Failed to dismiss insight")
       }
-      return response.json()
-    })
-    .then(data => {
-      // Remove element after successful API call
-      setTimeout(() => {
-        this.element.remove()
-      }, 300)
+      // Check if response is Turbo Stream
+      const contentType = response.headers.get("content-type")
+      if (contentType && contentType.includes("text/vnd.turbo-stream.html")) {
+        return response.text().then(html => {
+          // Process Turbo Stream
+          Turbo.renderStreamMessage(html)
+          // Remove element after animation
+          setTimeout(() => {
+            this.element.remove()
+            // Check if section should be hidden after card removal
+            this.hideSectionIfEmpty()
+          }, 300)
+        })
+      } else {
+        // Fallback to JSON for backwards compatibility
+        return response.json().then(data => {
+          setTimeout(() => {
+            this.element.remove()
+            // Check if section should be hidden after card removal
+            this.hideSectionIfEmpty()
+          }, 300)
+        })
+      }
     })
     .catch(error => {
       console.error("[InsightCard] Error dismissing insight:", error)
@@ -86,6 +108,23 @@ export default class extends Controller {
       this.element.style.opacity = "1"
       this.element.style.transform = "translateY(0)"
     })
+  }
+
+  hideSectionIfEmpty() {
+    // Check if the insights section should be hidden when all cards are removed
+    const insightsSection = document.getElementById('dashboard-financial-insights-section')
+    if (insightsSection) {
+      const gridContainer = insightsSection.querySelector('.grid')
+      if (gridContainer && gridContainer.children.length === 0) {
+        // All cards removed - hide the entire section with animation
+        insightsSection.style.transition = 'opacity 0.3s ease-out, margin-bottom 0.3s ease-out'
+        insightsSection.style.opacity = '0'
+        insightsSection.style.marginBottom = '0'
+        setTimeout(() => {
+          insightsSection.style.display = 'none'
+        }, 300)
+      }
+    }
   }
 }
 

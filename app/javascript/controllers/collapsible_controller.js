@@ -85,5 +85,12 @@ export default class extends Controller {
       }
     }
   }
+
+  closeIfOutside(event) {
+    // Only close if clicking outside the controller element
+    if (this.isExpanded && !this.element.contains(event.target)) {
+      this.toggle(event)
+    }
+  }
 }
 
