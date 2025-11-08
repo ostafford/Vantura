@@ -52,7 +52,7 @@
 /config/credentials.yml.enc
 
 # Ignore internal development documentation (keep local only)
-/docs/
+/interal_docs/
 
 # Ignore OS generated files
 .DS_Store

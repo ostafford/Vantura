@@ -1,5 +1,5 @@
 <!-- Up Bank Integration Section -->
-<div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep overflow-hidden">
+<div id="up-bank-integration-section" class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep overflow-hidden">
   <div class="bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-900 dark:to-primary-700 px-6 py-5">
     <h2 class="text-2xl font-bold text-white">Up Bank Integration</h2>
     <p class="text-orange-100 text-sm mt-1">Securely connect your Up Bank account</p>
@@ -38,12 +38,13 @@
       </ul>
     </div>
 
-    <%= form_with model: Current.user, url: update_up_bank_integration_settings_path, method: :patch, class: "space-y-4" do |f| %>
+    <%= form_with model: Current.user, url: update_up_bank_integration_settings_path, method: :patch, class: "space-y-4", data: { turbo: true } do |f| %>
       <div>
         <label for="user_up_bank_token" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Personal Access Token
         </label>
         <%= f.text_field :up_bank_token,
+            id: "user_up_bank_token",
             class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-all font-mono",
             placeholder: Current.user.up_bank_token.present? ? "Token is saved - enter new token to update" : "up:yeah:xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
             value: "",
@@ -74,9 +75,8 @@
 
       <div class="flex gap-3">
         <%= f.submit "Save & Sync", 
-            class: "flex-1 bg-gradient-to-r from-primary-700 to-primary-500 hover:from-primary-900 hover:to-primary-700 text-white px-6 py-3 rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg text-center",
+            class: "flex-1 bg-gradient-to-r from-primary-700 to-primary-500 hover:from-primary-900 hover:to-primary-700 text-white px-6 py-3 rounded-xl hover:shadow-xl transition-all font-semibold shadow-lg text-center",
             data: { disable_with: "Validating token and syncing data..." } %>
-        <%= link_to "Cancel", root_path, class: "px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 hover:shadow-md hover:scale-105 transition-all font-semibold text-center" %>
       </div>
     <% end %>
 

@@ -1,6 +1,28 @@
 <% content_for :title, "Reset Password - Vantura" %>
 
-<div class="flex items-center justify-center min-h-screen px-4 py-6 md:min-h-[calc(100vh-4rem)] md:px-4 md:py-12">
+<main id="password-reset-page-container" aria-label="Password reset page">
+  <!-- Breadcrumb Navigation -->
+  <nav id="breadcrumb-navigation" class="bg-gradient-to-r from-cream-100 to-white dark:from-primary-900 dark:to-primary-950 border-b border-primary-700/20 dark:border-primary-900/30" aria-label="Breadcrumb">
+    <%= content_wrapper class: "py-2" do %>
+      <ol id="breadcrumb-list" class="flex items-center gap-2">
+        <% if Current.user.present? %>
+          <li>
+            <%= link_to settings_path, id: "breadcrumb-settings-link", class: "text-sm text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 font-medium transition-colors" do %>
+              Settings
+            <% end %>
+          </li>
+          <li>
+            <span class="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">/</span>
+          </li>
+        <% end %>
+        <li>
+          <span id="breadcrumb-current-page" class="text-sm text-gray-900 dark:text-white font-medium">Reset Password</span>
+        </li>
+      </ol>
+    <% end %>
+  </nav>
+
+  <div class="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-6 md:min-h-[calc(100vh-6rem)] md:px-4 md:py-12">
   <div class="max-w-md w-full mx-auto">
     <!-- Password Reset Card -->
     <section id="user-password-reset-container" class="overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 shadow-deep">
@@ -49,4 +71,4 @@
       <% end %>
     </section>
   </div>
-</div>
+</main>

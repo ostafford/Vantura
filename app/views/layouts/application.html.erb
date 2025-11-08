@@ -57,7 +57,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-controller="theme modal sync mobile-menu" class="bg-neutral-100 dark:bg-primary-900 h-screen flex flex-col">
+  <body data-controller="theme modal sync" class="bg-neutral-100 dark:bg-primary-900 h-screen flex flex-col">
     <!-- WebSocket subscription for real-time updates (available on all pages) -->
     <% if Current.user %>
       <%= turbo_stream_from Current.user %>
@@ -73,7 +73,8 @@
           role="main"
           aria-label="Main content"
           data-modal-target="content"
-          class="transition-all duration-300 ease-in-out flex-1 overflow-auto pt-16 lg:pt-0 <%= 'lg:ml-64' if Current.user %>">
+          class="transition-all duration-300 ease-in-out flex-1 overflow-auto 
+                  pb-20 lg:pb-0 lg:pt-0 lg:ml-64">
       <%= yield %>
     </main>
     

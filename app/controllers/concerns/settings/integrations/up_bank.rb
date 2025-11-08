@@ -9,11 +9,10 @@ module Settings::Integrations::UpBank
     # Only validate if user is actually changing the token (not just dots)
     if token.present? && !token.match?(/^•+$/)
       # Use Rails.error.handle to capture errors and provide fallback behavior
-      Rails.error.handle(StandardError, context: { user_id: Current.user.id, action: "update_up_bank_token" }) do
+      result = Rails.error.handle(StandardError, context: { user_id: Current.user.id, action: "update_up_bank_token" }) do
         # Validate token by pinging Up Bank API
         unless validate_up_bank_token(token)
-          redirect_to settings_path, alert: "Invalid Up Bank token. Please check your token and try again."
-          return
+          return { success: false, message: "Invalid Up Bank token. Please check your token and try again." }
         end
 
         # Token is valid, save it
@@ -21,11 +20,13 @@ module Settings::Integrations::UpBank
           Rails.logger.info "[SECURITY] Up Bank token updated for: #{Current.user.email_address} from IP: #{request.remote_ip}"
           trigger_up_bank_sync
         else
-          render :show, status: :unprocessable_entity
+          return { success: false, message: "Failed to save token.", render_errors: true }
         end
-      end || redirect_to(settings_path, alert: "An error occurred. Please try again.")
+      end
+
+      result || { success: false, message: "An error occurred. Please try again." }
     else
-      redirect_to settings_path, alert: "Please enter a valid Up Bank token."
+      { success: false, message: "Please enter a valid Up Bank token." }
     end
   end
 
@@ -65,9 +66,9 @@ module Settings::Integrations::UpBank
     sync_result = UpBank::SyncService.call(Current.user)
 
     if sync_result[:success]
-      redirect_to root_path, notice: "Token validated and data synced! Added #{sync_result[:new_transactions]} transactions."
+      { success: true, message: "Token validated and data synced! Added #{sync_result[:new_transactions]} transactions.", redirect_to: root_path, sync_result: sync_result }
     else
-      redirect_to root_path, alert: "Token saved but sync failed: #{sync_result[:error]}. Please try clicking 'Sync Now' on the Dashboard."
+      { success: true, message: "Token saved but sync failed: #{sync_result[:error]}. Please try clicking 'Sync Now' on the Dashboard.", redirect_to: root_path, sync_result: sync_result }
     end
   end
 

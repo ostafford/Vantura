@@ -5,7 +5,7 @@
 
 <main data-modal-type-value="transaction" data-controller="calendar recurring-modal" data-recurring-modal-target="content" aria-label="Calendar page">
   <!-- Calendar Header -->
-  <%= render 'shared/page_header_simple', title: "Vantura Calendar", subtitle: "View your transactions over time" %>
+  <%= render 'shared/page_header', title: "Vantura Calendar", subtitle: "View your transactions over time" %>
 
   <% if @account %>
     <%= content_wrapper class: "py-6" do %>

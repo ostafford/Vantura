@@ -6,25 +6,88 @@ alwaysApply: false
 
 Views handle presentation only - no business logic.
 
-### View Structure
+### Page Layout Structure
+
+**Standard Pattern (Required for all pages):**
 
 ```erb
-<!-- app/views/articles/index.html.erb -->
+<% content_for :title, "Page Title - Vantura" %>
 
+<main id="page-container" aria-label="Page description">
+  <!-- Page Header -->
+  <%= render 'shared/page_header_simple', title: "Page Title", subtitle: "Page subtitle" %>
+
+  <%= content_wrapper class: "py-6" do %>
+    <!-- Page Sections -->
+  <% end %>
+</main>
+```
+
+**Key Components:**
+
+1. **Root Element:** Always use `<main>` tag (not `<div>`) for semantic HTML and accessibility
+   - Add `id="[page-name]-container"` following ID naming conventions
+   - Add `aria-label` for screen readers
+   - Optional: Add `data-controller` attributes if needed for Stimulus
+
+2. **Page Title:** Use `content_for :title` for consistent browser tab titles
+   - Format: `"Page Name - Vantura"`
+
+3. **Page Header:** Always use `render 'shared/page_header_simple'`
+   - Provides consistent header styling
+   - Includes title, subtitle, and quick actions
+   - Use `hide_quick_actions: true` if quick actions aren't needed
+
+4. **Content Wrapper:** Always use `content_wrapper` helper (not manual classes)
+   - Provides consistent responsive padding and max-width
+   - Use `class: "py-6"` or `class: "py-4"` for vertical spacing
+   - Never use manual `max-w-3xl mx-auto px-4` classes
+
+5. **Sections:** Use semantic `<section>` elements with proper IDs
+   - Format: `id="[context]-[purpose]-section"`
+   - Add `aria-label` for accessibility
+
+**Example - Complete Page:**
+
+```erb
+<% content_for :title, "Dashboard - Vantura" %>
+
+<main id="dashboard-page-container" aria-label="Dashboard page">
+  <%= render 'shared/page_header_simple', title: "Dashboard", subtitle: "Your cash flow projection tool" %>
+
+  <%= content_wrapper class: "py-6" do %>
+    <!-- Key Insights Section -->
+    <section id="financial-insights-section" class="mb-6" aria-label="Financial insights">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Financial Insights</h2>
+      <!-- Section content -->
+    </section>
+
+    <!-- Statistics Section -->
+    <section id="statistics-section" class="bento-grid mb-6" aria-label="Financial statistics">
+      <!-- Statistics content -->
+    </section>
+  <% end %>
+</main>
+```
+
+**Why This Pattern:**
+
+- **Consistency:** All pages follow the same structure, making the codebase predictable
+- **Accessibility:** Semantic HTML (`<main>`, `<section>`) improves screen reader support
+- **Maintainability:** Using helpers (`content_wrapper`, `page_header_simple`) centralizes styling changes
+- **Hotwire Compatibility:** Proper structure ensures Stimulus controllers connect correctly
+- **Responsive Design:** `content_wrapper` provides consistent responsive behavior
+
+### View Structure (Legacy Example - Do Not Use)
+
+```erb
+<!-- OLD PATTERN - DO NOT USE -->
 <div class="container mx-auto px-8" id="articles-index-container">
   <header id="articles-index-header" class="mb-8">
     <h1 class="text-4xl font-bold mb-4">Articles</h1>
-    <%= link_to "New Article", new_article_path,
-        id: "new-article-link",
-        class: "bg-blue-600 text-white px-4 py-2 rounded-lg" %>
   </header>
-  
-  <div id="articles-list-container">
-    <%= render @articles %>
-  </div>
-  
-  <%= paginate @articles %>
 </div>
+```
 
 <!-- app/views/articles/_article.html.erb -->
 <%= turbo_frame_tag dom_id(article) do %>

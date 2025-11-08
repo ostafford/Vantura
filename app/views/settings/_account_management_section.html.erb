@@ -1,5 +1,5 @@
 <!-- Danger Zone - Account Deletion -->
-<div class="mt-6 bg-gradient-to-br from-red-50 to-white dark:from-red-900/10 dark:to-gray-800 rounded-2xl shadow-deep overflow-hidden">
+<div id="account-deletion-section" class="mt-6 bg-gradient-to-br from-red-50 to-white dark:from-red-900/10 dark:to-gray-800 rounded-2xl shadow-deep overflow-hidden">
   <div class="bg-red-50 dark:bg-red-900/20 px-6 py-4 border-b border-red-200 dark:border-red-800">
     <h2 class="text-xl font-bold text-red-900 dark:text-red-100 flex items-center">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,7 +20,7 @@
       <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
         <li>Your user account and login credentials</li>
         <li>Your encrypted Up Bank token</li>
-        <li>All synced bank accounts (<%= @accounts_count %> account<%= @accounts_count == 1 ? '' : 's' %>)</li>
+        <li>All synced bank accounts (<%= @statistics[:accounts_count] %> account<%= @statistics[:accounts_count] == 1 ? '' : 's' %>)</li>
         <li>All transactions (hypothetical and real)</li>
         <li>All recurring transaction patterns</li>
         <li>All session data</li>
@@ -34,17 +34,92 @@
       </p>
     </div>
 
-    <%= button_to settings_path, 
-        method: :delete,
-        data: { 
-          turbo_confirm: "Are you absolutely sure?\n\nThis will permanently delete:\n- Your Vantura account\n- All #{@accounts_count} synced bank account(s)\n- All transaction data\n- All recurring patterns\n\nThis action CANNOT be undone!\n\nType 'DELETE' to confirm:" 
-        },
-        class: "inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg" do %>
-      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-      </svg>
-      Delete My Account
-    <% end %>
+    <div data-controller="collapsible">
+      <button type="button"
+              id="account-deletion-initiate-button"
+              data-action="click->collapsible#toggle"
+              data-collapsible-target="toggle"
+              aria-expanded="false"
+              aria-controls="account-deletion-confirmation-section"
+              class="inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        Delete My Account
+      </button>
+
+      <!-- Confirmation Section (Collapsible) -->
+      <div id="account-deletion-confirmation-section"
+           class="hidden mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6"
+           data-controller="deletion"
+           data-collapsible-target="content">
+      <h4 class="text-lg font-semibold text-red-900 dark:text-red-100 mb-4">Final Confirmation Required</h4>
+      
+      <p class="text-sm text-red-800 dark:text-red-200 mb-4">
+        To confirm account deletion, please type <strong>DELETE</strong> in the field below.
+      </p>
+
+      <% transactions_count = Current.user.accounts.joins(:transactions).count %>
+      
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4 border border-red-200 dark:border-red-800">
+        <p class="text-sm font-medium text-red-900 dark:text-red-100 mb-2">Summary of what will be deleted:</p>
+        <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
+          <li>Your user account and login credentials</li>
+          <li>Your encrypted Up Bank token</li>
+          <li><%= pluralize(@statistics[:accounts_count], 'synced bank account') %></li>
+          <li><%= pluralize(transactions_count, 'transaction') %></li>
+          <li>All recurring transaction patterns</li>
+          <li><%= pluralize(@statistics[:projects_count], 'project') %> and associated data</li>
+          <li>All session data</li>
+        </ul>
+      </div>
+
+      <%= form_with url: settings_path,
+          method: :delete,
+          id: "account-deletion-form",
+          class: "space-y-4" do |f| %>
+        <%= hidden_field_tag :confirmation_token, session[:deletion_token], id: "account-deletion-token-input" %>
+        
+        <div>
+          <label for="account-deletion-input" class="block text-sm font-medium text-red-900 dark:text-red-100 mb-2">
+            Type "DELETE" to confirm
+          </label>
+          <%= text_field_tag :confirmation_text,
+              "",
+              id: "account-deletion-input",
+              autocomplete: "off",
+              data: {
+                deletion_target: "input",
+                action: "input->deletion#validate"
+              },
+              aria_required: true,
+              aria_invalid: "false",
+              aria_describedby: "account-deletion-error",
+              class: "w-full px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-red-300 dark:border-red-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all font-mono" %>
+          <div id="account-deletion-error"
+               class="hidden text-sm text-red-600 dark:text-red-400 mt-1"
+               data-deletion-target="error"
+               role="alert">
+            The confirmation text must match "DELETE" exactly.
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <%= submit_tag "Permanently Delete My Account",
+              id: "account-deletion-submit-button",
+              data: { deletion_target: "submit" },
+              disabled: true,
+              class: "inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-xl font-semibold shadow-lg opacity-50 cursor-not-allowed transition-all" %>
+          <button type="button"
+                  id="account-deletion-cancel-button"
+                  data-action="click->collapsible#toggle"
+                  class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 hover:shadow-md transition-all font-semibold">
+            Cancel
+          </button>
+        </div>
+      <% end %>
+      </div>
+    </div>
   </div>
 </div>
 

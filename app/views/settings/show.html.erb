@@ -1,51 +1,77 @@
 <% content_for :title, "Settings - Vantura" %>
 
-<div>
-  <!-- Header -->
-  <%= render 'shared/page_header_simple', title: "Settings", subtitle: "Manage your account and integrations" %>
+<main id="settings-page-container" aria-label="Settings page">
+  <!-- Page Header -->
+  <%= render 'shared/page_header', title: "Settings", subtitle: "Manage your account and integrations" %>
 
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <%= content_wrapper class: "py-6" do %>
     <!-- User Profile Section -->
     <%= render 'settings/profile_section' %>
 
     <!-- Bank Integrations Section -->
-    <div class="mt-6">
+    <section id="bank-integrations-section" class="mt-6">
       <div class="mb-4">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Bank Integrations</h2>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Connect your bank accounts to sync transactions</p>
       </div>
 
-      <!-- Up Bank Integration -->
-      <%= render 'settings/integrations/up_bank_section' %>
+      <div id="bank-integrations-content">
+        <!-- Up Bank Integration -->
+        <%= render 'settings/integrations/up_bank_section' %>
 
-      <%# Future: CommBank Integration %>
-      <%# <%= render 'settings/integrations/comm_bank_section' %> %>
-    </div>
+        <%# Future: CommBank Integration %>
+        <%# render 'settings/integrations/comm_bank_section' %>
+      </div>
+    </section>
 
     <!-- Connected Accounts Display -->
     <% if Current.user.accounts.any? %>
-      <div class="mt-6 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+      <section id="connected-accounts-section" class="mt-6 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Connected Accounts</h2>
-        <% Current.user.accounts.each do |account| %>
-          <div class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
-            <div>
-              <p class="font-medium text-gray-900 dark:text-white"><%= account.display_name %></p>
-              <p class="text-sm text-gray-500 dark:text-gray-400"><%= account.account_type.humanize %></p>
-            </div>
-            <div class="text-right">
-              <p class="text-lg font-bold text-primary-700 dark:text-primary-500">
-                $<%= number_with_precision(account.current_balance, precision: 2) %>
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                Last synced: <%= account.last_synced_at ? time_ago_in_words(account.last_synced_at) + " ago" : "Never" %>
-              </p>
-            </div>
-          </div>
-        <% end %>
-      </div>
+        <ul id="connected-accounts-list" class="space-y-0" aria-label="Connected bank accounts">
+          <% Current.user.accounts.each do |account| %>
+            <li id="account-<%= account.id %>-item" class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0" data-controller="collapsible">
+              <div class="flex-1 flex items-center justify-between cursor-pointer" data-action="click->collapsible#toggle">
+                <div>
+                  <p class="font-medium text-gray-900 dark:text-white"><%= account.display_name %></p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400"><%= account.account_type.humanize %></p>
+                </div>
+                <div class="text-right mr-4">
+                  <p class="text-lg font-bold text-primary-700 dark:text-primary-500">
+                    $<%= number_with_precision(account.current_balance, precision: 2) %>
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Last synced: <%= account.last_synced_at ? time_ago_in_words(account.last_synced_at) + " ago" : "Never" %>
+                  </p>
+                </div>
+                <button type="button"
+                        id="account-<%= account.id %>-toggle-button"
+                        data-collapsible-target="toggle"
+                        aria-expanded="false"
+                        aria-controls="account-<%= account.id %>-details-content"
+                        class="flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                        aria-label="Toggle account details">
+                  <svg class="w-5 h-5 transition-transform"
+                       data-collapsible-target="icon"
+                       fill="none"
+                       stroke="currentColor"
+                       viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              <div id="account-<%= account.id %>-details-content"
+                   class="hidden w-full mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
+                   data-collapsible-target="content">
+                <%= render 'settings/account_details', account: account %>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </section>
     <% end %>
 
     <!-- Account Management Section -->
     <%= render 'settings/account_management_section' %>
-  </div>
-</div>
+  <% end %>
+</main>

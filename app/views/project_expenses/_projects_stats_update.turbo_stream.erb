@@ -92,7 +92,11 @@
   <% end %>
 <% else %>
   <%# Redirect to project show page %>
-  <%= turbo_stream.visit project_path(@project) %>
+  <script>
+    setTimeout(() => {
+      Turbo.visit('<%= project_path(@project) %>');
+    }, 100);
+  </script>
 <% end %>
 
 <%# Show success notification %>
