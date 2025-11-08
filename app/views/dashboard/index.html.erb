@@ -1,22 +1,12 @@
 <% content_for :title, "Dashboard - Vantura" %>
 
-<main data-modal-type-value="transaction" aria-label="Dashboard page">
-  <!-- Sync Status Container (shows loading state and completion notification) -->
-  <!-- Note: The sync_notification div is now in the application layout for global access -->
-  <% if @sync_result&.dig("success") %>
-    <script>
-      // Show the sync result notification using JavaScript if it's from a redirect
-      setTimeout(() => {
-        if (window.showNotification) {
-          window.showNotification('success', '<%= j "#{@sync_result["new_transactions"]} new transaction#{'s' if @sync_result["new_transactions"] != 1} added" %>');
-        }
-      }, 100);
-    </script>
-  <% end %>
-  
-  
+<main id="dashboard-main-container"
+      data-controller="dashboard" 
+      data-dashboard-sync-result-value='<%= @sync_result.to_json if @sync_result %>'
+      data-modal-type-value="transaction" 
+      aria-label="Dashboard page">
           <!-- Sync Loading Indicator (hidden by default, shown via Turbo Stream) -->
-          <div id="sync-notification-container"></div>
+  <div id="dashboard-sync-notification-container"></div>
   <!-- Dashboard Header -->
   <%= render 'shared/page_header', title: "Dashboard", subtitle: "Your cash flow projection tool" %>
   
@@ -24,14 +14,14 @@
     <% if @account %>
       <!-- Key Insights Section -->
       <% if @key_insights.present? %>
-        <section class="mb-6" aria-label="Financial insights">
+        <section id="dashboard-financial-insights-section" class="mb-6" aria-label="Financial insights">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Financial Insights</h2>
               <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Actionable recommendations based on your spending patterns</p>
             </div>
             <%= link_to trends_path, 
-                        class: "inline-flex items-center px-4 py-2 bg-primary-700/10 dark:bg-primary-500/30 text-primary-700 dark:text-primary-300 border border-primary-700/20 dark:border-primary-400/40 text-sm font-medium rounded-lg hover:bg-primary-700/20 dark:hover:bg-primary-500/40 hover:shadow-md hover:scale-105 transition-all" do %>
+                        class: "inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border bg-primary-700/10 text-primary-700 border-primary-700/20 hover:bg-primary-700/20 hover:shadow-md hover:scale-105 transition-all dark:bg-primary-500/30 dark:text-primary-300 dark:border-primary-400/40 dark:hover:bg-primary-500/40" do %>
               View Full Analysis
               <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -48,7 +38,7 @@
       <% end %>
 
       <!-- Financial Overview Section -->
-      <section class="bento-grid mb-6" aria-label="Financial overview statistics">
+      <section id="dashboard-financial-overview-section" class="bento-grid mb-6" aria-label="Financial overview statistics">
         <!-- Current Balance Hero Card (2x2) - Using Reusable Partial -->
         <%= render 'shared/bento_cards/hero_card',
             title: "Current Balance",
@@ -118,14 +108,14 @@
       </section>
 
       <!-- Recent Transactions -->
-      <section class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-deep" aria-label="Recent transactions">
-        <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800">
+      <section id="dashboard-recent-transactions-section" class="rounded-2xl bg-gradient-to-br from-neutral-100 to-white shadow-deep dark:from-gray-800 dark:to-gray-900" aria-label="Recent transactions">
+        <div class="flex items-center justify-between px-6 py-5 border-b bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Recent Transactions</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Your latest activity this month</p>
           </div>
           <%= link_to transactions_path(year: current_date.year, month: current_date.month), 
-                      class: "inline-flex items-center px-4 py-2 bg-primary-700/10 dark:bg-primary-500/30 text-primary-700 dark:text-primary-300 border border-primary-700/20 dark:border-primary-400/40 text-sm font-medium rounded-lg hover:bg-primary-700/20 dark:hover:bg-primary-500/40 hover:shadow-md hover:scale-105 transition-all" do %>
+                      class: "inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border bg-primary-700/10 text-primary-700 border-primary-700/20 hover:bg-primary-700/20 hover:shadow-md hover:scale-105 transition-all dark:bg-primary-500/30 dark:text-primary-300 dark:border-primary-400/40 dark:hover:bg-primary-500/40" do %>
             View All
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -133,29 +123,19 @@
           <% end %>
         </div>
 
-            <div class="overflow-x-auto">
+            <div id="dashboard-recent-transactions-table-container" class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" aria-label="Recent transactions for current week">
                 <thead class="bg-gray-50 dark:bg-gray-900">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Description</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Amount</th>
                   </tr>
                 </thead>
-                <tbody id="recent-transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  <% if recent_transactions.any? %>
-                    <% recent_transactions.each do |transaction| %>
-                      <%= render 'dashboard/recent_transaction_row', transaction: transaction %>
-                    <% end %>
-                  <% else %>
-                    <tr>
-                      <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                        No transactions for this week.
-                      </td>
-                    </tr>
-                  <% end %>
+                <tbody id="dashboard-recent-transactions-table-body" class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                  <%= render 'dashboard/recent_transactions_table_body', recent_transactions: recent_transactions %>
                 </tbody>
               </table>
             </div>
@@ -163,9 +143,9 @@
 
     <% else %>
       <!-- No Account Found - Guide User to Settings -->
-      <div class="bg-gradient-to-br from-cream-100 via-white to-cream-100 dark:from-gray-800 dark:via-success-700 dark:to-gray-800 rounded-2xl shadow-deep p-12 text-center">
+      <div class="bg-gradient-to-br from-cream-100 via-white to-cream-100 rounded-2xl shadow-deep p-12 text-center dark:from-gray-800 dark:via-success-700 dark:to-gray-800">
           <div class="max-w-md mx-auto">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-700/10 dark:bg-primary-700/20 rounded-full mb-4">
+          <div class="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary-700/10 dark:bg-primary-700/20">
             <svg class="w-8 h-8 text-primary-700 dark:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
@@ -175,7 +155,7 @@
           <% if Current.user.up_bank_token.present? %>
             <!-- Token is configured but sync hasn't happened yet -->
             <p class="text-gray-600 dark:text-gray-400 mb-6">Your Up Bank token is configured. Click the button below to sync your data!</p>
-            <%= button_to sync_path, method: :post, class: "inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg", data: { disable_with: "Syncing your data..." } do %>
+            <%= button_to sync_path, method: :post, class: "inline-flex items-center px-6 py-3 font-semibold text-white rounded-xl bg-gradient-to-r from-primary to-primary-light shadow-lg hover:from-primary-dark hover:to-primary hover:shadow-xl hover:scale-105 transition-all", data: { disable_with: "Syncing your data..." } do %>
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
@@ -184,7 +164,7 @@
           <% else %>
             <!-- No token configured - direct to settings -->
             <p class="text-gray-600 dark:text-gray-400 mb-6">Let's get you set up! Click below to configure your Up Bank token.</p>
-            <%= link_to settings_path, class: "inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg" do %>
+            <%= link_to settings_path, class: "inline-flex items-center px-6 py-3 font-semibold text-white rounded-xl bg-gradient-to-r from-primary to-primary-light shadow-lg hover:from-primary-dark hover:to-primary hover:shadow-xl hover:scale-105 transition-all" do %>
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -192,7 +172,7 @@
               Go to Settings
             <% end %>
             
-            <div class="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div class="p-4 mt-6 border rounded-lg bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
               <p class="text-sm text-blue-800 dark:text-blue-200">
                 <strong>What you'll need:</strong> Your Personal Access Token from 
                 <a href="https://developer.up.com.au/" target="_blank" class="underline hover:text-blue-600">developer.up.com.au</a>

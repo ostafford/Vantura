@@ -1,6 +1,6 @@
 <% if recent_transactions.any? %>
   <% recent_transactions.each do |transaction| %>
-    <%= render 'dashboard/recent_transaction_row', transaction: transaction %>
+    <%= render 'dashboard/transaction_row', transaction: transaction %>
   <% end %>
 <% else %>
   <tr>

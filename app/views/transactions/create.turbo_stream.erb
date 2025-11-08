@@ -31,8 +31,8 @@
 <% end %>
 
 <%# Prepend the new transaction to Recent Transactions %>
-<%= turbo_stream.prepend "recent-transactions-table-body" do %>
-  <%= render "dashboard/recent_transaction_row", transaction: @transaction %>
+<%= turbo_stream.prepend "dashboard-recent-transactions-table-body" do %>
+  <%= render "dashboard/transaction_row", transaction: @transaction %>
 <% end %>
 
 <%# Show success notification %>

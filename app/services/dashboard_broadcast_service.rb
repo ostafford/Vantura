@@ -152,7 +152,7 @@ class DashboardBroadcastService < ApplicationService
 
     Turbo::StreamsChannel.broadcast_replace_to(
       @user,
-      target: "recent-transactions-table-body",
+      target: "dashboard-recent-transactions-table-body",
       html: html
     )
   end

@@ -6,7 +6,7 @@ class DashboardController < ApplicationController
     return unless @account
     @dashboard_data = build_dashboard_data
     @sync_result = session.delete(:sync_result)
-    
+
     # Check for Up Bank notification from settings page
     if (up_bank_notification = session.delete(:up_bank_notification))
       flash[:notice] = up_bank_notification[:message]
