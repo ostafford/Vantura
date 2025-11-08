@@ -82,7 +82,7 @@
 - [X] `app/views/sessions/new.html.erb`
 - [X] `app/views/passwords/new.html.erb`
 - [X] `app/views/passwords/edit.html.erb`
-- [ ] `app/views/settings/show.html.erb`
+- [X] `app/views/settings/show.html.erb`
 
 ### Dashboard
 - [ ] `app/views/dashboard/index.html.erb`

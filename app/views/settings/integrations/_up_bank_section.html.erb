@@ -40,11 +40,11 @@
 
     <%= form_with model: Current.user, url: update_up_bank_integration_settings_path, method: :patch, class: "space-y-4", data: { turbo: true } do |f| %>
       <div>
-        <label for="user_up_bank_token" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label for="user-up-bank-token-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Personal Access Token
         </label>
-        <%= f.text_field :up_bank_token,
-            id: "user_up_bank_token",
+        <%= f.password_field :up_bank_token,
+            id: "user-up-bank-token-input",
             class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-all font-mono",
             placeholder: Current.user.up_bank_token.present? ? "Token is saved - enter new token to update" : "up:yeah:xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
             value: "",

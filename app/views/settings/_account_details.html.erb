@@ -1,15 +1,4 @@
-<% 
-  # Calculate statistics for this month
-  start_date = Date.today.beginning_of_month
-  end_date = Date.today.end_of_month
-  month_stats = TransactionStatsCalculator.call(account, start_date, end_date)
-  
-  # Get all-time transaction count
-  all_time_count = account.transactions.count
-  
-  # Get active recurring transactions count
-  active_recurring_count = account.recurring_transactions.where(is_active: true).count
-%>
+<% stats = account_statistics(account) %>
 
 <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
   <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Account Statistics</h4>
@@ -19,30 +8,30 @@
     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
       <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">This Month Income</p>
       <p class="text-lg font-bold text-success-600 dark:text-success-400">
-        $<%= number_with_precision(month_stats[:income_total], precision: 2) %>
+        $<%= number_with_precision(stats[:month_stats][:income_total], precision: 2) %>
       </p>
       <p class="text-xs text-gray-500 dark:text-gray-400">
-        <%= pluralize(month_stats[:income_count], 'transaction') %>
+        <%= pluralize(stats[:month_stats][:income_count], 'transaction') %>
       </p>
     </div>
     
     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
       <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">This Month Expenses</p>
       <p class="text-lg font-bold text-expense-600 dark:text-expense-400">
-        $<%= number_with_precision(month_stats[:expense_total], precision: 2) %>
+        $<%= number_with_precision(stats[:month_stats][:expense_total], precision: 2) %>
       </p>
       <p class="text-xs text-gray-500 dark:text-gray-400">
-        <%= pluralize(month_stats[:expense_count], 'transaction') %>
+        <%= pluralize(stats[:month_stats][:expense_count], 'transaction') %>
       </p>
     </div>
   </div>
   
   <!-- Net Cash Flow -->
-  <% net_positive = month_stats[:net_cash_flow] >= 0 %>
+  <% net_positive = stats[:month_stats][:net_cash_flow] >= 0 %>
   <div class="mb-4 p-3 <%= net_positive ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' %> border rounded-lg">
     <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Net Cash Flow (This Month)</p>
     <p class="text-xl font-bold <%= net_positive ? 'text-success-700 dark:text-success-500' : 'text-expense-700 dark:text-expense-500' %>">
-      $<%= number_with_precision(month_stats[:net_cash_flow], precision: 2) %>
+      $<%= number_with_precision(stats[:month_stats][:net_cash_flow], precision: 2) %>
     </p>
   </div>
   
@@ -51,7 +40,7 @@
     <div>
       <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">All Time</p>
       <p class="text-sm font-bold text-gray-900 dark:text-white">
-        <%= number_with_delimiter(all_time_count) %>
+        <%= number_with_delimiter(stats[:all_time_count]) %>
       </p>
       <p class="text-xs text-gray-500 dark:text-gray-400">transactions</p>
     </div>
@@ -59,7 +48,7 @@
     <div>
       <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">This Month</p>
       <p class="text-sm font-bold text-gray-900 dark:text-white">
-        <%= number_with_delimiter(month_stats[:transaction_count]) %>
+        <%= number_with_delimiter(stats[:month_stats][:transaction_count]) %>
       </p>
       <p class="text-xs text-gray-500 dark:text-gray-400">transactions</p>
     </div>
@@ -67,7 +56,7 @@
     <div>
       <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Active Recurring</p>
       <p class="text-sm font-bold text-gray-900 dark:text-white">
-        <%= number_with_delimiter(active_recurring_count) %>
+        <%= number_with_delimiter(stats[:active_recurring_count]) %>
       </p>
       <p class="text-xs text-gray-500 dark:text-gray-400">patterns</p>
     </div>
