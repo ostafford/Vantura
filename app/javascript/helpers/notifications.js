@@ -8,7 +8,7 @@ export function showNotification(type, message, options = {}) {
   } = options
 
   // Find the notification container
-  const container = document.querySelector('[data-notification-target="container"]')
+  const container = document.getElementById('notifications-container')
   
   if (!container) {
     console.error('Notification container not found. Make sure the notifications partial is rendered.')

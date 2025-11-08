@@ -4,7 +4,7 @@
     <%= render "settings/integrations/up_bank_section" %>
   <% end %>
 
-  <%# Show success notification first (before redirect) %>
+  <%# Show success notification on Settings page (before redirect) %>
   <%= turbo_stream.append "notifications-container" do %>
     <div data-controller="notification"
          data-notification-type="success"
@@ -42,13 +42,13 @@
     </div>
   <% end %>
 
-  <%# Redirect to dashboard if sync was successful (after notification is visible) %>
-  <%# Note: Delay redirect to allow notification to animate in (50ms delay + 300ms transition + visibility time) %>
+  <%# Redirect to dashboard after notification is visible (3 seconds to see it) %>
+  <%# Session storage ensures notification also appears on dashboard if needed %>
   <% if @up_bank_result[:redirect_to] == root_path %>
     <script>
       setTimeout(() => {
         Turbo.visit('<%= root_path %>');
-      }, 2000);
+      }, 3000);
     </script>
   <% end %>
 <% else %>

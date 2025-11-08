@@ -20,6 +20,19 @@ class SettingsController < ApplicationController
   def update_up_bank_integration
     @up_bank_result = update_up_bank_token
 
+    # Store notification in session for turbo_stream redirects (will be shown on redirected page)
+    # This ensures the notification persists across Turbo.visit() navigation
+    if @up_bank_result[:success] && @up_bank_result[:redirect_to]
+      session[:up_bank_notification] = {
+        type: :success,
+        message: @up_bank_result[:message],
+        sync_result: @up_bank_result[:sync_result]
+      }
+      flash[:notice] = @up_bank_result[:message] # Also set flash as fallback
+    elsif !@up_bank_result[:success]
+      flash[:alert] = @up_bank_result[:message]
+    end
+
     respond_to do |format|
       format.turbo_stream
       format.html do
