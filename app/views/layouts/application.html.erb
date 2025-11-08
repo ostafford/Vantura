@@ -59,12 +59,12 @@
 
   <body data-controller="theme modal sync mobile-menu" class="bg-neutral-100 dark:bg-primary-900 h-screen flex flex-col">
     <!-- WebSocket subscription for real-time updates (available on all pages) -->
-    <% if authenticated? %>
+    <% if Current.user %>
       <%= turbo_stream_from Current.user %>
     <% end %>
     
     <!-- Desktop Sidebar Navigation (only show when authenticated) -->
-    <% if authenticated? %>
+    <% if Current.user %>
       <%= render 'shared/sidebar' %>
     <% end %>
     
@@ -73,12 +73,12 @@
           role="main"
           aria-label="Main content"
           data-modal-target="content"
-          class="transition-all duration-300 ease-in-out flex-1 overflow-auto pt-16 lg:pt-0 lg:ml-64">
+          class="transition-all duration-300 ease-in-out flex-1 overflow-auto pt-16 lg:pt-0 <%= 'lg:ml-64' if Current.user %>">
       <%= yield %>
     </main>
     
     <!-- Mobile Navigation (only show when authenticated) -->
-    <% if authenticated? %>
+    <% if Current.user %>
       <%= render 'shared/navigation' %>
     <% end %>
     

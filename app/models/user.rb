@@ -14,6 +14,7 @@ class User < ApplicationRecord
   validates :email_address, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 8 }, if: :password_digest_changed?
   validates :up_bank_token, presence: true, if: :token_required?
+  validates :name, length: { maximum: 100 }, format: { with: /\A[\p{L}\s\-']+\z/u }, allow_blank: true
 
   # Encrypt the Up Bank token using Rails encrypted attributes
   encrypts :up_bank_token, deterministic: false

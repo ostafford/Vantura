@@ -23,20 +23,52 @@
         <% end %>
 
         <div>
+          <label for="user-profile-name-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Full Name
+          </label>
+          <%= f.text_field :name,
+              id: "user-profile-name-input",
+              autocomplete: "name",
+              placeholder: "John Doe",
+              maxlength: 100,
+              aria_required: false,
+              aria_invalid: (@user.errors[:name].any? ? "true" : "false"),
+              aria_describedby: (@user.errors[:name].any? ? "user-profile-name-error" : nil),
+              class: "w-full px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-all" %>
+          <% if @user.errors[:name].any? %>
+            <div id="user-profile-name-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+              <%= @user.errors[:name].first %>
+            </div>
+          <% end %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            This name will be displayed in project cards and member lists
+          </p>
+        </div>
+
+        <div>
           <label for="user_email_address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Email Address
           </label>
           <%= f.email_field :email_address,
-              class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-all",
+              id: "user-profile-email-input",
+              class: "w-full px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-all",
               placeholder: "you@example.com",
-              autocomplete: "email" %>
+              autocomplete: "email",
+              aria_required: true,
+              aria_invalid: (@user.errors[:email_address].any? ? "true" : "false"),
+              aria_describedby: (@user.errors[:email_address].any? ? "user-profile-email-error" : nil) %>
+          <% if @user.errors[:email_address].any? %>
+            <div id="user-profile-email-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+              <%= @user.errors[:email_address].first %>
+            </div>
+          <% end %>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
             We'll use this email address to send you important account notifications.
           </p>
         </div>
 
         <div class="flex gap-3">
-          <%= f.submit "Update Email", 
+          <%= f.submit "Update Profile", 
               class: "px-6 py-3 bg-primary-700 hover:bg-primary-900 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg",
               data: { disable_with: "Updating..." } %>
         </div>

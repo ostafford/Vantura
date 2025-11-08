@@ -14,7 +14,7 @@ module Settings::Profile
   end
 
   def profile_params
-    params.require(:user).permit(:email_address)
+    params.require(:user).permit(:name, :email_address)
   end
 end
 
