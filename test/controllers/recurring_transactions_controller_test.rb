@@ -96,7 +96,7 @@ class RecurringTransactionsControllerTest < ActionDispatch::IntegrationTest
 
     recurring = RecurringTransaction.last
     assert_equal "Gym Membership", recurring.recurring_category
-    
+
     # Verify custom category was created
     custom_category = @account.recurring_categories.find_by(name: "Gym Membership", transaction_type: "expense")
     assert_not_nil custom_category
@@ -175,7 +175,7 @@ class RecurringTransactionsControllerTest < ActionDispatch::IntegrationTest
 
   test "should update recurring transaction with recurring_category" do
     @recurring.update!(transaction_type: "income")
-    
+
     patch recurring_transaction_url(@recurring), params: {
       account_id: @account.id,
       recurring_transaction: {
@@ -217,7 +217,7 @@ class RecurringTransactionsControllerTest < ActionDispatch::IntegrationTest
 
     get recurring_transactions_url, params: { account_id: @account.id, category: "subscription" }
     assert_response :success
-    
+
     # Verify only subscription category is shown
     assert_select "tr", count: 2  # Header + 1 subscription row
   end
@@ -298,7 +298,7 @@ class RecurringTransactionsControllerTest < ActionDispatch::IntegrationTest
   test "index action sets maximum 2 instance variables" do
     get recurring_transactions_url, params: { account_id: @account.id }
     assert_response :success
-    
+
     # Verify only 2 instance variables are set (@recurring_transactions and @breakdown)
     # This is verified by checking the response renders successfully
     # The breakdown service returns a hash, not individual instance variables

@@ -77,7 +77,7 @@ module RecurringTransactions
   test "requires at least 2 similar transactions" do
     # Clear existing transactions first
     @account.transactions.destroy_all
-    
+
     # Create transaction with unique description that won't match anything
     transaction = @account.transactions.create!(
       description: "Unique Transaction #{Time.now.to_i}",
@@ -168,4 +168,3 @@ module RecurringTransactions
   end
   end
 end
-

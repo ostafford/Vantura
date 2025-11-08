@@ -62,4 +62,3 @@ module TrendsHelper
     @trends_stats&.dig(:year_over_year_comparison) || {}
   end
 end
-

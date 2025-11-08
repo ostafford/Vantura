@@ -3,7 +3,7 @@ class RecurringCategoriesController < ApplicationController
 
   before_action :authorize_account_ownership!
   before_action :load_account
-  before_action :set_recurring_category, only: [:destroy]
+  before_action :set_recurring_category, only: [ :destroy ]
 
   def index
     @recurring_categories = @account.recurring_categories.order(:transaction_type, :name)
@@ -52,4 +52,3 @@ class RecurringCategoriesController < ApplicationController
     params.require(:recurring_category).permit(:name, :transaction_type)
   end
 end
-

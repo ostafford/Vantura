@@ -128,4 +128,3 @@ class RecurringCategoriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 end
-

@@ -47,4 +47,3 @@ class WeeklyInsightsJobTest < ActiveJob::TestCase
     assert true
   end
 end
-

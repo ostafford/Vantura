@@ -1,23 +1,23 @@
 <% content_for :title, "Sign Up - Vantura" %>
 
-<div class="min-h-screen md:min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-6 md:py-12">
+<div class="flex items-center justify-center min-h-screen px-4 py-6 md:min-h-[calc(100vh-4rem)] md:px-4 md:py-12">
   <div class="max-w-md w-full mx-auto">
     <!-- Sign Up Card -->
-    <div class="overflow-hidden bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep">
+    <section id="user-registration-container" class="overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 shadow-deep">
       <!-- Header -->
-      <div class="px-4 py-4 md:px-8 md:py-6 bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-900 dark:to-primary-700">
-        <h1 class="text-2xl md:text-3xl font-bold text-white">Create Account</h1>
-        <p class="text-xs md:text-sm text-orange-100 mt-1">Join Vantura to track your finances</p>
-      </div>
+      <header id="user-registration-header" class="px-4 py-4 bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-900 dark:to-primary-700 md:px-8 md:py-6">
+        <h1 id="user-registration-heading" class="text-2xl font-bold text-white md:text-3xl">Create Account</h1>
+        <p class="text-xs font-normal text-orange-100 mt-1 md:text-sm">Join Vantura to track your finances</p>
+      </header>
 
       <!-- Form -->
-      <%= form_with model: @user, url: sign_up_path, id: "user-registration-form", class: "p-4 space-y-4 md:p-8 md:space-y-6" do |form| %>
+      <%= form_with model: @user, url: sign_up_path, id: "user-registration-form", aria_labelledby: "user-registration-heading", class: "p-4 space-y-4 md:p-8 md:space-y-6" do |form| %>
         <% if @user.errors.any? %>
-          <div id="user-registration-errors-container" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg" role="alert">
+          <div id="user-registration-errors-container" class="p-4 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20" role="alert">
             <h3 class="font-semibold text-red-900 dark:text-red-100 mb-2">
               <%= pluralize(@user.errors.count, "error") %> prevented this account from being created:
             </h3>
-            <ul class="text-sm text-red-800 dark:text-red-200 list-disc list-inside space-y-1">
+            <ul class="text-sm font-normal text-red-800 dark:text-red-200 list-disc list-inside space-y-1">
               <% @user.errors.full_messages.each do |message| %>
                 <li><%= message %></li>
               <% end %>
@@ -26,7 +26,7 @@
         <% end %>
 
         <!-- Name -->
-        <div>
+        <div id="user-registration-name-field">
           <label for="user-name-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Full Name
           </label>
@@ -38,19 +38,19 @@
               aria_required: false,
               aria_invalid: (@user.errors[:name].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:name].any? ? "user-name-error" : nil),
-              class: "w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
           <% if @user.errors[:name].any? %>
-            <div id="user-name-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+            <div id="user-name-error" class="text-sm font-normal text-red-600 dark:text-red-400 mt-1" role="alert">
               <%= @user.errors[:name].first %>
             </div>
           <% end %>
-          <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p class="text-xs font-normal text-gray-500 dark:text-gray-400 mt-1 md:text-sm">
             Optional - This name will be displayed in project cards and member lists
           </p>
         </div>
 
         <!-- Email Address -->
-        <div>
+        <div id="user-registration-email-field">
           <label for="user-email-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Email Address
           </label>
@@ -63,16 +63,16 @@
               aria_required: true,
               aria_invalid: (@user.errors[:email_address].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:email_address].any? ? "user-email-error" : nil),
-              class: "w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
           <% if @user.errors[:email_address].any? %>
-            <div id="user-email-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+            <div id="user-email-error" class="text-sm font-normal text-red-600 dark:text-red-400 mt-1" role="alert">
               <%= @user.errors[:email_address].first %>
             </div>
           <% end %>
         </div>
 
         <!-- Password -->
-        <div>
+        <div id="user-registration-password-field">
           <label for="user-password-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Password
           </label>
@@ -85,19 +85,19 @@
               aria_required: true,
               aria_invalid: (@user.errors[:password].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:password].any? ? "user-password-error" : nil),
-              class: "w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
           <% if @user.errors[:password].any? %>
-            <div id="user-password-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+            <div id="user-password-error" class="text-sm font-normal text-red-600 dark:text-red-400 mt-1" role="alert">
               <%= @user.errors[:password].first %>
             </div>
           <% end %>
-          <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p class="text-xs font-normal text-gray-500 dark:text-gray-400 mt-1 md:text-sm">
             Must be at least 8 characters
           </p>
         </div>
 
         <!-- Password Confirmation -->
-        <div>
+        <div id="user-registration-password-confirmation-field">
           <label for="user-password-confirmation-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Confirm Password
           </label>
@@ -110,34 +110,34 @@
               aria_required: true,
               aria_invalid: (@user.errors[:password_confirmation].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:password_confirmation].any? ? "user-password-confirmation-error" : nil),
-              class: "w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
           <% if @user.errors[:password_confirmation].any? %>
-            <div id="user-password-confirmation-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+            <div id="user-password-confirmation-error" class="text-sm font-normal text-red-600 dark:text-red-400 mt-1" role="alert">
               <%= @user.errors[:password_confirmation].first %>
             </div>
           <% end %>
         </div>
 
         <!-- Submit Button -->
-        <div>
+        <div id="user-registration-actions">
           <%= form.submit "Create Account",
               id: "user-registration-submit-button",
-              class: "relative w-full min-h-[44px] px-6 py-3 text-center font-semibold text-white bg-gradient-to-r from-primary-700 to-primary-500 rounded-xl shadow-lg transition-all hover:from-primary-900 hover:to-primary-600" %>
+              class: "relative w-full min-h-[44px] px-6 py-3 rounded-xl text-center font-semibold text-white bg-gradient-to-r from-primary-700 to-primary-500 shadow-lg transition-all hover:from-primary-900 hover:to-primary-600" %>
         </div>
 
         <!-- Sign In Link -->
         <div class="text-center">
-          <p class="text-sm text-gray-600 dark:text-gray-400">
+          <p class="text-sm font-normal text-gray-600 dark:text-gray-400">
             Already have an account?
             <%= link_to "Sign in", new_session_path, class: "font-medium text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-500" %>
           </p>
         </div>
       <% end %>
-    </div>
+    </section>
 
     <!-- Footer -->
     <div class="mt-6 text-center">
-      <p class="text-xs text-gray-500 dark:text-gray-400">
+      <p class="text-xs font-normal text-gray-500 dark:text-gray-400">
         By creating an account, you agree to securely store your Up Bank Personal Access Token.
         <br>
         Your token is encrypted and never shared.
@@ -145,4 +145,3 @@
     </div>
   </div>
 </div>
-

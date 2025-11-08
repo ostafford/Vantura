@@ -9,6 +9,6 @@ class CreateRecurringCategories < ActiveRecord::Migration[8.0]
     end
 
     add_index :recurring_categories, :name
-    add_index :recurring_categories, [:account_id, :name, :transaction_type], unique: true, name: "index_recurring_categories_unique"
+    add_index :recurring_categories, [ :account_id, :name, :transaction_type ], unique: true, name: "index_recurring_categories_unique"
   end
 end

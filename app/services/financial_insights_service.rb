@@ -135,9 +135,9 @@ class FinancialInsightsService
   def category_merchant_insight(view_type = "category")
     breakdown = if view_type == "merchant"
                   get_top_merchants
-                else
+    else
                   get_top_categories
-                end
+    end
 
     return nil if breakdown.empty?
 
@@ -285,7 +285,7 @@ class FinancialInsightsService
             .real
             .expenses
             .where(transaction_date: month_start..month_end)
-            .where.not(category: [nil, ""])
+            .where.not(category: [ nil, "" ])
             .group(:category)
             .select("category, SUM(amount) as total, COUNT(*) as count")
             .order("total ASC")
@@ -327,7 +327,7 @@ class FinancialInsightsService
                                .where(merchant: item[:name])
                                .sum(:amount)
                                .abs
-                     else
+    else
                        @account.transactions
                                .real
                                .expenses
@@ -335,7 +335,7 @@ class FinancialInsightsService
                                .where(category: item[:name])
                                .sum(:amount)
                                .abs
-                     end
+    end
 
     last_month_amount = if view_type == "merchant"
                           @account.transactions
@@ -345,7 +345,7 @@ class FinancialInsightsService
                                   .where(merchant: item[:name])
                                   .sum(:amount)
                                   .abs
-                        else
+    else
                           @account.transactions
                                   .real
                                   .expenses
@@ -353,7 +353,7 @@ class FinancialInsightsService
                                   .where(category: item[:name])
                                   .sum(:amount)
                                   .abs
-                        end
+    end
 
     return { direction: "stable", percentage: 0 } if last_month_amount.zero?
 
@@ -377,4 +377,3 @@ class FinancialInsightsService
     end
   end
 end
-

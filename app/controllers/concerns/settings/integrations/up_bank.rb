@@ -75,4 +75,3 @@ module Settings::Integrations::UpBank
     params.require(:user).permit(:up_bank_token)
   end
 end
-

@@ -21,7 +21,7 @@ class ProjectMembershipSyncServiceTest < ActiveSupport::TestCase
   end
 
   test "creates new memberships from user ids" do
-    member_user_ids = [@member1.id, @member2.id]
+    member_user_ids = [ @member1.id, @member2.id ]
 
     ProjectMembershipSyncService.call(@project, member_user_ids, {})
 
@@ -31,7 +31,7 @@ class ProjectMembershipSyncServiceTest < ActiveSupport::TestCase
   end
 
   test "excludes owner from memberships" do
-    member_user_ids = [@owner.id, @member1.id]
+    member_user_ids = [ @owner.id, @member1.id ]
 
     ProjectMembershipSyncService.call(@project, member_user_ids, {})
 
@@ -41,7 +41,7 @@ class ProjectMembershipSyncServiceTest < ActiveSupport::TestCase
   end
 
   test "sets access level from access_levels hash" do
-    member_user_ids = [@member1.id, @member2.id]
+    member_user_ids = [ @member1.id, @member2.id ]
     access_levels = {
       @member1.id.to_s => "full",
       @member2.id.to_s => "limited"
@@ -57,7 +57,7 @@ class ProjectMembershipSyncServiceTest < ActiveSupport::TestCase
   end
 
   test "defaults to limited access when access level not provided" do
-    member_user_ids = [@member1.id]
+    member_user_ids = [ @member1.id ]
     access_levels = {}
 
     ProjectMembershipSyncService.call(@project, member_user_ids, access_levels)
@@ -67,7 +67,7 @@ class ProjectMembershipSyncServiceTest < ActiveSupport::TestCase
   end
 
   test "defaults to limited access when invalid access level provided" do
-    member_user_ids = [@member1.id]
+    member_user_ids = [ @member1.id ]
     access_levels = {
       @member1.id.to_s => "invalid_level"
     }
@@ -93,7 +93,7 @@ class ProjectMembershipSyncServiceTest < ActiveSupport::TestCase
   end
 
   test "removes duplicates from member_user_ids" do
-    member_user_ids = [@member1.id, @member1.id, @member2.id]
+    member_user_ids = [ @member1.id, @member1.id, @member2.id ]
 
     ProjectMembershipSyncService.call(@project, member_user_ids, {})
 
@@ -102,7 +102,7 @@ class ProjectMembershipSyncServiceTest < ActiveSupport::TestCase
   end
 
   test "handles string user ids" do
-    member_user_ids = [@member1.id.to_s, @member2.id.to_s]
+    member_user_ids = [ @member1.id.to_s, @member2.id.to_s ]
 
     ProjectMembershipSyncService.call(@project, member_user_ids, {})
 
@@ -116,7 +116,7 @@ class ProjectMembershipSyncServiceTest < ActiveSupport::TestCase
     @project.project_memberships.create!(user: @member1, access_level: :limited)
 
     # Sync with different members
-    ProjectMembershipSyncService.call(@project, [@member2.id], {})
+    ProjectMembershipSyncService.call(@project, [ @member2.id ], {})
 
     assert_equal 1, @project.project_memberships.count
     assert_includes @project.project_memberships.pluck(:user_id), @member2.id
@@ -124,8 +124,7 @@ class ProjectMembershipSyncServiceTest < ActiveSupport::TestCase
   end
 
   test "returns true on success" do
-    result = ProjectMembershipSyncService.call(@project, [@member1.id], {})
+    result = ProjectMembershipSyncService.call(@project, [ @member1.id ], {})
     assert_equal true, result
   end
 end
-

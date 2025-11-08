@@ -75,7 +75,7 @@ class RecurringCategoryTest < ActiveSupport::TestCase
 
   test "should allow same name for different accounts" do
     other_account = accounts(:two)
-    
+
     RecurringCategory.create!(
       account: @account,
       name: "Gym Membership",
@@ -129,13 +129,13 @@ class RecurringCategoryTest < ActiveSupport::TestCase
 
   test "for_account scope should filter by account" do
     other_account = accounts(:two)
-    
+
     category1 = RecurringCategory.create!(
       account: @account,
       name: "Category 1",
       transaction_type: "expense"
     )
-    
+
     category2 = RecurringCategory.create!(
       account: other_account,
       name: "Category 2",
@@ -153,7 +153,7 @@ class RecurringCategoryTest < ActiveSupport::TestCase
       name: "Salary",
       transaction_type: "income"
     )
-    
+
     expense_category = RecurringCategory.create!(
       account: @account,
       name: "Subscription",
@@ -169,4 +169,3 @@ class RecurringCategoryTest < ActiveSupport::TestCase
     assert_not_includes expense_result, income_category
   end
 end
-

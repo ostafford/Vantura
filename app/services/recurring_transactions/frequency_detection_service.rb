@@ -85,8 +85,7 @@ module RecurringTransactions
         base_confidence += 10
       end
 
-      [base_confidence, 100].min.round
+      [ base_confidence, 100 ].min.round
     end
   end
 end
-

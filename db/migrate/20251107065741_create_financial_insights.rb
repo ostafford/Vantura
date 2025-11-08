@@ -17,7 +17,7 @@ class CreateFinancialInsights < ActiveRecord::Migration[8.0]
     # account_id index is automatically created by t.references
     add_index :financial_insights, :insight_type
     add_index :financial_insights, :is_actioned
-    add_index :financial_insights, [:account_id, :is_actioned]
+    add_index :financial_insights, [ :account_id, :is_actioned ]
     add_index :financial_insights, :created_at
   end
 end

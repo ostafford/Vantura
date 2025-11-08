@@ -21,4 +21,3 @@ module ProjectAuthorization
     head :forbidden
   end
 end
-

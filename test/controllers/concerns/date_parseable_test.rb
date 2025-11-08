@@ -80,4 +80,3 @@ class DateParseableTest < ActiveSupport::TestCase
     end
   end
 end
-

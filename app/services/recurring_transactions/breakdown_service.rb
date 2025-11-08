@@ -67,4 +67,3 @@ module RecurringTransactions
     end
   end
 end
-

@@ -18,7 +18,7 @@ class SpendingVelocityCalculator
   # Current spending velocity (daily rate for current month)
   def current_velocity
     @current_velocity ||= begin
-      days_elapsed = [(@reference_date - @current_month_start).to_i + 1, 1].max
+      days_elapsed = [ (@reference_date - @current_month_start).to_i + 1, 1 ].max
       current_spending = current_month_spending
       {
         daily_rate: (current_spending / days_elapsed.to_f).round(2),
@@ -130,4 +130,3 @@ class SpendingVelocityCalculator
                                        .abs
   end
 end
-

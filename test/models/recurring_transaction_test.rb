@@ -523,7 +523,7 @@ class RecurringTransactionTest < ActiveSupport::TestCase
       name: "Gym Membership",
       transaction_type: "expense"
     )
-    
+
     @recurring.transaction_type = "expense"
     @recurring.recurring_category = "Gym Membership"
     assert @recurring.valid?
@@ -554,7 +554,7 @@ class RecurringTransactionTest < ActiveSupport::TestCase
       name: "Gym Membership",
       transaction_type: "expense"
     )
-    
+
     @recurring.transaction_type = "expense"
     @recurring.recurring_category = "Gym Membership"
     assert_equal "Gym Membership", @recurring.recurring_category_name
@@ -566,10 +566,10 @@ class RecurringTransactionTest < ActiveSupport::TestCase
       name: "Custom Category",
       transaction_type: "expense"
     )
-    
+
     @recurring.transaction_type = "expense"
     categories = @recurring.available_categories
-    
+
     assert_includes categories, "subscription"  # predefined
     assert_includes categories, "Custom Category"  # custom
   end

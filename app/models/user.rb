@@ -12,7 +12,7 @@ class User < ApplicationRecord
   # Validations
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   validates :email_address, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :password, length: { minimum: 8 }, if: :password_digest_changed?
+  validates :password, length: { minimum: 8 }, allow_nil: true
   validates :up_bank_token, presence: true, if: :token_required?
   validates :name, length: { maximum: 100 }, format: { with: /\A[\p{L}\s\-']+\z/u }, allow_blank: true
 

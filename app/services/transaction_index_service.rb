@@ -118,7 +118,7 @@ class TransactionIndexService < ApplicationService
   def transactions
     @transactions ||= begin
       base = filtered_transactions.includes(:recurring_transaction)
-      
+
       # Use in_date_range scope if date range is provided, otherwise use month range
       if @date_params[:start_date].present? && @date_params[:end_date].present?
         base.in_date_range(start_date, end_date).order(transaction_date: :desc)

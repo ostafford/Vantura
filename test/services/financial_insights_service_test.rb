@@ -24,7 +24,7 @@ class FinancialInsightsServiceTest < ActiveSupport::TestCase
       assert insight.key?(:message) || insight.key?("message")
       assert insight.key?(:evidence) || insight.key?("evidence")
       insight_type = insight[:type] || insight["type"]
-      assert_includes ["spending_velocity", "savings_opportunity", "investment_suggestion", "category_merchant"], insight_type
+      assert_includes [ "spending_velocity", "savings_opportunity", "investment_suggestion", "category_merchant" ], insight_type
     end
   end
 
@@ -104,4 +104,3 @@ class FinancialInsightsServiceTest < ActiveSupport::TestCase
     assert insights.length <= 3
   end
 end
-

@@ -56,4 +56,3 @@ class WeeklyInsightsJob < ApplicationJob
     }
   end
 end
-

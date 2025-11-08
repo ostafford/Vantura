@@ -17,4 +17,3 @@ module Settings::Profile
     params.require(:user).permit(:name, :email_address)
   end
 end
-

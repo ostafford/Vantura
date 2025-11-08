@@ -49,4 +49,3 @@ class VelocityCheckJob < ApplicationJob
     end
   end
 end
-

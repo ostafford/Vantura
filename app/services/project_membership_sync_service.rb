@@ -40,4 +40,3 @@ class ProjectMembershipSyncService < ApplicationService
     true
   end
 end
-

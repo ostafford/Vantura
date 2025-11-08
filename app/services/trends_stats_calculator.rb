@@ -233,7 +233,7 @@ class TrendsStatsCalculator < ApplicationService
                             .real
                             .expenses
                             .where(transaction_date: calculate_start_date_for_range..@current_month_end)
-                            .where.not(category: [nil, ""])
+                            .where.not(category: [ nil, "" ])
                             .group(:category)
                             .select("category, SUM(amount) as total, COUNT(*) as count")
                             .order("total ASC")

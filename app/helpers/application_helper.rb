@@ -119,7 +119,7 @@ module ApplicationHelper
       end
     elsif transaction.recurring?
       # Display Recurring badge for recurring transactions
-      content_tag :span, 
+      content_tag :span,
         id: "transaction-#{transaction.id}-recurring-action-badge",
         class: "inline-flex items-center px-3 py-1 bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-300 rounded-lg text-xs font-medium",
         "aria-label": "Recurring transaction" do

@@ -130,4 +130,3 @@ class SpendingVelocityCalculatorTest < ActiveSupport::TestCase
     assert projected[:projected_total] > 0
   end
 end
-

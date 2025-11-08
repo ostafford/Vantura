@@ -85,7 +85,7 @@ module RecurringTransactions
 
     test "finds next occurrence correctly" do
       today = Date.today
-      
+
       # Clear existing to get clean test
       @account.recurring_transactions.destroy_all
 
@@ -119,7 +119,7 @@ module RecurringTransactions
     test "returns nil for next occurrence when no active recurring transactions" do
       # Clear existing and create only inactive recurring transaction
       @account.recurring_transactions.destroy_all
-      
+
       @account.recurring_transactions.create!(
         description: "Inactive",
         amount: -100.0,
@@ -182,4 +182,3 @@ module RecurringTransactions
     end
   end
 end
-

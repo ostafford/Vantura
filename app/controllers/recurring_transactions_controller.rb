@@ -9,12 +9,12 @@ class RecurringTransactionsController < ApplicationController
     return unless load_account
 
     @recurring_transactions = @account.recurring_transactions.order(created_at: :desc)
-    
+
     # Filter by category if provided
     if params[:category].present?
       @recurring_transactions = @recurring_transactions.where(recurring_category: params[:category])
     end
-    
+
     @breakdown = RecurringTransactions::BreakdownService.call(@account)
   end
 
@@ -24,14 +24,14 @@ class RecurringTransactionsController < ApplicationController
 
   def update
     params_hash = recurring_transaction_params.to_h
-    
+
     # Handle custom category creation if "other" is selected
     if params_hash["recurring_category"] == "other" && params[:custom_category_name].present?
       custom_category = @account.recurring_categories.find_or_create_by(
         name: params[:custom_category_name].strip,
         transaction_type: @recurring.transaction_type
       )
-      
+
       if custom_category.persisted?
         params_hash["recurring_category"] = custom_category.name
       else
@@ -40,7 +40,7 @@ class RecurringTransactionsController < ApplicationController
         return
       end
     end
-    
+
     if @recurring.update(params_hash)
       redirect_to recurring_transactions_path(account_id: @account.id), notice: "Recurring transaction updated successfully."
     else
@@ -55,14 +55,14 @@ class RecurringTransactionsController < ApplicationController
     # Handle custom category creation if "other" is selected
     recurring_category = params[:recurring_category]
     custom_category_name = params[:custom_category_name]
-    
+
     if recurring_category == "other" && custom_category_name.present?
       # Create or find custom category
       custom_category = @account.recurring_categories.find_or_create_by(
         name: custom_category_name.strip,
         transaction_type: @transaction.transaction_type
       )
-      
+
       if custom_category.persisted?
         recurring_category = custom_category.name
       else

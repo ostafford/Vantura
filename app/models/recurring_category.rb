@@ -7,7 +7,7 @@ class RecurringCategory < ApplicationRecord
   # Validations
   validates :name, presence: true
   validates :transaction_type, presence: true, inclusion: { in: %w[income expense] }
-  validates :name, uniqueness: { scope: [:account_id, :transaction_type], case_sensitive: false }
+  validates :name, uniqueness: { scope: [ :account_id, :transaction_type ], case_sensitive: false }
 
   # Scopes
   scope :for_account, ->(account) { where(account_id: account.id) }
@@ -39,4 +39,3 @@ class RecurringCategory < ApplicationRecord
     end
   end
 end
-

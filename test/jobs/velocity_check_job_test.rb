@@ -42,7 +42,7 @@ class VelocityCheckJobTest < ActiveJob::TestCase
 
   test "should use cache to prevent duplicate checks" do
     cache_key = "velocity_check_#{@account.id}_#{Date.today}"
-    
+
     # Clear cache first
     Rails.cache.delete(cache_key)
 
@@ -83,4 +83,3 @@ class VelocityCheckJobTest < ActiveJob::TestCase
     assert true
   end
 end
-

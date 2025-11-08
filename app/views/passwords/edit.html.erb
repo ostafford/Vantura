@@ -1,66 +1,84 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">Update your password</h1>
+<% content_for :title, "Update Password - Vantura" %>
 
-  <%= form_with model: @user, url: password_path(params[:token]), method: :put, id: "password-reset-form", class: "contents" do |form| %>
-    <!-- Error Messages -->
-    <% if @user.errors.any? %>
-      <div id="password-reset-errors-container" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-5" role="alert">
-        <h3 class="font-semibold text-red-900 dark:text-red-100 mb-2">
-          <%= pluralize(@user.errors.count, "error") %> prevented your password from being reset:
-        </h3>
-        <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
-          <% @user.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
+<div class="flex items-center justify-center min-h-screen px-4 py-6 md:min-h-[calc(100vh-4rem)] md:px-4 md:py-12">
+  <div class="max-w-md w-full mx-auto">
+    <!-- Password Update Card -->
+    <section id="user-password-update-container" class="overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 shadow-deep">
+      <!-- Header -->
+      <header id="user-password-update-header" class="px-4 py-4 bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-900 dark:to-primary-700 md:px-8 md:py-6">
+        <h1 id="user-password-update-heading" class="text-2xl md:text-3xl font-bold text-white">Update Password</h1>
+        <p class="text-xs md:text-sm font-normal text-orange-100 mt-1">Enter your new password below</p>
+      </header>
+
+      <!-- Form -->
+      <%= form_with model: @user, url: password_path(params[:token]), method: :put, id: "user-password-update-form", aria_labelledby: "user-password-update-heading", class: "p-4 space-y-4 md:p-8 md:space-y-6" do |form| %>
+        <!-- Error Messages -->
+        <% if @user.errors.any? %>
+          <div id="user-password-update-errors-container" 
+               class="p-4 mb-4 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20" 
+               role="alert">
+            <h3 class="text-sm font-semibold text-red-900 dark:text-red-100 mb-2">
+              <%= pluralize(@user.errors.count, "error") %> prevented your password from being reset:
+            </h3>
+            <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
+              <% @user.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <!-- Password Field -->
+        <div id="user-password-update-password-field">
+          <label for="user-password-update-password-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            New Password
+          </label>
+          <%= form.password_field :password,
+              id: "user-password-update-password-input",
+              required: true,
+              autocomplete: "new-password",
+              placeholder: "Enter new password",
+              maxlength: 72,
+              aria_required: true,
+              aria_invalid: (@user.errors[:password].any? ? "true" : "false"),
+              aria_describedby: (@user.errors[:password].any? ? "user-password-update-password-error" : nil),
+              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+          <% if @user.errors[:password].any? %>
+            <div id="user-password-update-password-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+              <%= @user.errors[:password].first %>
+            </div>
           <% end %>
-        </ul>
-      </div>
-    <% end %>
+        </div>
 
-    <!-- Password Field -->
-    <div class="my-5">
-      <%= form.label :password, "New Password", for: "password-reset-password-input", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-      <%= form.password_field :password,
-          id: "password-reset-password-input",
-          required: true,
-          autocomplete: "new-password",
-          placeholder: "Enter new password",
-          maxlength: 72,
-          aria_required: true,
-          aria_invalid: (@user.errors[:password].any? ? "true" : "false"),
-          aria_describedby: (@user.errors[:password].any? ? "password-reset-password-error" : nil),
-          class: "block shadow-sm rounded-md border border-gray-400 focus:outline-solid focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
-      <% if @user.errors[:password].any? %>
-        <div id="password-reset-password-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
-          <%= @user.errors[:password].first %>
+        <!-- Password Confirmation Field -->
+        <div id="user-password-update-confirmation-field">
+          <label for="user-password-update-confirmation-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Confirm New Password
+          </label>
+          <%= form.password_field :password_confirmation,
+              id: "user-password-update-confirmation-input",
+              required: true,
+              autocomplete: "new-password",
+              placeholder: "Repeat new password",
+              maxlength: 72,
+              aria_required: true,
+              aria_invalid: (@user.errors[:password_confirmation].any? ? "true" : "false"),
+              aria_describedby: (@user.errors[:password_confirmation].any? ? "user-password-update-confirmation-error" : nil),
+              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+          <% if @user.errors[:password_confirmation].any? %>
+            <div id="user-password-update-confirmation-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+              <%= @user.errors[:password_confirmation].first %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Submit Button -->
+        <div id="user-password-update-actions">
+          <%= form.submit "Save",
+              id: "user-password-update-submit-button",
+              class: "relative w-full min-h-[44px] px-6 py-3 rounded-xl text-center font-semibold text-white bg-gradient-to-r from-primary-700 to-primary-500 shadow-lg transition-all hover:from-primary-900 hover:to-primary-600" %>
         </div>
       <% end %>
-    </div>
-
-    <!-- Password Confirmation Field -->
-    <div class="my-5">
-      <%= form.label :password_confirmation, "Confirm New Password", for: "password-reset-confirmation-input", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-      <%= form.password_field :password_confirmation,
-          id: "password-reset-confirmation-input",
-          required: true,
-          autocomplete: "new-password",
-          placeholder: "Repeat new password",
-          maxlength: 72,
-          aria_required: true,
-          aria_invalid: (@user.errors[:password_confirmation].any? ? "true" : "false"),
-          aria_describedby: (@user.errors[:password_confirmation].any? ? "password-reset-confirmation-error" : nil),
-          class: "block shadow-sm rounded-md border border-gray-400 focus:outline-solid focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
-      <% if @user.errors[:password_confirmation].any? %>
-        <div id="password-reset-confirmation-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
-          <%= @user.errors[:password_confirmation].first %>
-        </div>
-      <% end %>
-    </div>
-
-    <!-- Submit Button -->
-    <div class="inline">
-      <%= form.submit "Save",
-          id: "password-reset-submit-button",
-          class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
-    </div>
-  <% end %>
+    </section>
+  </div>
 </div>

@@ -91,4 +91,3 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 end
-
