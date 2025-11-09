@@ -1,15 +1,15 @@
 <% content_for :title, "Projects - Vantura" %>
-
-<main>
-  <!-- Page Header -->
-  <%= render 'shared/page_header', title: "Projects", subtitle: "Manage your shared expense projects", hide_quick_actions: true do %>
+<% content_for :page_header_title, "Projects" %>
+<% content_for :page_header_subtitle, "Manage your shared expense projects" %>
+<% content_for :page_header_actions do %>
     <%= link_to new_project_path, class: "inline-flex items-center justify-center w-12 h-12 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-xl border border-primary-600 dark:border-primary-500 hover:scale-110 hover:shadow-lg transition-all", title: "New Project" do %>
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
       </svg>
     <% end %>
-  <% end %>
+<% end %>
 
+<main>
   <%= content_wrapper class: "py-6" do %>
     <!-- Bento Grid Layout -->
     <section id="projects-bento-grid-section" class="bento-grid mb-6" aria-label="Projects statistics">

@@ -1,8 +1,7 @@
 <% content_for :title, "All Transactions - Vantura" %>
-
-<div data-controller="filter recurring-modal" data-recurring-modal-target="content">
-  <!-- Header -->
-  <%= render 'shared/page_header', title: "All Transactions", subtitle: "View and manage all your transactions" do %>
+<% content_for :page_header_title, "All Transactions" %>
+<% content_for :page_header_subtitle, "View and manage all your transactions" %>
+<% content_for :page_header_actions do %>
     <div class="flex gap-3">
       <!-- Expenses Card -->
       <div class="bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 shadow-sm">
@@ -28,8 +27,9 @@
         </div>
       </div>
     </div>
-  <% end %>
+<% end %>
 
+<div data-controller="filter recurring-modal" data-recurring-modal-target="content">
   <!-- Month Navigation & Filter -->
   <%= content_wrapper class: "py-4" do %>
     <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep p-4">

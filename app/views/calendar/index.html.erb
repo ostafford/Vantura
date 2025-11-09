@@ -1,4 +1,6 @@
 <% content_for :title, "Calendar - Vantura" %>
+<% content_for :page_header_title, "Vantura Calendar" %>
+<% content_for :page_header_subtitle, "View your transactions over time" %>
 
 <%# Subscribe to Turbo Streams for real-time calendar updates %>
 <%= turbo_stream_from @account.user if @account %>
@@ -8,8 +10,6 @@
       data-controller="calendar recurring-modal" 
       data-recurring-modal-target="content" 
       aria-label="Calendar page">
-  <!-- Calendar Header -->
-  <%= render 'shared/page_header', title: "Vantura Calendar", subtitle: "View your transactions over time" %>
 
   <% if @account %>
     <%= content_wrapper class: "py-4 sm:py-6 lg:py-8" do %>

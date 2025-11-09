@@ -62,22 +62,35 @@
     <% if Current.user %>
       <%= turbo_stream_from Current.user %>
     <% end %>
-    
+
     <!-- Desktop Sidebar Navigation (only show when authenticated) -->
     <% if Current.user %>
       <%= render 'shared/sidebar' %>
     <% end %>
-    
+
     <!-- Main content wrapper (adjusts margin for sidebar on desktop) -->
     <main id="main-content-container" 
           role="main"
           aria-label="Main content"
           data-modal-target="content"
           class="transition-all duration-300 ease-in-out flex-1 overflow-auto 
-                   lg:ml-64">
+                  lg:ml-64">
+      
+      <!-- Page Header (now inside main container) -->
+      <% if content_for?(:page_header_title) %>
+        <%= render 'shared/page_header', 
+            title: content_for(:page_header_title),
+            subtitle: content_for(:page_header_subtitle),
+            padding: content_for(:page_header_padding),
+            show_back_link: content_for(:page_header_show_back_link).present?,
+            flex_wrap: content_for(:page_header_flex_wrap).present? do %>
+          <%= content_for(:page_header_actions) %>
+        <% end %>
+      <% end %>
+      
       <%= yield %>
     </main>
-    
+
     <!-- Mobile Navigation (only show when authenticated) -->
     <% if Current.user %>
       <%= render 'shared/navigation' %>

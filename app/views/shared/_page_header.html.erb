@@ -1,6 +1,6 @@
 <!-- Page Header - Sticky by default for all pages -->
 <% padding = local_assigns[:padding] || "py-4" %>
-<div class="sticky top-0 z-50 inset-x-0 bg-neutral-100 dark:bg-primary-900 shadow-deep <%= padding %>">
+<div id="page-header" class="sticky top-0 z-50 bg-neutral-100 dark:bg-primary-900 shadow-deep <%= padding %>">
   <div class="flex items-center justify-between <%= local_assigns[:flex_wrap] ? 'flex-wrap gap-4' : '' %> px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= title %></h1>

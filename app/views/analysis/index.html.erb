@@ -1,8 +1,7 @@
 <% content_for :title, "Advanced Analysis - Vantura" %>
-
-<main role="main">
-  <!-- Page Header -->
-  <%= render 'shared/page_header', title: "Advanced Analysis", subtitle: "Deep insights into your financial patterns" do %>
+<% content_for :page_header_title, "Advanced Analysis" %>
+<% content_for :page_header_subtitle, "Deep insights into your financial patterns" %>
+<% content_for :page_header_actions do %>
     <div class="flex gap-3">
       <%= link_to trends_path, class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors", aria: { label: "Navigate back to trends page" } do %>
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -11,8 +10,9 @@
         Back to Trends
       <% end %>
     </div>
-  <% end %>
+<% end %>
 
+<main role="main">
   <%= content_wrapper class: "py-6", data: { modal_target: "content" } do %>
     <% if @account %>
       <!-- Hero Card -->

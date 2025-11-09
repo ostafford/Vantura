@@ -1,4 +1,6 @@
 <% content_for :title, "Edit Expense - #{@project.name} - Projects - Vantura" %>
+<% content_for :page_header_title, "Edit Expense" %>
+<% content_for :page_header_subtitle, "Update expense details for #{@project.name}" %>
 
 <main>
   <!-- Breadcrumb Navigation -->
@@ -15,9 +17,6 @@
       </div>
     <% end %>
   </div>
-
-  <!-- Page Header -->
-  <%= render 'shared/page_header', title: "Edit Expense", subtitle: "Update expense details for #{@project.name}", hide_quick_actions: true %>
 
   <%= content_wrapper class: "py-6" do %>
     <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep p-6">

@@ -1,4 +1,6 @@
 <% content_for :title, "#{@project.name} - Projects - Vantura" %>
+<% content_for :page_header_title, @project.name %>
+<% content_for :page_header_subtitle, "View project details and expenses" %>
 
 <main>
   <!-- Breadcrumb Navigation -->
@@ -13,9 +15,6 @@
       </div>
     <% end %>
   </nav>
-
-  <!-- Page Header -->
-  <%= render 'shared/page_header', title: @project.name, subtitle: "View project details and expenses", hide_quick_actions: true %>
 
   <%= content_wrapper class: "py-6" do %>
     <!-- Bento Grid Statistics Section -->
