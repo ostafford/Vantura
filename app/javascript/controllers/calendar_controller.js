@@ -179,7 +179,7 @@ export default class extends Controller {
     // Per rules: For dynamic elements with ID patterns, querySelector is acceptable
     // @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
     if (!this.allDayElements) {
-      this.allDayElements = document.querySelectorAll('[id^="day-"]')
+      this.allDayElements = document.querySelectorAll('[id^="calendar-day-"]')
     }
 
     // If this detailsEl is already shown inside slot, toggle it closed

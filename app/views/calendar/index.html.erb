@@ -3,7 +3,11 @@
 <%# Subscribe to Turbo Streams for real-time calendar updates %>
 <%= turbo_stream_from @account.user if @account %>
 
-<main data-modal-type-value="transaction" data-controller="calendar recurring-modal" data-recurring-modal-target="content" aria-label="Calendar page">
+<main id="calendar-main-container"
+      data-modal-type-value="transaction" 
+      data-controller="calendar recurring-modal" 
+      data-recurring-modal-target="content" 
+      aria-label="Calendar page">
   <!-- Calendar Header -->
   <%= render 'shared/page_header', title: "Vantura Calendar", subtitle: "View your transactions over time" %>
 
@@ -19,11 +23,7 @@
         <!-- View Switcher (Inside Turbo Frame, after Bento Grid) -->
         <nav class="mb-4 flex items-center justify-between gap-3" aria-label="Calendar view switcher">
           <div class="inline-flex rounded-lg bg-white dark:bg-gray-800 p-1 shadow-lg">
-            <% 
-              # When switching to week view, use today's date to show current week
-              # When in week view already, stay on the current date
-              week_switch_date = @view == 'week' ? @date : Date.today
-            %>
+            <% week_switch_date = calendar_week_switch_date(@view, @date) %>
             <%= link_to calendar_month_path(@date.year, @date.month, view: 'month'),
                 class: "px-4 py-2 rounded-md text-sm font-medium transition-all #{@view == 'month' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
                 data: { view: 'month', turbo_frame: 'calendar_content', calendar_target: 'viewLink' } do %>
@@ -43,16 +43,12 @@
           </div>
           
           <!-- Today Button -->
-          <% 
-            today = Date.today
-            today_path = @view == 'week' ? 
-              calendar_month_path(today.year, today.month, today.day, view: 'week') : 
-              calendar_month_path(today.year, today.month, view: 'month')
-          %>
-          <%= link_to today_path,
+          <% today_path = calendar_today_path(@view, Date.today) %>
+          <%= link_to(today_path,
               class: "inline-flex items-center px-4 py-2 border-2 border-primary-700/30 dark:border-primary-500/20 rounded-2xl text-primary-700 dark:text-primary-500 bg-primary-700/5 dark:bg-primary-700/10 hover:bg-primary-700/10 dark:hover:bg-primary-700/20 hover:border-primary-700 dark:hover:border-primary-500 hover:shadow-lg hover:scale-105 transition-all font-medium",
               title: "Jump to today",
-              data: { turbo_frame: 'calendar_content' } do %>
+              aria: { label: "Jump to today" },
+              data: { turbo_frame: 'calendar_content' }) do %>
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>

@@ -9,7 +9,12 @@
       view_mode: 'week',
       current_date: @date,
       turbo_frame: 'calendar_content' do %>
-    <button type="button" data-action="click->modal#open" class="inline-flex items-center justify-center w-10 h-10 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md" title="Add Transaction">
+    <button type="button" 
+            id="calendar-add-transaction-button"
+            data-action="click->modal#open" 
+            class="inline-flex items-center justify-center w-10 h-10 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md" 
+            title="Add Transaction"
+            aria-label="Add new transaction">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
       </svg>
@@ -21,7 +26,12 @@
       next_path: calendar_month_path(@date.next_month.year, @date.next_month.month, view: 'month'),
       current_date: @date,
       turbo_frame: 'calendar_content' do %>
-    <button type="button" data-action="click->modal#open" class="inline-flex items-center justify-center w-10 h-10 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md" title="Add Transaction">
+    <button type="button" 
+            id="calendar-add-transaction-button"
+            data-action="click->modal#open" 
+            class="inline-flex items-center justify-center w-10 h-10 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md" 
+            title="Add Transaction"
+            aria-label="Add new transaction">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
       </svg>

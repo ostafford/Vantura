@@ -19,11 +19,11 @@
         <% week.each do |day| %>
           <% total = day_total(day[:date]) %>
           <% transactions = day_transactions(day[:date]) %>
-          <% day_id = "day-#{day[:date].to_s}" %>
+          <% day_id = "calendar-day-#{day[:date].to_s}" %>
           <% has_trans = transactions.any? %>
           <% is_today = day[:date] == Date.today %>
 
-          <div class="<%= calendar_day_bg_class(total: total, in_current_month: day[:in_current_month], is_today: is_today) %> rounded-lg px-2 py-2 min-h-[100px] border border-gray-200 dark:border-gray-700 <%= has_trans ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer' : '' %> transition-all"
+          <div class="<%= calendar_day_bg_class(total: total, in_current_month: day[:in_current_month], is_today: is_today) %> flex flex-col rounded-lg px-2 py-2 min-h-[100px] border border-gray-200 dark:border-gray-700 <%= has_trans ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer' : '' %> transition-all"
                <% if has_trans %>data-day-id="<%= day_id %>" data-action="click->calendar#toggleDay"<% end %>>
             <% if day[:in_current_month] %>
               <!-- Day number in top-left corner -->
@@ -83,14 +83,19 @@
   <% week.each do |day| %>
     <% transactions = day_transactions(day[:date]) %>
     <% if transactions.any? && day[:in_current_month] %>
-      <% day_id = "day-#{day[:date].to_s}" %>
+      <% day_id = "calendar-day-#{day[:date].to_s}" %>
       <div id="<%= day_id %>" class="hidden mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="bg-blue-50 dark:bg-blue-900/20 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white">
               <time datetime="<%= day[:date].iso8601 %>"><%= day[:date].strftime("%A, %B %d, %Y") %></time>
             </h3>
-            <button type="button" data-day-id="<%= day_id %>" data-action="click->calendar#toggleDay" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:scale-110 transition-all">
+            <button type="button" 
+                    id="calendar-day-<%= day[:date].to_s %>-close-button"
+                    data-day-id="<%= day_id %>" 
+                    data-action="click->calendar#toggleDay" 
+                    aria-label="Close <%= day[:date].strftime('%B %d') %> details"
+                    class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:scale-110 transition-all">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>

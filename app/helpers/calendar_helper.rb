@@ -105,4 +105,40 @@ module CalendarHelper
       detail: year.to_s
     }
   end
+
+  # Calculate week switch date for view switching
+  # When switching to week view, use today's date to show current week
+  # When in week view already, stay on the current date
+  # @param view [String] Current view ('week' or 'month')
+  # @param date [Date] Current date
+  # @return [Date] Date to use for week switch
+  def calendar_week_switch_date(view, date)
+    view == 'week' ? date : Date.today
+  end
+
+  # Generate today path based on current view
+  # @param view [String] Current view ('week' or 'month')
+  # @param today [Date] Today's date
+  # @return [String] Path to today's calendar view
+  def calendar_today_path(view, today)
+    if view == 'week'
+      calendar_month_path(today.year, today.month, today.day, view: 'week')
+    else
+      calendar_month_path(today.year, today.month, view: 'month')
+    end
+  end
+
+  # Format period end data for display
+  # Takes pre-calculated values and formats them for the view
+  # @param view [String] Current view ('week' or 'month')
+  # @param end_value [Numeric] End of period balance value
+  # @param end_date [Date] End of period date
+  # @return [Hash] Hash with formatted value, date, and label
+  def calendar_period_end_data(view, end_value, end_date)
+    {
+      value: end_value,
+      date: end_date,
+      label: view == 'week' ? 'End of Week' : 'End of Month'
+    }
+  end
 end

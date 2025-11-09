@@ -16,7 +16,6 @@
     <!-- Line 2: End of Period -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <span class="text-blue-50 text-base font-medium"><%= @view == 'week' ? 'End of Week' : 'End of Month' %>:</span>
         <% 
           if @view == 'week'
             end_value = calculate_week_end_balance(@account, @date)
@@ -25,12 +24,14 @@
             end_value = @end_of_month_balance
             end_date = @date.end_of_month
           end
+          period_data = calendar_period_end_data(@view, end_value, end_date)
         %>
+        <span class="text-blue-50 text-base font-medium"><%= period_data[:label] %>:</span>
         <span class="text-blue-100 text-xs">
-          (<time datetime="<%= end_date.iso8601 %>"><%= end_date.strftime('%b %d') %></time>)
+          (<time datetime="<%= period_data[:date].iso8601 %>"><%= period_data[:date].strftime('%b %d') %></time>)
         </span>
       </div>
-      <%= formatted_balance_with_color(end_value) %>
+      <%= formatted_balance_with_color(period_data[:value]) %>
     </div>
   </div>
 <% end %>
@@ -63,8 +64,6 @@
       } %>
 
   <!-- 3. Week Range -->
-  <% week_start = @date.beginning_of_week(:monday) %>
-  <% week_end = @date.end_of_week(:monday) %>
   <% week_range_data = format_date_range_with_count(week_start, week_end, @week_transaction_count, @date.year) %>
   <%= render 'shared/bento_cards/stat_card',
       title: "Week Range",
