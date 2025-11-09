@@ -14,12 +14,12 @@
   show_enhanced = income_total.present? || expense_total.present? || net_total.present? || transaction_count.present?
 %>
 
-<div class="grid grid-cols-7 gap-2 mt-1">
-  <div class="col-span-7 border-t border-gray-200 dark:border-gray-700 pt-1.5">
+<div class="grid grid-cols-1 md:grid-cols-7 gap-2 mt-1">
+  <div class="col-span-1 md:col-span-7 border-t border-gray-200 dark:border-gray-700 pt-1.5 sticky top-0 z-10 bg-gray-100 dark:bg-gray-800 md:bg-transparent md:dark:bg-transparent md:static shadow-sm md:shadow-none px-4 md:px-2 py-4 md:py-2">
     <% if show_enhanced %>
       <!-- Enhanced week view: show income, expenses, net, and transaction count -->
-      <div class="flex items-center justify-between flex-wrap gap-4">
-        <div class="flex items-center gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+      <div class="flex items-center flex-wrap gap-4">
+        <div class="flex-1 flex items-center justify-center gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400" data-week-label>
           <span class="font-medium uppercase tracking-wide">Week of</span>
           <span class="text-gray-500 dark:text-gray-500"><%= week_start.strftime('%b %d') %> - <%= week_end.strftime('%b %d, %Y') %></span>
           <% if transaction_count.present? %>
@@ -57,7 +57,7 @@
           <!-- Week End Balance -->
           <div class="text-right px-3 sm:px-4 ml-auto">
             <p class="text-xs text-gray-600 dark:text-gray-400">Week End</p>
-            <p class="text-lg sm:text-xl font-bold <%= is_negative ? 'text-red-700 dark:text-red-200' : 'text-green-700 dark:text-green-200' %>">
+            <p class="text-lg sm:text-xl font-bold <%= is_negative ? 'text-red-700 dark:text-red-200' : 'text-green-700 dark:text-green-200' %>" data-week-amount>
               <%= is_negative ? '-' : '' %>$<%= number_with_precision(eow_amount.abs, precision: 2) %>
             </p>
           </div>
@@ -65,12 +65,12 @@
       </div>
     <% else %>
       <!-- Simple month view: just show week end balance -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+      <div class="flex items-center">
+        <div class="flex-1 flex items-center justify-center gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400" data-week-label>
           <span class="font-medium uppercase tracking-wide">Week end</span>
           <span class="text-gray-500 dark:text-gray-500"><%= week_start.strftime('%b %d') %> - <%= week_end.strftime('%b %d') %></span>
         </div>
-        <div class="font-bold <%= is_negative ? 'text-red-700 dark:text-red-200' : 'text-green-700 dark:text-green-200' %> text-xl">
+        <div class="font-bold <%= is_negative ? 'text-red-700 dark:text-red-200' : 'text-green-700 dark:text-green-200' %> text-xl" data-week-amount>
           <%= is_negative ? '-' : '' %>$<%= number_with_precision(eow_amount.abs, precision: 2) %>
         </div>
       </div>

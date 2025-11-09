@@ -113,7 +113,7 @@ module CalendarHelper
   # @param date [Date] Current date
   # @return [Date] Date to use for week switch
   def calendar_week_switch_date(view, date)
-    view == 'week' ? date : Date.today
+    view == "week" ? date : Date.today
   end
 
   # Generate today path based on current view
@@ -121,10 +121,10 @@ module CalendarHelper
   # @param today [Date] Today's date
   # @return [String] Path to today's calendar view
   def calendar_today_path(view, today)
-    if view == 'week'
-      calendar_month_path(today.year, today.month, today.day, view: 'week')
+    if view == "week"
+      calendar_month_path(today.year, today.month, today.day, view: "week")
     else
-      calendar_month_path(today.year, today.month, view: 'month')
+      calendar_month_path(today.year, today.month, view: "month")
     end
   end
 
@@ -138,7 +138,22 @@ module CalendarHelper
     {
       value: end_value,
       date: end_date,
-      label: view == 'week' ? 'End of Week' : 'End of Month'
+      label: view == "week" ? "End of Week" : "End of Month"
     }
+  end
+
+  # Count hypothetical transactions for a specific day
+  # @param date [Date] The date to count hypothetical transactions for
+  # @return [Integer] Number of hypothetical transactions for the day
+  def day_hypothetical_count(date)
+    return 0 unless day_transactions(date).any?
+    day_transactions(date).count(&:is_hypothetical)
+  end
+
+  # Check if a day has any hypothetical transactions
+  # @param date [Date] The date to check
+  # @return [Boolean] True if day has hypothetical transactions
+  def day_has_hypothetical?(date)
+    day_hypothetical_count(date) > 0
   end
 end

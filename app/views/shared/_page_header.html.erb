@@ -1,8 +1,9 @@
-<!-- Page Header -->
-<div class="bg-gradient-to-r from-cream-100 to-white dark:from-primary-900 dark:to-primary-950 shadow-sm border-b border-primary-700/20 dark:border-primary-900/30">
+<!-- Page Header - Sticky by default for all pages -->
+<div class="sticky top-0 z-30 bg-cream-100 dark:bg-primary-900 shadow-sm border-b border-primary-700/20 dark:border-primary-900/30">
   <% padding = local_assigns[:padding] || "py-4" %>
-  <%= content_wrapper class: padding do %>
-    <div class="flex items-center justify-between <%= local_assigns[:flex_wrap] ? 'flex-wrap gap-4' : '' %>">
+  <div class="bg-cream-100 dark:bg-primary-900">
+    <%= content_wrapper class: padding do %>
+      <div class="flex items-center justify-between <%= local_assigns[:flex_wrap] ? 'flex-wrap gap-4' : '' %>">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= title %></h1>
         <% if local_assigns[:show_back_link] %>
@@ -19,9 +20,26 @@
           <%= yield %>
         <% end %>
         
+        <!-- Dynamic Calendar Week Data (hidden by default, shown when calendar is in viewport) -->
+        <div id="calendar-header-week-data" class="hidden bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700 shadow-sm max-w-[200px] sm:max-w-none">
+          <div class="flex flex-col gap-1">
+            <!-- Current Balance Line -->
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Current Balance:</span>
+              <span id="calendar-header-current-balance" class="text-sm sm:text-base font-bold"></span>
+            </div>
+            <!-- End of Period Line -->
+            <div class="flex items-center justify-between gap-2">
+              <span id="calendar-header-period-label" class="text-xs sm:text-sm text-gray-600 dark:text-gray-400"></span>
+              <span id="calendar-header-period-amount" class="text-sm sm:text-base font-bold"></span>
+            </div>
+          </div>
+        </div>
+        
         <!-- Quick Actions in Header -->
 
       </div>
     </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>

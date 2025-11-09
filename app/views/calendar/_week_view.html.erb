@@ -1,7 +1,7 @@
 <!-- Week View Grid - Matching Month View Layout -->
-<div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-deep chevron-fix p-4">
-  <!-- Weekday Header -->
-  <div class="grid grid-cols-7 gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-3">
+<div id="week-view-container" class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-deep chevron-fix p-4">
+  <!-- Weekday Header - Hidden on mobile, visible on tablet+ -->
+  <div class="hidden md:grid grid-cols-7 gap-2 mb-2 border-b border-gray-200 dark:border-gray-700 pb-3">
     <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Monday</div>
     <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Tuesday</div>
     <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Wednesday</div>
@@ -11,34 +11,52 @@
     <div class="px-2 py-2 text-center font-semibold text-gray-700 dark:text-gray-300">Sunday</div>
   </div>
 
-  <!-- Week Days Grid -->
-  <div class="mb-4" data-week-index="0">
-    <div class="grid grid-cols-7 gap-2 mb-3">
+  <!-- Week Days Grid - Vertical stack on mobile, horizontal grid on tablet+ -->
+  <div class="mb-4" data-week-index="0" id="week-0-section">
+    <div class="grid grid-cols-1 md:grid-cols-7 gap-4 md:gap-2 mb-3">
       <% @week_days.each do |day| %>
         <% total = day_total(day[:date]) %>
         <% transactions = day_transactions(day[:date]) %>
         <% day_id = "calendar-day-#{day[:date].to_s}" %>
         <% has_trans = transactions.any? %>
         <% is_today = day[:is_today] %>
+        <% hypo_count = day_hypothetical_count(day[:date]) %>
+        <% has_hypo = day_has_hypothetical?(day[:date]) %>
 
-        <div class="<%= calendar_day_bg_class(total: total, in_current_month: day[:is_current_month], is_today: is_today) %> flex flex-col rounded-lg px-2 py-2 min-h-[100px] border border-gray-200 dark:border-gray-700 <%= has_trans ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer' : '' %> transition-all"
+        <div id="calendar-day-<%= day[:date].to_s %>-card"
+             class="<%= calendar_day_bg_class(total: total, in_current_month: day[:is_current_month], is_today: is_today) %> flex flex-col rounded-lg px-4 md:px-2 py-4 md:py-2 min-h-[120px] md:min-h-[100px] border border-gray-200 dark:border-gray-700 <%= has_trans ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer' : '' %> transition-all <%= day[:is_current_month] ? '' : 'hidden md:block opacity-50' %>"
              <% if has_trans %>data-day-id="<%= day_id %>" data-action="click->calendar#toggleDay"<% end %>>
-          <!-- Day number in top-left corner -->
-          <div class="flex items-start justify-between mb-2">
-            <% if is_today %>
-              <time datetime="<%= day[:date].iso8601 %>" class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-700 text-xs font-semibold text-white">
-                <%= day[:date].day %>
-              </time>
-            <% else %>
-              <time datetime="<%= day[:date].iso8601 %>" class="text-sm font-medium text-gray-700 dark:text-gray-400">
-                <%= day[:date].day %>
-              </time>
+          <!-- Day header: number and day name (mobile shows full day name) -->
+          <div class="flex items-start justify-between mb-3 md:mb-2">
+            <div class="flex items-center gap-2">
+              <% if is_today %>
+                <time datetime="<%= day[:date].iso8601 %>" class="inline-flex items-center justify-center h-7 w-7 md:h-6 md:w-6 rounded-full bg-primary-700 text-sm md:text-xs font-semibold text-white">
+                  <%= day[:date].day %>
+                </time>
+              <% else %>
+                <time datetime="<%= day[:date].iso8601 %>" class="text-base md:text-sm font-bold text-gray-900 dark:text-gray-100">
+                  <%= day[:date].day %>
+                </time>
+              <% end %>
+              <!-- Day name on mobile only -->
+              <span class="md:hidden text-sm font-medium text-gray-600 dark:text-gray-400">
+                <%= day[:date].strftime("%A") %>
+              </span>
+            </div>
+            <!-- Hypothetical indicator badge -->
+            <% if has_hypo %>
+              <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800">
+                <svg class="w-3 h-3 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+                <span class="text-xs font-semibold text-purple-700 dark:text-purple-300"><%= hypo_count %></span>
+              </div>
             <% end %>
           </div>
           
           <!-- Transaction total (centered) -->
-          <div class="text-center">
-            <div class="text-lg font-semibold <%= total < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+          <div class="text-center flex-1 flex flex-col justify-center">
+            <div class="text-xl md:text-lg font-bold <%= total < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
               <% if total != 0 %>
                 <%= total < 0 ? "-" : "+" %>$<%= number_with_precision(total.abs, precision: 2) %>
               <% else %>
@@ -46,10 +64,10 @@
               <% end %>
             </div>
             <% if transactions.any? %>
-              <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-2 md:mt-1">
                 <%= transactions.count %> <%= transactions.count == 1 ? 'item' : 'items' %>
               </div>
-              <div class="text-xs text-blue-500 dark:text-blue-400 mt-1">Click for details</div>
+              <div class="text-xs text-blue-500 dark:text-blue-400 mt-1">Tap for details</div>
             <% end %>
           </div>
         </div>
@@ -59,20 +77,22 @@
     <!-- Inline details slot for this week (desktop) -->
     <div id="week-details-0" class="mt-3"></div>
 
-    <!-- Week Summary Row -->
+    <!-- Week Summary Row - Sticky on mobile -->
     <% week_start = @date.beginning_of_week(:monday) %>
     <% week_end = @date.end_of_week(:monday) %>
-    <%= render partial: 'shared/bento_cards/week_summary_row', 
-        locals: { 
-          week_index: 0, 
-          eow_amount: @week_end_balance, 
-          week_start_date: week_start, 
-          week_end_date: week_end,
-          income_total: @week_income,
-          expense_total: @week_expenses,
-          net_total: @week_total,
-          transaction_count: @week_transaction_count
-        } %>
+    <div id="week-summary-header-0" data-week-summary-index="0">
+      <%= render partial: 'shared/bento_cards/week_summary_row', 
+          locals: { 
+            week_index: 0, 
+            eow_amount: @week_end_balance, 
+            week_start_date: week_start, 
+            week_end_date: week_end,
+            income_total: @week_income,
+            expense_total: @week_expenses,
+            net_total: @week_total,
+            transaction_count: @week_transaction_count
+          } %>
+    </div>
   </div>
 </div>
 

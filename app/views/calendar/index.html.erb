@@ -12,7 +12,7 @@
   <%= render 'shared/page_header', title: "Vantura Calendar", subtitle: "View your transactions over time" %>
 
   <% if @account %>
-    <%= content_wrapper class: "py-6" do %>
+    <%= content_wrapper class: "py-4 sm:py-6 lg:py-8" do %>
       <!-- Turbo Frame for changing content -->
       <%= turbo_frame_tag "calendar_content", data: { turbo_preserve_scroll: true } do %>
         <!-- Calendar Overview Section -->
@@ -21,46 +21,56 @@
         </section>
 
         <!-- View Switcher (Inside Turbo Frame, after Bento Grid) -->
-        <nav class="mb-4 flex items-center justify-between gap-3" aria-label="Calendar view switcher">
-          <div class="inline-flex rounded-lg bg-white dark:bg-gray-800 p-1 shadow-lg">
+        <nav class="mb-4 flex items-center justify-between gap-2 md:gap-3" aria-label="Calendar view switcher">
+          <div class="inline-flex rounded-lg bg-white dark:bg-gray-800 p-0.5 md:p-1 shadow-lg">
             <% week_switch_date = calendar_week_switch_date(@view, @date) %>
             <%= link_to calendar_month_path(@date.year, @date.month, view: 'month'),
-                class: "px-4 py-2 rounded-md text-sm font-medium transition-all #{@view == 'month' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
+                class: "inline-flex items-center justify-center w-10 h-10 md:px-4 md:py-2 md:w-auto md:h-auto rounded-md text-xs md:text-sm font-medium transition-all #{@view == 'month' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
                 data: { view: 'month', turbo_frame: 'calendar_content', calendar_target: 'viewLink' } do %>
-              <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 md:w-4 md:h-4 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
-              Month
+              <span class="hidden sm:inline">Month</span>
             <% end %>
             <%= link_to calendar_month_path(week_switch_date.year, week_switch_date.month, week_switch_date.day, view: 'week'),
-                class: "px-4 py-2 rounded-md text-sm font-medium transition-all #{@view == 'week' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
+                class: "inline-flex items-center justify-center w-10 h-10 md:px-4 md:py-2 md:w-auto md:h-auto rounded-md text-xs md:text-sm font-medium transition-all #{@view == 'week' ? 'bg-primary-700 text-white shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}",
                 data: { view: 'week', turbo_frame: 'calendar_content', calendar_target: 'viewLink' } do %>
-              <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 md:w-4 md:h-4 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
               </svg>
-              Week
+              <span class="hidden sm:inline">Week</span>
             <% end %>
           </div>
           
           <!-- Today Button -->
           <% today_path = calendar_today_path(@view, Date.today) %>
           <%= link_to(today_path,
-              class: "inline-flex items-center px-4 py-2 border-2 border-primary-700/30 dark:border-primary-500/20 rounded-2xl text-primary-700 dark:text-primary-500 bg-primary-700/5 dark:bg-primary-700/10 hover:bg-primary-700/10 dark:hover:bg-primary-700/20 hover:border-primary-700 dark:hover:border-primary-500 hover:shadow-lg hover:scale-105 transition-all font-medium",
+              class: "inline-flex items-center justify-center w-10 h-10 md:px-4 md:py-2 md:w-auto md:h-auto border-2 border-primary-700/30 dark:border-primary-500/20 rounded-xl md:rounded-2xl text-primary-700 dark:text-primary-500 bg-primary-700/5 dark:bg-primary-700/10 hover:bg-primary-700/10 dark:hover:bg-primary-700/20 hover:border-primary-700 dark:hover:border-primary-500 hover:shadow-lg hover:scale-105 transition-all font-medium text-xs md:text-sm",
               title: "Jump to today",
               aria: { label: "Jump to today" },
               data: { turbo_frame: 'calendar_content' }) do %>
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 md:w-4 md:h-4 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            Today
+            <span class="hidden sm:inline">Today</span>
           <% end %>
         </nav>
 
         <!-- Month/Week Navigation (Inside Turbo Frame, after Bento Grid) -->
-        <%= render partial: "calendar/month_nav_wrapper" %>
+        <div class="mb-4 md:mb-6">
+          <%= render partial: "calendar/month_nav_wrapper" %>
+        </div>
 
         <!-- Render Appropriate View -->
-        <div id="calendar-view-container">
+        <div id="calendar-view-container"
+             data-current-balance="<%= @account.current_balance %>"
+             <% if @view == 'week' %>
+             data-end-of-week-balance="<%= calculate_week_end_balance(@account, @date) %>"
+             data-end-of-week-date="<%= @date.end_of_week(:monday).strftime('%b %d') %>"
+             <% else %>
+             data-end-of-month-balance="<%= @end_of_month_balance %>"
+             data-end-of-month-date="<%= @date.end_of_month.strftime('%b %d') %>"
+             <% end %>>
       <% if @view == 'week' %>
         <%= render 'calendar/week_view' %>
       <% else %>

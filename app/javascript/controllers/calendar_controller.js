@@ -39,11 +39,43 @@ export default class extends Controller {
     // Listen for transaction creation events and refresh calendar
     this.transactionCreatedHandler = this.handleTransactionCreated.bind(this)
     window.addEventListener('transaction:created', this.transactionCreatedHandler)
+
+    // Set up sticky header with intersection observer for month view on mobile
+    this.setupStickyHeaderObserver()
+
+    // Listen for turbo frame loads to re-initialize header data after navigation
+    this.frameLoadHandler = this.handleFrameLoad.bind(this)
+    const calendarFrame = document.getElementById('calendar_content')
+    if (calendarFrame) {
+      calendarFrame.addEventListener('turbo:frame-load', this.frameLoadHandler)
+    }
   }
 
   disconnect() {
     // Clean up event listener
     window.removeEventListener('transaction:created', this.transactionCreatedHandler)
+    
+    // Clean up frame load listener
+    const calendarFrame = document.getElementById('calendar_content')
+    if (calendarFrame && this.frameLoadHandler) {
+      calendarFrame.removeEventListener('turbo:frame-load', this.frameLoadHandler)
+    }
+    
+    // Clean up intersection observers
+    if (this.weekObserver) {
+      this.weekObserver.disconnect()
+      this.weekObserver = null
+    }
+    if (this.calendarObserver) {
+      this.calendarObserver.disconnect()
+      this.calendarObserver = null
+    }
+
+    // Clean up scroll preservation listeners
+    if (this._scrollPreservationCleanup) {
+      this._scrollPreservationCleanup()
+      this._scrollPreservationCleanup = null
+    }
   }
 
   handleTransactionCreated(event) {
@@ -67,6 +99,40 @@ export default class extends Controller {
       console.log('Calendar frame not found, reloading page')
       window.location.reload()
     }
+  }
+
+  // Handle turbo frame load to re-initialize header data after navigation
+  handleFrameLoad(event) {
+    // Wait a brief moment for DOM to be fully ready
+    setTimeout(() => {
+      // Clean up existing observers before re-initializing
+      if (this.weekObserver) {
+        this.weekObserver.disconnect()
+        this.weekObserver = null
+      }
+      if (this.calendarObserver) {
+        this.calendarObserver.disconnect()
+        this.calendarObserver = null
+      }
+
+      // Re-initialize intersection observer
+      this.setupStickyHeaderObserver()
+
+      // Immediately update header data for current view
+      const weekViewContainer = document.getElementById('week-view-container')
+      const monthViewContainer = document.getElementById('month-view-container')
+      
+      if (weekViewContainer) {
+        // Week view: update immediately
+        this.updateWeekViewHeader()
+      } else if (monthViewContainer) {
+        // Month view: update with first visible week
+        const firstWeekSection = monthViewContainer.querySelector('[data-week-index]')
+        if (firstWeekSection) {
+          this.updateMonthViewHeader(firstWeekSection)
+        }
+      }
+    }, 100)
   }
   
   setupScrollPreservation() {
@@ -96,6 +162,41 @@ export default class extends Controller {
     
     document.addEventListener('turbo:before-cache', beforeCacheHandler)
     document.addEventListener('turbo:load', loadHandler)
+
+    // Prevent scroll-to-top on calendar navigation button clicks
+    // Turbo Frame already has data-turbo-preserve-scroll="true", but we add extra protection
+    const calendarFrame = document.getElementById('calendar_content')
+    if (calendarFrame) {
+      // Listen for turbo:frame-load to ensure scroll is preserved
+      calendarFrame.addEventListener('turbo:frame-load', (event) => {
+        // Get the scroll position before the frame loaded
+        const savedScroll = sessionStorage.getItem('calendar_scroll_pos_before_frame')
+        if (savedScroll) {
+          // Restore scroll position after frame loads
+          requestAnimationFrame(() => {
+            window.scrollTo(0, parseInt(savedScroll, 10))
+            sessionStorage.removeItem('calendar_scroll_pos_before_frame')
+          })
+        }
+      })
+
+      // Save scroll position before any navigation within the frame
+      const saveScrollBeforeNavigation = (event) => {
+        // Only save if clicking calendar navigation buttons
+        const target = event.target.closest('a[data-turbo-frame="calendar_content"]')
+        if (target) {
+          sessionStorage.setItem('calendar_scroll_pos_before_frame', window.scrollY.toString())
+        }
+      }
+
+      // Listen for clicks on calendar navigation elements
+      document.addEventListener('click', saveScrollBeforeNavigation, true)
+      
+      // Store cleanup function
+      this._scrollPreservationCleanup = () => {
+        document.removeEventListener('click', saveScrollBeforeNavigation, true)
+      }
+    }
   }
   
   // Toggle day details (for month view expandable details)
@@ -204,6 +305,167 @@ export default class extends Controller {
         detailsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
       })
     })
+  }
+  
+  // Set up Intersection Observer for calendar viewport detection and sticky header updates
+  setupStickyHeaderObserver() {
+    const calendarContainer = document.getElementById('calendar-view-container')
+    if (!calendarContainer) {
+      return
+    }
+
+    const headerDataContainer = document.getElementById('calendar-header-week-data')
+    if (!headerDataContainer) {
+      return
+    }
+
+    const weekViewContainer = document.getElementById('week-view-container')
+    const monthViewContainer = document.getElementById('month-view-container')
+    const isWeekView = !!weekViewContainer
+    const isMonthView = !!monthViewContainer
+
+    // Observer for calendar container visibility (show/hide header data)
+    this.calendarObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          headerDataContainer.classList.remove('hidden')
+        } else {
+          headerDataContainer.classList.add('hidden')
+        }
+      })
+    }, {
+      threshold: 0.1,
+      rootMargin: '-100px 0px 0px 0px' // Account for sticky header
+    })
+
+    this.calendarObserver.observe(calendarContainer)
+
+    // Week view: show static week data
+    if (isWeekView) {
+      this.updateWeekViewHeader()
+    }
+
+    // Month view: update dynamically as weeks scroll into view
+    if (isMonthView) {
+      const weekSections = monthViewContainer.querySelectorAll('[data-week-index]')
+      if (weekSections.length === 0) {
+        return
+      }
+
+      // Observer for week sections (month view only)
+      this.weekObserver = new IntersectionObserver((entries) => {
+        // Track which week is most visible across all entries
+        let mostVisibleWeek = null
+        let maxVisibility = 0
+
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // Calculate visibility ratio (how much of the element is visible)
+            const rect = entry.boundingClientRect
+            const viewportHeight = window.innerHeight
+            const visibleHeight = Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0)
+            const visibilityRatio = Math.max(0, visibleHeight / rect.height)
+
+            // Update most visible week if this one is more visible
+            if (visibilityRatio > maxVisibility) {
+              maxVisibility = visibilityRatio
+              mostVisibleWeek = entry.target
+            }
+          }
+        })
+
+        // Update sticky header if we have a most visible week
+        if (mostVisibleWeek && maxVisibility > 0.1) {
+          this.updateMonthViewHeader(mostVisibleWeek)
+        }
+      }, {
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        rootMargin: '-100px 0px -50% 0px' // Account for sticky header height
+      })
+
+      // Observe all week sections
+      weekSections.forEach(section => {
+        this.weekObserver.observe(section)
+      })
+    }
+  }
+
+  // Update header for week view (static data)
+  updateWeekViewHeader() {
+    const calendarContainer = document.getElementById('calendar-view-container')
+    if (!calendarContainer) {
+      return
+    }
+
+    const currentBalance = parseFloat(calendarContainer.dataset.currentBalance) || 0
+    const endOfWeekBalance = parseFloat(calendarContainer.dataset.endOfWeekBalance) || 0
+    const endOfWeekDate = calendarContainer.dataset.endOfWeekDate || ''
+
+    // Format amounts with color coding
+    const formatBalance = (amount) => {
+      const isNegative = amount < 0
+      const formatted = Math.abs(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      const colorClass = isNegative ? 'text-red-700 dark:text-red-200' : 'text-green-700 dark:text-green-200'
+      return { text: `${isNegative ? '-' : ''}$${formatted}`, colorClass }
+    }
+
+    const currentBalanceData = formatBalance(currentBalance)
+    const endOfWeekData = formatBalance(endOfWeekBalance)
+
+    // Update header elements
+    const currentBalanceEl = document.getElementById('calendar-header-current-balance')
+    const periodLabelEl = document.getElementById('calendar-header-period-label')
+    const periodAmountEl = document.getElementById('calendar-header-period-amount')
+
+    if (currentBalanceEl) {
+      currentBalanceEl.textContent = currentBalanceData.text
+      currentBalanceEl.className = `text-sm sm:text-base font-bold ${currentBalanceData.colorClass}`
+    }
+
+    if (periodLabelEl && periodAmountEl) {
+      periodLabelEl.textContent = `End of Week (${endOfWeekDate}):`
+      periodAmountEl.textContent = endOfWeekData.text
+      periodAmountEl.className = `text-sm sm:text-base font-bold ${endOfWeekData.colorClass}`
+    }
+  }
+
+  // Update header for month view (dynamic data based on visible week)
+  updateMonthViewHeader(weekSection) {
+    const calendarContainer = document.getElementById('calendar-view-container')
+    if (!calendarContainer) {
+      return
+    }
+
+    const currentBalance = parseFloat(calendarContainer.dataset.currentBalance) || 0
+    const endOfMonthBalance = parseFloat(calendarContainer.dataset.endOfMonthBalance) || 0
+    const endOfMonthDate = calendarContainer.dataset.endOfMonthDate || ''
+
+    // Format amounts with color coding
+    const formatBalance = (amount) => {
+      const isNegative = amount < 0
+      const formatted = Math.abs(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      const colorClass = isNegative ? 'text-red-700 dark:text-red-200' : 'text-green-700 dark:text-green-200'
+      return { text: `${isNegative ? '-' : ''}$${formatted}`, colorClass }
+    }
+
+    const currentBalanceData = formatBalance(currentBalance)
+    const endOfMonthData = formatBalance(endOfMonthBalance)
+
+    // Update header elements
+    const currentBalanceEl = document.getElementById('calendar-header-current-balance')
+    const periodLabelEl = document.getElementById('calendar-header-period-label')
+    const periodAmountEl = document.getElementById('calendar-header-period-amount')
+
+    if (currentBalanceEl) {
+      currentBalanceEl.textContent = currentBalanceData.text
+      currentBalanceEl.className = `text-sm sm:text-base font-bold ${currentBalanceData.colorClass}`
+    }
+
+    if (periodLabelEl && periodAmountEl) {
+      periodLabelEl.textContent = `End of Month (${endOfMonthDate}):`
+      periodAmountEl.textContent = endOfMonthData.text
+      periodAmountEl.className = `text-sm sm:text-base font-bold ${endOfMonthData.colorClass}`
+    }
   }
 }
 
