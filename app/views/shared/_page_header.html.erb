@@ -1,9 +1,7 @@
 <!-- Page Header - Sticky by default for all pages -->
-<div class="sticky top-0 z-30 bg-cream-100 dark:bg-primary-900 shadow-sm border-b border-primary-700/20 dark:border-primary-900/30">
-  <% padding = local_assigns[:padding] || "py-4" %>
-  <div class="bg-cream-100 dark:bg-primary-900">
-    <%= content_wrapper class: padding do %>
-      <div class="flex items-center justify-between <%= local_assigns[:flex_wrap] ? 'flex-wrap gap-4' : '' %>">
+<% padding = local_assigns[:padding] || "py-4" %>
+<div class="sticky top-0 z-50 inset-x-0 bg-neutral-100 dark:bg-primary-900 border-b border-gray-200 dark:border-gray-800 shadow-sm <%= padding %>">
+  <div class="flex items-center justify-between <%= local_assigns[:flex_wrap] ? 'flex-wrap gap-4' : '' %> px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= title %></h1>
         <% if local_assigns[:show_back_link] %>
@@ -35,11 +33,6 @@
             </div>
           </div>
         </div>
-        
-        <!-- Quick Actions in Header -->
-
       </div>
     </div>
-    <% end %>
-  </div>
 </div>
