@@ -309,8 +309,8 @@ export default class extends Controller {
   
   // Set up Intersection Observer for calendar viewport detection and sticky header updates
   setupStickyHeaderObserver() {
-    const calendarContainer = document.getElementById('calendar-view-container')
-    if (!calendarContainer) {
+    const bentoCard = document.getElementById('calendar-overview-hero-card')
+    if (!bentoCard) {
       return
     }
 
@@ -324,13 +324,24 @@ export default class extends Controller {
     const isWeekView = !!weekViewContainer
     const isMonthView = !!monthViewContainer
 
-    // Observer for calendar container visibility (show/hide header data)
+    // Observer for bento card visibility (show/hide header data when bento card disappears)
+    const subtitleElement = document.getElementById('calendar-header-subtitle')
     this.calendarObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
+        if (!entry.isIntersecting) {
+          // Show header data when bento card disappears from view
           headerDataContainer.classList.remove('hidden')
+          // Hide subtitle when week data is shown to make room
+          if (subtitleElement) {
+            subtitleElement.classList.add('hidden')
+          }
         } else {
+          // Hide header data when bento card is visible
           headerDataContainer.classList.add('hidden')
+          // Show subtitle when week data is hidden
+          if (subtitleElement) {
+            subtitleElement.classList.remove('hidden')
+          }
         }
       })
     }, {
@@ -338,7 +349,7 @@ export default class extends Controller {
       rootMargin: '-100px 0px 0px 0px' // Account for sticky header
     })
 
-    this.calendarObserver.observe(calendarContainer)
+    this.calendarObserver.observe(bentoCard)
 
     // Week view: show static week data
     if (isWeekView) {

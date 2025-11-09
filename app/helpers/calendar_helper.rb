@@ -156,4 +156,64 @@ module CalendarHelper
   def day_has_hypothetical?(date)
     day_hypothetical_count(date) > 0
   end
+
+  # Generate view switcher button (Month/Week toggle)
+  # @param view [String] Target view ('month' or 'week')
+  # @param icon [String] Icon identifier (not used, kept for consistency)
+  # @param label [String] Button label text
+  # @param active [Boolean] Whether this view is currently active
+  # @param path [String] URL path for the button
+  # @return [String] HTML for view switcher button
+  def view_switcher_button(view:, icon:, label:, active:, path:)
+    base_classes = "inline-flex items-center justify-center w-10 h-10 md:px-4 md:py-2 md:w-auto md:h-auto rounded-md text-xs md:text-sm font-medium transition-all"
+    active_classes = "bg-primary-700 text-white shadow-sm"
+    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+
+    classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
+
+    link_to path, class: classes, data: { view: view, turbo_frame: "calendar_content", calendar_target: "viewLink" } do
+      concat month_icon_svg if view == "month"
+      concat week_icon_svg if view == "week"
+      concat content_tag(:span, label, class: "hidden sm:inline")
+    end
+  end
+
+  # Generate add transaction button
+  # @return [String] HTML for add transaction button
+  def add_transaction_button
+    button_tag type: "button",
+               id: "calendar-add-transaction-button",
+               data: { action: "click->modal#open" },
+               class: "inline-flex items-center justify-center w-10 h-10 bg-primary-700 text-white rounded-lg hover:bg-primary-900 hover:shadow-lg hover:scale-105 transition-all font-medium shadow-md",
+               title: "Add Transaction",
+               aria: { label: "Add new transaction" } do
+      add_icon_svg
+    end
+  end
+
+  private
+
+  # SVG icon for month view button
+  # @return [String] SVG HTML for calendar month icon
+  def month_icon_svg
+    content_tag :svg, class: "w-5 h-5 md:w-4 md:h-4 md:mr-2", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" do
+      content_tag :path, "", stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+    end
+  end
+
+  # SVG icon for week view button
+  # @return [String] SVG HTML for calendar week icon
+  def week_icon_svg
+    content_tag :svg, class: "w-5 h-5 md:w-4 md:h-4 md:mr-2", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" do
+      content_tag :path, "", stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+    end
+  end
+
+  # SVG icon for add transaction button
+  # @return [String] SVG HTML for plus/add icon
+  def add_icon_svg
+    content_tag :svg, class: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" do
+      content_tag :path, "", stroke_linecap: "round", stroke_linejoin: "round", stroke_width: "2", d: "M12 4v16m8-8H4"
+    end
+  end
 end

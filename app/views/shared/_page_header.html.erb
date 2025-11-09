@@ -1,6 +1,6 @@
 <!-- Page Header - Sticky by default for all pages -->
 <% padding = local_assigns[:padding] || "py-4" %>
-<div class="sticky top-0 z-50 inset-x-0 bg-neutral-100 dark:bg-primary-900 border-b border-gray-200 dark:border-gray-800 shadow-sm <%= padding %>">
+<div class="sticky top-0 z-50 inset-x-0 bg-neutral-100 dark:bg-primary-900 shadow-deep <%= padding %>">
   <div class="flex items-center justify-between <%= local_assigns[:flex_wrap] ? 'flex-wrap gap-4' : '' %> px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= title %></h1>
@@ -9,7 +9,7 @@
             <%= link_to "← Back to Dashboard", root_path, class: "text-primary-700 dark:text-primary-500 hover:text-primary-900 dark:hover:text-primary-700 font-medium" %>
           </p>
         <% elsif local_assigns[:subtitle] %>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-1"><%= subtitle %></p>
+          <p id="calendar-header-subtitle" class="text-sm text-gray-600 dark:text-gray-400 mt-1"><%= subtitle %></p>
         <% end %>
       </div>
 
@@ -19,16 +19,16 @@
         <% end %>
         
         <!-- Dynamic Calendar Week Data (hidden by default, shown when calendar is in viewport) -->
-        <div id="calendar-header-week-data" class="hidden bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700 shadow-sm max-w-[200px] sm:max-w-none">
-          <div class="flex flex-col gap-1">
+        <div id="calendar-header-week-data" class="hidden bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700 shadow-sm w-auto min-w-fit max-w-[200px] sm:max-w-none">
+          <div class="flex flex-col gap-2">
             <!-- Current Balance Line -->
-            <div class="flex items-center justify-between gap-2">
+            <div class="flex flex-col">
               <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Current Balance:</span>
               <span id="calendar-header-current-balance" class="text-sm sm:text-base font-bold"></span>
             </div>
             <!-- End of Period Line -->
-            <div class="flex items-center justify-between gap-2">
-              <span id="calendar-header-period-label" class="text-xs sm:text-sm text-gray-600 dark:text-gray-400"></span>
+            <div class="flex flex-col">
+              <span id="calendar-header-period-label" class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap"></span>
               <span id="calendar-header-period-amount" class="text-sm sm:text-base font-bold"></span>
             </div>
           </div>
