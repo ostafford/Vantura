@@ -32,6 +32,34 @@ class CalendarController < ApplicationController
     @top_expense_merchants, @top_income_merchants = stats.values_at(:top_expense_merchants, :top_income_merchants)
     @month_top_expense_merchants, @month_top_income_merchants = @top_expense_merchants, @top_income_merchants
     @week_top_expense_merchants, @week_top_income_merchants = @top_expense_merchants, @top_income_merchants
+    
+    # Extract spending velocity data (month view only)
+    if @view == "month" && stats[:spending_velocity].present?
+      velocity = stats[:spending_velocity]
+      @spending_daily_rate = velocity[:daily_rate]
+      @spending_projected_total = velocity[:projected_total]
+      @spending_velocity_change_pct = velocity[:velocity_change_pct]
+      @spending_rate = velocity[:spending_rate]
+    else
+      @spending_daily_rate = 0.0
+      @spending_projected_total = 0.0
+      @spending_velocity_change_pct = 0.0
+      @spending_rate = 0.0
+    end
+    
+    # Extract upcoming transactions data (month view only)
+    if @view == "month" && data[:upcoming_transactions].present?
+      upcoming = data[:upcoming_transactions]
+      @upcoming_recurring_expenses = upcoming[:upcoming_recurring_expenses] || []
+      @upcoming_recurring_income = upcoming[:upcoming_recurring_income] || []
+      @upcoming_hypothetical_expenses = upcoming[:upcoming_hypothetical_expenses] || []
+      @upcoming_hypothetical_income = upcoming[:upcoming_hypothetical_income] || []
+    else
+      @upcoming_recurring_expenses = []
+      @upcoming_recurring_income = []
+      @upcoming_hypothetical_expenses = []
+      @upcoming_hypothetical_income = []
+    end
   end
 
   def day_total(date)

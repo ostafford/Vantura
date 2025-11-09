@@ -191,6 +191,107 @@ module CalendarHelper
     end
   end
 
+  # Get spending pace indicator status and color classes
+  # @param spending_rate [Numeric] Spending rate percentage (0-100+)
+  # @return [Hash] Hash with status, color classes, and bar color
+  def spending_pace_indicator(spending_rate)
+    if spending_rate > 100
+      {
+        status: "Ahead of pace",
+        pace_color: "text-red-600 dark:text-red-400",
+        bar_color: "bg-red-400",
+        indicator_bg: "bg-red-100 dark:bg-red-900/30",
+        indicator_text: "text-red-700 dark:text-red-400"
+      }
+    elsif spending_rate > 75
+      {
+        status: "On track",
+        pace_color: "text-yellow-600 dark:text-yellow-400",
+        bar_color: "bg-yellow-400",
+        indicator_bg: "bg-yellow-100 dark:bg-yellow-900/30",
+        indicator_text: "text-yellow-700 dark:text-yellow-400"
+      }
+    else
+      {
+        status: "Behind pace",
+        pace_color: "text-green-600 dark:text-green-400",
+        bar_color: "bg-green-400",
+        indicator_bg: "bg-green-100 dark:bg-green-900/30",
+        indicator_text: "text-green-700 dark:text-green-400"
+      }
+    end
+  end
+
+  # Format spending pace comparison text
+  # @param velocity_change_pct [Numeric] Percentage change from historical average
+  # @return [String] Formatted comparison text
+  def format_spending_pace_comparison(velocity_change_pct)
+    if velocity_change_pct.abs < 0.1
+      "Similar to 6-month average"
+    elsif velocity_change_pct > 0
+      "#{velocity_change_pct.abs.round(1)}% above 6-month average"
+    else
+      "#{velocity_change_pct.abs.round(1)}% below 6-month average"
+    end
+  end
+
+  # Combine and format upcoming transactions list
+  # @param upcoming_recurring_expenses [Array] Array of recurring expense records
+  # @param upcoming_recurring_income [Array] Array of recurring income records
+  # @param upcoming_hypothetical_expenses [Array] Array of hypothetical expense transactions
+  # @param upcoming_hypothetical_income [Array] Array of hypothetical income transactions
+  # @return [Hash] Hash with combined and sorted transactions
+  def upcoming_transactions_list(upcoming_recurring_expenses, upcoming_recurring_income, upcoming_hypothetical_expenses, upcoming_hypothetical_income)
+    all_expenses = []
+    all_income = []
+
+    # Add recurring expenses with their next occurrence date
+    upcoming_recurring_expenses.each do |recurring|
+      all_expenses << {
+        description: recurring.description,
+        amount: recurring.amount.abs,
+        date: recurring.next_occurrence_date,
+        type: 'recurring'
+      }
+    end
+
+    # Add hypothetical expenses
+    upcoming_hypothetical_expenses.each do |transaction|
+      all_expenses << {
+        description: transaction.description,
+        amount: transaction.amount.abs,
+        date: transaction.transaction_date,
+        type: 'hypothetical'
+      }
+    end
+
+    # Add recurring income
+    upcoming_recurring_income.each do |recurring|
+      all_income << {
+        description: recurring.description,
+        amount: recurring.amount,
+        date: recurring.next_occurrence_date,
+        type: 'recurring'
+      }
+    end
+
+    # Add hypothetical income
+    upcoming_hypothetical_income.each do |transaction|
+      all_income << {
+        description: transaction.description,
+        amount: transaction.amount,
+        date: transaction.transaction_date,
+        type: 'hypothetical'
+      }
+    end
+
+    # Sort by date
+    {
+      expenses: all_expenses.sort_by { |t| t[:date] },
+      income: all_income.sort_by { |t| t[:date] }
+    }
+  end
+
   private
 
   # SVG icon for month view button

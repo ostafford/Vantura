@@ -44,7 +44,10 @@ class CalendarStatsCalculator < ApplicationService
 
       # Top merchants (week or month depending on view)
       top_expense_merchants: top_expense_merchants,
-      top_income_merchants: top_income_merchants
+      top_income_merchants: top_income_merchants,
+
+      # Spending velocity stats (month view only)
+      spending_velocity: spending_velocity
     }
   end
 
@@ -175,5 +178,33 @@ class CalendarStatsCalculator < ApplicationService
       end_date,
       limit: 3
     )
+  end
+
+  # Spending velocity calculations (month view only)
+  def spending_velocity
+    return {} unless @view == "month"
+
+    calculator = SpendingVelocityCalculator.new(@account, @date)
+    current_vel = calculator.current_velocity
+    historical_avg = calculator.historical_average(6)
+    velocity_change_pct = calculator.velocity_change_pct(6)
+    projected = calculator.projected_month_end_spending
+
+    # Calculate spending rate percentage
+    # This is how far through the month's expected spending we are
+    days_elapsed = current_vel[:days_elapsed]
+    days_in_month = total_days
+    expected_expenses = days_elapsed > 0 ? (current_vel[:total_spent] / days_elapsed.to_f * days_in_month) : 0
+    spending_rate = expected_expenses > 0 ? (current_vel[:total_spent] / expected_expenses * 100) : 0
+
+    {
+      daily_rate: current_vel[:daily_rate],
+      projected_total: projected[:projected_total],
+      velocity_change_pct: velocity_change_pct,
+      spending_rate: spending_rate,
+      total_spent: current_vel[:total_spent],
+      days_elapsed: current_vel[:days_elapsed],
+      days_remaining: current_vel[:days_remaining]
+    }
   end
 end

@@ -106,20 +106,23 @@
         period: 'month'
       } %>
 
-  <!-- 3. Month Progress -->
-  <%= render 'shared/bento_cards/stat_card',
-      title: "Month Progress",
-      value: "#{@progress_pct}%",
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Day #{@month_day} of #{@total_days}</span>".html_safe,
-      detail: @date.strftime('%b %d, %Y'),
-      icon: 'calendar',
-      color: 'blue',
-      size: 'bento-span-2 bento-row-span-1' %>
+  <!-- 3. Spending Pace -->
+  <%= render 'shared/bento_cards/spending_pace_card',
+      daily_rate: @spending_daily_rate,
+      projected_total: @spending_projected_total,
+      velocity_change_pct: @spending_velocity_change_pct,
+      spending_rate: @spending_rate,
+      size: 'bento-span-2 bento-row-span-1',
+      id: 'calendar-spending-pace-card' %>
   
-  <!-- 4. Month Hypothetical -->
-  <%= render 'shared/bento_cards/hypothetical_card',
-      hypothetical_income: @hypothetical_income,
-      hypothetical_expenses: @hypothetical_expenses,
-      size: 'bento-span-2 bento-row-span-1' %>
+  <!-- 4. Upcoming Transactions -->
+  <%= render 'shared/bento_cards/upcoming_transactions_card',
+      days_remaining: [(@date.end_of_month - Date.today).to_i, 0].max,
+      upcoming_recurring_expenses: @upcoming_recurring_expenses,
+      upcoming_recurring_income: @upcoming_recurring_income,
+      upcoming_hypothetical_expenses: @upcoming_hypothetical_expenses,
+      upcoming_hypothetical_income: @upcoming_hypothetical_income,
+      size: 'bento-span-2 bento-row-span-1',
+      id: 'calendar-upcoming-transactions-card' %>
 <% end %>
 
