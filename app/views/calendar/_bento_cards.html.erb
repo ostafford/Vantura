@@ -40,7 +40,18 @@
 <% if @view == 'week' %>
   <!-- Week View: 4 Vertical Stat Cards -->
   
-  <!-- 1. Week Expenses - Using Dashboard Partial -->
+  <!-- 1. Week Income - Using Dashboard Partial -->
+  <%= render partial: 'shared/bento_cards/transaction_type_card',
+      locals: {
+        type: 'income',
+        income_total: @week_income,
+        income_count: @week_income_count,
+        current_date: @date,
+        top_income_merchants: @week_top_income_merchants,
+        period: 'week'
+      } %>
+
+  <!-- 2. Week Expenses - Using Dashboard Partial -->
   <% week_start = @date.beginning_of_week(:monday) %>
   <% week_end = @date.end_of_week(:monday) %>
   <%= render partial: 'shared/bento_cards/transaction_type_card',
@@ -50,17 +61,6 @@
         expense_count: @week_expense_count,
         current_date: @date,
         top_expense_merchants: @week_top_expense_merchants,
-        period: 'week'
-      } %>
-
-  <!-- 2. Week Income - Using Dashboard Partial -->
-  <%= render partial: 'shared/bento_cards/transaction_type_card',
-      locals: {
-        type: 'income',
-        income_total: @week_income,
-        income_count: @week_income_count,
-        current_date: @date,
-        top_income_merchants: @week_top_income_merchants,
         period: 'week'
       } %>
 
@@ -84,7 +84,18 @@
 <% else %>
   <!-- Month View: 4 Vertical Stat Cards -->
   
-  <!-- 1. Month Expenses - Using Dashboard Partial -->
+  <!-- 1. Month Income - Using Dashboard Partial -->
+  <%= render partial: 'shared/bento_cards/transaction_type_card',
+      locals: {
+        type: 'income',
+        income_total: @actual_income,
+        income_count: @month_income_count,
+        current_date: @date,
+        top_income_merchants: @month_top_income_merchants,
+        period: 'month'
+      } %>
+
+  <!-- 2. Month Expenses - Using Dashboard Partial -->
   <%= render partial: 'shared/bento_cards/transaction_type_card',
       locals: {
         type: 'expense',
@@ -95,16 +106,6 @@
         period: 'month'
       } %>
 
-  <!-- 2. Month Income - Using Dashboard Partial -->
-  <%= render partial: 'shared/bento_cards/transaction_type_card',
-      locals: {
-        type: 'income',
-        income_total: @actual_income,
-        income_count: @month_income_count,
-        current_date: @date,
-        top_income_merchants: @month_top_income_merchants,
-        period: 'month'
-      } %>
 
   <!-- 3. Spending Pace -->
   <%= render 'shared/bento_cards/spending_pace_card',
