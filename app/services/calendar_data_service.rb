@@ -283,10 +283,10 @@ class CalendarDataService < ApplicationService
   # Get upcoming transactions (recurring + standalone hypothetical)
   def get_upcoming_transactions
     today = Date.today
-    
+
     # Get upcoming recurring transactions
     upcoming_recurring = RecurringTransactionsService.upcoming(@account, end_date)
-    
+
     # Get standalone hypothetical transactions (not from recurring patterns)
     # Only get future transactions
     standalone_hypothetical = @account.transactions
@@ -295,11 +295,11 @@ class CalendarDataService < ApplicationService
                                       .where(recurring_transaction_id: nil)
                                       .order(:transaction_date)
                                       .to_a
-    
+
     # Separate hypothetical by expense/income
     hypothetical_expenses = standalone_hypothetical.select { |t| t.amount < 0 }
     hypothetical_income = standalone_hypothetical.select { |t| t.amount > 0 }
-    
+
     {
       upcoming_recurring_expenses: upcoming_recurring[:expenses],
       upcoming_recurring_income: upcoming_recurring[:income],

@@ -251,7 +251,7 @@ module CalendarHelper
         description: recurring.description,
         amount: recurring.amount.abs,
         date: recurring.next_occurrence_date,
-        type: 'recurring'
+        type: "recurring"
       }
     end
 
@@ -261,7 +261,7 @@ module CalendarHelper
         description: transaction.description,
         amount: transaction.amount.abs,
         date: transaction.transaction_date,
-        type: 'hypothetical'
+        type: "hypothetical"
       }
     end
 
@@ -271,7 +271,7 @@ module CalendarHelper
         description: recurring.description,
         amount: recurring.amount,
         date: recurring.next_occurrence_date,
-        type: 'recurring'
+        type: "recurring"
       }
     end
 
@@ -281,7 +281,7 @@ module CalendarHelper
         description: transaction.description,
         amount: transaction.amount,
         date: transaction.transaction_date,
-        type: 'hypothetical'
+        type: "hypothetical"
       }
     end
 

@@ -13,9 +13,9 @@ class DashboardController < ApplicationController
       @up_bank_sync_result = up_bank_notification[:sync_result]
     end
 
-    # Generate key insights for dashboard (2-3 top insights)
+    # Generate key insights for dashboard (up to 4 top insights)
     insights_service = FinancialInsightsService.new(@account)
-    all_insights = insights_service.generate_key_insights(3)
+    all_insights = insights_service.generate_key_insights(4)
 
     # Filter out dismissed insight types
     dismissed_types = Current.user.dismissed_insight_types || []

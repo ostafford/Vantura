@@ -3,7 +3,7 @@ class FinancialInsight < ApplicationRecord
   belongs_to :account
 
   # Validations
-  INSIGHT_TYPES = %w[spending_velocity savings_opportunity investment_suggestion category_merchant].freeze
+  INSIGHT_TYPES = %w[spending_velocity spending_warning negative_savings_pattern savings_opportunity savings_investment_opportunity investment_suggestion category_merchant day_of_week_pattern merchant_habit_pattern budget_coach].freeze
 
   validates :insight_type, presence: true, inclusion: { in: INSIGHT_TYPES }
   validates :title, presence: true
