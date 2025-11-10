@@ -150,7 +150,10 @@ module CalendarHelper
   # @return [Integer] Number of hypothetical transactions for the day
   def day_hypothetical_count(date)
     return 0 unless day_transactions(date).any?
-    day_transactions(date).count(&:is_hypothetical)
+
+    day_transactions(date).count do |transaction|
+      transaction.is_hypothetical && transaction.recurring_transaction_id.nil?
+    end
   end
 
   # Check if a day has any hypothetical transactions
@@ -158,6 +161,22 @@ module CalendarHelper
   # @return [Boolean] True if day has hypothetical transactions
   def day_has_hypothetical?(date)
     day_hypothetical_count(date) > 0
+  end
+
+  # Count recurring projection transactions for a specific day
+  # @param date [Date] The date to count recurring projections for
+  # @return [Integer] Number of recurring projections for the day
+  def day_recurring_count(date)
+    return 0 unless day_transactions(date).any?
+
+    day_transactions(date).count { |transaction| transaction.recurring_transaction_id.present? }
+  end
+
+  # Check if a day has any recurring projection transactions
+  # @param date [Date] The date to check
+  # @return [Boolean] True if day has recurring projections
+  def day_has_recurring?(date)
+    day_recurring_count(date) > 0
   end
 
   # Get top categories for a specific day
