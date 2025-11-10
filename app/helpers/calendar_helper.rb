@@ -59,7 +59,7 @@ module CalendarHelper
     end
   end
 
-  def calendar_day_bg_class(total:, in_current_month: true, is_today: false)
+  def calendar_day_bg_class(total:, in_current_month: true, is_today: false, is_weekend: false)
     return "bg-gray-50 dark:bg-gray-900" unless in_current_month
 
     base = if total > 0
@@ -70,8 +70,11 @@ module CalendarHelper
       "bg-white dark:bg-gray-800"
     end
 
+    # Add subtle weekend tint (very light gray overlay)
+    weekend_class = is_weekend ? " bg-gray-50/50 dark:bg-gray-700/20" : ""
     today_class = is_today ? " border-2 border-primary-700/40 dark:border-primary-500/40" : ""
-    base + today_class
+
+    base + weekend_class + today_class
   end
 
   # Calculate end of week balance for a given account and date
@@ -155,6 +158,23 @@ module CalendarHelper
   # @return [Boolean] True if day has hypothetical transactions
   def day_has_hypothetical?(date)
     day_hypothetical_count(date) > 0
+  end
+
+  # Get top categories for a specific day
+  # @param date [Date] The date to get categories for
+  # @param limit [Integer] Maximum number of categories to return
+  # @return [Array] Array of hashes with category name and total amount
+  def day_top_categories(date, limit: 2)
+    transactions = day_transactions(date)
+    return [] unless transactions.any?
+
+    category_totals = transactions.group_by(&:category).transform_values do |txs|
+      txs.sum(&:amount).abs
+    end
+
+    category_totals.sort_by { |_, total| -total }
+                   .first(limit)
+                   .map { |category, amount| { category: category, amount: amount } }
   end
 
   # Generate view switcher button (Month/Week toggle)

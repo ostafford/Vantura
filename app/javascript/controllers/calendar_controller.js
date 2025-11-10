@@ -76,6 +76,12 @@ export default class extends Controller {
       this._scrollPreservationCleanup()
       this._scrollPreservationCleanup = null
     }
+
+    // Clean up legend click handler
+    if (this.legendClickHandler) {
+      document.removeEventListener('click', this.legendClickHandler)
+      this.legendClickHandler = null
+    }
   }
 
   handleTransactionCreated(event) {
@@ -476,6 +482,68 @@ export default class extends Controller {
       periodLabelEl.textContent = `End of Month (${endOfMonthDate}):`
       periodAmountEl.textContent = endOfMonthData.text
       periodAmountEl.className = `text-sm sm:text-base font-bold ${endOfMonthData.colorClass}`
+    }
+  }
+
+  // Handle date picker change to jump to specific date
+  jumpToDate(event) {
+    const selectedDate = new Date(event.target.value)
+    if (!selectedDate || isNaN(selectedDate.getTime())) {
+      return
+    }
+
+    // Get current view from URL or default to month
+    const url = new URL(window.location.href)
+    const currentView = url.searchParams.get('view') || 'month'
+    
+    // Build calendar path based on view
+    const year = selectedDate.getFullYear()
+    const month = selectedDate.getMonth() + 1 // JavaScript months are 0-indexed
+    const day = selectedDate.getDate()
+    
+    let calendarPath
+    if (currentView === 'week') {
+      calendarPath = `/calendar/${year}/${month}/${day}?view=week`
+    } else {
+      calendarPath = `/calendar/${year}/${month}?view=month`
+    }
+
+    // Navigate using Turbo Frame
+    const calendarFrame = document.getElementById('calendar_content')
+    if (calendarFrame) {
+      Turbo.visit(calendarPath, {
+        frame: 'calendar_content',
+        action: 'replace'
+      })
+    }
+  }
+
+  // Toggle calendar legend visibility
+  toggleLegend(event) {
+    event.stopPropagation()
+    const panel = document.getElementById('calendar-legend-panel')
+    if (!panel) return
+
+    const isHidden = panel.classList.contains('hidden')
+    
+    if (isHidden) {
+      panel.classList.remove('hidden')
+      // Close on outside click
+      this.legendClickHandler = (e) => {
+        if (!panel.contains(e.target) && !event.target.contains(e.target)) {
+          panel.classList.add('hidden')
+          document.removeEventListener('click', this.legendClickHandler)
+        }
+      }
+      // Use setTimeout to avoid immediate trigger
+      setTimeout(() => {
+        document.addEventListener('click', this.legendClickHandler)
+      }, 0)
+    } else {
+      panel.classList.add('hidden')
+      if (this.legendClickHandler) {
+        document.removeEventListener('click', this.legendClickHandler)
+      }
     }
   }
 }
