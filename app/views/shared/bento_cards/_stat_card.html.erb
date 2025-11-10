@@ -51,7 +51,7 @@
 %>
 
 <% if clickable %>
-  <%= link_to link, class: card_classes, id: element_id, aria: { label: aria_label } do %>
+  <%= link_to link, class: card_classes, id: element_id, aria: { label: aria_label }, data: { turbo_frame: "_top" } do %>
     <div class="stat-card-container flex flex-col h-full">
       <!-- Section 1: Icon, Title, and Value -->
       <div class="stat-card-main-content flex-1">

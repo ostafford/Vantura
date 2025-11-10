@@ -101,7 +101,7 @@ class BudgetCoachService
     end
 
     # Ensure goal is non-negative and realistic
-    [base_goal.round(2), 0].max
+    [ base_goal.round(2), 0 ].max
   end
 
   # Analyze historical savings with weighted months (recent = more weight)
@@ -273,11 +273,11 @@ class BudgetCoachService
 
       # Allocate reduction proportionally, but ensure minimum viable amount
       suggested_reduction = reduction_needed * proportion
-      suggested_budget = [current_amount - suggested_reduction, current_amount * 0.7].max # Don't reduce more than 30%
+      suggested_budget = [ current_amount - suggested_reduction, current_amount * 0.7 ].max # Don't reduce more than 30%
 
       # Calculate weekly target
       weeks_remaining = (@velocity_calculator.current_velocity[:days_remaining] / 7.0).ceil
-      weeks_remaining = [weeks_remaining, 1].max
+      weeks_remaining = [ weeks_remaining, 1 ].max
       weekly_target = (suggested_budget / weeks_remaining).round(2)
 
       # Only include if reduction is meaningful (> $10)
@@ -354,4 +354,3 @@ class BudgetCoachService
     VARIABLE_CATEGORIES.any? { |variable| normalized.include?(variable) }
   end
 end
-
