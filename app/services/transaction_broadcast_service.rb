@@ -72,6 +72,7 @@ class TransactionBroadcastService < ApplicationService
         current_date: current_date,
         upcoming_recurring_expenses: upcoming_recurring_expenses,
         upcoming_recurring_income: upcoming_recurring_income,
+        current_balance: @account.current_balance,
         upcoming_recurring_total: upcoming_recurring_total
       }
     )

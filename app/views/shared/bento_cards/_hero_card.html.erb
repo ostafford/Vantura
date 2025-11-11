@@ -7,6 +7,7 @@
   size = local_assigns.fetch(:size, 'bento-span-2 bento-row-span-2')
   color_scheme = local_assigns.fetch(:color, 'primary')
   element_id = local_assigns.fetch(:id, nil)
+  status_badge = local_assigns[:status_badge]
   
   # Color scheme mapping
   color_map = {
@@ -38,6 +39,9 @@
   title_size_class = is_compact ? 'text-2xl' : 'text-3xl'
   icon_size_class = is_compact ? 'w-10 h-10' : 'w-12 h-12'
   icon_svg_size = is_compact ? 'w-6 h-6' : 'w-7 h-7'
+  subtitle_container_classes = 'hero-subtitle text-lg font-semibold mt-0.5'
+  title_container_classes = "hero-title #{title_size_class} font-bold truncate"
+  title_container_classes += ' flex items-center gap-2' if status_badge.present?
 %>
 
 <div<% if element_id.present? %> id="<%= element_id %>"<% end %> class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-deep <%= padding_class %> text-white relative overflow-hidden">
@@ -54,9 +58,20 @@
         </svg>
       </div>
       <div class="flex-1 min-w-0">
-        <h2 class="hero-title <%= title_size_class %> font-bold truncate"><%= title %></h2>
+        <h2 class="<%= title_container_classes %>">
+          <span class="truncate">
+            <%= title %>
+          </span>
+          <% if status_badge.present? %>
+            <span class="ml-auto shrink-0">
+              <%= status_badge %>
+            </span>
+          <% end %>
+        </h2>
         <% if subtitle.present? %>
-          <div class="hero-subtitle text-lg font-semibold mt-0.5"><%= subtitle %></div>
+          <div class="<%= subtitle_container_classes %>">
+            <%= subtitle %>
+          </div>
         <% end %>
       </div>
     </div>

@@ -11,6 +11,7 @@
   days_remaining = local_assigns.fetch(:days_remaining, 0)
   upcoming_recurring_expenses = local_assigns.fetch(:upcoming_recurring_expenses, [])
   upcoming_recurring_income = local_assigns.fetch(:upcoming_recurring_income, [])
+  current_balance = local_assigns.fetch(:current_balance, nil)
   
   # Calculate all projection card data using helper
   card_data = projection_card_data(
@@ -20,105 +21,169 @@
     balance: balance,
     days_remaining: days_remaining,
     upcoming_recurring_expenses: upcoming_recurring_expenses,
-    upcoming_recurring_income: upcoming_recurring_income
+    upcoming_recurring_income: upcoming_recurring_income,
+    current_balance: current_balance
   )
 %>
 
 <div class="projection-card <%= size %> bg-gradient-to-r from-cream-100 via-white to-cream-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 rounded-2xl shadow-deep p-6"<% if element_id.present? %> id="<%= element_id %>"<% end %>>
   <div class="projection-card-container flex flex-col h-full">
     <!-- Top Row: Title, Value, and Badge -->
-    <div class="flex items-center justify-between mb-3">
-      <!-- Left: Title and Value -->
+    <div class="flex items-center justify-between">
       <div class="projection-card-left flex-1">
         <p class="projection-card-title text-sm font-medium text-gray-600 dark:text-gray-400 mb-1"><%= card_data[:title] %></p>
         <p class="projection-card-value text-3xl font-bold <%= card_data[:value_color] %>"><%= card_data[:value] %></p>
       </div>
-      <!-- Right: Badge with change indicator -->
       <div class="projection-card-right text-right">
         <div class="projection-card-badge inline-flex items-center px-3 py-1 rounded-full <%= card_data[:badge_bg] %> <%= card_data[:badge_text] %>">
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <%= card_data[:icon_path].html_safe %>
           </svg>
           <span class="projection-card-change font-semibold text-sm">
-            <%= card_data[:change_is_positive] ? '+' : '' %><%= card_data[:change_display] %>
+            <%= card_data[:change_display_signed] %>
           </span>
         </div>
       </div>
     </div>
-    
+
+    <!-- Summary Tiles -->
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Current Balance</p>
+        <p class="mt-1 text-xl font-semibold text-gray-900 dark:text-gray-100"><%= number_to_currency(card_data[:current_balance_value]) %></p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">Live balance before upcoming activity</p>
+      </div>
+
+      <div class="rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Upcoming Net</p>
+        <p class="mt-1 text-xl font-semibold <%= card_data[:upcoming_net_is_positive] ? 'text-income-600 dark:text-income-400' : 'text-expense-600 dark:text-expense-400' %>"><%= card_data[:upcoming_net_display_signed] %></p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">Impact of scheduled income and expenses</p>
+      </div>
+
+      <div class="rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Timeline</p>
+        <div class="mt-1 flex items-baseline gap-2">
+          <p class="text-xl font-semibold text-primary-700 dark:text-primary-300"><%= card_data[:days_remaining] %></p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">days remaining</p>
+        </div>
+        <% if card_data[:total_recurring_items].positive? %>
+          <p class="text-xs text-gray-500 dark:text-gray-400"><%= card_data[:total_recurring_items] %> recurring <%= card_data[:total_recurring_items] == 1 ? 'item' : 'items' %> planned</p>
+        <% else %>
+          <p class="text-xs text-gray-500 dark:text-gray-400">No recurring items scheduled</p>
+        <% end %>
+      </div>
+    </div>
+
+    <p class="mt-4 text-xs text-gray-600 dark:text-gray-400">Projected balance includes current balance plus all future transactions (real and hypothetical) through month end.</p>
+
     <% if card_data[:show_details] %>
-      <!-- Bottom Row: Upcoming Recurring Transactions -->
-      <div class="projection-card-details border-t border-gray-200 dark:border-gray-700 pt-3">
-        <!-- Balance Breakdown Note -->
-        <div class="mb-2 p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-          <div class="flex items-start gap-2 text-xs">
-            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      <div class="mt-auto" data-controller="collapsible" data-collapsible-expanded-text-value="Hide Details" data-collapsible-collapsed-text-value="Show Details">
+        <div class="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
+          <div class="text-sm text-gray-600 dark:text-gray-400">Review the recurring activity driving this projection.</div>
+          <button type="button"
+                  class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white/70 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-white hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  data-action="collapsible#toggle"
+                  data-collapsible-target="toggle"
+                  aria-expanded="false">
+            <span class="projection-toggle-text">Show Details</span>
+            <svg class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-collapsible-target="icon">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
-            <div class="flex-1">
-              <p class="text-blue-800 dark:text-blue-200 font-medium mb-0.5">Projected Balance</p>
-              <p class="text-blue-600 dark:text-blue-400 text-xs">Includes current balance + all future transactions (real + hypothetical) through end of month</p>
+          </button>
+        </div>
+
+        <div class="mt-4 hidden space-y-4" data-collapsible-target="content">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="rounded-xl border border-gray-200 bg-white/80 p-3 dark:border-gray-700 dark:bg-gray-800/60">
+              <div class="flex items-center justify-between">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Recurring Summary</p>
+                <span class="text-sm font-semibold <%= card_data[:recurring_net] >= 0 ? 'text-income-600 dark:text-income-400' : 'text-expense-600 dark:text-expense-400' %>">
+                  Net <%= number_to_currency(card_data[:recurring_net]) %>
+                </span>
+              </div>
+              <dl class="mt-3 space-y-2 text-xs text-gray-600 dark:text-gray-400">
+                <div class="flex items-center justify-between">
+                  <dt>Upcoming income</dt>
+                  <dd class="font-semibold text-income-600 dark:text-income-400">$<%= number_with_precision(card_data[:recurring_income_total], precision: 2) %></dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt>Upcoming expenses</dt>
+                  <dd class="font-semibold text-expense-600 dark:text-expense-400">$<%= number_with_precision(card_data[:recurring_expense_total], precision: 2) %></dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="rounded-xl border border-gray-200 bg-white/80 p-3 dark:border-gray-700 dark:bg-gray-800/60">
+              <div class="flex items-center justify-between">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Month Progress</p>
+                <span class="text-sm font-semibold text-primary-700 dark:text-primary-300"><%= card_data[:days_remaining] %> days left</span>
+              </div>
+              <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Plan cash flow against the remaining days in the month.</p>
+              <div class="mt-3 grid grid-cols-2 gap-3 text-xs">
+                <div class="rounded-lg border border-gray-200 bg-white/60 p-2 dark:border-gray-700 dark:bg-gray-800/40">
+                  <p class="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Current Balance</p>
+                  <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100"><%= number_to_currency(card_data[:current_balance_value]) %></p>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-white/60 p-2 dark:border-gray-700 dark:bg-gray-800/40">
+                  <p class="text-[0.7rem] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Projected Net</p>
+                  <p class="mt-1 text-sm font-semibold <%= card_data[:upcoming_net_is_positive] ? 'text-income-600 dark:text-income-400' : 'text-expense-600 dark:text-expense-400' %>"><%= card_data[:upcoming_net_display_signed] %></p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="flex items-center justify-between text-xs mb-2">
-          <div class="flex items-center gap-4">
-            <span class="text-gray-600 dark:text-gray-400">
-              <span class="font-semibold text-gray-700 dark:text-gray-300"><%= card_data[:days_remaining] %></span> days remaining
-            </span>
-            <% if card_data[:total_recurring_items] > 0 %>
-              <span class="text-gray-600 dark:text-gray-400">
-                <span class="font-semibold text-gray-700 dark:text-gray-300"><%= card_data[:total_recurring_items] %></span> recurring <%= card_data[:total_recurring_items] == 1 ? 'item' : 'items' %> scheduled
-              </span>
-            <% end %>
-          </div>
-          <% if card_data[:recurring_expense_total] > 0 || card_data[:recurring_income_total] > 0 %>
-            <span class="text-gray-600 dark:text-gray-400">
-              Net: <span class="font-semibold <%= card_data[:recurring_net] >= 0 ? 'text-green-600 dark:text-green-400' : 'text-expense-600 dark:text-expense-400' %>">
-                $<%= number_with_precision(card_data[:recurring_net], precision: 2) %>
-              </span>
-            </span>
+
+          <% if card_data[:has_recurring_items] %>
+            <% remaining_expense_count = [upcoming_recurring_expenses.size - 2, 0].max %>
+            <% remaining_income_count = [upcoming_recurring_income.size - 2, 0].max %>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="rounded-xl border border-gray-200 bg-white/80 p-3 dark:border-gray-700 dark:bg-gray-800/60">
+                <div class="flex items-center justify-between">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-expense-600 dark:text-expense-400">Upcoming Expenses</p>
+                  <span class="text-sm font-semibold text-expense-600 dark:text-expense-400">$<%= number_with_precision(card_data[:recurring_expense_total], precision: 2) %></span>
+                </div>
+                <% if upcoming_recurring_expenses.present? %>
+                  <ul class="mt-3 space-y-2" role="list">
+                    <% upcoming_recurring_expenses.first(2).each do |recurring| %>
+                      <li class="flex items-center justify-between rounded-lg border border-gray-200 bg-white/60 px-2 py-1 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-800/40 dark:text-gray-300" role="listitem">
+                        <span class="truncate pr-2" title="<%= recurring.description %>"><%= recurring.description %></span>
+                        <span class="font-semibold text-expense-600 dark:text-expense-400">$<%= number_with_precision(recurring.amount.abs, precision: 2) %></span>
+                      </li>
+                    <% end %>
+                  </ul>
+                  <% if remaining_expense_count.positive? %>
+                    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">+<%= remaining_expense_count %> more scheduled</p>
+                  <% end %>
+                <% else %>
+                  <p class="mt-3 text-xs text-gray-400 dark:text-gray-500">No recurring expenses scheduled</p>
+                <% end %>
+              </div>
+
+              <div class="rounded-xl border border-gray-200 bg-white/80 p-3 dark:border-gray-700 dark:bg-gray-800/60">
+                <div class="flex items-center justify-between">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-income-600 dark:text-income-400">Upcoming Income</p>
+                  <span class="text-sm font-semibold text-income-600 dark:text-income-400">$<%= number_with_precision(card_data[:recurring_income_total], precision: 2) %></span>
+                </div>
+                <% if upcoming_recurring_income.present? %>
+                  <ul class="mt-3 space-y-2" role="list">
+                    <% upcoming_recurring_income.first(2).each do |recurring| %>
+                      <li class="flex items-center justify-between rounded-lg border border-gray-200 bg-white/60 px-2 py-1 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-800/40 dark:text-gray-300" role="listitem">
+                        <span class="truncate pr-2" title="<%= recurring.description %>"><%= recurring.description %></span>
+                        <span class="font-semibold text-income-600 dark:text-income-400">$<%= number_with_precision(recurring.amount, precision: 2) %></span>
+                      </li>
+                    <% end %>
+                  </ul>
+                  <% if remaining_income_count.positive? %>
+                    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">+<%= remaining_income_count %> more scheduled</p>
+                  <% end %>
+                <% else %>
+                  <p class="mt-3 text-xs text-gray-400 dark:text-gray-500">No recurring income scheduled</p>
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <p class="text-xs italic text-gray-400 dark:text-gray-500">No recurring transactions scheduled this month.</p>
           <% end %>
         </div>
-        
-        <% if card_data[:has_recurring_items] %>
-          <div class="flex items-start gap-2 text-xs">
-            <!-- Upcoming Expenses -->
-            <% if card_data[:has_recurring_expenses] %>
-              <div class="flex-1">
-                <div class="flex items-center gap-1 mb-1">
-                  <span class="text-expense-600 dark:text-expense-400 font-semibold">↓ Upcoming Expenses:</span>
-                  <span class="text-expense-600 dark:text-expense-400 font-bold">$<%= number_with_precision(card_data[:recurring_expense_total], precision: 2) %></span>
-                </div>
-                <% upcoming_recurring_expenses.first(2).each do |recurring| %>
-                  <div class="text-gray-500 dark:text-gray-400 truncate">
-                    <%= recurring.description %> <span class="font-semibold text-gray-700 dark:text-gray-300">($<%= number_with_precision(recurring.amount.abs, precision: 2) %>)</span>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
-            
-            <!-- Upcoming Income -->
-            <% if card_data[:has_recurring_income] %>
-              <div class="flex-1">
-                <div class="flex items-center gap-1 mb-1">
-                  <span class="text-income-600 dark:text-income-400 font-semibold">↑ Upcoming Income:</span>
-                  <span class="text-income-600 dark:text-income-400 font-bold">$<%= number_with_precision(card_data[:recurring_income_total], precision: 2) %></span>
-                </div>
-                <% upcoming_recurring_income.first(2).each do |recurring| %>
-                  <div class="text-gray-500 dark:text-gray-400 truncate">
-                    <%= recurring.description %> <span class="font-semibold text-gray-700 dark:text-gray-300">($<%= number_with_precision(recurring.amount, precision: 2) %>)</span>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        <% else %>
-          <div class="text-xs text-gray-400 dark:text-gray-500 italic">
-            No recurring transactions scheduled this month
-          </div>
-        <% end %>
       </div>
     <% end %>
   </div>

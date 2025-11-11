@@ -96,6 +96,34 @@ module DashboardHelper
     @dashboard_data&.dig(:income_frequency_data) || {}
   end
 
+  def on_track_badge_props(status)
+    normalized_status = status.respond_to?(:to_sym) ? status.to_sym : :on_track
+
+    container_classes = {
+      on_track: "bg-green-500/30 text-green-200 border-green-400/50",
+      caution: "bg-yellow-500/30 text-yellow-200 border-yellow-400/50",
+      off_track: "bg-red-500/30 text-red-200 border-red-400/50"
+    }
+
+    indicator_classes = {
+      on_track: "bg-green-300",
+      caution: "bg-yellow-300",
+      off_track: "bg-red-300"
+    }
+
+    labels = {
+      on_track: "On Track",
+      caution: "Caution",
+      off_track: "Off Track"
+    }
+
+    {
+      label: labels.fetch(normalized_status, labels[:on_track]),
+      container_classes: container_classes.fetch(normalized_status, container_classes[:on_track]),
+      indicator_classes: indicator_classes.fetch(normalized_status, indicator_classes[:on_track])
+    }
+  end
+
   # Cash flow card data
   def top_expense_categories
     @dashboard_data&.dig(:top_expense_categories) || []

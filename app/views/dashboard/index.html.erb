@@ -124,101 +124,125 @@
             } %>
         
         <!-- Current Balance Hero Card (1x2) - Compact with actionable data -->
+        <%
+          on_track = on_track_status
+          status_props = on_track_badge_props(on_track)
+          status_badge = content_tag(:span,
+            id: "dashboard-balance-status-badge",
+            class: "inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border #{status_props[:container_classes]}",
+            role: "status",
+            aria: { live: "polite", label: "Current balance trajectory status: #{status_props[:label]}" }
+          ) do
+            safe_join([
+              content_tag(:span, "", class: "inline-block w-2 h-2 rounded-full #{status_props[:indicator_classes]}", aria: { hidden: true }),
+              content_tag(:span, status_props[:label], class: "text-xs font-medium leading-none")
+            ])
+          end
+        %>
         <%= render 'shared/bento_cards/hero_card',
             title: "Current Balance",
             subtitle: formatted_balance(@account.current_balance),
             description: nil,
             icon: 'wallet',
-            size: 'bento-span-1 bento-row-span-2',
+            size: 'sm:bento-span-2 md:bento-span-2 lg:bento-span-1 bento-row-span-2',
             color: 'primary',
-            id: 'dashboard-current-balance-card' do %>
-          <div class="space-y-3">
-            <!-- Date and Month Progress -->
-            <div class="flex items-center justify-between">
-              <div class="text-left">
-                <p class="text-orange-50 text-sm">
-                  <%= day_name(current_date) %> <time datetime="<%= current_date.iso8601 %>"><%= current_date.strftime("%B %d, %Y") %></time>
+            id: 'dashboard-current-balance-card',
+            status_badge: status_badge do %>
+          <div class="space-y-4">
+            <% budget_remaining = balance_change_since_month_start %>
+            <% net_positive = budget_remaining >= 0 %>
+            <% month_start_label = current_date.beginning_of_month.strftime("%b %d") %>
+            <% budget_amount_classes = net_positive ? 'text-income-200' : 'text-expense-200' %>
+            <% trend_copy = net_positive ? "Balances are trending ahead of plan." : "Spending exceeds income this month." %>
+            <% income_data = income_frequency_data %>
+            <% next_income_label = income_data[:next_recurring_date]&.strftime("%b %d") %>
+            <% last_income_label = income_data[:last_income_date]&.strftime("%b %d") %>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
+                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Trajectory</span>
+                </div>
+                <div class="mt-2 inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border <%= status_props[:container_classes] %>">
+                  <span class="inline-block w-2 h-2 rounded-full <%= status_props[:indicator_classes] %>" aria-hidden="true"></span>
+                  <span class="text-xs font-semibold leading-none"><%= status_props[:label] %></span>
+                </div>
+                <p class="mt-2 text-xs text-white/70"><%= trend_copy %></p>
+              </div>
+
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
+                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  <span>Current Balance</span>
+                </div>
+                <p class="mt-2 text-3xl font-bold text-white"><%= formatted_balance(@account.current_balance) %></p>
+                <p class="text-xs text-white/60">
+                  <%= day_name(current_date) %>
+                  <time datetime="<%= current_date.iso8601 %>"><%= current_date.strftime("%B %d, %Y") %></time>
                 </p>
               </div>
-              
-              <div class="text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <div class="h-2 w-20 bg-white/20 rounded-full overflow-hidden relative" role="progressbar" aria-label="Month progress" aria-valuenow="<%= month_progress(current_date) %>" aria-valuemin="0" aria-valuemax="100">
+
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
+                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Month Progress</span>
+                </div>
+                <div class="mt-2 flex items-center gap-3">
+                  <div class="relative h-2 w-full bg-white/20 rounded-full overflow-hidden" role="progressbar" aria-label="Month progress" aria-valuenow="<%= month_progress(current_date) %>" aria-valuemin="0" aria-valuemax="100">
                     <div class="absolute inset-0 bg-gradient-to-r from-white via-orange-100 to-orange-200 rounded-full" style="width: <%= month_progress(current_date) %>%"></div>
                   </div>
-                  <span class="text-xs text-orange-100 font-semibold whitespace-nowrap"><%= month_progress(current_date) %>%</span>
+                  <span class="text-sm font-semibold text-white"><%= month_progress(current_date) %>%</span>
                 </div>
               </div>
             </div>
 
-            <!-- Balance Change Since Month Start -->
-            <% balance_change = balance_change_since_month_start %>
-            <div class="pt-2 border-t border-white/20">
-              <div class="flex items-center justify-between">
-                <span class="text-orange-50 text-xs">Change:</span>
-                <span class="text-sm font-semibold <%= balance_change >= 0 ? 'text-green-200' : 'text-red-200' %>">
-                  <%= balance_change >= 0 ? '+' : '' %>$<%= number_with_precision(balance_change, precision: 2) %>
-                </span>
-              </div>
-              <p class="text-orange-100/70 text-xs mt-0.5">since <%= current_date.beginning_of_month.strftime("%b %d") %></p>
-            </div>
-
-            <!-- Average Daily Spending -->
-            <div class="flex items-center justify-between">
-              <span class="text-orange-50 text-xs">Avg Daily:</span>
-              <span class="text-sm font-semibold text-orange-100">
-                $<%= number_with_precision(average_daily_spending, precision: 2) %>
-              </span>
-            </div>
-
-            <!-- On Track Indicator -->
-            <% 
-              on_track = on_track_status
-              status_colors = {
-                on_track: 'bg-green-500/30 text-green-200 border-green-400/50',
-                caution: 'bg-yellow-500/30 text-yellow-200 border-yellow-400/50',
-                off_track: 'bg-red-500/30 text-red-200 border-red-400/50'
-              }
-              status_labels = {
-                on_track: 'On Track',
-                caution: 'Caution',
-                off_track: 'Off Track'
-              }
-              status_color = status_colors[on_track] || status_colors[:on_track]
-              status_label = status_labels[on_track] || status_labels[:on_track]
-            %>
-            <div class="pt-2 border-t border-white/20">
-              <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border <%= status_color %>">
-                <div class="w-2 h-2 rounded-full <%= on_track == :on_track ? 'bg-green-300' : on_track == :caution ? 'bg-yellow-300' : 'bg-red-300' %>"></div>
-                <span class="text-xs font-medium"><%= status_label %></span>
-              </div>
-            </div>
-
-            <!-- Income Information -->
-            <% income_data = income_frequency_data %>
-            <div class="pt-2 border-t border-white/20">
-              <% if income_data[:next_recurring_date] %>
-                <!-- Show next recurring income if available -->
-                <div class="flex items-center justify-between">
-                  <span class="text-orange-50 text-xs">Next Income:</span>
-                  <span class="text-xs font-semibold text-orange-100">
-                    <%= income_data[:next_recurring_date].strftime("%b %d") %>
-                  </span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/20 pt-4">
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
+                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16m-8-8v16" />
+                  </svg>
+                  <span>Budget Remaining</span>
                 </div>
-              <% elsif income_data[:last_income_date] %>
-                <!-- Show last income date if no recurring -->
-                <div class="flex items-center justify-between">
-                  <span class="text-orange-50 text-xs">Last Income:</span>
-                  <span class="text-xs font-semibold text-orange-100">
-                    <%= income_data[:last_income_date].strftime("%b %d") %>
-                  </span>
-                </div>
-              <% end %>
-              <% if income_data[:count_this_month] && income_data[:count_this_month] > 0 %>
-                <p class="text-orange-100/70 text-xs mt-0.5">
-                  <%= income_data[:count_this_month] %> <%= income_data[:count_this_month] == 1 ? 'time' : 'times' %> this month
+                <p class="mt-2 text-2xl font-semibold <%= budget_amount_classes %>"><%= number_to_currency(budget_remaining) %></p>
+                <p class="text-xs text-white/70 mt-1">
+                  <%= trend_copy %> Based on activity since <%= month_start_label %>.
                 </p>
-              <% end %>
+              </div>
+
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
+                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.343 6.343L4.222 4.222m15.556 0l-2.121 2.121M4 12H2m20 0h-2m-1.879 7.778l-2.121-2.121M6.343 17.657l-2.121 2.121" />
+                  </svg>
+                  <span>Income Activity</span>
+                </div>
+                <div class="mt-2 flex items-center justify-between text-xs text-white/70">
+                  <span>Avg Daily</span>
+                  <span class="text-sm font-semibold text-income-200">
+                    $<%= number_with_precision(average_daily_spending, precision: 2) %>
+                  </span>
+                </div>
+                <% if next_income_label || last_income_label %>
+                  <div class="mt-2 flex items-center justify-between text-xs text-white/70">
+                    <span><%= next_income_label ? 'Next Income' : 'Last Income' %></span>
+                    <span class="text-xs font-semibold text-white"><%= next_income_label || last_income_label %></span>
+                  </div>
+                <% end %>
+                <% if income_data[:count_this_month].to_i.positive? %>
+                  <p class="mt-2 text-xs text-white/60">
+                    <%= income_data[:count_this_month] %> <%= income_data[:count_this_month] == 1 ? 'deposit' : 'deposits' %> this month
+                  </p>
+                <% end %>
+              </div>
             </div>
           </div>
         <% end %>
@@ -234,6 +258,7 @@
             current_date: current_date,
             upcoming_recurring_expenses: upcoming_recurring_expenses,
             upcoming_recurring_income: upcoming_recurring_income,
+            current_balance: @account.current_balance,
             upcoming_recurring_total: upcoming_recurring_total %>
       </section>
 
