@@ -448,32 +448,91 @@ class FinancialInsightsService
     }
   end
 
-  # Generate all insights (top 2-3 for dashboard) with contextual filtering
-  def generate_key_insights(limit = 3)
-    insights = []
+  # Generate all insights (top 2 for dashboard) with contextual filtering
+  # Always ensures at least 1 positive/coaching insight is shown
+  def generate_key_insights(limit = 2)
     context = determine_context
 
-    # Priority order: warnings first, then opportunities
-    # High priority warnings (always shown regardless of context)
-    insights << spending_warning_insight
-    insights << negative_savings_pattern_insight
-    insights << spending_velocity_insight
+    # Generate all possible insights
+    all_insights = []
+    
+    # Warnings (can be negative)
+    all_insights << spending_warning_insight
+    all_insights << negative_savings_pattern_insight
+    velocity_insight = spending_velocity_insight
+    all_insights << velocity_insight
 
-    # Budget Coach (only when overspending is projected)
-    insights << budget_coach_insight
+    # Positive/Coaching insights (always encouraging with solutions)
+    all_insights << budget_coach_insight
+    all_insights << savings_investment_opportunity if should_show_savings_insight?(context)
+    all_insights << day_of_week_pattern_insight if should_show_pattern_insights?(context)
+    all_insights << merchant_habit_pattern_insight if should_show_pattern_insights?(context)
 
-    # Opportunities (context-aware)
-    insights << savings_investment_opportunity if should_show_savings_insight?(context)
+    # Filter out nil
+    valid_insights = all_insights.compact
 
-    # Pattern-based insights (context-aware, lower priority)
-    insights << day_of_week_pattern_insight if should_show_pattern_insights?(context)
-    insights << merchant_habit_pattern_insight if should_show_pattern_insights?(context)
+    # Separate into warnings and positive/coaching insights
+    warnings = valid_insights.select { |i| is_warning_insight?(i, velocity_insight) }
+    positives = valid_insights.reject { |i| is_warning_insight?(i, velocity_insight) }
 
-    # Filter out nil, sort by priority, limit
-    insights.compact
-            .sort_by { |i| priority_weight(i[:priority]) }
-            .reverse
-            .first(limit)
+    # Ensure at least 1 positive/coaching insight is always shown
+    if warnings.count >= limit && positives.empty?
+      # If we have only warnings and no positives, replace lowest priority warning with highest priority positive
+      # Force generate a positive insight if possible
+      forced_positive = budget_coach_insight || savings_investment_opportunity
+      if forced_positive
+        # Replace lowest priority warning
+        warnings = warnings.sort_by { |i| priority_weight(i[:priority]) }.reverse
+        warnings = warnings.first(limit - 1)
+        return (warnings + [forced_positive]).sort_by { |i| priority_weight(i[:priority]) }.reverse.first(limit)
+      end
+    end
+
+    # Build final list ensuring at least 1 positive
+    final_insights = []
+    
+    if warnings.any? && positives.any?
+      # Mix: show 1 warning + 1 positive (prioritize highest priority of each)
+      top_warning = warnings.sort_by { |i| priority_weight(i[:priority]) }.reverse.first
+      top_positive = positives.sort_by { |i| priority_weight(i[:priority]) }.reverse.first
+      final_insights = [top_warning, top_positive]
+    elsif warnings.any? && positives.empty?
+      # Only warnings: show top warning + force a positive if available
+      top_warning = warnings.sort_by { |i| priority_weight(i[:priority]) }.reverse.first
+      forced_positive = budget_coach_insight || savings_investment_opportunity
+      if forced_positive
+        final_insights = [top_warning, forced_positive]
+      else
+        # Fallback: show top 2 warnings if no positive available
+        final_insights = warnings.sort_by { |i| priority_weight(i[:priority]) }.reverse.first(limit)
+      end
+    elsif warnings.empty? && positives.any?
+      # Only positives: show top 2
+      final_insights = positives.sort_by { |i| priority_weight(i[:priority]) }.reverse.first(limit)
+    else
+      # No insights available
+      final_insights = []
+    end
+
+    # Sort by priority and limit
+    final_insights.sort_by { |i| priority_weight(i[:priority]) }.reverse.first(limit)
+  end
+
+  # Determine if an insight is a warning (negative) vs positive/coaching
+  def is_warning_insight?(insight, velocity_insight)
+    return false if insight.nil?
+    
+    # Warnings are insights that indicate problems without immediate positive framing
+    warning_types = ["spending_warning", "negative_savings_pattern"]
+    
+    # Spending velocity is a warning only if it's the "spending faster" variant
+    if insight[:type] == "spending_velocity"
+      # Check if title indicates warning (spending faster) vs positive (spending slower)
+      title = insight[:title] || ""
+      return title.include?("Faster") || title.include?("faster")
+    end
+    
+    warning_types.include?(insight[:type])
   end
 
   # Debug method to understand why insights aren't generating
@@ -536,11 +595,14 @@ class FinancialInsightsService
     puts ""
 
     # Generate actual insights
-    puts "GENERATED INSIGHTS:"
-    insights = generate_key_insights(3)
+    velocity_insight_for_debug = spending_velocity_insight
+    puts "GENERATED INSIGHTS (limit: 2, always includes at least 1 positive/coaching):"
+    insights = generate_key_insights(2)
     if insights.any?
       insights.each_with_index do |insight, i|
-        puts "  #{i + 1}. #{insight[:title]} (#{insight[:type]}, priority: #{insight[:priority]})"
+        is_warning = is_warning_insight?(insight, velocity_insight_for_debug)
+        type_label = is_warning ? "⚠️  WARNING" : "✅ POSITIVE/COACHING"
+        puts "  #{i + 1}. #{insight[:title]} (#{insight[:type]}, priority: #{insight[:priority]}) - #{type_label}"
       end
     else
       puts "  ❌ No insights generated"
@@ -586,11 +648,17 @@ class FinancialInsightsService
   end
 
   def generate_velocity_warning_message(current, historical, change_pct, projected)
+    avg_monthly = (historical[:average_daily_rate] * 30.44).round(0)
+    excess_spending = projected[:projected_total].round(0) - avg_monthly
+    daily_reduction = (excess_spending / [@velocity_calculator.current_velocity[:days_remaining], 1].max).round(2)
+    
     "You're spending $#{current[:daily_rate]} per day, which is #{change_pct.abs}% faster than your " \
     "6-month average of $#{historical[:average_daily_rate]} per day (based on last 6 months of data). " \
     "At this pace, you're projected to spend $#{projected[:projected_total].round(0)} this month, " \
-    "compared to your average of $#{(historical[:average_daily_rate] * 30.44).round(0)}. " \
-    "Consider reviewing your recent transactions to identify areas where spending has increased."
+    "compared to your average of $#{avg_monthly}. " \
+    "The good news: you have time to adjust! If you reduce daily spending by $#{daily_reduction} " \
+    "over the remaining #{@velocity_calculator.current_velocity[:days_remaining]} days, you'll get back to your average spending pattern. " \
+    "Review your top 3 spending categories this month to identify where you can make small, sustainable reductions."
   end
 
   def generate_spending_warning_message(income, projected_spending, overspend_amount, days_remaining)
@@ -598,10 +666,11 @@ class FinancialInsightsService
     weekly_reduction_needed = (daily_reduction_needed * 7).round(2)
 
     "Your projected spending of $#{projected_spending.round(0)} exceeds your income of $#{income.round(0)} by $#{overspend_amount.round(0)} this month. " \
-    "With #{days_remaining} days remaining, you're on track to overspend. " \
-    "To get back on track, try reducing daily spending by $#{daily_reduction_needed} (about $#{weekly_reduction_needed} per week) over the remaining days. " \
-    "This would bring your month-end total to $#{income.round(0)}, matching your income. " \
-    "Review your top spending categories to identify where you can make these reductions."
+    "The good news: you have #{days_remaining} days to adjust and get back on track! " \
+    "Based on your spending history, reducing daily spending by $#{daily_reduction_needed} (about $#{weekly_reduction_needed} per week) " \
+    "would bring your month-end total to $#{income.round(0)}, matching your income. " \
+    "Review your top 3 spending categories this month to identify specific areas where you can make these reductions. " \
+    "Small, consistent changes are more sustainable than large one-time cuts."
   end
 
   def generate_negative_savings_message(monthly_breakdown, negative_months, avg_monthly_savings, total_negative)
@@ -609,10 +678,11 @@ class FinancialInsightsService
     weekly_reduction_target = (monthly_reduction_target / 4.33).round(2)
 
     "You've spent more than you earned in #{negative_months} out of the last 3 months, with an average overspend of $#{avg_monthly_savings.abs.round(0)} per month. " \
-    "Total overspend: $#{total_negative.round(0)} across #{negative_months} months. " \
-    "To break this pattern, aim to reduce monthly expenses by $#{monthly_reduction_target.round(0)} (about $#{weekly_reduction_target.round(0)} per week). " \
-    "Start by reviewing your top 3 spending categories this month and identifying specific areas where you can cut back. " \
-    "Small, consistent reductions are more sustainable than large one-time cuts."
+    "Total overspend: $#{total_negative.round(0)} across #{negative_months} months (based on 3-month analysis). " \
+    "The good news: you have time to break this pattern! Based on your spending history, reducing monthly expenses by $#{monthly_reduction_target.round(0)} " \
+    "(about $#{weekly_reduction_target.round(0)} per week) would help you get back on track. " \
+    "Start by reviewing your top 3 spending categories this month and identifying specific areas where you can make small, sustainable reductions. " \
+    "Remember: consistent small changes are more effective than large one-time cuts."
   end
 
   def generate_combined_savings_investment_message(savings_opp, income, spending, savings, savings_data, suggested_investment)
@@ -673,10 +743,13 @@ class FinancialInsightsService
 
   def generate_day_of_week_message(day_name, day_info, monthly_frequency, overall_avg)
     pct_higher = ((day_info[:average] - overall_avg) / overall_avg * 100).round(0)
+    potential_savings = ((day_info[:average] - overall_avg) * monthly_frequency).round(0)
+    
     "You spend an average of $#{day_info[:average].round(0)} per transaction on #{day_name}s, " \
     "which is #{pct_higher}% higher than your overall average of $#{overall_avg.round(0)} per transaction (3-month analysis). " \
     "This pattern occurs approximately #{monthly_frequency} times per month. " \
-    "Consider reviewing your #{day_name} spending habits to identify potential savings opportunities."
+    "The good news: if you can reduce your #{day_name} spending to match your average, you could save approximately $#{potential_savings} per month. " \
+    "Review your #{day_name} transactions to identify specific spending patterns and opportunities to align with your typical spending habits."
   end
 
   def generate_merchant_habit_message(merchant_name, merchant_info, monthly_frequency, monthly_total, months_analyzed)
@@ -685,9 +758,10 @@ class FinancialInsightsService
 
     "You've made #{merchant_info[:count]} transactions at #{merchant_name} over the past #{months_analyzed.round(0)} months, " \
     "averaging #{monthly_frequency} times per month at $#{merchant_info[:average].round(0)} per transaction. " \
-    "This amounts to approximately $#{monthly_total.round(0)} per month. " \
-    "If you reduced visits from #{monthly_frequency} to #{suggested_frequency} times per month, you could save approximately $#{potential_savings} monthly. " \
-    "Consider meal planning or bulk shopping as alternatives."
+    "This amounts to approximately $#{monthly_total.round(0)} per month (based on #{months_analyzed.round(0)}-month analysis). " \
+    "The good news: if you reduced visits from #{monthly_frequency} to #{suggested_frequency} times per month, " \
+    "you could save approximately $#{potential_savings} monthly while still enjoying this merchant. " \
+    "Consider meal planning, bulk shopping, or spacing out visits as alternatives that align with your spending goals."
   end
 
   def generate_budget_coach_title(budget_plan)

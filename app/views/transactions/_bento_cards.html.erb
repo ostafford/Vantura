@@ -89,7 +89,8 @@
       expense_count: @transactions_data[:expense_count],
       top_expense_merchants: @transactions_data[:top_expense_merchants],
       current_date: @transactions_data[:date],
-      period: @transactions_data[:filter_type] == 'search' ? 'search' : 'month'
+      period: @transactions_data[:filter_type] == 'search' ? 'search' : 'month',
+      account: @account
     } %>
 
 <!-- Income Card with Top 3 Merchants -->
@@ -100,7 +101,8 @@
       income_count: @transactions_data[:income_count],
       top_income_merchants: @transactions_data[:top_income_merchants],
       current_date: @transactions_data[:date],
-      period: @transactions_data[:filter_type] == 'search' ? 'search' : 'month'
+      period: @transactions_data[:filter_type] == 'search' ? 'search' : 'month',
+      account: @account
     } %>
 
 <!-- Transaction Count -->

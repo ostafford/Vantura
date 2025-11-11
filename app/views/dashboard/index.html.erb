@@ -104,55 +104,127 @@
 
       <!-- Financial Overview Section -->
       <section id="dashboard-financial-overview-section" class="bento-grid mb-6" aria-label="Financial overview statistics">
-        <!-- Current Balance Hero Card (2x2) - Using Reusable Partial -->
+        <!-- Combined Cash Flow Card (2x1) - Income, Expenses, Net with expandable merchants/categories -->
+        <%= render partial: 'shared/bento_cards/cash_flow_card',
+            locals: {
+              income_total: income_total,
+              expense_total: expense_total,
+              income_count: income_count,
+              expense_count: expense_count,
+              projected_income_total: projected_income_total,
+              projected_expense_total: projected_expense_total,
+              projected_income_count: projected_income_count,
+              projected_expense_count: projected_expense_count,
+              current_date: current_date,
+              top_income_merchants: top_income_merchants,
+              top_expense_merchants: top_expense_merchants,
+              top_income_categories: top_income_categories,
+              top_expense_categories: top_expense_categories,
+              account: @account
+            } %>
+        
+        <!-- Current Balance Hero Card (1x2) - Compact with actionable data -->
         <%= render 'shared/bento_cards/hero_card',
             title: "Current Balance",
             subtitle: formatted_balance(@account.current_balance),
-            description: "Monitor your account balance in real-time with month-to-date progress tracking. Track your financial activity as you progress through the month with visual indicators and detailed breakdowns.",
+            description: nil,
             icon: 'wallet',
-            size: 'bento-span-2 bento-row-span-2',
+            size: 'bento-span-1 bento-row-span-2',
             color: 'primary',
             id: 'dashboard-current-balance-card' do %>
-          <div class="flex items-center justify-between mb-3">
-            <!-- Left: Full date -->
-            <div class="text-left">
-              <p class="text-orange-50 text-sm">
-                <%= day_name(current_date) %> <time datetime="<%= current_date.iso8601 %>"><%= current_date.strftime("%B %d, %Y") %></time>
-              </p>
-            </div>
-            
-            <!-- Right: Month progress -->
-            <div class="text-right">
-              <div class="flex items-center justify-end gap-2">
-                <div class="h-2 w-24 bg-white/20 rounded-full overflow-hidden relative" role="progressbar" aria-label="Month progress" aria-valuenow="<%= month_progress(current_date) %>" aria-valuemin="0" aria-valuemax="100">
-                  <div class="absolute inset-0 bg-gradient-to-r from-white via-orange-100 to-orange-200 rounded-full" style="width: <%= month_progress(current_date) %>%"></div>
-                </div>
-                <span class="text-sm text-orange-100 font-semibold whitespace-nowrap"><%= month_progress(current_date) %>%</span>
+          <div class="space-y-3">
+            <!-- Date and Month Progress -->
+            <div class="flex items-center justify-between">
+              <div class="text-left">
+                <p class="text-orange-50 text-sm">
+                  <%= day_name(current_date) %> <time datetime="<%= current_date.iso8601 %>"><%= current_date.strftime("%B %d, %Y") %></time>
+                </p>
               </div>
+              
+              <div class="text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <div class="h-2 w-20 bg-white/20 rounded-full overflow-hidden relative" role="progressbar" aria-label="Month progress" aria-valuenow="<%= month_progress(current_date) %>" aria-valuemin="0" aria-valuemax="100">
+                    <div class="absolute inset-0 bg-gradient-to-r from-white via-orange-100 to-orange-200 rounded-full" style="width: <%= month_progress(current_date) %>%"></div>
+                  </div>
+                  <span class="text-xs text-orange-100 font-semibold whitespace-nowrap"><%= month_progress(current_date) %>%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Balance Change Since Month Start -->
+            <% balance_change = balance_change_since_month_start %>
+            <div class="pt-2 border-t border-white/20">
+              <div class="flex items-center justify-between">
+                <span class="text-orange-50 text-xs">Change:</span>
+                <span class="text-sm font-semibold <%= balance_change >= 0 ? 'text-green-200' : 'text-red-200' %>">
+                  <%= balance_change >= 0 ? '+' : '' %>$<%= number_with_precision(balance_change, precision: 2) %>
+                </span>
+              </div>
+              <p class="text-orange-100/70 text-xs mt-0.5">since <%= current_date.beginning_of_month.strftime("%b %d") %></p>
+            </div>
+
+            <!-- Average Daily Spending -->
+            <div class="flex items-center justify-between">
+              <span class="text-orange-50 text-xs">Avg Daily:</span>
+              <span class="text-sm font-semibold text-orange-100">
+                $<%= number_with_precision(average_daily_spending, precision: 2) %>
+              </span>
+            </div>
+
+            <!-- On Track Indicator -->
+            <% 
+              on_track = on_track_status
+              status_colors = {
+                on_track: 'bg-green-500/30 text-green-200 border-green-400/50',
+                caution: 'bg-yellow-500/30 text-yellow-200 border-yellow-400/50',
+                off_track: 'bg-red-500/30 text-red-200 border-red-400/50'
+              }
+              status_labels = {
+                on_track: 'On Track',
+                caution: 'Caution',
+                off_track: 'Off Track'
+              }
+              status_color = status_colors[on_track] || status_colors[:on_track]
+              status_label = status_labels[on_track] || status_labels[:on_track]
+            %>
+            <div class="pt-2 border-t border-white/20">
+              <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border <%= status_color %>">
+                <div class="w-2 h-2 rounded-full <%= on_track == :on_track ? 'bg-green-300' : on_track == :caution ? 'bg-yellow-300' : 'bg-red-300' %>"></div>
+                <span class="text-xs font-medium"><%= status_label %></span>
+              </div>
+            </div>
+
+            <!-- Income Information -->
+            <% income_data = income_frequency_data %>
+            <div class="pt-2 border-t border-white/20">
+              <% if income_data[:next_recurring_date] %>
+                <!-- Show next recurring income if available -->
+                <div class="flex items-center justify-between">
+                  <span class="text-orange-50 text-xs">Next Income:</span>
+                  <span class="text-xs font-semibold text-orange-100">
+                    <%= income_data[:next_recurring_date].strftime("%b %d") %>
+                  </span>
+                </div>
+              <% elsif income_data[:last_income_date] %>
+                <!-- Show last income date if no recurring -->
+                <div class="flex items-center justify-between">
+                  <span class="text-orange-50 text-xs">Last Income:</span>
+                  <span class="text-xs font-semibold text-orange-100">
+                    <%= income_data[:last_income_date].strftime("%b %d") %>
+                  </span>
+                </div>
+              <% end %>
+              <% if income_data[:count_this_month] && income_data[:count_this_month] > 0 %>
+                <p class="text-orange-100/70 text-xs mt-0.5">
+                  <%= income_data[:count_this_month] %> <%= income_data[:count_this_month] == 1 ? 'time' : 'times' %> this month
+                </p>
+              <% end %>
             </div>
           </div>
         <% end %>
 
-        <!-- Income Card (1x2) - Using Unified Partial -->
-        <%= render partial: 'shared/bento_cards/transaction_type_card',
-            locals: {
-              type: 'income',
-              income_total: income_total,
-              income_count: income_count,
-              current_date: current_date,
-              top_income_merchants: top_income_merchants
-            } %>
-            
-        <!-- Expenses Card (1x2) - Using Unified Partial -->
-        <%= render partial: 'shared/bento_cards/transaction_type_card',
-            locals: {
-              type: 'expense',
-              expense_total: expense_total,
-              expense_count: expense_count,
-              current_date: current_date,
-              top_expense_merchants: top_expense_merchants
-            } %>
 
+        
 
         <!-- End of Month Projection (2x1) - Using Reusable Partial -->
         <%= render 'dashboard/projection_card',
@@ -163,14 +235,6 @@
             upcoming_recurring_expenses: upcoming_recurring_expenses,
             upcoming_recurring_income: upcoming_recurring_income,
             upcoming_recurring_total: upcoming_recurring_total %>
-
-        <!-- Net Cash Flow Card (1x2) -->
-        <%= render 'dashboard/net_cash_flow_card',
-            income_total: income_total,
-            expense_total: expense_total,
-              expense_count: expense_count,
-              income_count: income_count,
-              current_date: current_date %>
       </section>
 
       <!-- Recent Transactions -->

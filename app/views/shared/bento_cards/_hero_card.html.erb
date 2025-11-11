@@ -31,25 +31,34 @@
   end
   
   icon_path = icon_map[icon] || icon_map['chart']
+  
+  # Determine if this is a compact card (1x2 or smaller)
+  is_compact = size.include?('bento-span-1')
+  padding_class = is_compact ? 'px-6 pt-6 pb-4' : 'px-8 pt-8 pb-6'
+  title_size_class = is_compact ? 'text-2xl' : 'text-3xl'
+  icon_size_class = is_compact ? 'w-10 h-10' : 'w-12 h-12'
+  icon_svg_size = is_compact ? 'w-6 h-6' : 'w-7 h-7'
 %>
 
-<div<% if element_id.present? %> id="<%= element_id %>"<% end %> class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-deep px-8 pt-8 pb-6 text-white relative overflow-hidden">
+<div<% if element_id.present? %> id="<%= element_id %>"<% end %> class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-deep <%= padding_class %> text-white relative overflow-hidden">
   <!-- Decorative elements -->
   <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
   <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
   
   <div class="relative z-10 flex flex-col h-full space-y-3">
     <!-- Section 1: Header Row (Icon, Title, Subtitle) -->
-    <div class="hero-header flex items-center gap-4">
-      <div class="hero-icon inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-xl backdrop-blur-sm flex-shrink-0">
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="hero-header flex items-center gap-3">
+      <div class="hero-icon inline-flex items-center justify-center <%= icon_size_class %> bg-white/20 rounded-xl backdrop-blur-sm flex-shrink-0">
+        <svg class="<%= icon_svg_size %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <%= icon_path.html_safe %>
         </svg>
       </div>
-      <h2 class="hero-title text-3xl font-bold flex-1"><%= title %></h2>
-      <% if subtitle.present? %>
-        <div class="hero-subtitle ml-auto"><%= subtitle %></div>
-      <% end %>
+      <div class="flex-1 min-w-0">
+        <h2 class="hero-title <%= title_size_class %> font-bold truncate"><%= title %></h2>
+        <% if subtitle.present? %>
+          <div class="hero-subtitle text-lg font-semibold mt-0.5"><%= subtitle %></div>
+        <% end %>
+      </div>
     </div>
     
     <!-- Section 2: Description -->

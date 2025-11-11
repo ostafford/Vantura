@@ -436,13 +436,13 @@ export default class extends Controller {
 
     if (currentBalanceEl) {
       currentBalanceEl.textContent = currentBalanceData.text
-      currentBalanceEl.className = `text-sm sm:text-base font-bold ${currentBalanceData.colorClass}`
+      currentBalanceEl.className = `text-sm sm:text-base font-bold text-right ${currentBalanceData.colorClass}`
     }
 
     if (periodLabelEl && periodAmountEl) {
       periodLabelEl.textContent = `End of Week (${endOfWeekDate}):`
       periodAmountEl.textContent = endOfWeekData.text
-      periodAmountEl.className = `text-sm sm:text-base font-bold ${endOfWeekData.colorClass}`
+      periodAmountEl.className = `text-sm sm:text-base font-bold text-right ${endOfWeekData.colorClass}`
     }
   }
 
@@ -475,13 +475,13 @@ export default class extends Controller {
 
     if (currentBalanceEl) {
       currentBalanceEl.textContent = currentBalanceData.text
-      currentBalanceEl.className = `text-sm sm:text-base font-bold ${currentBalanceData.colorClass}`
+      currentBalanceEl.className = `text-sm sm:text-base font-bold text-right ${currentBalanceData.colorClass}`
     }
 
     if (periodLabelEl && periodAmountEl) {
       periodLabelEl.textContent = `End of Month (${endOfMonthDate}):`
       periodAmountEl.textContent = endOfMonthData.text
-      periodAmountEl.className = `text-sm sm:text-base font-bold ${endOfMonthData.colorClass}`
+      periodAmountEl.className = `text-sm sm:text-base font-bold text-right ${endOfMonthData.colorClass}`
     }
   }
 

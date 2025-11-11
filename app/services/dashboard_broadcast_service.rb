@@ -25,6 +25,12 @@ class DashboardBroadcastService < ApplicationService
     end_of_month_balance = stats[:end_of_month_balance]
     top_expense_merchants = stats[:top_expense_merchants] || []
     top_income_merchants = stats[:top_income_merchants] || []
+    top_expense_categories = stats[:top_expense_categories] || []
+    top_income_categories = stats[:top_income_categories] || []
+    projected_expense_total = stats[:projected_expense_total] || 0
+    projected_expense_count = stats[:projected_expense_count] || 0
+    projected_income_total = stats[:projected_income_total] || 0
+    projected_income_count = stats[:projected_income_count] || 0
 
     # Get upcoming recurring transactions
     upcoming = RecurringTransactionsService.upcoming(@account, Date.today.end_of_month)
@@ -37,10 +43,12 @@ class DashboardBroadcastService < ApplicationService
 
     # Broadcast updates to all dashboard cards using Turbo Streams
     broadcast_hero_card(current_date)
-    broadcast_expenses_card(expense_total, expense_count, current_date, top_expense_merchants)
-    broadcast_income_card(income_total, income_count, current_date, top_income_merchants)
+    broadcast_cash_flow_card(income_total, expense_total, income_count, expense_count, 
+                             projected_income_total, projected_expense_total,
+                             projected_income_count, projected_expense_count,
+                             current_date, top_income_merchants, top_expense_merchants,
+                             top_income_categories, top_expense_categories)
     broadcast_projection_card(income_total, expense_total, end_of_month_balance, current_date, upcoming_recurring_expenses, upcoming_recurring_income, upcoming_recurring_total)
-    broadcast_net_cash_flow_card(income_total, expense_total, expense_count, income_count, current_date)
     broadcast_recent_transactions(recent_transactions)
   end
 
@@ -63,40 +71,34 @@ class DashboardBroadcastService < ApplicationService
     )
   end
 
-  def broadcast_expenses_card(expense_total, expense_count, current_date, top_expense_merchants)
+  def broadcast_cash_flow_card(income_total, expense_total, income_count, expense_count,
+                               projected_income_total, projected_expense_total,
+                               projected_income_count, projected_expense_count,
+                               current_date, top_income_merchants, top_expense_merchants,
+                               top_income_categories, top_expense_categories)
     html = ApplicationController.render(
-      partial: "shared/bento_cards/transaction_type_card",
+      partial: "shared/bento_cards/cash_flow_card",
       locals: {
-        type: "expense",
-        expense_total: expense_total,
-        expense_count: expense_count,
-        current_date: current_date,
-        top_expense_merchants: top_expense_merchants
-      }
-    )
-
-    Turbo::StreamsChannel.broadcast_replace_to(
-      @user,
-      target: "dashboard-expenses-card",
-      html: html
-    )
-  end
-
-  def broadcast_income_card(income_total, income_count, current_date, top_income_merchants)
-    html = ApplicationController.render(
-      partial: "shared/bento_cards/transaction_type_card",
-      locals: {
-        type: "income",
         income_total: income_total,
+        expense_total: expense_total,
         income_count: income_count,
+        expense_count: expense_count,
+        projected_income_total: projected_income_total,
+        projected_expense_total: projected_expense_total,
+        projected_income_count: projected_income_count,
+        projected_expense_count: projected_expense_count,
         current_date: current_date,
-        top_income_merchants: top_income_merchants
+        top_income_merchants: top_income_merchants,
+        top_expense_merchants: top_expense_merchants,
+        top_income_categories: top_income_categories,
+        top_expense_categories: top_expense_categories,
+        account: @account
       }
     )
 
     Turbo::StreamsChannel.broadcast_replace_to(
       @user,
-      target: "dashboard-income-card",
+      target: "dashboard-cash-flow-card",
       html: html
     )
   end
@@ -118,25 +120,6 @@ class DashboardBroadcastService < ApplicationService
     Turbo::StreamsChannel.broadcast_replace_to(
       @user,
       target: "dashboard-projection-card",
-      html: html
-    )
-  end
-
-  def broadcast_net_cash_flow_card(income_total, expense_total, expense_count, income_count, current_date)
-    html = ApplicationController.render(
-      partial: "dashboard/net_cash_flow_card",
-      locals: {
-        income_total: income_total,
-        expense_total: expense_total,
-        expense_count: expense_count,
-        income_count: income_count,
-        current_date: current_date
-      }
-    )
-
-    Turbo::StreamsChannel.broadcast_replace_to(
-      @user,
-      target: "dashboard-net-cash-flow-card",
       html: html
     )
   end

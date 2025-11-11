@@ -16,8 +16,8 @@ class TransactionMerchantService < ApplicationService
   end
 
   def call
-    # Direct date range query
-    relation = @account.transactions.where(transaction_date: @start_date..@end_date)
+    # Direct date range query - exclude hypothetical transactions for consistency
+    relation = @account.transactions.real.where(transaction_date: @start_date..@end_date)
 
     # Filter by transaction type
     if @transaction_type == "expense"

@@ -20,6 +20,24 @@ module DashboardHelper
     @dashboard_data&.dig(:income_count)
   end
 
+  # Projected income statistics
+  def projected_income_total
+    @dashboard_data&.dig(:projected_income_total) || 0
+  end
+
+  def projected_income_count
+    @dashboard_data&.dig(:projected_income_count) || 0
+  end
+
+  # Projected expense statistics
+  def projected_expense_total
+    @dashboard_data&.dig(:projected_expense_total) || 0
+  end
+
+  def projected_expense_count
+    @dashboard_data&.dig(:projected_expense_count) || 0
+  end
+
   # Date and timing
   def current_date
     @dashboard_data&.dig(:current_date)
@@ -55,6 +73,36 @@ module DashboardHelper
 
   def upcoming_recurring_total
     @dashboard_data&.dig(:upcoming_recurring_total)
+  end
+
+  # Balance card data
+  def balance_at_month_start
+    @dashboard_data&.dig(:balance_at_month_start)
+  end
+
+  def balance_change_since_month_start
+    @dashboard_data&.dig(:balance_change_since_month_start) || 0
+  end
+
+  def average_daily_spending
+    @dashboard_data&.dig(:average_daily_spending) || 0
+  end
+
+  def on_track_status
+    @dashboard_data&.dig(:on_track_status) || :on_track
+  end
+
+  def income_frequency_data
+    @dashboard_data&.dig(:income_frequency_data) || {}
+  end
+
+  # Cash flow card data
+  def top_expense_categories
+    @dashboard_data&.dig(:top_expense_categories) || []
+  end
+
+  def top_income_categories
+    @dashboard_data&.dig(:top_income_categories) || []
   end
 
   # Calculate net cash flow card styling and display values

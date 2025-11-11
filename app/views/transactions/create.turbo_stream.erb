@@ -1,21 +1,20 @@
-<%# Update the Expenses Card %>
-<%= turbo_stream.replace "dashboard-expenses-card" do %>
-  <%= render "shared/bento_cards/transaction_type_card",
-      type: 'expense',
-      expense_total: @dashboard_data[:expense_total],
-      expense_count: @dashboard_data[:expense_count],
-      current_date: @dashboard_data[:current_date],
-      top_expense_merchants: [] %>
-<% end %>
-
-<%# Update the Income Card %>
-<%= turbo_stream.replace "dashboard-income-card" do %>
-  <%= render "shared/bento_cards/transaction_type_card",
-      type: 'income',
+<%# Update the Combined Cash Flow Card %>
+<%= turbo_stream.replace "dashboard-cash-flow-card" do %>
+  <%= render "shared/bento_cards/cash_flow_card",
       income_total: @dashboard_data[:income_total],
+      expense_total: @dashboard_data[:expense_total],
       income_count: @dashboard_data[:income_count],
+      expense_count: @dashboard_data[:expense_count],
+      projected_income_total: @dashboard_data[:projected_income_total] || 0,
+      projected_expense_total: @dashboard_data[:projected_expense_total] || 0,
+      projected_income_count: @dashboard_data[:projected_income_count] || 0,
+      projected_expense_count: @dashboard_data[:projected_expense_count] || 0,
       current_date: @dashboard_data[:current_date],
-      top_income_merchants: [] %>
+      top_income_merchants: @dashboard_data[:top_income_merchants] || [],
+      top_expense_merchants: @dashboard_data[:top_expense_merchants] || [],
+      top_income_categories: @dashboard_data[:top_income_categories] || [],
+      top_expense_categories: @dashboard_data[:top_expense_categories] || [],
+      account: @account %>
 <% end %>
 
 <%# Update the End of Month Projection %>

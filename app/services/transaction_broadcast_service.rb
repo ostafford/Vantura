@@ -25,6 +25,12 @@ class TransactionBroadcastService < ApplicationService
     end_of_month_balance = stats[:end_of_month_balance]
     top_expense_merchants = stats[:top_expense_merchants] || []
     top_income_merchants = stats[:top_income_merchants] || []
+    top_expense_categories = stats[:top_expense_categories] || []
+    top_income_categories = stats[:top_income_categories] || []
+    projected_expense_total = stats[:projected_expense_total] || 0
+    projected_expense_count = stats[:projected_expense_count] || 0
+    projected_income_total = stats[:projected_income_total] || 0
+    projected_income_count = stats[:projected_income_count] || 0
 
     # Calculate upcoming recurring transactions for projection
     upcoming_recurring = get_upcoming_recurring_transactions
@@ -35,27 +41,23 @@ class TransactionBroadcastService < ApplicationService
     # Broadcast Turbo Stream updates to user's channel using transaction's broadcast methods
     @transaction.broadcast_replace_to(
       @account.user,
-      target: "dashboard-expenses-card",
-      partial: "shared/bento_cards/transaction_type_card",
+      target: "dashboard-cash-flow-card",
+      partial: "shared/bento_cards/cash_flow_card",
       locals: {
-        type: "expense",
-        expense_total: expense_total,
-        expense_count: expense_count,
-        current_date: current_date,
-        top_expense_merchants: top_expense_merchants
-      }
-    )
-
-    @transaction.broadcast_replace_to(
-      @account.user,
-      target: "dashboard-income-card",
-      partial: "shared/bento_cards/transaction_type_card",
-      locals: {
-        type: "income",
         income_total: income_total,
+        expense_total: expense_total,
         income_count: income_count,
+        expense_count: expense_count,
+        projected_income_total: projected_income_total,
+        projected_expense_total: projected_expense_total,
+        projected_income_count: projected_income_count,
+        projected_expense_count: projected_expense_count,
         current_date: current_date,
-        top_income_merchants: top_income_merchants
+        top_income_merchants: top_income_merchants,
+        top_expense_merchants: top_expense_merchants,
+        top_income_categories: top_income_categories,
+        top_expense_categories: top_expense_categories,
+        account: @account
       }
     )
 

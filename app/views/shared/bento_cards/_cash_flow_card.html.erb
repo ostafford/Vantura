@@ -1,0 +1,262 @@
+<%
+  # Combined Cash Flow Card - Income, Expenses, and Net in one card
+  # 2x1 size with expandable merchant/category section
+  
+  income_total = local_assigns.fetch(:income_total, 0)
+  expense_total = local_assigns.fetch(:expense_total, 0)
+  income_count = local_assigns.fetch(:income_count, 0)
+  expense_count = local_assigns.fetch(:expense_count, 0)
+  projected_income_total = local_assigns.fetch(:projected_income_total, 0)
+  projected_expense_total = local_assigns.fetch(:projected_expense_total, 0)
+  projected_income_count = local_assigns.fetch(:projected_income_count, 0)
+  projected_expense_count = local_assigns.fetch(:projected_expense_count, 0)
+  top_income_merchants = local_assigns.fetch(:top_income_merchants, [])
+  top_expense_merchants = local_assigns.fetch(:top_expense_merchants, [])
+  top_income_categories = local_assigns.fetch(:top_income_categories, [])
+  top_expense_categories = local_assigns.fetch(:top_expense_categories, [])
+  current_date = local_assigns.fetch(:current_date, Date.today)
+  account = local_assigns.fetch(:account, nil)
+  
+  net_cash_flow = income_total - expense_total
+  total_income = income_total + projected_income_total
+  total_expense = expense_total + projected_expense_total
+  total_income_count = income_count + projected_income_count
+  total_expense_count = expense_count + projected_expense_count
+  
+  account_label = account&.display_name || 'Bank Account'
+%>
+
+<div class="bento-span-2 bento-row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-deep p-6"
+     data-controller="cash-flow-card"
+     data-cash-flow-card-default-expanded-value="true"
+     data-cash-flow-card-view-type-value="merchant"
+     id="dashboard-cash-flow-card">
+  
+  <!-- Top Row: Income | Expenses | Net -->
+  <div class="grid grid-cols-3 gap-4 mb-4">
+    <!-- Income Column -->
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2 mb-1">
+        <svg class="w-5 h-5 text-income-600 dark:text-income-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Income</h3>
+      </div>
+      <p class="text-2xl font-bold text-income-600 dark:text-income-400">
+        $<%= number_with_precision(total_income, precision: 2) %>
+      </p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+        <%= total_income_count %> <%= total_income_count == 1 ? 'transaction' : 'transactions' %>
+      </p>
+      <% if projected_income_total > 0 %>
+        <p class="text-xs text-purple-600 dark:text-purple-400 mt-1">
+          +$<%= number_with_precision(projected_income_total, precision: 2) %> projected
+        </p>
+      <% end %>
+    </div>
+
+    <!-- Expenses Column -->
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2 mb-1">
+        <svg class="w-5 h-5 text-expense-600 dark:text-expense-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+        </svg>
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Expenses</h3>
+      </div>
+      <p class="text-2xl font-bold text-expense-600 dark:text-expense-400">
+        $<%= number_with_precision(total_expense, precision: 2) %>
+      </p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+        <%= total_expense_count %> <%= total_expense_count == 1 ? 'transaction' : 'transactions' %>
+      </p>
+      <% if projected_expense_total > 0 %>
+        <p class="text-xs text-purple-600 dark:text-purple-400 mt-1">
+          +$<%= number_with_precision(projected_expense_total, precision: 2) %> projected
+        </p>
+      <% end %>
+    </div>
+
+    <!-- Net Cash Flow Column -->
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2 mb-1">
+        <svg class="w-5 h-5 <%= net_cash_flow >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Net</h3>
+      </div>
+      <p class="text-2xl font-bold <%= net_cash_flow >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+        <%= net_cash_flow >= 0 ? '+' : '' %>$<%= number_with_precision(net_cash_flow, precision: 2) %>
+      </p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+        This month
+      </p>
+    </div>
+  </div>
+
+  <!-- Expandable Section: Merchants/Categories -->
+  <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+    <!-- Toggle Button and View Type Selector -->
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-medium text-gray-600 dark:text-gray-400">View by:</span>
+        <div class="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+          <button type="button"
+                  data-cash-flow-card-target="merchantButton"
+                  data-action="click->cash-flow-card#switchToMerchant"
+                  class="px-3 py-1 text-xs font-medium rounded transition-colors bg-primary-700 text-white"
+                  id="cash-flow-merchant-button">
+            Merchant
+          </button>
+          <button type="button"
+                  data-cash-flow-card-target="categoryButton"
+                  data-action="click->cash-flow-card#switchToCategory"
+                  class="px-3 py-1 text-xs font-medium rounded transition-colors bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  id="cash-flow-category-button">
+            Category
+          </button>
+        </div>
+      </div>
+      
+      <button type="button"
+              data-cash-flow-card-target="toggleButton"
+              data-action="click->cash-flow-card#toggle"
+              aria-expanded="true"
+              aria-controls="cash-flow-details"
+              class="flex items-center gap-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+              id="cash-flow-toggle-button">
+        <span>Hide Details</span>
+        <svg class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Expandable Content -->
+    <div data-cash-flow-card-target="content"
+         id="cash-flow-details"
+         aria-hidden="false"
+         class="hidden md:block">
+      
+      <!-- Merchant View -->
+      <div data-cash-flow-card-target="merchantView"
+           aria-hidden="false"
+           class="grid grid-cols-2 gap-4">
+        
+        <!-- Income Merchants -->
+        <div>
+          <h4 class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+            Top Income Merchants
+          </h4>
+          <% if top_income_merchants.present? %>
+            <ul class="space-y-2" role="list">
+              <% top_income_merchants.each_with_index do |merchant, index| %>
+                <li class="flex items-center justify-between py-1 px-2 rounded-lg border border-gray-100 dark:border-gray-700 <%= merchant[:hypothetical] ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' : '' %>" role="listitem">
+                  <span class="text-xs font-medium <%= merchant[:hypothetical] ? 'text-purple-700 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300' %> truncate max-w-[60%]"
+                        title="<%= merchant[:merchant] || 'Unknown' %>">
+                    <%= merchant[:merchant] || 'Unknown' %>
+                    <% if merchant[:count] && merchant[:count] > 1 %>
+                      <span class="text-gray-400 dark:text-gray-500 ml-1">(<%= merchant[:count] %>)</span>
+                    <% end %>
+                  </span>
+                  <span class="text-xs font-semibold text-income-600 dark:text-income-400 whitespace-nowrap ml-2">
+                    $<%= number_with_precision(merchant[:total], precision: 2) %>
+                  </span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-xs text-gray-400 dark:text-gray-500 italic">No merchant data available</p>
+          <% end %>
+        </div>
+
+        <!-- Expense Merchants -->
+        <div>
+          <h4 class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+            Top Expense Merchants
+          </h4>
+          <% if top_expense_merchants.present? %>
+            <ul class="space-y-2" role="list">
+              <% top_expense_merchants.each_with_index do |merchant, index| %>
+                <li class="flex items-center justify-between py-1 px-2 rounded-lg border border-gray-100 dark:border-gray-700 <%= merchant[:hypothetical] ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' : '' %>" role="listitem">
+                  <span class="text-xs font-medium <%= merchant[:hypothetical] ? 'text-purple-700 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300' %> truncate max-w-[60%]"
+                        title="<%= merchant[:merchant] || 'Unknown' %>">
+                    <%= merchant[:merchant] || 'Unknown' %>
+                    <% if merchant[:count] && merchant[:count] > 1 %>
+                      <span class="text-gray-400 dark:text-gray-500 ml-1">(<%= merchant[:count] %>)</span>
+                    <% end %>
+                  </span>
+                  <span class="text-xs font-semibold text-expense-600 dark:text-expense-400 whitespace-nowrap ml-2">
+                    $<%= number_with_precision(merchant[:total], precision: 2) %>
+                  </span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-xs text-gray-400 dark:text-gray-500 italic">No merchant data available</p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Category View -->
+      <div data-cash-flow-card-target="categoryView"
+           aria-hidden="true"
+           class="hidden grid grid-cols-2 gap-4">
+        
+        <!-- Income Categories -->
+        <div>
+          <h4 class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+            Top Income Categories
+          </h4>
+          <% if top_income_categories.present? %>
+            <ul class="space-y-2" role="list">
+              <% top_income_categories.each_with_index do |category, index| %>
+                <li class="flex items-center justify-between py-1 px-2 rounded-lg border border-gray-100 dark:border-gray-700" role="listitem">
+                  <span class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate max-w-[60%]"
+                        title="<%= category[:category] || 'Uncategorized' %>">
+                    <%= category[:category] || 'Uncategorized' %>
+                    <% if category[:count] && category[:count] > 1 %>
+                      <span class="text-gray-400 dark:text-gray-500 ml-1">(<%= category[:count] %>)</span>
+                    <% end %>
+                  </span>
+                  <span class="text-xs font-semibold text-income-600 dark:text-income-400 whitespace-nowrap ml-2">
+                    $<%= number_with_precision(category[:total], precision: 2) %>
+                  </span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-xs text-gray-400 dark:text-gray-500 italic">No category data available</p>
+          <% end %>
+        </div>
+
+        <!-- Expense Categories -->
+        <div>
+          <h4 class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+            Top Expense Categories
+          </h4>
+          <% if top_expense_categories.present? %>
+            <ul class="space-y-2" role="list">
+              <% top_expense_categories.each_with_index do |category, index| %>
+                <li class="flex items-center justify-between py-1 px-2 rounded-lg border border-gray-100 dark:border-gray-700" role="listitem">
+                  <span class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate max-w-[60%]"
+                        title="<%= category[:category] || 'Uncategorized' %>">
+                    <%= category[:category] || 'Uncategorized' %>
+                    <% if category[:count] && category[:count] > 1 %>
+                      <span class="text-gray-400 dark:text-gray-500 ml-1">(<%= category[:count] %>)</span>
+                    <% end %>
+                  </span>
+                  <span class="text-xs font-semibold text-expense-600 dark:text-expense-400 whitespace-nowrap ml-2">
+                    $<%= number_with_precision(category[:total], precision: 2) %>
+                  </span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-xs text-gray-400 dark:text-gray-500 italic">No category data available</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -3,41 +3,90 @@
   is_expense = local_assigns.fetch(:type) == 'expense'
   
   # Set variables based on type
-  total = is_expense ? expense_total : income_total
-  count = is_expense ? expense_count : income_count
+  real_total = is_expense ? expense_total : income_total
+  real_count = is_expense ? expense_count : income_count
+  projected_total = is_expense ? (local_assigns.fetch(:projected_expense_total, 0)) : (local_assigns.fetch(:projected_income_total, 0))
+  projected_count = is_expense ? (local_assigns.fetch(:projected_expense_count, 0)) : (local_assigns.fetch(:projected_income_count, 0))
+  total = real_total + projected_total
   top_merchants = is_expense ? top_expense_merchants : top_income_merchants
   filter = is_expense ? 'expenses' : 'income'
   color = is_expense ? 'expense' : 'income'
   icon = is_expense ? 'arrow-down' : 'arrow-up'
   card_id = is_expense ? 'dashboard-expenses-card' : 'dashboard-income-card'
   title = is_expense ? 'Expenses' : 'Income'
+  has_projections = projected_total > 0
+  
+  # Get account display name for settled transactions label
+  account = local_assigns.fetch(:account, nil)
+  account_label = account&.display_name || 'Bank Account'
+  account_tooltip = "Settled transactions from #{account_label}"
 %>
 
 <%= render 'shared/bento_cards/stat_card',
     id: card_id,
     title: title,
     value: "$#{number_with_precision(total, precision: 2)}",
-    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{count}</span> transactions".html_safe,
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{real_count + projected_count}</span> transactions".html_safe,
     detail: period_text(local_assigns.fetch(:period, 'month')),
     icon: icon,
     color: color,
     size: 'bento-span-1 bento-row-span-2',
     link: transactions_path(year: current_date.year, month: current_date.month, filter: filter) do %>
-  <div class="stat-card-merchants-list space-y-2">
-    <p class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Top Merchants</p>
-    <% if top_merchants.present? %>
-      <% top_merchants.first(3).each do |merchant| %>
-        <div class="stat-card-merchant-item flex items-center justify-between <%= merchant[:hypothetical] ? 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800' : '' %> rounded-lg px-2 py-1">
-          <span class="stat-card-merchant-name text-xs font-medium <%= merchant[:hypothetical] ? 'text-purple-700 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300' %> truncate max-w-[60%]">
-            <%= merchant[:merchant] || 'Unknown' %>
-          </span>
-          <span class="stat-card-merchant-value text-xs font-semibold <%= merchant[:hypothetical] ? 'text-purple-600 dark:text-purple-400' : (is_expense ? 'text-expense-600 dark:text-expense-400' : 'text-income-600 dark:text-income-400') %> whitespace-nowrap ml-2">
-            $<%= number_with_precision(merchant[:total], precision: 2) %>
-          </span>
+  <!-- Account vs Projected Breakdown -->
+  <% if has_projections %>
+    <div class="mb-4 space-y-2 border-b border-gray-200 dark:border-gray-700 pb-3" role="region" aria-label="Account and projected breakdown">
+      <!-- Account Section (Settled Transactions) -->
+      <div class="flex items-center justify-between py-1">
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <span class="text-xs font-medium text-gray-600 dark:text-gray-400 truncate" title="<%= account_tooltip %>"><%= account_label %>:</span>
+          <span class="text-xs text-gray-500 dark:text-gray-500 flex-shrink-0" title="<%= account_tooltip %>">(<%= real_count %> transactions)</span>
         </div>
-      <% end %>
+        <span class="text-sm font-semibold <%= is_expense ? 'text-expense-600 dark:text-expense-400' : 'text-income-600 dark:text-income-400' %> flex-shrink-0 ml-2">
+          $<%= number_with_precision(real_total, precision: 2) %>
+        </span>
+      </div>
+      
+      <!-- Projected Section -->
+      <div class="flex items-center justify-between py-1 px-2 rounded-lg border border-dashed border-purple-300 dark:border-purple-700 bg-purple-50/50 dark:bg-purple-900/10">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-medium text-purple-700 dark:text-purple-300">Projected:</span>
+          <span class="text-xs text-purple-500 dark:text-purple-500" title="Hypothetical transactions not yet settled">(<%= projected_count %> upcoming)</span>
+        </div>
+        <span class="text-sm font-semibold text-purple-600 dark:text-purple-400">
+          +$<%= number_with_precision(projected_total, precision: 2) %>
+        </span>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="stat-card-merchants-list space-y-2" role="region" aria-labelledby="<%= card_id %>-merchants-heading" id="<%= card_id %>-merchants">
+    <h3 class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide" id="<%= card_id %>-merchants-heading">
+      Top Merchants
+    </h3>
+    <% if top_merchants.present? %>
+      <ul class="space-y-2" role="list">
+        <% top_merchants.first(3).each_with_index do |merchant, index| %>
+          <li class="stat-card-merchant-item flex items-center justify-between <%= merchant[:hypothetical] ? 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800' : '' %> rounded-lg px-2 py-1 border-b border-gray-100 dark:border-gray-700 last:border-b-0" role="listitem">
+            <span class="stat-card-merchant-name text-xs font-medium <%= merchant[:hypothetical] ? 'text-purple-700 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300' %> truncate max-w-[60%]" 
+                  title="<%= merchant[:merchant] || 'Unknown' %>"
+                  id="<%= card_id %>-merchant-<%= index + 1 %>-name">
+              <%= merchant[:merchant] || 'Unknown' %>
+              <% if merchant[:count] && merchant[:count] > 1 %>
+                <span class="text-xs text-gray-400 dark:text-gray-500 ml-1" aria-label="<%= merchant[:count] %> transactions">
+                  (<%= merchant[:count] %>)
+                </span>
+              <% end %>
+            </span>
+            <span class="stat-card-merchant-value text-xs font-semibold <%= merchant[:hypothetical] ? 'text-purple-600 dark:text-purple-400' : (is_expense ? 'text-expense-600 dark:text-expense-400' : 'text-income-600 dark:text-income-400') %> whitespace-nowrap ml-2"
+                  id="<%= card_id %>-merchant-<%= index + 1 %>-value"
+                  aria-label="Total: $<%= number_with_precision(merchant[:total], precision: 2) %>">
+              $<%= number_with_precision(merchant[:total], precision: 2) %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
     <% else %>
-      <p class="text-xs text-gray-400 dark:text-gray-500 italic">No merchant data available</p>
+      <p class="text-xs text-gray-400 dark:text-gray-500 italic" role="status">No merchant data available</p>
     <% end %>
   </div>
 <% end %>

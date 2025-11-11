@@ -51,7 +51,13 @@
 %>
 
 <% if clickable %>
-  <%= link_to link, class: card_classes, id: element_id, aria: { label: aria_label }, data: { turbo_frame: "_top" } do %>
+  <% 
+    # Build aria-describedby to include merchants section if present
+    describedby_ids = []
+    describedby_ids << "#{element_id}-merchants" if element_id.present? && block_given?
+    aria_describedby = describedby_ids.any? ? { describedby: describedby_ids.join(" ") } : {}
+  %>
+  <%= link_to link, class: card_classes, id: element_id, aria: { label: aria_label }.merge(aria_describedby), data: { turbo_frame: "_top" } do %>
     <div class="stat-card-container flex flex-col h-full">
       <!-- Section 1: Icon, Title, and Value -->
       <div class="stat-card-main-content flex-1">

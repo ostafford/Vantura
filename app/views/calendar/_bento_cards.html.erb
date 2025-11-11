@@ -48,7 +48,8 @@
         income_count: @week_income_count,
         current_date: @date,
         top_income_merchants: @week_top_income_merchants,
-        period: 'week'
+        period: 'week',
+        account: @account
       } %>
 
   <!-- 2. Week Expenses - Using Dashboard Partial -->
@@ -61,7 +62,8 @@
         expense_count: @week_expense_count,
         current_date: @date,
         top_expense_merchants: @week_top_expense_merchants,
-        period: 'week'
+        period: 'week',
+        account: @account
       } %>
 
   <!-- 3. Week Range -->
@@ -92,7 +94,8 @@
         income_count: @month_income_count,
         current_date: @date,
         top_income_merchants: @month_top_income_merchants,
-        period: 'month'
+        period: 'month',
+        account: @account
       } %>
 
   <!-- 2. Month Expenses - Using Dashboard Partial -->
@@ -103,7 +106,8 @@
         expense_count: @month_expense_count,
         current_date: @date,
         top_expense_merchants: @month_top_expense_merchants,
-        period: 'month'
+        period: 'month',
+        account: @account
       } %>
 
 
