@@ -1,0 +1,82 @@
+<%
+  recurring_data = local_assigns.fetch(:recurring_data, {})
+  recurring_total = recurring_data[:recurring_total] || 0
+  discretionary_total = recurring_data[:discretionary_total] || 0
+  recurring_pct = recurring_data[:recurring_pct] || 0
+  discretionary_pct = recurring_data[:discretionary_pct] || 0
+  total_expenses = recurring_data[:total_expenses] || 0
+%>
+
+<div class="bento-span-1 bento-row-span-2 bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-deep p-6">
+  <div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Expense Breakdown</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Recurring vs Discretionary</p>
+    </div>
+
+    <!-- Visual Breakdown -->
+    <div class="flex-1 space-y-4">
+      <!-- Recurring Section -->
+      <div class="rounded-xl border border-gray-200 bg-white/80 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-primary-500 dark:bg-primary-400"></div>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">Recurring</p>
+          </div>
+          <span class="text-sm font-semibold text-primary-700 dark:text-primary-400">
+            <%= number_with_precision(recurring_pct, precision: 1) %>%
+          </span>
+        </div>
+        <p class="text-2xl font-bold text-primary-700 dark:text-primary-400 mb-2">
+          $<%= number_with_precision(recurring_total, precision: 2) %>
+        </p>
+        <!-- Progress bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+          <div class="h-2 rounded-full bg-primary-500" style="width: <%= recurring_pct %>%"></div>
+        </div>
+      </div>
+
+      <!-- Discretionary Section -->
+      <div class="rounded-xl border border-gray-200 bg-white/80 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-expense-500 dark:bg-expense-400"></div>
+            <p class="text-sm font-semibold text-gray-900 dark:text-white">Discretionary</p>
+          </div>
+          <span class="text-sm font-semibold text-expense-600 dark:text-expense-400">
+            <%= number_with_precision(discretionary_pct, precision: 1) %>%
+          </span>
+        </div>
+        <p class="text-2xl font-bold text-expense-600 dark:text-expense-400 mb-2">
+          $<%= number_with_precision(discretionary_total, precision: 2) %>
+        </p>
+        <!-- Progress bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+          <div class="h-2 rounded-full bg-expense-500" style="width: <%= discretionary_pct %>%"></div>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Expenses</p>
+        <p class="mt-1 text-xl font-semibold text-gray-900 dark:text-gray-100">
+          $<%= number_with_precision(total_expenses, precision: 2) %>
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer with Link -->
+    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <%= link_to recurring_transactions_path, 
+          class: "inline-flex items-center gap-2 text-sm font-medium text-primary-700 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 transition-colors",
+          data: { turbo_frame: "_top" } do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span>Manage Recurring</span>
+      <% end %>
+    </div>
+  </div>
+</div>
+

@@ -469,11 +469,539 @@ class TrendsStatsCalculatorTest < ActiveSupport::TestCase
       :historical_data,
       :category_breakdown,
       :savings_rate_trend,
-      :year_over_year_comparison
+      :year_over_year_comparison,
+      :current_savings_rate,
+      :last_month_savings_rate,
+      :savings_rate_change,
+      :three_month_avg_savings_rate,
+      :savings_rate_trend_direction,
+      :spending_rate_data,
+      :recurring_vs_discretionary,
+      :category_changes,
+      :top_category_increase,
+      :top_category_decrease,
+      :income_stability_data,
+      :quick_actions
     ]
 
     required_keys.each do |key|
       assert stats.key?(key), "Missing key: #{key}"
+    end
+  end
+
+  # Savings rate tests
+  test "should calculate current savings rate" do
+    # Clear transactions and create controlled data
+    @account.transactions.destroy_all
+
+    # Create income and expenses
+    @account.transactions.create!(
+      description: "Income",
+      amount: 1000.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+    @account.transactions.create!(
+      description: "Expense",
+      amount: -700.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    # Net savings: 1000 - 700 = 300
+    # Savings rate: (300 / 1000) * 100 = 30%
+    assert_equal 30.0, stats[:current_savings_rate]
+  end
+
+  test "should return zero savings rate when income is zero" do
+    @account.transactions.destroy_all
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    assert_equal 0, stats[:current_savings_rate]
+  end
+
+  test "should calculate last month savings rate" do
+    @account.transactions.destroy_all
+    last_month = @current_date.prev_month
+
+    @account.transactions.create!(
+      description: "Last Month Income",
+      amount: 800.00,
+      transaction_date: last_month,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+    @account.transactions.create!(
+      description: "Last Month Expense",
+      amount: -600.00,
+      transaction_date: last_month,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    # Last month net: 800 - 600 = 200
+    # Savings rate: (200 / 800) * 100 = 25%
+    assert_equal 25.0, stats[:last_month_savings_rate]
+  end
+
+  test "should calculate savings rate change" do
+    @account.transactions.destroy_all
+    last_month = @current_date.prev_month
+
+    # Last month: 25% savings rate
+    @account.transactions.create!(
+      description: "Last Month Income",
+      amount: 800.00,
+      transaction_date: last_month,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+    @account.transactions.create!(
+      description: "Last Month Expense",
+      amount: -600.00,
+      transaction_date: last_month,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    # Current month: 30% savings rate
+    @account.transactions.create!(
+      description: "Current Income",
+      amount: 1000.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+    @account.transactions.create!(
+      description: "Current Expense",
+      amount: -700.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    # Change: 30% - 25% = 5%
+    assert_equal 5.0, stats[:savings_rate_change]
+  end
+
+  test "should calculate three month average savings rate" do
+    @account.transactions.destroy_all
+
+    # Create data for 3 months
+    3.times do |i|
+      month_date = @current_date - i.months
+      @account.transactions.create!(
+        description: "Income #{i}",
+        amount: 1000.00,
+        transaction_date: month_date,
+        status: "SETTLED",
+        is_hypothetical: false
+      )
+      @account.transactions.create!(
+        description: "Expense #{i}",
+        amount: -700.00,
+        transaction_date: month_date,
+        status: "SETTLED",
+        is_hypothetical: false
+      )
+    end
+
+    stats = TrendsStatsCalculator.call(@account, @current_date, months: 3)
+
+    # All months have 30% savings rate, average should be 30%
+    assert_equal 30.0, stats[:three_month_avg_savings_rate]
+  end
+
+  test "should determine savings rate trend direction" do
+    @account.transactions.destroy_all
+
+    # Create improving trend (increasing savings rates)
+    3.times do |i|
+      month_date = @current_date - (2 - i).months
+      income = 1000.00
+      expense = 800.00 - (i * 100.00) # Decreasing expenses
+      @account.transactions.create!(
+        description: "Income #{i}",
+        amount: income,
+        transaction_date: month_date,
+        status: "SETTLED",
+        is_hypothetical: false
+      )
+      @account.transactions.create!(
+        description: "Expense #{i}",
+        amount: -expense,
+        transaction_date: month_date,
+        status: "SETTLED",
+        is_hypothetical: false
+      )
+    end
+
+    stats = TrendsStatsCalculator.call(@account, @current_date, months: 3)
+
+    assert_includes ["improving", "stable", "declining"], stats[:savings_rate_trend_direction]
+  end
+
+  # Spending rate tests
+  test "should calculate spending rate data" do
+    @account.transactions.destroy_all
+
+    @account.transactions.create!(
+      description: "Income",
+      amount: 1000.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+    @account.transactions.create!(
+      description: "Expense",
+      amount: -500.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    assert_not_nil stats[:spending_rate_data]
+    assert stats[:spending_rate_data].is_a?(Hash)
+    assert stats[:spending_rate_data].key?(:spending_rate)
+    assert stats[:spending_rate_data].key?(:income_utilization_pct)
+    assert stats[:spending_rate_data].key?(:avg_daily_income)
+    assert stats[:spending_rate_data].key?(:avg_daily_expenses)
+  end
+
+  test "should calculate income utilization percentage" do
+    @account.transactions.destroy_all
+
+    @account.transactions.create!(
+      description: "Income",
+      amount: 1000.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+    @account.transactions.create!(
+      description: "Expense",
+      amount: -750.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    # Income utilization: (750 / 1000) * 100 = 75%
+    assert_equal 75.0, stats[:spending_rate_data][:income_utilization_pct]
+  end
+
+  # Recurring vs discretionary tests
+  test "should calculate recurring vs discretionary breakdown" do
+    @account.transactions.destroy_all
+
+    # Create a recurring transaction
+    recurring = @account.recurring_transactions.create!(
+      description: "Monthly Subscription",
+      amount: -50.00,
+      frequency: "monthly",
+      next_occurrence_date: @current_date,
+      transaction_type: "expense",
+      is_active: true,
+      date_tolerance_days: 3,
+      tolerance_type: "fixed"
+    )
+
+    # Create a regular expense
+    @account.transactions.create!(
+      description: "One-time Purchase",
+      amount: -100.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    assert_not_nil stats[:recurring_vs_discretionary]
+    assert stats[:recurring_vs_discretionary].is_a?(Hash)
+    assert stats[:recurring_vs_discretionary].key?(:recurring_total)
+    assert stats[:recurring_vs_discretionary].key?(:discretionary_total)
+    assert stats[:recurring_vs_discretionary].key?(:recurring_pct)
+    assert stats[:recurring_vs_discretionary].key?(:discretionary_pct)
+  end
+
+  # Category changes tests
+  test "should calculate category changes" do
+    @account.transactions.destroy_all
+    last_month = @current_date.prev_month
+
+    # Last month: Category A = $100
+    @account.transactions.create!(
+      description: "Category A Last Month",
+      amount: -100.00,
+      transaction_date: last_month,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+
+    # Current month: Category A = $150 (50% increase)
+    @account.transactions.create!(
+      description: "Category A Current",
+      amount: -150.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    assert_not_nil stats[:category_changes]
+    assert stats[:category_changes].is_a?(Array)
+
+    category_a = stats[:category_changes].find { |c| c[:name] == "Category A" }
+    assert_not_nil category_a
+    assert_equal 150.0, category_a[:current_amount]
+    assert_equal 100.0, category_a[:last_month_amount]
+    assert_equal 50.0, category_a[:change_pct]
+    assert_equal 50.0, category_a[:change_amount]
+  end
+
+  test "should identify top category increase" do
+    @account.transactions.destroy_all
+    last_month = @current_date.prev_month
+
+    # Create multiple categories with different increases
+    @account.transactions.create!(
+      description: "Category A",
+      amount: -200.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+    @account.transactions.create!(
+      description: "Category A Last",
+      amount: -100.00,
+      transaction_date: last_month,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+
+    @account.transactions.create!(
+      description: "Category B",
+      amount: -150.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category B"
+    )
+    @account.transactions.create!(
+      description: "Category B Last",
+      amount: -120.00,
+      transaction_date: last_month,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category B"
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    top_increase = stats[:top_category_increase]
+    assert_not_nil top_increase
+    assert_equal "Category A", top_increase[:name]
+    assert_equal 100.0, top_increase[:change_amount]
+  end
+
+  test "should identify top category decrease" do
+    @account.transactions.destroy_all
+    last_month = @current_date.prev_month
+
+    # Create categories with decreases
+    @account.transactions.create!(
+      description: "Category A",
+      amount: -50.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+    @account.transactions.create!(
+      description: "Category A Last",
+      amount: -150.00,
+      transaction_date: last_month,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    top_decrease = stats[:top_category_decrease]
+    assert_not_nil top_decrease
+    assert_equal "Category A", top_decrease[:name]
+    assert_equal -100.0, top_decrease[:change_amount]
+  end
+
+  # Income stability tests
+  test "should calculate income stability data" do
+    @account.transactions.destroy_all
+
+    # Create consistent income over 6 months
+    6.times do |i|
+      month_date = @current_date - i.months
+      @account.transactions.create!(
+        description: "Income #{i}",
+        amount: 1000.00,
+        transaction_date: month_date,
+        status: "SETTLED",
+        is_hypothetical: false
+      )
+    end
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    assert_not_nil stats[:income_stability_data]
+    assert stats[:income_stability_data].is_a?(Hash)
+    assert stats[:income_stability_data].key?(:score)
+    assert stats[:income_stability_data].key?(:message)
+    assert stats[:income_stability_data][:score].between?(0, 100)
+  end
+
+  test "should return consistent message for stable income" do
+    @account.transactions.destroy_all
+
+    # Create very consistent income
+    6.times do |i|
+      month_date = @current_date - i.months
+      @account.transactions.create!(
+        description: "Income #{i}",
+        amount: 1000.00,
+        transaction_date: month_date,
+        status: "SETTLED",
+        is_hypothetical: false
+      )
+    end
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    assert_equal "consistent", stats[:income_stability_data][:message]
+  end
+
+  # Quick actions tests
+  test "should generate quick actions" do
+    @account.transactions.destroy_all
+
+    # Create expense with category
+    @account.transactions.create!(
+      description: "Category A Expense",
+      amount: -200.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    assert_not_nil stats[:quick_actions]
+    assert stats[:quick_actions].is_a?(Array)
+  end
+
+  test "should include category reduction in quick actions" do
+    @account.transactions.destroy_all
+
+    @account.transactions.create!(
+      description: "Category A Expense",
+      amount: -200.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date)
+
+    category_reduction = stats[:quick_actions].find { |a| a[:type] == "category_reduction" }
+    if category_reduction
+      assert_equal "Category A", category_reduction[:category]
+      assert_equal 10, category_reduction[:reduction_pct]
+      assert category_reduction[:savings_amount] > 0
+    end
+  end
+
+  # Enhanced category breakdown tests
+  test "should include percentage of total in category breakdown" do
+    @account.transactions.destroy_all
+
+    @account.transactions.create!(
+      description: "Category A",
+      amount: -200.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+    @account.transactions.create!(
+      description: "Category B",
+      amount: -300.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category B"
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date, view_type: "category")
+
+    if stats[:category_breakdown].any?
+      item = stats[:category_breakdown].first
+      assert item.key?(:pct_of_total)
+      assert item[:pct_of_total].is_a?(Numeric)
+      assert item[:pct_of_total].between?(0, 100)
+    end
+  end
+
+  test "should include month-over-month change in category breakdown" do
+    @account.transactions.destroy_all
+    last_month = @current_date.prev_month
+
+    @account.transactions.create!(
+      description: "Category A Last",
+      amount: -100.00,
+      transaction_date: last_month,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+    @account.transactions.create!(
+      description: "Category A Current",
+      amount: -150.00,
+      transaction_date: @current_date,
+      status: "SETTLED",
+      is_hypothetical: false,
+      category: "Category A"
+    )
+
+    stats = TrendsStatsCalculator.call(@account, @current_date, view_type: "category")
+
+    if stats[:category_breakdown].any?
+      item = stats[:category_breakdown].find { |c| c[:name] == "Category A" }
+      if item
+        assert item.key?(:change_pct)
+        assert item.key?(:change_amount)
+        assert_equal 50.0, item[:change_pct]
+        assert_equal 50.0, item[:change_amount]
+      end
     end
   end
 end

@@ -35,18 +35,6 @@
         </div>
       </div>
 
-      <!-- Insights Panel -->
-      <% if @trends_stats&.dig(:insights)&.present? %>
-        <section class="mb-6" aria-label="Financial insights">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Actionable Insights</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-            <% @trends_stats[:insights].each do |insight| %>
-              <%= render 'shared/insight_card', insight: insight %>
-            <% end %>
-          </div>
-        </section>
-      <% end %>
-
       <!-- Charts Section -->
       <% if trends_historical_data.present? %>
         <section class="mb-6" aria-label="Financial trends charts">
@@ -131,6 +119,31 @@
               </span>
             </div>
             <div class="flex items-center justify-between pb-3 border-b border-white/20">
+              <span class="text-white/80 text-sm">Savings Rate</span>
+              <div class="flex items-center gap-2">
+                <span class="text-xl font-semibold text-white">
+                  <%= number_with_precision(trends_savings_rate, precision: 1) %>%
+                </span>
+                <% if trends_savings_rate_change != 0 %>
+                  <span class="text-xs <%= trends_savings_rate_change > 0 ? 'text-green-300' : 'text-red-300' %>">
+                    <%= trends_savings_rate_change > 0 ? "↑" : "↓" %><%= trends_savings_rate_change.abs.round(1) %>%
+                  </span>
+                <% end %>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pb-3 border-b border-white/20">
+              <span class="text-white/80 text-sm">Income Utilization</span>
+              <span class="text-xl font-semibold text-white">
+                <%= number_with_precision(trends_income_utilization_pct, precision: 1) %>%
+              </span>
+            </div>
+            <div class="flex items-center justify-between pb-3 border-b border-white/20">
+              <span class="text-white/80 text-sm">Income Stability</span>
+              <span class="text-lg font-semibold text-white">
+                <%= trends_income_stability_message.capitalize %>
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
               <span class="text-white/80 text-sm">Active Recurring</span>
               <span class="text-xl font-semibold text-white"><%= trends_active_recurring_count %> patterns</span>
             </div>
@@ -231,6 +244,24 @@
                   <% end %>
                 </div>
               </div>
+
+              <!-- Savings Rate -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-1.5 h-1.5 rounded-full bg-success-500 dark:bg-success-300"></div>
+                  <span class="text-xs text-gray-600 dark:text-gray-400">Savings Rate</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="text-xs font-semibold <%= trends_savings_rate >= 0 ? 'text-success-500 dark:text-success-300' : 'text-expense-500 dark:text-expense-400' %>">
+                    <%= number_with_precision(trends_savings_rate, precision: 1) %>%
+                  </span>
+                  <% if trends_savings_rate_change != 0 %>
+                    <span class="text-xs <%= trends_savings_rate_change > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                      <%= trends_savings_rate_change > 0 ? "↑" : "↓" %><%= trends_savings_rate_change.abs.round(1) %>%
+                    </span>
+                  <% end %>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -248,7 +279,7 @@
 
             <!-- Category/Merchant Details -->
             <div class="flex-1 space-y-4">
-              <% top_item = trends_category_breakdown.first || { name: "No data", amount: 0, count: 0 } %>
+              <% top_item = trends_category_breakdown.first || { name: "No data", amount: 0, count: 0, change_pct: 0, change_amount: 0 } %>
               <!-- Item Name -->
               <div class="pb-3 border-b border-gray-200 dark:border-gray-700">
                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-1"><%= (session[:trends_view_type] || "category").capitalize %> Name</p>
@@ -260,15 +291,27 @@
               <!-- Total Amount -->
               <div class="pb-3 border-b border-gray-200 dark:border-gray-700">
                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Spent</p>
-                <p class="text-2xl font-bold text-income-500 dark:text-income-400">
-                  $<%= number_with_precision(top_item[:amount], precision: 2) %>
-                </p>
+                <div class="flex items-center gap-2">
+                  <p class="text-2xl font-bold text-income-500 dark:text-income-400">
+                    $<%= number_with_precision(top_item[:amount], precision: 2) %>
+                  </p>
+                  <% if top_item[:change_pct] && top_item[:change_pct] != 0 %>
+                    <span class="text-xs <%= top_item[:change_pct] > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+                      <%= top_item[:change_pct] > 0 ? "↑" : "↓" %><%= top_item[:change_pct].abs %>%
+                    </span>
+                  <% end %>
+                </div>
+                <% if top_item[:change_amount] && top_item[:change_amount] != 0 %>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <%= top_item[:change_amount] > 0 ? "+" : "" %>$<%= number_with_precision(top_item[:change_amount].abs, precision: 2) %> vs last month
+                  </p>
+                <% end %>
               </div>
 
               <!-- Percentage -->
               <% total_expenses = trends_current_month_expenses %>
               <% if total_expenses > 0 %>
-                <% item_pct = ((top_item[:amount] / total_expenses) * 100).round(1) %>
+                <% item_pct = top_item[:pct_of_total] || ((top_item[:amount] / total_expenses) * 100).round(1) %>
                 <div>
                   <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">of Total Expenses</p>
                   <p class="text-3xl font-bold text-primary-700 dark:text-primary-400">
@@ -293,6 +336,31 @@
             </div>
           </div>
         </div>
+
+        <!-- 6. Savings Rate Card (1x1) -->
+        <%= render 'shared/bento_cards/savings_rate_card',
+            savings_rate: trends_savings_rate,
+            savings_rate_trend: trends_savings_rate_trend_direction,
+            three_month_avg: trends_three_month_avg_savings_rate,
+            last_month_rate: trends_last_month_savings_rate,
+            savings_rate_change: trends_savings_rate_change %>
+
+        <!-- 7. Spending Rate Card (1x1) -->
+        <%= render 'shared/bento_cards/spending_rate_card',
+            spending_rate_data: trends_spending_rate_data %>
+
+        <!-- 8. Recurring Breakdown Card (1x2) -->
+        <%= render 'shared/bento_cards/recurring_breakdown_card',
+            recurring_data: trends_recurring_vs_discretionary %>
+
+        <!-- 9. Insights Cards (2x1 each) -->
+        <% if @trends_stats&.dig(:insights)&.present? %>
+          <% @trends_stats[:insights].each do |insight| %>
+            <div class="bento-span-2 bento-row-span-1">
+              <%= render 'shared/insight_card', insight: insight %>
+            </div>
+          <% end %>
+        <% end %>
 
       </div>
 

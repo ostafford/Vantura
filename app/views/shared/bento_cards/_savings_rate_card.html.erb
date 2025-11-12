@@ -1,0 +1,76 @@
+<%
+  savings_rate = local_assigns.fetch(:savings_rate, 0)
+  savings_rate_trend = local_assigns.fetch(:savings_rate_trend, "stable")
+  three_month_avg = local_assigns.fetch(:three_month_avg, 0)
+  last_month_rate = local_assigns.fetch(:last_month_rate, 0)
+  savings_rate_change = local_assigns.fetch(:savings_rate_change, 0)
+  
+  # Determine trend arrow and color
+  trend_arrow = if savings_rate_change > 0
+    "↑"
+  elsif savings_rate_change < 0
+    "↓"
+  else
+    "→"
+  end
+  
+  trend_color = if savings_rate_change > 0
+    "text-success-600 dark:text-success-400"
+  elsif savings_rate_change < 0
+    "text-expense-600 dark:text-expense-400"
+  else
+    "text-gray-600 dark:text-gray-400"
+  end
+  
+  trend_direction_text = case savings_rate_trend
+  when "improving"
+    "Improving"
+  when "declining"
+    "Declining"
+  else
+    "Stable"
+  end
+%>
+
+<div class="bento-span-1 bento-row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-deep p-6">
+  <div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="mb-4">
+      <h3 class="text-base font-semibold text-gray-900 dark:text-white">Savings Rate</h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Current month</p>
+    </div>
+
+    <!-- Main Value -->
+    <div class="flex-1 flex items-center justify-between mb-4">
+      <div>
+        <p class="text-3xl font-bold <%= savings_rate >= 0 ? 'text-success-600 dark:text-success-400' : 'text-expense-600 dark:text-expense-400' %>">
+          <%= number_with_precision(savings_rate, precision: 1) %>%
+        </p>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="text-xs <%= trend_color %> font-semibold"><%= trend_arrow %></span>
+          <span class="text-xs text-gray-500 dark:text-gray-400">
+            <%= savings_rate_change.positive? ? "+" : "" %><%= number_with_precision(savings_rate_change, precision: 1) %>% vs last month
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nested Tiles -->
+    <div class="space-y-2">
+      <div class="rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">3-Month Average</p>
+        <p class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <%= number_with_precision(three_month_avg, precision: 1) %>%
+        </p>
+      </div>
+
+      <div class="rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Trend</p>
+        <p class="mt-1 text-sm font-semibold <%= trend_color %>">
+          <%= trend_direction_text %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+

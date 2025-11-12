@@ -260,6 +260,97 @@ class FinancialInsightsService
     savings_investment_opportunity
   end
 
+  # Category spike insight - uses trends data to identify categories with significant increases
+  def category_spike_insight(trends_stats = nil)
+    return nil unless trends_stats
+
+    category_changes = trends_stats[:category_changes] || []
+    top_increase = trends_stats[:top_category_increase]
+
+    return nil unless top_increase && top_increase[:change_pct] > 20 # Only show if increase > 20%
+
+    {
+      type: "category_spike",
+      title: "#{top_increase[:name]} Spending Increased",
+      message: "Your #{top_increase[:name]} spending increased by #{top_increase[:change_pct].abs}% this month, from $#{top_increase[:last_month_amount]} to $#{top_increase[:current_amount]}.",
+      evidence: {
+        category: top_increase[:name],
+        current_amount: top_increase[:current_amount],
+        last_month_amount: top_increase[:last_month_amount],
+        change_pct: top_increase[:change_pct],
+        change_amount: top_increase[:change_amount]
+      },
+      suggested_action: "Review #{top_increase[:name]} Transactions",
+      suggested_amount: nil,
+      suggested_date: nil,
+      priority: "medium"
+    }
+  end
+
+  # Category reduction opportunity - uses trends data to suggest category reductions
+  def category_reduction_opportunity_insight(trends_stats = nil)
+    return nil unless trends_stats
+
+    category_changes = trends_stats[:category_changes] || []
+    top_category = category_changes.first
+
+    return nil unless top_category && top_category[:current_amount].positive?
+
+    reduction_10_pct = (top_category[:current_amount] * 0.1).round(2)
+    return nil if reduction_10_pct < 10 # Only show if savings would be meaningful ($10+)
+
+    {
+      type: "category_reduction_opportunity",
+      title: "Reduce #{top_category[:name]} Spending",
+      message: "Reducing #{top_category[:name]} by 10% could save you $#{reduction_10_pct}/month. This category currently represents #{((top_category[:current_amount] / (trends_stats[:current_month_expenses] || 1)) * 100).round(1)}% of your total expenses.",
+      evidence: {
+        category: top_category[:name],
+        current_amount: top_category[:current_amount],
+        reduction_pct: 10,
+        potential_savings: reduction_10_pct,
+        pct_of_total: ((top_category[:current_amount] / (trends_stats[:current_month_expenses] || 1)) * 100).round(1)
+      },
+      suggested_action: "Set Budget for #{top_category[:name]}",
+      suggested_amount: reduction_10_pct,
+      suggested_date: @reference_date.end_of_month,
+      priority: "medium"
+    }
+  end
+
+  # Enhanced savings opportunity using category changes data
+  def enhanced_savings_opportunity_insight(trends_stats = nil)
+    base_insight = savings_investment_opportunity
+    return base_insight unless trends_stats && base_insight
+
+    category_changes = trends_stats[:category_changes] || []
+    top_categories = category_changes.first(3)
+
+    # Calculate cumulative savings if top categories are reduced
+    cumulative_savings = top_categories.sum do |cat|
+      (cat[:current_amount] * 0.1).round(2)
+    end
+
+    return base_insight if cumulative_savings < 20 # Only enhance if meaningful
+
+    # Enhance message with category-specific opportunities
+    category_list = top_categories.map { |cat| "#{cat[:name]} ($#{(cat[:current_amount] * 0.1).round(2)})" }.join(", ")
+    enhanced_message = base_insight[:message] + " Category-specific opportunities: #{category_list}. These changes could save $#{cumulative_savings}/month."
+
+    base_insight.merge(
+      message: enhanced_message,
+      evidence: base_insight[:evidence].merge(
+        category_opportunities: top_categories.map do |cat|
+          {
+            category: cat[:name],
+            current_amount: cat[:current_amount],
+            potential_savings: (cat[:current_amount] * 0.1).round(2)
+          }
+        end,
+        cumulative_savings: cumulative_savings
+      )
+    )
+  end
+
   # Day-of-week spending pattern insight
   def day_of_week_pattern_insight
     # Analyze last 3 months of spending by day of week
@@ -458,6 +549,29 @@ class FinancialInsightsService
       suggested_date: nil,
       priority: priority
     }
+  end
+
+  # Generate insights with trends context (for trends page)
+  def generate_key_insights_with_trends(limit = 5, trends_stats = nil)
+    # Start with regular insights
+    all_insights = generate_key_insights(limit)
+
+    # Add trends-specific insights if trends_stats provided
+    if trends_stats
+      all_insights << category_spike_insight(trends_stats)
+      all_insights << category_reduction_opportunity_insight(trends_stats)
+      
+      # Enhance savings opportunity if available
+      enhanced_savings = enhanced_savings_opportunity_insight(trends_stats)
+      if enhanced_savings
+        # Replace regular savings opportunity with enhanced version
+        all_insights = all_insights.reject { |i| i && i[:type] == "savings_investment_opportunity" }
+        all_insights << enhanced_savings
+      end
+    end
+
+    # Filter out nil and limit
+    all_insights.compact.first(limit)
   end
 
   # Generate all insights (top 2 for dashboard) with contextual filtering

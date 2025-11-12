@@ -8,7 +8,10 @@ class TrendsController < ApplicationController
     preferences = trends_preferences
     store_preferences(preferences[:months], preferences[:view_type])
     stats = TrendsStatsCalculator.call(@account, Date.today, months: preferences[:months], view_type: preferences[:view_type])
-    all_insights = FinancialInsightsService.new(@account).generate_key_insights(5)
+    
+    # Generate insights with trends context
+    insights_service = FinancialInsightsService.new(@account)
+    all_insights = insights_service.generate_key_insights_with_trends(5, stats)
 
     # Filter out dismissed insight types
     dismissed_types = Current.user.dismissed_insight_types || []
