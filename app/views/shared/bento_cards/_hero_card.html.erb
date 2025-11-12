@@ -13,10 +13,19 @@
   color_map = {
     'primary' => 'from-primary-700 to-primary-900 dark:from-primary-700 dark:to-primary-950',
     'success' => 'from-success-500 to-success-700 dark:from-success-700 dark:to-success-900',
-    'expense' => 'from-expense-500 to-expense-700 dark:from-expense-700 dark:to-expense-900'
+    'expense' => 'from-expense-500 to-expense-700 dark:from-expense-700 dark:to-expense-900',
+    'neutral' => 'from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900'
   }
-  
+
+  text_color_map = {
+    'primary' => 'text-white',
+    'success' => 'text-white',
+    'expense' => 'text-white',
+    'neutral' => 'text-gray-900 dark:text-white'
+  }
+
   gradient_classes = color_map[color_scheme] || color_map['primary']
+  text_color_class = text_color_map[color_scheme] || 'text-white'
   
   # Icon mapping
   icon_map = {
@@ -40,11 +49,17 @@
   icon_size_class = is_compact ? 'w-10 h-10' : 'w-12 h-12'
   icon_svg_size = is_compact ? 'w-6 h-6' : 'w-7 h-7'
   subtitle_container_classes = 'hero-subtitle text-lg font-semibold mt-0.5'
+  subtitle_container_classes += text_color_class.include?('text-white') ? ' text-white/80' : ' text-gray-600 dark:text-gray-300'
   title_container_classes = "hero-title #{title_size_class} font-bold truncate"
   title_container_classes += ' flex items-center gap-2' if status_badge.present?
+  description_text_classes = if text_color_class.include?('text-white')
+                               'text-white/80'
+                             else
+                               'text-gray-600 dark:text-gray-300'
+                             end
 %>
 
-<div<% if element_id.present? %> id="<%= element_id %>"<% end %> class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-deep <%= padding_class %> text-white relative overflow-hidden">
+<div<% if element_id.present? %> id="<%= element_id %>"<% end %> class="<%= size %> bg-gradient-to-br <%= gradient_classes %> rounded-2xl shadow-deep <%= padding_class %> <%= text_color_class %> relative overflow-hidden">
   <!-- Decorative elements -->
   <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
   <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
@@ -58,20 +73,35 @@
         </svg>
       </div>
       <div class="flex-1 min-w-0">
-        <h2 class="<%= title_container_classes %>">
-          <span class="truncate">
-            <%= title %>
-          </span>
-          <% if status_badge.present? %>
-            <span class="ml-auto shrink-0">
-              <%= status_badge %>
-            </span>
-          <% end %>
-        </h2>
-        <% if subtitle.present? %>
-          <div class="<%= subtitle_container_classes %>">
-            <%= subtitle %>
+        <% if subtitle.present? && local_assigns[:inline_subtitle] %>
+          <!-- Inline layout: Title and subtitle on same line, subtitle on right -->
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="<%= title_container_classes %> <%= text_color_class %>">
+              <span class="truncate">
+                <%= title %>
+              </span>
+            </h2>
+            <div class="shrink-0">
+              <%= subtitle %>
+            </div>
           </div>
+        <% else %>
+          <!-- Default layout: Title above subtitle -->
+          <h2 class="<%= title_container_classes %> <%= text_color_class %>">
+            <span class="truncate">
+              <%= title %>
+            </span>
+            <% if status_badge.present? %>
+              <span class="ml-auto shrink-0">
+                <%= status_badge %>
+              </span>
+            <% end %>
+          </h2>
+          <% if subtitle.present? %>
+            <div class="<%= subtitle_container_classes %>">
+              <%= subtitle %>
+            </div>
+          <% end %>
         <% end %>
       </div>
     </div>
@@ -79,7 +109,7 @@
     <!-- Section 2: Description -->
     <div class="hero-description flex-1 flex items-center">
       <% if description.present? %>
-        <p class="text-white/80 text-sm leading-relaxed drop-shadow-sm w-full">
+        <p class="<%= description_text_classes %> text-sm leading-relaxed drop-shadow-sm w-full">
           <%= description %>
         </p>
       <% end %>

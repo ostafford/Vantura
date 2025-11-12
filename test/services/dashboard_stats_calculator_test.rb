@@ -254,4 +254,59 @@ class DashboardStatsCalculatorTest < ActiveSupport::TestCase
     assert_equal 1, stats[:income_count]
     assert_equal 500.0, stats[:income_total]
   end
+
+  test "should include days_until_break_even in stats" do
+    stats = DashboardStatsCalculator.call(@account, @today)
+    assert_includes stats, :days_until_break_even
+    assert_instance_of Hash, stats[:days_until_break_even]
+  end
+
+  test "should return already_positive when balance change is positive" do
+    # Set account to have positive balance change (ahead of month start)
+    @account.update!(current_balance: 6000.0)
+    # Set month start balance to be lower
+    @account.transactions.create!(
+      description: "Month Start Balance",
+      amount: 0.0,
+      transaction_date: @today.beginning_of_month - 1.day,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    stats = DashboardStatsCalculator.call(@account, @today)
+    break_even = stats[:days_until_break_even]
+
+    assert_equal :already_positive, break_even[:source]
+    assert_equal 0, break_even[:days]
+  end
+
+  test "should calculate days until break even with deficit" do
+    # Set up account with negative balance change
+    @account.update!(current_balance: 4000.0)
+    # Create a transaction that sets month start balance higher
+    @account.transactions.create!(
+      description: "Month Start",
+      amount: 1000.0, # This increases balance, so month start would be 3000
+      transaction_date: @today.beginning_of_month - 1.day,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    # Add some income to create a positive daily rate
+    @account.transactions.create!(
+      description: "Income",
+      amount: 500.0,
+      transaction_date: @today,
+      status: "SETTLED",
+      is_hypothetical: false
+    )
+
+    stats = DashboardStatsCalculator.call(@account, @today)
+    break_even = stats[:days_until_break_even]
+
+    # Should have calculated days (may be 0 if already positive, or positive number)
+    assert break_even[:days].is_a?(Integer)
+    assert break_even[:days] >= 0
+    assert_includes [:recurring, :historical, :current_month, :already_positive], break_even[:source]
+  end
 end

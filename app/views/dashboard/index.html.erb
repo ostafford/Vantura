@@ -104,6 +104,295 @@
 
       <!-- Financial Overview Section -->
       <section id="dashboard-financial-overview-section" class="bento-grid mb-6" aria-label="Financial overview statistics">
+                <!-- Current Balance Hero Card (1x2) - Compact with actionable data -->
+        <%
+          # Calculate status props for Trajectory tile (badge removed from header to avoid duplication)
+          on_track = on_track_status
+          status_props = on_track_badge_props(on_track)
+        %>
+        <%= render 'shared/bento_cards/hero_card',
+            title: "Current Balance",
+            subtitle: formatted_balance(@account.current_balance),
+            description: nil,
+            icon: 'wallet',
+            size: 'bento-span-2 bento-row-span-2',
+            color: 'primary',
+            id: 'dashboard-current-balance-card',
+            inline_subtitle: true do %>
+          <div class="space-y-5">
+            <% budget_remaining = balance_change_since_month_start %>
+            <% net_positive = budget_remaining >= 0 %>
+            <% month_start_label = current_date.beginning_of_month.strftime("%b %d") %>
+            <% budget_amount_classes = net_positive ? 'text-income-200' : 'text-expense-200' %>
+            <% trend_copy = net_positive ? "Balances are trending ahead of plan." : "Spending exceeds income this month." %>
+            <% income_data = income_frequency_data %>
+            <% next_income_label = income_data[:next_recurring_date]&.strftime("%b %d") %>
+            <% last_income_label = income_data[:last_income_date]&.strftime("%b %d") %>
+ 
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+              <div class="rounded-xl bg-white/5 p-4 backdrop-blur-sm shadow-lg">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-amber-400/20 text-amber-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </span>
+                  <span class="text-xs font-semibold uppercase tracking-wide text-white/70">Trajectory</span>
+                </div>
+                <div class="mt-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border <%= status_props[:container_classes] %> bg-white/5">
+                  <span class="inline-block w-2 h-2 rounded-full <%= status_props[:indicator_classes] %>" aria-hidden="true"></span>
+                  <span class="text-xs font-semibold leading-none text-white"><%= status_props[:label] %></span>
+                </div>
+                <% 
+                  # Hybrid approach: Reference insight card when relevant and off-track
+                  trajectory_message = if on_track == :off_track && has_relevant_warning_insight?
+                    insight_title = relevant_insight_title
+                    "This aligns with your #{insight_title} insight above."
+                  else
+                    trend_copy
+                  end
+                %>
+                <p class="mt-3 text-xs leading-relaxed text-white/70"><%= trajectory_message %></p>
+              </div>
+
+              <% 
+                daily_target_data = daily_spending_target
+                if daily_target_data
+                  target_status_props = on_track_badge_props(daily_target_data[:status])
+                  target_icon_color = case daily_target_data[:status]
+                                       when :on_track
+                                         'bg-emerald-400/20 text-emerald-200'
+                                       when :caution
+                                         'bg-amber-400/20 text-amber-200'
+                                       else
+                                         'bg-rose-500/20 text-rose-200'
+                                       end
+                  target_text_color = case daily_target_data[:status]
+                                       when :on_track
+                                         'text-emerald-200'
+                                       when :caution
+                                         'text-amber-200'
+                                       else
+                                         'text-rose-200'
+                                       end
+                end
+              %>
+              <% if daily_target_data %>
+                <div class="rounded-xl bg-white/5 p-4 backdrop-blur-sm shadow-lg">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg <%= target_icon_color %>">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </span>
+                    <span class="text-xs font-semibold uppercase tracking-wide text-white/70">
+                      <%= daily_target_data[:daily_target] < 0 ? "Today's Reduction Needed" : "Today's Spending Target" %>
+                    </span>
+                  </div>
+                  <p class="mt-3 text-3xl font-bold <%= target_text_color %> text-right">
+                    <%= daily_target_data[:daily_target] < 0 ? number_to_currency(daily_target_data[:daily_target].abs) : number_to_currency(daily_target_data[:daily_target]) %>
+                  </p>
+                  <p class="mt-2 text-xs text-white/60"><%= daily_target_data[:context] %></p>
+                  <% 
+                    # Link to insight card when negative and insight exists
+                    if daily_target_data[:daily_target] < 0 && has_relevant_warning_insight?
+                      insight_title = relevant_insight_title
+                  %>
+                    <p class="mt-1.5 text-xs text-white/50 italic">This aligns with your <%= insight_title %> insight above.</p>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <div class="rounded-xl bg-white/5 p-4 backdrop-blur-sm shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-orange-400/20 text-orange-100">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </span>
+                    <span class="text-xs font-semibold uppercase tracking-wide text-white/70">Month Progress</span>
+                  </div>
+                  <span class="text-sm font-semibold text-white"><%= month_progress(current_date) %>%</span>
+                </div>
+                <div class="mt-3 flex items-center gap-3">
+                  <div class="relative h-2 w-full rounded-full bg-white/15" role="progressbar" aria-label="Calendar month progress" aria-valuenow="<%= month_progress(current_date) %>" aria-valuemin="0" aria-valuemax="100">
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-r from-orange-200/70 via-orange-100 to-white" style="width: <%= month_progress(current_date) %>%"></div>
+                  </div>
+                </div>
+                <p class="mt-2 text-xs text-white/60">Day <%= current_date.day %> of <%= current_date.end_of_month.day %> in <%= current_date.strftime("%B") %>.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              <% break_even_data = days_until_break_even %>
+              <% break_even_positive = break_even_data[:source] == :already_positive %>
+              <% break_even_icon_color = break_even_positive ? 'bg-emerald-400/20 text-emerald-200' : 'bg-amber-400/20 text-amber-200' %>
+              <div class="rounded-xl bg-white/5 p-4 backdrop-blur-sm shadow-lg">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg <%= break_even_icon_color %>">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </span>
+                  <span class="text-xs font-semibold uppercase tracking-wide text-white/70">Days Until Break-Even</span>
+                </div>
+                <% if break_even_data[:days].present? && break_even_data[:days] > 0 %>
+                  <p class="mt-3 text-2xl font-semibold text-amber-200 text-right">
+                    ~<%= break_even_data[:days] %> <%= break_even_data[:days] == 1 ? 'day' : 'days' %>
+                  </p>
+                  <% if break_even_data[:target_date] %>
+                    <p class="mt-1 text-xs text-white/70 text-right">
+                      <%= break_even_data[:target_date].strftime('%b %d') %>
+                    </p>
+                  <% end %>
+                  <% if break_even_data[:next_income_payment] && break_even_data[:next_income_date] %>
+                    <p class="mt-2 text-xs text-white/60">
+                      After your <%= number_to_currency(break_even_data[:next_income_payment]) %> payment on <%= break_even_data[:next_income_date].strftime('%b %d') %>
+                    </p>
+                  <% else %>
+                    <p class="mt-2 text-xs text-white/60">
+                      <% if break_even_data[:source] == :recurring %>
+                        Based on your recurring income pattern
+                      <% elsif break_even_data[:source] == :historical %>
+                        Based on your past 6 months average
+                      <% else %>
+                        Following your daily spending target
+                      <% end %>
+                    </p>
+                  <% end %>
+                <% elsif break_even_positive %>
+                  <p class="mt-3 text-2xl font-semibold text-emerald-200 text-right">
+                    Already ahead
+                  </p>
+                  <p class="mt-2 text-xs text-white/60">
+                    You're at or ahead of your month-start balance
+                  </p>
+                <% else %>
+                  <p class="mt-3 text-2xl font-semibold text-rose-200 text-right">
+                    Reduce spending
+                  </p>
+                  <p class="mt-2 text-xs text-white/60">
+                    Adjust your spending to reach break-even
+                  </p>
+                <% end %>
+              </div>
+
+              <div class="rounded-xl bg-white/5 p-4 backdrop-blur-sm shadow-lg">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-400/20 text-indigo-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.343 6.343L4.222 4.222m15.556 0l-2.121 2.121M4 12H2m20 0h-2m-1.879 7.778l-2.121-2.121M6.343 17.657l-2.121 2.121" />
+                    </svg>
+                  </span>
+                  <span class="text-xs font-semibold uppercase tracking-wide text-white/70">Income Activity</span>
+                </div>
+                <dl class="mt-3 space-y-3 text-xs text-white/70">
+                  <div class="flex items-center justify-between">
+                    <dt class="flex items-center gap-2">
+                      <span>Avg Daily</span>
+                      <% income_data = average_daily_income %>
+                      <% if income_data[:has_recurring] && income_data[:has_historical] %>
+                        <div class="flex items-center gap-1" 
+                             data-controller="income-view-toggle"
+                             data-income-view-toggle-has-recurring-value="<%= income_data[:has_recurring] %>"
+                             data-income-view-toggle-has-historical-value="<%= income_data[:has_historical] %>"
+                             data-income-view-toggle-recurring-value-value="<%= income_data[:recurring_daily_rate] || 0 %>"
+                             data-income-view-toggle-historical-value-value="<%= income_data[:historical_daily_rate] || 0 %>"
+                             data-income-view-toggle-current-month-value-value="<%= income_data[:current_month_actual] %>">
+                          <button type="button"
+                                  data-income-view-toggle-target="recurringButton"
+                                  data-action="click->income-view-toggle#switchToRecurring"
+                                  class="px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors text-white/60 hover:text-white/80"
+                                  id="income-view-recurring-button"
+                                  aria-label="Show recurring income rate">
+                            Recurring
+                          </button>
+                          <button type="button"
+                                  data-income-view-toggle-target="historicalButton"
+                                  data-action="click->income-view-toggle#switchToHistorical"
+                                  class="px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors text-white/60 hover:text-white/80"
+                                  id="income-view-historical-button"
+                                  aria-label="Show historical income rate">
+                            Historical
+                          </button>
+                        </div>
+                      <% end %>
+                    </dt>
+                    <dd class="text-sm font-semibold text-income-200 text-right">
+                      <% if income_data[:has_recurring] && income_data[:has_historical] %>
+                        <!-- Toggle view - controlled by Stimulus -->
+                        <div class="text-right">
+                          <span data-income-view-toggle-target="valueDisplay">
+                            $<%= number_with_precision(
+                              income_data[:has_recurring] ? income_data[:recurring_daily_rate] : income_data[:historical_daily_rate], 
+                              precision: 2
+                            ) %>
+                          </span>
+                          <span class="block text-xs font-normal text-white/50 mt-0.5" 
+                                data-income-view-toggle-target="labelDisplay">
+                            <%= income_data[:has_recurring] ? "from recurring income" : "estimated from past 6 months" %>
+                          </span>
+                        </div>
+                      <% elsif income_data[:has_recurring] %>
+                        <!-- Only recurring available -->
+                        <div class="text-right">
+                          $<%= number_with_precision(income_data[:recurring_daily_rate], precision: 2) %>
+                          <span class="block text-xs font-normal text-white/50 mt-0.5">from recurring income</span>
+                        </div>
+                      <% elsif income_data[:has_historical] %>
+                        <!-- Only historical available -->
+                        <div class="text-right">
+                          $<%= number_with_precision(income_data[:historical_daily_rate], precision: 2) %>
+                          <span class="block text-xs font-normal text-white/50 mt-0.5">estimated from past 6 months</span>
+                        </div>
+                      <% else %>
+                        <!-- Fallback to current month (should rarely happen) -->
+                        <div class="text-right">
+                          $<%= number_with_precision(income_data[:current_month_actual], precision: 2) %>
+                          <span class="block text-xs font-normal text-white/50 mt-0.5">this month so far</span>
+                        </div>
+                      <% end %>
+                    </dd>
+                  </div>
+                  <% if next_income_label || last_income_label %>
+                    <div class="flex items-center justify-between">
+                      <dt><%= next_income_label ? 'Next Income' : 'Last Income' %></dt>
+                      <dd class="text-xs font-semibold text-white"><%= next_income_label || last_income_label %></dd>
+                    </div>
+                  <% end %>
+                  <% if income_data[:count_this_month].to_i.positive? %>
+                    <div class="flex items-center justify-between">
+                      <dt>This Month</dt>
+                      <dd class="text-xs font-semibold text-white"><%= pluralize(income_data[:count_this_month], 'deposit') %></dd>
+                    </div>
+                  <% end %>
+                </dl>
+                <% 
+                  # Add connection to spending target when both exist
+                  if daily_target_data && daily_target_data[:daily_target] > 0
+                    target_amount = number_to_currency(daily_target_data[:daily_target])
+                    current_income_display = if income_data[:has_recurring] && income_data[:has_historical]
+                      # For toggle view, show the currently selected value
+                      income_data[:has_recurring] ? income_data[:recurring_daily_rate] : income_data[:historical_daily_rate]
+                    elsif income_data[:has_recurring]
+                      income_data[:recurring_daily_rate]
+                    elsif income_data[:has_historical]
+                      income_data[:historical_daily_rate]
+                    else
+                      income_data[:current_month_actual]
+                    end
+                %>
+                  <p class="mt-3 pt-3 border-t border-white/10 text-xs text-white/60">
+                    To stay on track, spend below <span class="font-semibold text-white/80"><%= target_amount %></span> today.
+                  </p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        
         <!-- Combined Cash Flow Card (2x1) - Income, Expenses, Net with expandable merchants/categories -->
         <%= render partial: 'shared/bento_cards/cash_flow_card',
             locals: {
@@ -123,132 +412,7 @@
               account: @account
             } %>
         
-        <!-- Current Balance Hero Card (1x2) - Compact with actionable data -->
-        <%
-          on_track = on_track_status
-          status_props = on_track_badge_props(on_track)
-          status_badge = content_tag(:span,
-            id: "dashboard-balance-status-badge",
-            class: "inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border #{status_props[:container_classes]}",
-            role: "status",
-            aria: { live: "polite", label: "Current balance trajectory status: #{status_props[:label]}" }
-          ) do
-            safe_join([
-              content_tag(:span, "", class: "inline-block w-2 h-2 rounded-full #{status_props[:indicator_classes]}", aria: { hidden: true }),
-              content_tag(:span, status_props[:label], class: "text-xs font-medium leading-none")
-            ])
-          end
-        %>
-        <%= render 'shared/bento_cards/hero_card',
-            title: "Current Balance",
-            subtitle: formatted_balance(@account.current_balance),
-            description: nil,
-            icon: 'wallet',
-            size: 'sm:bento-span-2 md:bento-span-2 lg:bento-span-1 bento-row-span-2',
-            color: 'primary',
-            id: 'dashboard-current-balance-card',
-            status_badge: status_badge do %>
-          <div class="space-y-4">
-            <% budget_remaining = balance_change_since_month_start %>
-            <% net_positive = budget_remaining >= 0 %>
-            <% month_start_label = current_date.beginning_of_month.strftime("%b %d") %>
-            <% budget_amount_classes = net_positive ? 'text-income-200' : 'text-expense-200' %>
-            <% trend_copy = net_positive ? "Balances are trending ahead of plan." : "Spending exceeds income this month." %>
-            <% income_data = income_frequency_data %>
-            <% next_income_label = income_data[:next_recurring_date]&.strftime("%b %d") %>
-            <% last_income_label = income_data[:last_income_date]&.strftime("%b %d") %>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="flex flex-col">
-                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
-                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Trajectory</span>
-                </div>
-                <div class="mt-2 inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border <%= status_props[:container_classes] %>">
-                  <span class="inline-block w-2 h-2 rounded-full <%= status_props[:indicator_classes] %>" aria-hidden="true"></span>
-                  <span class="text-xs font-semibold leading-none"><%= status_props[:label] %></span>
-                </div>
-                <p class="mt-2 text-xs text-white/70"><%= trend_copy %></p>
-              </div>
-
-              <div class="flex flex-col">
-                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
-                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                  </svg>
-                  <span>Current Balance</span>
-                </div>
-                <p class="mt-2 text-3xl font-bold text-white"><%= formatted_balance(@account.current_balance) %></p>
-                <p class="text-xs text-white/60">
-                  <%= day_name(current_date) %>
-                  <time datetime="<%= current_date.iso8601 %>"><%= current_date.strftime("%B %d, %Y") %></time>
-                </p>
-              </div>
-
-              <div class="flex flex-col">
-                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
-                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Month Progress</span>
-                </div>
-                <div class="mt-2 flex items-center gap-3">
-                  <div class="relative h-2 w-full bg-white/20 rounded-full overflow-hidden" role="progressbar" aria-label="Month progress" aria-valuenow="<%= month_progress(current_date) %>" aria-valuemin="0" aria-valuemax="100">
-                    <div class="absolute inset-0 bg-gradient-to-r from-white via-orange-100 to-orange-200 rounded-full" style="width: <%= month_progress(current_date) %>%"></div>
-                  </div>
-                  <span class="text-sm font-semibold text-white"><%= month_progress(current_date) %>%</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/20 pt-4">
-              <div class="flex flex-col">
-                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
-                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16m-8-8v16" />
-                  </svg>
-                  <span>Budget Remaining</span>
-                </div>
-                <p class="mt-2 text-2xl font-semibold <%= budget_amount_classes %>"><%= number_to_currency(budget_remaining) %></p>
-                <p class="text-xs text-white/70 mt-1">
-                  <%= trend_copy %> Based on activity since <%= month_start_label %>.
-                </p>
-              </div>
-
-              <div class="flex flex-col">
-                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/70">
-                  <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.343 6.343L4.222 4.222m15.556 0l-2.121 2.121M4 12H2m20 0h-2m-1.879 7.778l-2.121-2.121M6.343 17.657l-2.121 2.121" />
-                  </svg>
-                  <span>Income Activity</span>
-                </div>
-                <div class="mt-2 flex items-center justify-between text-xs text-white/70">
-                  <span>Avg Daily</span>
-                  <span class="text-sm font-semibold text-income-200">
-                    $<%= number_with_precision(average_daily_spending, precision: 2) %>
-                  </span>
-                </div>
-                <% if next_income_label || last_income_label %>
-                  <div class="mt-2 flex items-center justify-between text-xs text-white/70">
-                    <span><%= next_income_label ? 'Next Income' : 'Last Income' %></span>
-                    <span class="text-xs font-semibold text-white"><%= next_income_label || last_income_label %></span>
-                  </div>
-                <% end %>
-                <% if income_data[:count_this_month].to_i.positive? %>
-                  <p class="mt-2 text-xs text-white/60">
-                    <%= income_data[:count_this_month] %> <%= income_data[:count_this_month] == 1 ? 'deposit' : 'deposits' %> this month
-                  </p>
-                <% end %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-
-
-        
 
         <!-- End of Month Projection (2x1) - Using Reusable Partial -->
         <%= render 'dashboard/projection_card',
@@ -341,3 +505,4 @@
 
   <%= render 'shared/transaction_drawer', default_transaction_date: Date.today %>
 </main>
+
