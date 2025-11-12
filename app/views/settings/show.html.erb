@@ -2,27 +2,13 @@
 <% content_for :page_header_title, "Settings" %>
 <% content_for :page_header_subtitle, "Manage your account and integrations" %>
 
-<main id="settings-page-container" aria-label="Settings page">
+<main id="settings-page-container" 
+      aria-label="Settings page"
+      data-controller="settings-auto-expand">
 
   <%= content_wrapper class: "py-6" do %>
     <!-- User Profile Section -->
     <%= render 'settings/profile_section' %>
-
-    <!-- Bank Integrations Section -->
-    <section id="bank-integrations-section" class="mt-6">
-      <div class="mb-4">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Bank Integrations</h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Connect your bank accounts to sync transactions</p>
-      </div>
-
-      <div id="bank-integrations-content">
-        <!-- Up Bank Integration -->
-        <%= render 'settings/integrations/up_bank_section' %>
-
-        <%# Future: CommBank Integration %>
-        <%# render 'settings/integrations/comm_bank_section' %>
-      </div>
-    </section>
 
     <!-- Connected Accounts Display -->
     <% if Current.user.accounts.any? %>
@@ -70,6 +56,22 @@
         </ul>
       </section>
     <% end %>
+
+    <!-- Bank Integrations Section -->
+    <section id="bank-integrations-section" class="mt-6">
+      <div class="mb-4">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Bank Integrations</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Connect your bank accounts to sync transactions</p>
+      </div>
+
+      <div id="bank-integrations-content">
+        <!-- Up Bank Integration -->
+        <%= render 'settings/integrations/up_bank_section' %>
+
+        <%# Future: CommBank Integration %>
+        <%# render 'settings/integrations/comm_bank_section' %>
+      </div>
+    </section>
 
     <!-- Account Management Section -->
     <%= render 'settings/account_management_section' %>

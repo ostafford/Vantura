@@ -13,6 +13,7 @@ A modern Rails 8 application for managing personal finances with Up Bank integra
 - ✅ **Real-time Updates** - WebSocket-powered live updates
 - ✅ **Dark Mode** - Beautiful dark theme support
 - ✅ **Progressive Web App** - Install on mobile devices
+- ✅ **Savings Goals** - Set monthly savings targets and track progress inside insights and budgets
 - ✅ **Production Ready** - Security hardened, performance optimized, monitored
 
 ## Quick Start

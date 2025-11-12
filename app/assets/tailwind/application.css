@@ -44,7 +44,7 @@
     grid-template-columns: repeat(1, 1fr);
     grid-auto-rows: minmax(140px, auto);
     
-    @variant sm {
+    @variant md {
       grid-template-columns: repeat(2, 1fr);
     }
     
@@ -61,7 +61,7 @@
   .bento-span-2 { 
     grid-column: span 1;
     
-    @variant sm {
+    @variant md {
       grid-column: span 2;
     }
   }
@@ -69,7 +69,7 @@
   .bento-span-3 { 
     grid-column: span 1;
     
-    @variant sm {
+    @variant md {
       grid-column: span 2;
     }
     
@@ -81,7 +81,7 @@
   .bento-span-4 { 
     grid-column: span 1;
     
-    @variant sm {
+    @variant md {
       grid-column: span 2;
     }
     
@@ -91,8 +91,8 @@
   }
 
   /* Modal/Drawer responsive utilities */
-  .sm\:mr-96 {
-    @variant sm {
+  .md\:mr-96 {
+    @variant md {
       margin-right: 24rem; /* 384px - matches drawer width */
     }
   }
@@ -105,7 +105,7 @@
   .stat-card-value {
     font-size: clamp(1.5rem, 4vw, 2.5rem); /* Scales from 1.5rem to 2.5rem based on viewport */
     
-    @variant sm {
+    @variant md {
       font-size: clamp(1.75rem, 3vw, 2.75rem);
     }
     

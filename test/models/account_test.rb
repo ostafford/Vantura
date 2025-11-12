@@ -140,6 +140,32 @@ class AccountTest < ActiveSupport::TestCase
     assert account.errors[:current_balance].any? { |error| error.include?("must be less than or equal to") }
   end
 
+  test "target_savings_rate clamps to maximum of 30 percent" do
+    @account.update!(target_savings_rate: 0.5)
+    assert_in_delta 0.3, @account.target_savings_rate.to_f, 0.0001
+  end
+
+  test "target_savings_amount normalizes negative and blank values" do
+    @account.update!(target_savings_amount: -150)
+    assert_equal 0.0, @account.target_savings_amount.to_f
+
+    @account.update!(target_savings_amount: "")
+    assert_nil @account.target_savings_amount
+  end
+
+  test "goal timestamp updates when savings goal changes" do
+    assert_nil @account.goal_last_set_at
+
+    @account.update!(target_savings_rate: 0.12)
+    assert_not_nil @account.goal_last_set_at
+
+    original_timestamp = @account.goal_last_set_at
+
+    @account.update!(target_savings_amount: 0)
+    assert_not_nil @account.goal_last_set_at
+    assert @account.goal_last_set_at >= original_timestamp
+  end
+
   test "user can be optional for backward compatibility" do
     account = Account.new(
       up_account_id: "legacy_account_123",

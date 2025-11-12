@@ -7,6 +7,9 @@ one:
   current_balance: 1000.00
   last_synced_at: <%= 1.day.ago %>
   user: one
+  target_savings_rate: 0.0
+  target_savings_amount:
+  goal_last_set_at:
 
 two:
   up_account_id: acc_two_456
@@ -15,3 +18,6 @@ two:
   current_balance: 5000.00
   last_synced_at: <%= 2.days.ago %>
   user: two
+  target_savings_rate: 0.0
+  target_savings_amount: 400.00
+  goal_last_set_at: <%= 3.days.ago %>

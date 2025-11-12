@@ -1,0 +1,10 @@
+<% if recent_transactions.any? %>
+  <% recent_transactions.each do |transaction| %>
+    <%= render 'dashboard/transaction_card', transaction: transaction %>
+  <% end %>
+<% else %>
+  <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+    No transactions for this week.
+  </div>
+<% end %>
+

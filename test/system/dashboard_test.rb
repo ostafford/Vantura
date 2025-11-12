@@ -46,6 +46,18 @@ class DashboardTest < ApplicationSystemTestCase
     assert_text "Recent Transactions"
   end
 
+  test "dashboard shows responsive transaction views" do
+    visit root_path
+
+    # Both containers should exist in the DOM
+    assert_selector "#dashboard-recent-transactions-cards-container", visible: :all
+    assert_selector "#dashboard-recent-transactions-table-container", visible: :all
+
+    # On default viewport (desktop), table should be visible, cards hidden
+    assert_selector "#dashboard-recent-transactions-table-container", visible: true
+    assert_selector "#dashboard-recent-transactions-cards-container", visible: false
+  end
+
   test "user without account sees setup guide" do
     # Create user with no account
     new_user = User.create!(

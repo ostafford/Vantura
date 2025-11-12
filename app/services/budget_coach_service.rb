@@ -1,4 +1,6 @@
 # Service Object: Generate actionable budget plans based on historical data
+require "bigdecimal"
+require "bigdecimal/util"
 #
 # Usage:
 #   coach = BudgetCoachService.new(account)
@@ -38,11 +40,18 @@ class BudgetCoachService
     # Only generate if overspending is projected or very close to limit (within $100)
     return nil if projected_savings > 100
 
-    # Calculate savings goal from historical data
-    savings_goal = calculate_adaptive_savings_goal
+    # Determine user-defined goal first, fallback to adaptive goal
+    goal_preference = derive_user_goal(current_month_income)
+    savings_goal = if goal_preference
+      goal_preference[:applied_amount]
+    else
+      calculate_adaptive_savings_goal
+    end
+
+    savings_goal = savings_goal.clamp(0, current_month_income).round(2)
 
     # Calculate target spending (income - savings goal)
-    target_spending = current_month_income - savings_goal
+    target_spending = (current_month_income - savings_goal).clamp(0, current_month_income).round(2)
 
     # Analyze category spending
     category_analysis = analyze_category_spending(3) # 3-month weighted average
@@ -65,7 +74,8 @@ class BudgetCoachService
       target_spending: target_spending,
       category_budgets: category_budgets,
       days_remaining: @velocity_calculator.current_velocity[:days_remaining],
-      current_spent: @velocity_calculator.current_velocity[:total_spent]
+      current_spent: @velocity_calculator.current_velocity[:total_spent],
+      goal_context: build_goal_context(goal_preference, current_month_income, savings_goal)
     }
   end
 
@@ -161,7 +171,6 @@ class BudgetCoachService
   # Analyze category spending with weighted 3-month average
   def analyze_category_spending(months)
     category_data = {}
-    weights = []
 
     months.times do |i|
       month_date = @reference_date - i.months
@@ -195,11 +204,7 @@ class BudgetCoachService
         category_data[category_name][:total_weight] += weight
         category_data[category_name][:months_seen] += 1
       end
-
-      weights << weight
     end
-
-    total_weight = weights.sum
 
     # Calculate weighted averages
     category_data.values.map do |data|
@@ -316,7 +321,6 @@ class BudgetCoachService
   # Calculate current month income (including expected if not yet received)
   def calculate_current_month_income
     month_start = @current_month_start
-    month_end = @current_month_end
 
     # Actual income received so far
     actual_income = @account.transactions
@@ -352,5 +356,70 @@ class BudgetCoachService
   def variable_category?(category_name)
     normalized = category_name.downcase.strip
     VARIABLE_CATEGORIES.any? { |variable| normalized.include?(variable) }
+  end
+
+  def derive_user_goal(current_month_income)
+    amount_goal = positive_decimal(@account.target_savings_amount, scale: 2)
+    rate_goal = positive_decimal(@account.target_savings_rate, scale: 4)
+
+    if amount_goal
+      applied_amount = [ amount_goal, current_month_income ].min.round(2)
+      applied_rate = current_month_income.positive? ? (applied_amount / current_month_income).round(4) : 0
+
+      {
+        source: :amount,
+        requested_amount: amount_goal.round(2),
+        requested_rate: current_month_income.positive? ? (amount_goal / current_month_income).round(4) : nil,
+        applied_amount: applied_amount,
+        applied_rate: applied_rate
+      }
+    elsif rate_goal
+      requested_amount = (current_month_income * rate_goal).round(2)
+      applied_amount = [ requested_amount, current_month_income ].min.round(2)
+      applied_rate = current_month_income.positive? ? (applied_amount / current_month_income).round(4) : rate_goal
+
+      {
+        source: :rate,
+        requested_amount: requested_amount,
+        requested_rate: rate_goal,
+        applied_amount: applied_amount,
+        applied_rate: applied_rate
+      }
+    end
+  end
+
+  def positive_decimal(value, scale:)
+    return nil if value.nil?
+
+    decimal = BigDecimal(value.to_s)
+    return nil unless decimal.positive?
+
+    decimal.round(scale)
+  rescue ArgumentError
+    nil
+  end
+
+  def build_goal_context(goal_preference, current_month_income, applied_savings_goal)
+    base_rate = current_month_income.positive? ? (applied_savings_goal / current_month_income).round(4) : 0
+
+    if goal_preference
+      {
+        source: goal_preference[:source],
+        requested_amount: goal_preference[:requested_amount],
+        requested_rate: goal_preference[:requested_rate],
+        applied_amount: applied_savings_goal,
+        applied_rate: goal_preference[:applied_rate],
+        has_user_goal: true
+      }
+    else
+      {
+        source: :adaptive,
+        requested_amount: nil,
+        requested_rate: nil,
+        applied_amount: applied_savings_goal,
+        applied_rate: base_rate,
+        has_user_goal: false
+      }
+    end
   end
 end

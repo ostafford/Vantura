@@ -307,6 +307,6 @@ class DashboardStatsCalculatorTest < ActiveSupport::TestCase
     # Should have calculated days (may be 0 if already positive, or positive number)
     assert break_even[:days].is_a?(Integer)
     assert break_even[:days] >= 0
-    assert_includes [:recurring, :historical, :current_month, :already_positive], break_even[:source]
+    assert_includes [ :recurring, :historical, :current_month, :already_positive ], break_even[:source]
   end
 end

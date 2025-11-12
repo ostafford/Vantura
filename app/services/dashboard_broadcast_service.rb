@@ -43,7 +43,7 @@ class DashboardBroadcastService < ApplicationService
 
     # Broadcast updates to all dashboard cards using Turbo Streams
     broadcast_hero_card(current_date)
-    broadcast_cash_flow_card(income_total, expense_total, income_count, expense_count, 
+    broadcast_cash_flow_card(income_total, expense_total, income_count, expense_count,
                              projected_income_total, projected_expense_total,
                              projected_income_count, projected_expense_count,
                              current_date, top_income_merchants, top_expense_merchants,
@@ -127,7 +127,7 @@ class DashboardBroadcastService < ApplicationService
 
   def broadcast_recent_transactions(transactions)
     # Replace the entire table body with updated transactions
-    html = ApplicationController.render(
+    table_html = ApplicationController.render(
       partial: "dashboard/recent_transactions_table_body",
       locals: {
         recent_transactions: transactions
@@ -137,7 +137,21 @@ class DashboardBroadcastService < ApplicationService
     Turbo::StreamsChannel.broadcast_replace_to(
       @user,
       target: "dashboard-recent-transactions-table-body",
-      html: html
+      html: table_html
+    )
+
+    # Replace the entire cards container with updated transactions
+    cards_html = ApplicationController.render(
+      partial: "dashboard/recent_transactions_cards_container",
+      locals: {
+        recent_transactions: transactions
+      }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_to(
+      @user,
+      target: "dashboard-recent-transactions-cards-container",
+      html: cards_html
     )
   end
 

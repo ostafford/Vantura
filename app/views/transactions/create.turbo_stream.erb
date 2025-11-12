@@ -30,9 +30,14 @@
       upcoming_recurring_total: @dashboard_data[:upcoming_recurring_total] %>
 <% end %>
 
-<%# Prepend the new transaction to Recent Transactions %>
+<%# Prepend the new transaction to Recent Transactions - Table View %>
 <%= turbo_stream.prepend "dashboard-recent-transactions-table-body" do %>
   <%= render "dashboard/transaction_row", transaction: @transaction %>
+<% end %>
+
+<%# Prepend the new transaction to Recent Transactions - Card View %>
+<%= turbo_stream.prepend "dashboard-recent-transactions-cards-container" do %>
+  <%= render "dashboard/transaction_card", transaction: @transaction %>
 <% end %>
 
 <%# Show success notification %>

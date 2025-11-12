@@ -1,4 +1,6 @@
 # Service Object: Generate actionable, evidence-based financial insights
+require "bigdecimal"
+require "bigdecimal/util"
 #
 # Usage:
 #   insights = FinancialInsightsService.new(account)
@@ -79,8 +81,10 @@ class FinancialInsightsService
   # Spending warning when expenses exceed income
   def spending_warning_insight
     current_month_income = calculate_current_month_income
-    projected_spending = @velocity_calculator.projected_month_end_spending[:projected_total]
+    projection = @velocity_calculator.projected_month_end_spending
+    projected_spending = projection[:projected_total]
     projected_savings = current_month_income - projected_spending
+    goal_snapshot = savings_goal_snapshot
 
     # Only show if expenses exceed income
     return nil if projected_savings >= 0
@@ -93,7 +97,7 @@ class FinancialInsightsService
     {
       type: "spending_warning",
       title: "Expenses Exceed Income",
-      message: generate_spending_warning_message(current_month_income, projected_spending, overspend_amount, days_remaining),
+      message: generate_spending_warning_message(current_month_income, projected_spending, overspend_amount, days_remaining, goal_snapshot),
       evidence: {
         current_month_income: current_month_income,
         projected_spending: projected_spending,
@@ -103,7 +107,7 @@ class FinancialInsightsService
         days_elapsed: days_elapsed,
         days_remaining: days_remaining,
         analysis_period: "Current month projection"
-      },
+      }.merge(goal_evidence(goal_snapshot)),
       suggested_action: "Review Spending",
       suggested_amount: nil,
       suggested_date: nil,
@@ -124,11 +128,18 @@ class FinancialInsightsService
 
     avg_monthly_savings = savings_data[:average_monthly_savings]
     total_negative = monthly_breakdown.sum { |m| m[:savings] < 0 ? m[:savings].abs : 0 }
+    goal_snapshot = savings_goal_snapshot
 
     {
       type: "negative_savings_pattern",
       title: "Consistent Overspending Pattern",
-      message: generate_negative_savings_message(monthly_breakdown, negative_months, avg_monthly_savings, total_negative),
+      message: generate_negative_savings_message(
+        monthly_breakdown,
+        negative_months,
+        avg_monthly_savings,
+        total_negative,
+        goal_snapshot
+      ),
       evidence: {
         months_analyzed: savings_data[:months_analyzed],
         negative_months_count: negative_months,
@@ -136,7 +147,7 @@ class FinancialInsightsService
         total_overspend: total_negative,
         monthly_breakdown: monthly_breakdown,
         analysis_period: "3 months"
-      },
+      }.merge(goal_evidence(goal_snapshot)),
       suggested_action: "Review Spending Habits",
       suggested_amount: nil,
       suggested_date: nil,
@@ -149,9 +160,10 @@ class FinancialInsightsService
   def savings_investment_opportunity
     # Check for immediate savings opportunity (6-month comparison)
     savings_opp = @velocity_calculator.savings_opportunity(6)
-    current_month_income = calculate_current_month_income
-    projected_spending = @velocity_calculator.projected_month_end_spending[:projected_total]
-    projected_savings = current_month_income - projected_spending
+    goal_snapshot = savings_goal_snapshot
+    current_month_income = goal_snapshot[:income]
+    projected_spending = goal_snapshot[:projected_spending]
+    projected_savings = goal_snapshot[:projected_savings]
 
     # Check for consistent savings pattern (3-month analysis)
     savings_data = analyze_recent_savings(3)
@@ -170,7 +182,7 @@ class FinancialInsightsService
         title: "Savings & Investment Opportunity",
         message: generate_combined_savings_investment_message(
           savings_opp, current_month_income, projected_spending, projected_savings,
-          savings_data, suggested_investment
+          savings_data, suggested_investment, goal_snapshot
         ),
         evidence: {
           # Savings opportunity data (6-month comparison)
@@ -189,7 +201,7 @@ class FinancialInsightsService
           # Time periods for transparency
           savings_analysis_period: "6 months",
           investment_analysis_period: "3 months"
-        },
+        }.merge(goal_evidence(goal_snapshot)),
         suggested_action: suggested_investment && suggested_investment >= 50 ? "Set Up Investment Plan" : "Create Savings Transfer",
         suggested_amount: suggested_investment && suggested_investment >= 50 ? suggested_investment : savings_opp[:potential_savings],
         suggested_date: suggested_investment && suggested_investment >= 50 ? (@reference_date + 1.month).beginning_of_month : @reference_date.end_of_month,
@@ -209,7 +221,7 @@ class FinancialInsightsService
           historical_average_spending: savings_opp[:historical_average],
           current_velocity: @velocity_calculator.current_velocity[:daily_rate],
           savings_analysis_period: "6 months"
-        },
+        }.merge(goal_evidence(goal_snapshot)),
         suggested_action: "Create Savings Transfer",
         suggested_amount: savings_opp[:potential_savings],
         suggested_date: @reference_date.end_of_month,
@@ -222,7 +234,7 @@ class FinancialInsightsService
       {
         type: "savings_investment_opportunity",
         title: "Investment Opportunity Based on Savings Pattern",
-        message: generate_investment_only_message(savings_data, suggested_investment),
+        message: generate_investment_only_message(savings_data, suggested_investment, goal_snapshot),
         evidence: {
           months_analyzed: savings_data[:months_analyzed],
           average_monthly_savings: avg_monthly_savings,
@@ -230,7 +242,7 @@ class FinancialInsightsService
           suggested_monthly_investment: suggested_investment,
           remaining_for_expenses: (avg_monthly_savings - suggested_investment).round(2),
           investment_analysis_period: "3 months"
-        },
+        }.merge(goal_evidence(goal_snapshot)),
         suggested_action: "Set Up Investment Plan",
         suggested_amount: suggested_investment,
         suggested_date: (@reference_date + 1.month).beginning_of_month,
@@ -440,7 +452,7 @@ class FinancialInsightsService
         current_spent: budget_plan[:current_spent],
         category_budgets: budget_plan[:category_budgets],
         analysis_period: "3 months (weighted)"
-      },
+      }.merge(goal_evidence(savings_goal_snapshot)).merge(goal_context_evidence(budget_plan[:goal_context])),
       suggested_action: "Follow Category Budgets",
       suggested_amount: nil,
       suggested_date: nil,
@@ -455,7 +467,7 @@ class FinancialInsightsService
 
     # Generate all possible insights
     all_insights = []
-    
+
     # Warnings (can be negative)
     all_insights << spending_warning_insight
     all_insights << negative_savings_pattern_insight
@@ -484,24 +496,24 @@ class FinancialInsightsService
         # Replace lowest priority warning
         warnings = warnings.sort_by { |i| priority_weight(i[:priority]) }.reverse
         warnings = warnings.first(limit - 1)
-        return (warnings + [forced_positive]).sort_by { |i| priority_weight(i[:priority]) }.reverse.first(limit)
+        return (warnings + [ forced_positive ]).sort_by { |i| priority_weight(i[:priority]) }.reverse.first(limit)
       end
     end
 
     # Build final list ensuring at least 1 positive
     final_insights = []
-    
+
     if warnings.any? && positives.any?
       # Mix: show 1 warning + 1 positive (prioritize highest priority of each)
       top_warning = warnings.sort_by { |i| priority_weight(i[:priority]) }.reverse.first
       top_positive = positives.sort_by { |i| priority_weight(i[:priority]) }.reverse.first
-      final_insights = [top_warning, top_positive]
+      final_insights = [ top_warning, top_positive ]
     elsif warnings.any? && positives.empty?
       # Only warnings: show top warning + force a positive if available
       top_warning = warnings.sort_by { |i| priority_weight(i[:priority]) }.reverse.first
       forced_positive = budget_coach_insight || savings_investment_opportunity
       if forced_positive
-        final_insights = [top_warning, forced_positive]
+        final_insights = [ top_warning, forced_positive ]
       else
         # Fallback: show top 2 warnings if no positive available
         final_insights = warnings.sort_by { |i| priority_weight(i[:priority]) }.reverse.first(limit)
@@ -521,17 +533,17 @@ class FinancialInsightsService
   # Determine if an insight is a warning (negative) vs positive/coaching
   def is_warning_insight?(insight, velocity_insight)
     return false if insight.nil?
-    
+
     # Warnings are insights that indicate problems without immediate positive framing
-    warning_types = ["spending_warning", "negative_savings_pattern"]
-    
+    warning_types = [ "spending_warning", "negative_savings_pattern" ]
+
     # Spending velocity is a warning only if it's the "spending faster" variant
     if insight[:type] == "spending_velocity"
       # Check if title indicates warning (spending faster) vs positive (spending slower)
       title = insight[:title] || ""
       return title.include?("Faster") || title.include?("faster")
     end
-    
+
     warning_types.include?(insight[:type])
   end
 
@@ -650,8 +662,8 @@ class FinancialInsightsService
   def generate_velocity_warning_message(current, historical, change_pct, projected)
     avg_monthly = (historical[:average_daily_rate] * 30.44).round(0)
     excess_spending = projected[:projected_total].round(0) - avg_monthly
-    daily_reduction = (excess_spending / [@velocity_calculator.current_velocity[:days_remaining], 1].max).round(2)
-    
+    daily_reduction = (excess_spending / [ @velocity_calculator.current_velocity[:days_remaining], 1 ].max).round(2)
+
     "You're spending $#{current[:daily_rate]} per day, which is #{change_pct.abs}% faster than your " \
     "6-month average of $#{historical[:average_daily_rate]} per day (based on last 6 months of data). " \
     "At this pace, you're projected to spend $#{projected[:projected_total].round(0)} this month, " \
@@ -661,31 +673,35 @@ class FinancialInsightsService
     "Review your top 3 spending categories this month to identify where you can make small, sustainable reductions."
   end
 
-  def generate_spending_warning_message(income, projected_spending, overspend_amount, days_remaining)
+  def generate_spending_warning_message(income, projected_spending, overspend_amount, days_remaining, goal_snapshot)
     daily_reduction_needed = (overspend_amount / [ days_remaining, 1 ].max).round(2)
     weekly_reduction_needed = (daily_reduction_needed * 7).round(2)
 
-    "Your projected spending of $#{projected_spending.round(0)} exceeds your income of $#{income.round(0)} by $#{overspend_amount.round(0)} this month. " \
+    base_message = "Your projected spending of $#{projected_spending.round(0)} exceeds your income of $#{income.round(0)} by $#{overspend_amount.round(0)} this month. " \
     "The good news: you have #{days_remaining} days to adjust and get back on track! " \
     "Based on your spending history, reducing daily spending by $#{daily_reduction_needed} (about $#{weekly_reduction_needed} per week) " \
     "would bring your month-end total to $#{income.round(0)}, matching your income. " \
     "Review your top 3 spending categories this month to identify specific areas where you can make these reductions. " \
     "Small, consistent changes are more sustainable than large one-time cuts."
+
+    "#{base_message} #{goal_progress_sentence(goal_snapshot)}"
   end
 
-  def generate_negative_savings_message(monthly_breakdown, negative_months, avg_monthly_savings, total_negative)
+  def generate_negative_savings_message(monthly_breakdown, negative_months, avg_monthly_savings, total_negative, goal_snapshot)
     monthly_reduction_target = (avg_monthly_savings.abs / 3.0).round(2) # Spread across 3 months
     weekly_reduction_target = (monthly_reduction_target / 4.33).round(2)
 
-    "You've spent more than you earned in #{negative_months} out of the last 3 months, with an average overspend of $#{avg_monthly_savings.abs.round(0)} per month. " \
+    base_message = "You've spent more than you earned in #{negative_months} out of the last 3 months, with an average overspend of $#{avg_monthly_savings.abs.round(0)} per month. " \
     "Total overspend: $#{total_negative.round(0)} across #{negative_months} months (based on 3-month analysis). " \
     "The good news: you have time to break this pattern! Based on your spending history, reducing monthly expenses by $#{monthly_reduction_target.round(0)} " \
     "(about $#{weekly_reduction_target.round(0)} per week) would help you get back on track. " \
     "Start by reviewing your top 3 spending categories this month and identifying specific areas where you can make small, sustainable reductions. " \
     "Remember: consistent small changes are more effective than large one-time cuts."
+
+    "#{base_message} #{goal_progress_sentence(goal_snapshot)}"
   end
 
-  def generate_combined_savings_investment_message(savings_opp, income, spending, savings, savings_data, suggested_investment)
+  def generate_combined_savings_investment_message(savings_opp, income, spending, savings, savings_data, suggested_investment, goal_snapshot)
     # Combined message when both savings opportunity and consistent savings pattern exist
     base_message = "Based on your current spending velocity (compared to your 6-month average), " \
                    "you're on track to save $#{savings.round(0)} this month, " \
@@ -704,34 +720,36 @@ class FinancialInsightsService
                       "on #{@reference_date.end_of_month.strftime('%B %d')} to visualize the impact."
     end
 
-    base_message
+    "#{base_message} #{goal_progress_sentence(goal_snapshot)}"
   end
 
-  def generate_savings_only_message(savings_opp, income, spending, savings)
+  def generate_savings_only_message(savings_opp, income, spending, savings, goal_snapshot)
     "Based on your current spending velocity (compared to your 6-month average), " \
     "you're on track to save $#{savings.round(0)} this month, " \
     "which is $#{savings_opp[:potential_savings].round(0)} more than your historical average. " \
     "Your income is $#{income.round(0)} and projected spending is $#{spending.round(0)}. " \
     "Consider setting up a hypothetical savings transfer of $#{savings_opp[:potential_savings].round(0)} " \
-    "on #{@reference_date.end_of_month.strftime('%B %d')} to visualize the impact."
+    "on #{@reference_date.end_of_month.strftime('%B %d')} to visualize the impact. " \
+    "#{goal_progress_sentence(goal_snapshot)}"
   end
 
-  def generate_investment_only_message(savings_data, suggested_amount)
+  def generate_investment_only_message(savings_data, suggested_amount, goal_snapshot)
     "You've consistently saved an average of $#{savings_data[:average_monthly_savings].round(0)} per month " \
     "over the past #{savings_data[:months_analyzed]} months (3-month analysis). " \
     "Consider investing $#{suggested_amount.round(0)} per month starting " \
     "#{(@reference_date + 1.month).beginning_of_month.strftime('%B %d')}. " \
     "This would leave $#{(savings_data[:average_monthly_savings] - suggested_amount).round(0)} for expenses " \
-    "while building your investment portfolio."
+    "while building your investment portfolio. " \
+    "#{goal_progress_sentence(goal_snapshot)}"
   end
 
   # Legacy methods kept for backwards compatibility
   def generate_savings_opportunity_message(savings_opp, income, spending, savings)
-    generate_savings_only_message(savings_opp, income, spending, savings)
+    generate_savings_only_message(savings_opp, income, spending, savings, savings_goal_snapshot)
   end
 
   def generate_investment_message(savings_data, suggested_amount)
-    generate_investment_only_message(savings_data, suggested_amount)
+    generate_investment_only_message(savings_data, suggested_amount, savings_goal_snapshot)
   end
 
   def generate_category_merchant_message(item, trend, view_type)
@@ -744,7 +762,7 @@ class FinancialInsightsService
   def generate_day_of_week_message(day_name, day_info, monthly_frequency, overall_avg)
     pct_higher = ((day_info[:average] - overall_avg) / overall_avg * 100).round(0)
     potential_savings = ((day_info[:average] - overall_avg) * monthly_frequency).round(0)
-    
+
     "You spend an average of $#{day_info[:average].round(0)} per transaction on #{day_name}s, " \
     "which is #{pct_higher}% higher than your overall average of $#{overall_avg.round(0)} per transaction (3-month analysis). " \
     "This pattern occurs approximately #{monthly_frequency} times per month. " \
@@ -815,7 +833,89 @@ class FinancialInsightsService
       end
     end
 
-    base_message
+    "#{base_message} #{goal_progress_sentence(savings_goal_snapshot)}"
+  end
+
+  def savings_goal_snapshot
+    return @savings_goal_snapshot if defined?(@savings_goal_snapshot)
+
+    income = calculate_current_month_income
+    projection = @velocity_calculator.projected_month_end_spending
+    projected_spending = projection[:projected_total]
+    projected_savings = income - projected_spending
+    projected_rate = income.positive? ? (projected_savings / income).round(4) : 0
+    goal_preference = derive_user_goal(income)
+
+    goal_amount = goal_preference&.dig(:applied_amount)
+    goal_rate = goal_preference&.dig(:applied_rate)
+    goal_gap_amount = goal_amount.nil? ? nil : (goal_amount - projected_savings).round(2)
+    goal_gap_rate = goal_rate.nil? ? nil : (goal_rate - projected_rate).round(4)
+
+    @savings_goal_snapshot = {
+      income: income.round(2),
+      projected_spending: projected_spending.round(2),
+      projected_savings: projected_savings.round(2),
+      projected_savings_rate: projected_rate,
+      projected_savings_rate_percentage: (projected_rate * 100).round(1),
+      goal_set: goal_preference.present?,
+      goal_source: goal_preference&.dig(:source),
+      goal_amount: goal_amount&.round(2),
+      goal_rate: goal_rate,
+      goal_rate_percentage: goal_rate ? (goal_rate * 100).round(1) : nil,
+      goal_gap_amount: goal_gap_amount,
+      goal_gap_rate_percentage: goal_gap_rate ? (goal_gap_rate * 100).round(1) : nil,
+      goal_requested_amount: goal_preference&.dig(:requested_amount),
+      goal_requested_rate: goal_preference&.dig(:requested_rate)
+    }
+  end
+
+  def derive_user_goal(current_month_income)
+    amount_goal = positive_decimal(@account.target_savings_amount, scale: 2)
+    rate_goal = positive_decimal(@account.target_savings_rate, scale: 4)
+
+    if amount_goal
+      applied_amount = [ amount_goal, current_month_income ].min.round(2)
+      applied_rate = current_month_income.positive? ? (applied_amount / current_month_income).round(4) : 0
+
+      {
+        source: :amount,
+        requested_amount: amount_goal.round(2),
+        requested_rate: current_month_income.positive? ? (amount_goal / current_month_income).round(4) : nil,
+        applied_amount: applied_amount,
+        applied_rate: applied_rate
+      }
+    elsif rate_goal
+      requested_amount = (current_month_income * rate_goal).round(2)
+      applied_amount = [ requested_amount, current_month_income ].min.round(2)
+      applied_rate = current_month_income.positive? ? (applied_amount / current_month_income).round(4) : rate_goal
+
+      {
+        source: :rate,
+        requested_amount: requested_amount,
+        requested_rate: rate_goal,
+        applied_amount: applied_amount,
+        applied_rate: applied_rate
+      }
+    elsif @account.goal_last_set_at.present?
+      {
+        source: :break_even,
+        requested_amount: 0,
+        requested_rate: 0,
+        applied_amount: 0,
+        applied_rate: 0
+      }
+    end
+  end
+
+  def positive_decimal(value, scale:)
+    return nil if value.nil?
+
+    decimal = BigDecimal(value.to_s)
+    return nil unless decimal.positive?
+
+    decimal.round(scale)
+  rescue ArgumentError
+    nil
   end
 
   def calculate_current_month_income
@@ -827,6 +927,107 @@ class FinancialInsightsService
             .where(transaction_date: month_start..month_end)
             .sum(:amount)
             .abs
+  end
+
+  def goal_progress_sentence(snapshot)
+    projected_amount = snapshot[:projected_savings]
+    projected_percentage = snapshot[:projected_savings_rate_percentage]
+
+    unless snapshot[:goal_set]
+      return progress_without_goal(projected_amount)
+    end
+
+    case snapshot[:goal_source]
+    when :amount
+      goal_amount = snapshot[:goal_amount]
+      gap = snapshot[:goal_gap_amount]
+      amount_sentence = if projected_amount >= 0
+        "You're on track to save #{format_currency(projected_amount)} this month"
+      else
+        "You're currently on track to overspend by #{format_currency(projected_amount.abs)} this month"
+      end
+
+      if gap && gap <= 0
+        "#{amount_sentence}, meeting your #{format_currency(goal_amount)} goal."
+      else
+        "#{amount_sentence}, about #{format_currency(gap)} away from your #{format_currency(goal_amount)} goal."
+      end
+    when :rate
+      goal_percentage = snapshot[:goal_rate_percentage]
+      gap_percentage = snapshot[:goal_gap_rate_percentage]
+      rate_sentence = if projected_percentage.negative?
+        "You're currently projected to overspend by #{format_percentage(projected_percentage.abs)} of your income"
+      else
+        "You're pacing at #{format_percentage(projected_percentage)} toward your goal"
+      end
+
+      if gap_percentage && gap_percentage <= 0
+        "#{rate_sentence}, already meeting your #{format_percentage(goal_percentage)} target. Keep it up!"
+      else
+        "#{rate_sentence}—just #{format_percentage(gap_percentage.abs)} more to close the gap to #{format_percentage(goal_percentage)}."
+      end
+    when :break_even
+      if projected_amount >= 0
+        "You're currently ahead by #{format_currency(projected_amount)} versus break-even—great momentum."
+      else
+        "You're on pace to finish #{format_currency(projected_amount.abs)} below break-even. Small adjustments can still close that gap this month."
+      end
+    else
+      "You're on track to save #{format_currency(projected_amount)} this month."
+    end
+  end
+
+  def goal_evidence(snapshot)
+    evidence = {
+      projected_income: snapshot[:income],
+      projected_spending: snapshot[:projected_spending],
+      projected_savings: snapshot[:projected_savings],
+      projected_savings_rate: snapshot[:projected_savings_rate],
+      projected_savings_rate_percentage: snapshot[:projected_savings_rate_percentage],
+      goal_set: snapshot[:goal_set],
+      goal_source: snapshot[:goal_source]
+    }
+
+    if snapshot[:goal_set]
+      evidence[:goal_target_amount] = snapshot[:goal_amount]
+      evidence[:goal_target_rate] = snapshot[:goal_rate]
+      evidence[:goal_target_rate_percentage] = snapshot[:goal_rate_percentage]
+      evidence[:goal_gap_amount] = snapshot[:goal_gap_amount]
+      evidence[:goal_gap_rate_percentage] = snapshot[:goal_gap_rate_percentage]
+    end
+
+    evidence
+  end
+
+  def format_currency(amount, precision = 0)
+    value = amount || 0
+    sign = value.negative? ? "-" : ""
+    "#{sign}$#{value.abs.round(precision)}"
+  end
+
+  def format_percentage(value, precision = 1)
+    "#{value.round(precision)}%"
+  end
+
+  def progress_without_goal(projected_amount)
+    if projected_amount >= 0
+      "You're on track to save #{format_currency(projected_amount)} this month. Set a goal to track your progress automatically."
+    else
+      "You're currently on track to overspend by #{format_currency(projected_amount.abs)} this month. Set a goal to help guide your adjustments."
+    end
+  end
+
+  def goal_context_evidence(goal_context)
+    return {} unless goal_context
+
+    {
+      user_goal_active: goal_context[:has_user_goal],
+      user_goal_source: goal_context[:source],
+      user_goal_requested_amount: goal_context[:requested_amount],
+      user_goal_requested_rate: goal_context[:requested_rate],
+      user_goal_applied_amount: goal_context[:applied_amount],
+      user_goal_applied_rate: goal_context[:applied_rate]
+    }
   end
 
   def analyze_recent_savings(months)

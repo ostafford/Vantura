@@ -16,6 +16,7 @@ Rails.application.routes.draw do
     member do
       patch :update_profile
       patch :update_up_bank_integration
+      patch :update_account_goal
     end
   end
 

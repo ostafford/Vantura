@@ -103,4 +103,44 @@ class FinancialInsightsServiceTest < ActiveSupport::TestCase
     # Should prioritize insights with significant impact
     assert insights.length <= 3
   end
+
+  test "savings goal snapshot reflects user-defined goal" do
+    account = accounts(:two)
+
+    travel_to Time.zone.local(2025, 11, 15) do
+      account.transactions.create!(
+        description: "Salary",
+        amount: 4000.0,
+        transaction_date: Date.current.beginning_of_month,
+        status: "SETTLED",
+        is_hypothetical: false
+      )
+
+      account.transactions.create!(
+        description: "Rent",
+        amount: -2500.0,
+        category: "rent",
+        transaction_date: Date.current.beginning_of_month + 1.day,
+        status: "SETTLED",
+        is_hypothetical: false
+      )
+
+      account.transactions.create!(
+        description: "Groceries",
+        amount: -900.0,
+        category: "groceries",
+        transaction_date: Date.current.beginning_of_month + 2.days,
+        status: "SETTLED",
+        is_hypothetical: false
+      )
+
+      service = FinancialInsightsService.new(account, Date.current)
+      snapshot = service.send(:savings_goal_snapshot)
+
+      assert snapshot[:goal_set], "expected goal snapshot to indicate goal is set"
+      assert_equal :amount, snapshot[:goal_source]
+      assert_equal 400.0, snapshot[:goal_requested_amount]
+      assert snapshot[:projected_savings].is_a?(Numeric)
+    end
+  end
 end

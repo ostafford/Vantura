@@ -1,6 +1,13 @@
 <% stats = account_statistics(account) %>
 
-<div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+<div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-4">
+  <div id="<%= dom_id(account, "goal_section") %>">
+    <%= render "settings/account_goal_section",
+               account: account,
+               goal_feedback: nil,
+               goal_form_state: nil %>
+  </div>
+
   <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Account Statistics</h4>
   
   <!-- This Month Stats -->
