@@ -32,7 +32,7 @@
 
           <div id="calendar-day-<%= day[:date].to_s %>-card"
                class="flex flex-col min-h-[120px] px-4 py-4 rounded-lg border border-gray-200 dark:border-gray-700 <%= calendar_day_bg_class(total: total, in_current_month: day[:in_current_month], is_today: is_today, is_weekend: is_weekend) %> <%= has_trans ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20' : '' %> transition-all <%= day[:in_current_month] ? '' : 'hidden opacity-50 md:block' %> md:px-2 md:py-2 md:min-h-[100px]"
-               <% if has_trans %>role="button" tabindex="0" aria-label="View transactions for <%= day[:date].strftime('%B %d, %Y') %>" data-day-id="<%= day_id %>" data-action="click->calendar#toggleDay keydown->calendar#handleDayKey"<% end %>>
+               <% if has_trans %>role="button" tabindex="0" aria-label="View transactions for <%= day[:date].strftime('%B %d, %Y') %>" data-day-id="<%= day_id %>" data-action="click->calendar-day#toggleDay keydown->calendar-day#handleDayKey"<% end %>>
             <% if day[:in_current_month] %>
               <!-- Day header: number and day name (mobile shows full day name) -->
               <div class="flex items-start justify-between mb-3 md:mb-2">
@@ -143,7 +143,7 @@
             <button type="button" 
                     id="calendar-day-<%= day[:date].to_s %>-close-button"
                     data-day-id="<%= day_id %>" 
-                    data-action="click->calendar#toggleDay" 
+                    data-action="click->calendar-day#toggleDay" 
                     aria-label="Close <%= day[:date].strftime('%B %d') %> details"
                     class="text-gray-500 dark:text-gray-400 transition-all hover:text-gray-700 dark:hover:text-gray-300 hover:scale-110">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

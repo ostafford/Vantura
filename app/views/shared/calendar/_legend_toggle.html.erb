@@ -1,8 +1,9 @@
 <!-- Calendar Legend Toggle -->
-<div class="absolute top-2 right-2 z-50 md:top-4 md:right-4">
+<div class="absolute top-2 right-2 z-50 md:top-4 md:right-4" data-controller="calendar-legend">
   <button type="button" 
           id="calendar-legend-toggle-button"
-          data-action="click->calendar#toggleLegend"
+          data-calendar-legend-target="button"
+          data-action="click->calendar-legend#toggle"
           class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 md:w-5 md:h-5"
           aria-label="Show calendar legend"
           title="What do the colors mean?">
@@ -12,7 +13,8 @@
   </button>
   
   <!-- Legend Dropdown (hidden by default) -->
-  <div id="calendar-legend-panel" 
+  <div id="calendar-legend-panel"
+       data-calendar-legend-target="panel" 
        class="absolute top-10 right-0 z-40 hidden min-w-[200px] p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg md:top-12 md:right-0 md:min-w-[240px]">
     <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Calendar Guide</h4>
     <div class="space-y-2 text-xs">
