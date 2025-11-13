@@ -8,7 +8,7 @@ class TrendsController < ApplicationController
     preferences = trends_preferences
     store_preferences(preferences[:months], preferences[:view_type])
     stats = TrendsStatsCalculator.call(@account, Date.today, months: preferences[:months], view_type: preferences[:view_type])
-    
+
     # Generate insights with trends context
     insights_service = FinancialInsightsService.new(@account)
     all_insights = insights_service.generate_key_insights_with_trends(5, stats)

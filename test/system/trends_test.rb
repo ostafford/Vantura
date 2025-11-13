@@ -210,4 +210,3 @@ class TrendsTest < ApplicationSystemTestCase
     # Insight cards may or may not be present depending on data
   end
 end
-

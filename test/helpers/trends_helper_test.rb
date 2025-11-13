@@ -31,7 +31,7 @@ class TrendsHelperTest < ActionView::TestCase
 
   test "should return savings rate trend direction" do
     assert_not_nil trends_savings_rate_trend_direction
-    assert_includes ["improving", "stable", "declining"], trends_savings_rate_trend_direction
+    assert_includes [ "improving", "stable", "declining" ], trends_savings_rate_trend_direction
   end
 
   test "should return spending rate data" do
@@ -124,7 +124,7 @@ class TrendsHelperTest < ActionView::TestCase
   test "should return income stability message" do
     assert_not_nil trends_income_stability_message
     assert trends_income_stability_message.is_a?(String)
-    assert_includes ["consistent", "varies month-to-month"], trends_income_stability_message
+    assert_includes [ "consistent", "varies month-to-month" ], trends_income_stability_message
   end
 
   test "should return quick actions" do
@@ -158,4 +158,3 @@ class TrendsHelperTest < ActionView::TestCase
     assert_equal [], trends_quick_actions
   end
 end
-

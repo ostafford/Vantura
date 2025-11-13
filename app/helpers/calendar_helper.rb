@@ -153,17 +153,17 @@ module CalendarHelper
   # @param end_of_month_balance [Numeric] Pre-calculated end of month balance
   # @return [Hash] Hash with value, date, and label
   def calendar_period_end_calculation(account, view, date, end_of_month_balance)
-    if view == 'week'
+    if view == "week"
       {
         value: calculate_week_end_balance(account, date),
         date: date.end_of_week(:monday),
-        label: 'End of Week'
+        label: "End of Week"
       }
     else
       {
         value: end_of_month_balance,
         date: date.end_of_month,
-        label: 'End of Month'
+        label: "End of Month"
       }
     end
   end
@@ -172,7 +172,7 @@ module CalendarHelper
   # @param date [Date] The date to check
   # @return [Boolean] True if date is Saturday (6) or Sunday (0)
   def weekend?(date)
-    [0, 6].include?(date.wday)
+    [ 0, 6 ].include?(date.wday)
   end
 
   # Count hypothetical transactions for a specific day
@@ -320,7 +320,9 @@ module CalendarHelper
         description: recurring.description,
         amount: recurring.amount.abs,
         date: recurring.next_occurrence_date,
-        type: "recurring"
+        type: "recurring",
+        direction: "expense",
+        signed_amount: recurring.amount
       }
     end
 
@@ -330,7 +332,9 @@ module CalendarHelper
         description: transaction.description,
         amount: transaction.amount.abs,
         date: transaction.transaction_date,
-        type: "hypothetical"
+        type: "hypothetical",
+        direction: "expense",
+        signed_amount: transaction.amount
       }
     end
 
@@ -340,7 +344,9 @@ module CalendarHelper
         description: recurring.description,
         amount: recurring.amount,
         date: recurring.next_occurrence_date,
-        type: "recurring"
+        type: "recurring",
+        direction: "income",
+        signed_amount: recurring.amount
       }
     end
 
@@ -350,7 +356,9 @@ module CalendarHelper
         description: transaction.description,
         amount: transaction.amount,
         date: transaction.transaction_date,
-        type: "hypothetical"
+        type: "hypothetical",
+        direction: "income",
+        signed_amount: transaction.amount
       }
     end
 

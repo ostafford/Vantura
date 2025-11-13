@@ -327,15 +327,15 @@ class TrendsStatsCalculator < ApplicationService
       # Calculate goal rate based on user's goal type (amount vs rate)
       target_amount = @account.target_savings_amount
       target_rate = @account.target_savings_rate
-      
+
       historical_data.map do |month_data|
         month_income = month_data[:income]
-        
+
         # Calculate actual expected goal rate for this month
         goal_rate_pct = if target_amount.present? && target_amount.positive? && month_income.positive?
           # If user set an amount goal, calculate rate based on that month's income
           calculated_rate = (target_amount / month_income) * 100
-          [calculated_rate, 100.0].min.round(1) # Cap at 100%
+          [ calculated_rate, 100.0 ].min.round(1) # Cap at 100%
         elsif target_rate.present? && target_rate.positive?
           # If user set a rate goal, use that rate
           (target_rate * 100).round(1)
@@ -343,7 +343,7 @@ class TrendsStatsCalculator < ApplicationService
           # No goal set
           nil
         end
-        
+
         {
           month: month_data[:month],
           month_name: month_data[:month_name],
@@ -451,7 +451,7 @@ class TrendsStatsCalculator < ApplicationService
 
   # Spending rate vs income rate
   def spending_rate_data
-    days_elapsed = [(@current_date - @current_month_start).to_i + 1, 1].max
+    days_elapsed = [ (@current_date - @current_month_start).to_i + 1, 1 ].max
     days_in_month = @current_month_end.day
 
     avg_daily_income = current_month_income.positive? ? (current_month_income.to_f / days_elapsed) : 0
@@ -570,7 +570,7 @@ class TrendsStatsCalculator < ApplicationService
             .real
             .expenses
             .where(transaction_date: start_date..end_date)
-            .where.not(category: [nil, ""])
+            .where.not(category: [ nil, "" ])
             .group(:category)
             .sum(:amount)
             .transform_values(&:abs)
@@ -616,7 +616,7 @@ class TrendsStatsCalculator < ApplicationService
       # Calculate stability score (0-100, where 100 = perfectly stable)
       # Lower coefficient of variation = higher stability
       coefficient_of_variation = mean.positive? ? (std_dev / mean) : 1.0
-      score = [(100 - (coefficient_of_variation * 100)).round(0), 0].max
+      score = [ (100 - (coefficient_of_variation * 100)).round(0), 0 ].max
 
       message = score >= 80 ? "consistent" : "varies month-to-month"
 

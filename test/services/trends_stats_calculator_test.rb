@@ -647,7 +647,7 @@ class TrendsStatsCalculatorTest < ActiveSupport::TestCase
 
     stats = TrendsStatsCalculator.call(@account, @current_date, months: 3)
 
-    assert_includes ["improving", "stable", "declining"], stats[:savings_rate_trend_direction]
+    assert_includes [ "improving", "stable", "declining" ], stats[:savings_rate_trend_direction]
   end
 
   # Spending rate tests

@@ -1,0 +1,201 @@
+<%
+  period_label = local_assigns.fetch(:period_label, "End of Period")
+  period_value = local_assigns.fetch(:period_value, 0)
+  period_date = local_assigns.fetch(:period_date, Date.today)
+  is_month_view = local_assigns.fetch(:is_month_view, true)
+  spending_daily_rate = local_assigns.fetch(:spending_daily_rate, 0.0)
+  spending_projected_total = local_assigns.fetch(:spending_projected_total, 0.0)
+  spending_velocity_change_pct = local_assigns.fetch(:spending_velocity_change_pct, 0.0)
+  spending_rate = local_assigns.fetch(:spending_rate, 0.0)
+  pace_indicator = local_assigns[:pace_indicator]
+  pace_percentage = local_assigns.fetch(:pace_percentage, 0.0)
+  upcoming_transactions = local_assigns.fetch(:upcoming_transactions, { expenses: [], income: [] })
+  days_remaining = local_assigns.fetch(:days_remaining, 0)
+  current_balance = local_assigns.fetch(:current_balance, 0)
+  transaction_count = local_assigns.fetch(:transaction_count, 0)
+  week_total = local_assigns.fetch(:week_total, 0)
+
+  upcoming_expenses = Array(upcoming_transactions[:expenses])
+  upcoming_income = Array(upcoming_transactions[:income])
+  upcoming_items = (upcoming_expenses + upcoming_income).sort_by { |item| item[:date] || Date.today }.first(4)
+  upcoming_count = upcoming_expenses.size + upcoming_income.size
+  normalize_signed_amount = ->(item) do
+    if item.key?(:signed_amount) && item[:signed_amount].present?
+      item[:signed_amount].to_f
+    else
+      amount_value = item[:amount].to_f
+      case item[:direction]
+      when "expense"
+        -amount_value
+      when "income"
+        amount_value
+      else
+        amount_value
+      end
+    end
+  end
+  upcoming_net = (upcoming_expenses + upcoming_income).sum { |item| normalize_signed_amount.call(item) }
+  upcoming_net_class = upcoming_net >= 0 ? "text-income-600 dark:text-income-400" : "text-expense-600 dark:text-expense-400"
+  upcoming_net_prefix =
+    if upcoming_net.positive?
+      "+"
+    elsif upcoming_net.negative?
+      "-"
+    else
+      ""
+    end
+  comparison_text = is_month_view ? format_spending_pace_comparison(spending_velocity_change_pct) : nil
+  pluralized_days_remaining = pluralize([ days_remaining, 0 ].max, "day")
+%>
+
+<div class="bento-span-3 bento-row-span-1 from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800 rounded-2xl shadow-deep p-6" id="calendar-timeline-card">
+  <div class="flex h-full flex-col gap-6">
+    <header class="flex items-start justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Timeline &amp; Pace</p>
+        <h3 class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">
+          Upcoming activity for your <%= is_month_view ? 'month' : 'week' %>
+        </h3>
+      </div>
+      <span class="inline-flex items-center rounded-full bg-white/60 px-3 py-1 text-xs font-semibold text-gray-600 shadow-sm dark:bg-gray-800/70 dark:text-gray-300">
+        <%= period_label %>
+      </span>
+    </header>
+
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <div class="flex flex-col rounded-2xl border border-gray-200 bg-white/80 p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          Projected <%= period_label.downcase %>
+        </p>
+        <p class="mt-2 text-2xl font-bold text-primary-700 dark:text-primary-300">
+          <%= number_to_currency(period_value) %>
+        </p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          by <time datetime="<%= period_date.iso8601 %>"><%= period_date.strftime('%b %d, %Y') %></time> • <%= pluralized_days_remaining %> remaining
+        </p>
+
+        <% if is_month_view && pace_indicator.present? %>
+          <div class="mt-5 rounded-xl border border-gray-200 bg-white/75 p-4 dark:border-gray-700 dark:bg-gray-800/60">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Spending pace
+                </p>
+                <p class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">
+                  <%= number_to_currency(spending_daily_rate) %>/day
+                </p>
+              </div>
+              <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold <%= pace_indicator[:indicator_bg] %> <%= pace_indicator[:indicator_text] %>">
+                <span class="inline-block h-2 w-2 rounded-full bg-current"></span>
+                <%= pace_indicator[:status] %>
+              </span>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-center gap-2">
+                <div class="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+                  <div class="h-full rounded-full <%= pace_indicator[:bar_color] %>" style="width: <%= pace_percentage %>%"></div>
+                </div>
+                <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                  <%= spending_rate.round(0) %>%
+                </span>
+              </div>
+              <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                Projected month-end spending <span class="font-semibold text-gray-900 dark:text-gray-100"><%= number_to_currency(spending_projected_total) %></span>
+              </p>
+              <% if comparison_text.present? %>
+                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500"><%= comparison_text %></p>
+              <% end %>
+            </div>
+          </div>
+        <% elsif is_month_view %>
+          <div class="mt-5 rounded-xl border border-dashed border-gray-300 bg-white/40 p-4 text-sm text-gray-500 dark:border-gray-600 dark:bg-gray-800/40 dark:text-gray-400">
+            Once we detect a few days of spending this month, you'll see pace insights here.
+            <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+              <%= pluralize(transaction_count, 'transaction') %> recorded so far this month.
+            </p>
+          </div>
+        <% else %>
+          <div class="mt-5 rounded-xl border border-gray-200 bg-white/75 p-4 dark:border-gray-700 dark:bg-gray-800/60">
+            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Week net
+            </p>
+            <p class="mt-2 text-2xl font-semibold <%= week_total >= 0 ? 'text-income-600 dark:text-income-400' : 'text-expense-600 dark:text-expense-400' %>">
+              <%= week_total >= 0 ? '+' : '' %><%= number_to_currency(week_total) %>
+            </p>
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              <%= pluralize(transaction_count, 'transaction') %> recorded this week
+            </p>
+            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+              Current balance <span class="font-semibold text-gray-600 dark:text-gray-300"><%= number_to_currency(current_balance) %></span>
+            </p>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex flex-col rounded-2xl border border-gray-200 bg-white/90 p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800/70">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              Upcoming schedule
+            </p>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              <%= upcoming_count.positive? ? "#{pluralize(upcoming_count, 'item')} scheduled" : "No upcoming items scheduled" %>
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Net impact</p>
+            <p class="mt-1 text-lg font-semibold <%= upcoming_net_class %>">
+              <%= upcoming_net_prefix %><%= number_to_currency(upcoming_net.abs) %>
+            </p>
+          </div>
+        </div>
+
+        <ul class="mt-4 space-y-3" role="list">
+          <% if upcoming_items.present? %>
+            <% upcoming_items.each do |item| %>
+              <% signed_amount = normalize_signed_amount.call(item) %>
+              <% direction = item[:direction].presence || (signed_amount >= 0 ? "income" : "expense") %>
+              <% is_income = direction == "income" %>
+              <% badge_classes = is_income ? 'bg-income-100 text-income-700 dark:bg-income-900/30 dark:text-income-300' : 'bg-expense-100 text-expense-700 dark:bg-expense-900/30 dark:text-expense-300' %>
+              <% amount_label = number_to_currency(signed_amount.abs) %>
+              <% description = item[:description].presence || "Upcoming transaction" %>
+              <% item_type_label = item[:type].present? ? item[:type].to_s.humanize : nil %>
+              <li class="flex items-center justify-between rounded-xl border border-gray-200 bg-white/70 px-3 py-2 shadow-sm dark:border-gray-700 dark:bg-gray-800/60" role="listitem">
+                <div class="flex flex-col">
+                  <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <%= description %>
+                  </span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400">
+                    <time datetime="<%= item[:date]&.iso8601 %>"><%= item[:date]&.strftime('%b %d') %></time>
+                    • <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.7rem] font-semibold <%= badge_classes %>">
+                      <%= is_income ? 'Income' : 'Expense' %>
+                      <% if item_type_label.present? %>
+                        <span class="text-[0.65rem] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          <%= item_type_label %>
+                        </span>
+                      <% end %>
+                    </span>
+                  </span>
+                </div>
+                <span class="text-sm font-semibold <%= is_income ? 'text-income-600 dark:text-income-400' : 'text-expense-600 dark:text-expense-400' %>">
+                  <%= signed_amount >= 0 ? '+' : '-' %><%= amount_label %>
+                </span>
+              </li>
+            <% end %>
+          <% else %>
+            <li class="rounded-xl border border-dashed border-gray-300 px-4 py-6 text-center text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+              Stay tuned — new recurring or hypothetical activity will appear here.
+            </li>
+          <% end %>
+        </ul>
+
+        <% if upcoming_count > upcoming_items.size %>
+          <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+            +<%= upcoming_count - upcoming_items.size %> more scheduled beyond this range
+          </p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+

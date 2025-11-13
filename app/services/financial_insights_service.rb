@@ -560,7 +560,7 @@ class FinancialInsightsService
     if trends_stats
       all_insights << category_spike_insight(trends_stats)
       all_insights << category_reduction_opportunity_insight(trends_stats)
-      
+
       # Enhance savings opportunity if available
       enhanced_savings = enhanced_savings_opportunity_insight(trends_stats)
       if enhanced_savings
