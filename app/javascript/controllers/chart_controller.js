@@ -159,6 +159,20 @@ export default class extends Controller {
         }
       }
       
+      // Enable legend for donut/pie charts
+      options.legend = {
+        show: true,
+        position: 'bottom',
+        horizontalAlign: 'center',
+        fontSize: '12px',
+        fontFamily: 'Inter, sans-serif',
+        formatter: function(seriesName, opts) {
+          const val = opts.w.globals.series[opts.seriesIndex]
+          const pct = opts.w.globals.seriesPercent[opts.seriesIndex]
+          return seriesName + ": $" + val.toFixed(0) + " (" + pct.toFixed(1) + "%)"
+        }
+      }
+      
       // Set explicit dimensions for pie chart container
       const containerWidth = this.element.offsetWidth || 400
       const containerHeight = this.heightValue || 400

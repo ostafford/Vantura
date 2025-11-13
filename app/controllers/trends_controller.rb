@@ -34,13 +34,18 @@ class TrendsController < ApplicationController
   def trends_preferences
     months_param = params[:months] || session[:trends_months] || 6
     {
-      months: months_param == "all" ? "all" : months_param.to_i,
+      months: months_param == "all" ? "all" : (months_param == "current" ? 1 : months_param.to_i),
       view_type: params[:view_type] || session[:trends_view_type] || "category"
     }
   end
 
   def store_preferences(months, view_type)
-    session[:trends_months] = months if months
+    # Store "current" as string to preserve user selection, but convert to 1 for calculations
+    if months == 1 && params[:months] == "current"
+      session[:trends_months] = "current"
+    elsif months
+      session[:trends_months] = months
+    end
     session[:trends_view_type] = view_type if view_type
   end
 
@@ -56,6 +61,6 @@ class TrendsController < ApplicationController
   end
 
   def valid_months?(months)
-    months.present? && (months == "all" || months.to_i.positive?)
+    months.present? && (months == "all" || months == "current" || months.to_i.positive?)
   end
 end

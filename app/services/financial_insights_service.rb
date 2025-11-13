@@ -212,7 +212,7 @@ class FinancialInsightsService
       {
         type: "savings_investment_opportunity",
         title: "Savings Opportunity Detected",
-        message: generate_savings_only_message(savings_opp, current_month_income, projected_spending, projected_savings),
+        message: generate_savings_only_message(savings_opp, current_month_income, projected_spending, projected_savings, goal_snapshot),
         evidence: {
           current_income: current_month_income,
           projected_spending: projected_spending,

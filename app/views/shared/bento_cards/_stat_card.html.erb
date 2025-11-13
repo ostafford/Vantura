@@ -11,6 +11,7 @@
   clickable = link.present?
   element_id = local_assigns.fetch(:id, nil)
   aria_label = local_assigns.fetch(:aria_label, nil) || (clickable ? "View #{title} details" : nil)
+  tooltip = local_assigns.fetch(:tooltip, nil)
   
   # Icon paths
   icon_paths = {
@@ -70,7 +71,20 @@
           </div>
           
           <div class="flex-1 min-w-0">
-            <p class="stat-card-title text-sm font-medium text-gray-600 dark:text-gray-400 mb-1"><%= title %></p>
+            <div class="flex items-center gap-2 mb-1">
+              <p class="stat-card-title text-sm font-medium text-gray-600 dark:text-gray-400"><%= title %></p>
+              <% if tooltip.present? %>
+                <span class="cursor-help"
+                      data-controller="tooltip"
+                      data-tooltip-content-value="<%= tooltip %>"
+                      data-tooltip-position-value="top"
+                      data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">
+                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
+              <% end %>
+            </div>
             <p class="stat-card-value font-bold <%= value_text %>"><%= value %></p>
           </div>
         </div>
@@ -110,7 +124,20 @@
           </div>
           
           <div class="flex-1 min-w-0">
-            <p class="stat-card-title text-sm font-medium text-gray-600 dark:text-gray-400 mb-1"><%= title %></p>
+            <div class="flex items-center gap-2 mb-1">
+              <p class="stat-card-title text-sm font-medium text-gray-600 dark:text-gray-400"><%= title %></p>
+              <% if tooltip.present? %>
+                <span class="cursor-help"
+                      data-controller="tooltip"
+                      data-tooltip-content-value="<%= tooltip %>"
+                      data-tooltip-position-value="top"
+                      data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">
+                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
+              <% end %>
+            </div>
             <p class="stat-card-value font-bold <%= value_text %>"><%= value %></p>
           </div>
         </div>

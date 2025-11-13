@@ -324,11 +324,31 @@ class TrendsStatsCalculator < ApplicationService
   # Savings rate trend over historical period
   def savings_rate_trend
     @savings_rate_trend ||= begin
+      # Calculate goal rate based on user's goal type (amount vs rate)
+      target_amount = @account.target_savings_amount
+      target_rate = @account.target_savings_rate
+      
       historical_data.map do |month_data|
+        month_income = month_data[:income]
+        
+        # Calculate actual expected goal rate for this month
+        goal_rate_pct = if target_amount.present? && target_amount.positive? && month_income.positive?
+          # If user set an amount goal, calculate rate based on that month's income
+          calculated_rate = (target_amount / month_income) * 100
+          [calculated_rate, 100.0].min.round(1) # Cap at 100%
+        elsif target_rate.present? && target_rate.positive?
+          # If user set a rate goal, use that rate
+          (target_rate * 100).round(1)
+        else
+          # No goal set
+          nil
+        end
+        
         {
           month: month_data[:month],
           month_name: month_data[:month_name],
-          savings_rate: month_data[:savings_rate]
+          savings_rate: month_data[:savings_rate],
+          goal_rate: goal_rate_pct
         }
       end
     end
