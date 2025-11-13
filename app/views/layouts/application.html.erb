@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title><%= content_for(:title) || "Vantura" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -24,6 +24,9 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# DNS prefetch for external APIs to reduce latency on first request %>
+    <link rel="dns-prefetch" href="//api.up.com.au">
 
     <%# Theme initialization - must run before stylesheet to prevent FOUC
         This script MUST be inline (not external) because:
@@ -52,12 +55,12 @@
     </script>
 
     <%# Includes Tailwind CSS (built) and application styles %>
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload", preload: true %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-controller="theme modal sync" class="bg-neutral-100 dark:bg-primary-900 h-screen flex flex-col">
+  <body data-controller="theme modal sync" class="flex flex-col h-screen bg-neutral-100 dark:bg-primary-900">
     <!-- WebSocket subscription for real-time updates (available on all pages) -->
     <% if Current.user %>
       <%= turbo_stream_from Current.user %>
@@ -69,11 +72,11 @@
     <% end %>
 
     <!-- Main content wrapper (adjusts margin for sidebar on desktop) -->
-    <main id="main-content-container" 
+    <main id="application-main-container" 
           role="main"
           aria-label="Main content"
           data-modal-target="content"
-          class="transition-all duration-300 ease-in-out flex-1 overflow-auto 
+          class="flex-1 overflow-auto transition-all duration-300 ease-in-out 
                   lg:ml-64">
       
       <!-- Page Header (now inside main container) -->
@@ -97,7 +100,7 @@
     <% end %>
     
     <!-- Sync notification container (available on all pages) -->
-    <div id="sync-notification-container"></div>
+    <div id="app-sync-notification-container"></div>
     
     <%= render 'shared/notifications' %>
   </body>

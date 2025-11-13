@@ -145,6 +145,36 @@ module CalendarHelper
     }
   end
 
+  # Calculate period end data (week or month)
+  # Extracts complex logic from views to improve maintainability
+  # @param account [Account] Account to calculate balance for
+  # @param view [String] Current view ('week' or 'month')
+  # @param date [Date] Current date
+  # @param end_of_month_balance [Numeric] Pre-calculated end of month balance
+  # @return [Hash] Hash with value, date, and label
+  def calendar_period_end_calculation(account, view, date, end_of_month_balance)
+    if view == 'week'
+      {
+        value: calculate_week_end_balance(account, date),
+        date: date.end_of_week(:monday),
+        label: 'End of Week'
+      }
+    else
+      {
+        value: end_of_month_balance,
+        date: date.end_of_month,
+        label: 'End of Month'
+      }
+    end
+  end
+
+  # Check if a date falls on a weekend (Saturday or Sunday)
+  # @param date [Date] The date to check
+  # @return [Boolean] True if date is Saturday (6) or Sunday (0)
+  def weekend?(date)
+    [0, 6].include?(date.wday)
+  end
+
   # Count hypothetical transactions for a specific day
   # @param date [Date] The date to count hypothetical transactions for
   # @return [Integer] Number of hypothetical transactions for the day

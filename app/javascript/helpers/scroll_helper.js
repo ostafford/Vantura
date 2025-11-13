@@ -19,10 +19,10 @@
  * 
  * @param {number} scrollY - The saved scroll position to restore
  * @param {string} frameId - Optional Turbo Frame ID to watch for mutations
- * @param {string} containerId - Optional container ID, defaults to 'main-content-container'
+ * @param {string} containerId - Optional container ID, defaults to 'application-main-container'
  */
-export function restoreScrollAfterStream(scrollY, frameId = null, containerId = 'main-content-container') {
-  // Cross-controller access: main-content-container is shared layout element
+export function restoreScrollAfterStream(scrollY, frameId = null, containerId = 'application-main-container') {
+  // Cross-controller access: application-main-container is shared layout element
   // Per rules: Keep getElementById for elements accessed outside controller scope
   // @see .cursor/rules/conventions/ID_naming_strategy/id_naming_category.mdc (lines 668-678)
   const scrollableElement = document.getElementById(containerId) || window

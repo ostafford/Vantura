@@ -7,7 +7,7 @@ import { Controller } from "@hotwired/stimulus"
  * Handles responsive behavior and updates main content margins.
  * 
  * Cross-controller access:
- * - getElementById('main-content-container') - Shared layout element accessed by
+ * - getElementById('application-main-container') - Shared layout element accessed by
  *   multiple controllers (sidebar, month_nav, calendar). This is acceptable as the
  *   element is accessed outside controller scope and shared across controllers.
  * 
@@ -18,10 +18,10 @@ export default class extends Controller {
   static targets = ["toggleButton"]
 
   connect() {
-    // Cross-controller access: main-content-container is shared layout element
+    // Cross-controller access: application-main-container is shared layout element
     // Per rules: Keep getElementById for elements accessed outside controller scope
     // @see .cursor/rules/conventions/ID_naming_strategy/id_naming_category.mdc (lines 668-678)
-    this.mainContentElement = document.getElementById('main-content-container')
+    this.mainContentElement = document.getElementById('application-main-container')
     
     // Load saved state from localStorage (defaults to expanded)
     const savedState = localStorage.getItem('sidebarExpanded')

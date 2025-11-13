@@ -17,16 +17,7 @@
     <!-- Line 2: End of Period -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <% 
-          if @view == 'week'
-            end_value = calculate_week_end_balance(@account, @date)
-            end_date = @date.end_of_week(:monday)
-          else
-            end_value = @end_of_month_balance
-            end_date = @date.end_of_month
-          end
-          period_data = calendar_period_end_data(@view, end_value, end_date)
-        %>
+        <% period_data = calendar_period_end_calculation(@account, @view, @date, @end_of_month_balance) %>
         <span class="text-blue-50 text-base font-medium"><%= period_data[:label] %>:</span>
         <span class="text-blue-100 text-xs">
           (<time datetime="<%= period_data[:date].iso8601 %>"><%= period_data[:date].strftime('%b %d') %></time>)

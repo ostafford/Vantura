@@ -273,4 +273,66 @@ module DashboardHelper
       source: :none
     }
   end
+
+  # Calculate trajectory status data for dashboard display
+  # Consolidates status props, budget calculations, and trend messaging
+  # @return [Hash] Hash containing on_track, status_props, budget_remaining, net_positive, month_start_label, trend_copy
+  def trajectory_status_data
+    on_track = on_track_status
+    status_props = on_track_badge_props(on_track)
+    budget_remaining = balance_change_since_month_start
+    net_positive = budget_remaining >= 0
+    month_start_label = current_date.beginning_of_month.strftime("%b %d")
+    trend_copy = net_positive ? "Balances are trending ahead of plan." : "Spending exceeds income this month."
+
+    {
+      on_track: on_track,
+      status_props: status_props,
+      budget_remaining: budget_remaining,
+      net_positive: net_positive,
+      month_start_label: month_start_label,
+      trend_copy: trend_copy
+    }
+  end
+
+  # Calculate styling data for daily target display
+  # @param daily_target_data [Hash] Hash from daily_spending_target method
+  # @return [Hash] Hash containing target_status_props, target_icon_color, target_text_color
+  def daily_target_styling_data(daily_target_data)
+    return nil unless daily_target_data
+
+    target_status_props = on_track_badge_props(daily_target_data[:status])
+
+    target_icon_color = case daily_target_data[:status]
+    when :on_track
+                          "bg-emerald-400/20 text-emerald-200"
+    when :caution
+                          "bg-amber-400/20 text-amber-200"
+    else
+                          "bg-rose-500/20 text-rose-200"
+    end
+
+    target_text_color = case daily_target_data[:status]
+    when :on_track
+                          "text-emerald-200"
+    when :caution
+                          "text-amber-200"
+    else
+                          "text-rose-200"
+    end
+
+    {
+      target_status_props: target_status_props,
+      target_icon_color: target_icon_color,
+      target_text_color: target_text_color
+    }
+  end
+
+  # Calculate monthly net cash flow (income - expenses)
+  # @param income_total [Numeric] Total income for the month
+  # @param expense_total [Numeric] Total expenses for the month
+  # @return [Numeric] Net cash flow value
+  def monthly_net_cash_flow(income_total, expense_total)
+    income_total - expense_total
+  end
 end

@@ -3,8 +3,11 @@
     <%= render 'dashboard/transaction_card', transaction: transaction %>
   <% end %>
 <% else %>
-  <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-    No transactions for this week.
+  <div id="dashboard-recent-transactions-empty-state" 
+       class="text-center py-8 text-gray-500 dark:text-gray-400"
+       role="status"
+       aria-live="polite">
+    <p>No transactions for this week.</p>
   </div>
 <% end %>
 

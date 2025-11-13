@@ -40,7 +40,7 @@ class SyncUpBankJob < ApplicationJob
       # Broadcast success notification to user's browser
       Turbo::StreamsChannel.broadcast_append_to(
         user,
-        target: "sync-notification-container",
+        target: "app-sync-notification-container",
         partial: "shared/sync_complete_notification",
         locals: {
           new_transactions: result[:new_transactions],
@@ -53,7 +53,7 @@ class SyncUpBankJob < ApplicationJob
       # Broadcast error notification
       Turbo::StreamsChannel.broadcast_append_to(
         user,
-        target: "sync-notification-container",
+        target: "app-sync-notification-container",
         html: <<~HTML
           <div class="fixed top-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl border-2 border-red-500 dark:border-red-400 p-4 min-w-[320px] z-50"
                data-controller="notification">

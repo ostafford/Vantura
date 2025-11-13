@@ -1,6 +1,6 @@
 <%
-  # Calculate net cash flow for the month (Income - Expenses)
-  monthly_net = income_total - expense_total
+  # Calculate net cash flow for the month using helper method
+  monthly_net = monthly_net_cash_flow(income_total, expense_total)
   
   # Calculate days remaining using helper method
   days_remaining = days_remaining_in_month(current_date)

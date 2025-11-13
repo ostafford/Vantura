@@ -8,7 +8,7 @@ import { Controller } from "@hotwired/stimulus"
  * 
  * Cross-controller access:
  * - getElementById('calendar_content') - Turbo Frame accessed by multiple controllers
- * - getElementById('main-content-container') - Shared layout element accessed by sidebar
+ * - getElementById('application-main-container') - Shared layout element accessed by sidebar
  * - getElementById('details-drawer-*') - Drawer elements accessed outside controller scope
  * 
  * @see .cursor/rules/conventions/ID_naming_strategy/id_naming_category.mdc (lines 668-678)
@@ -125,8 +125,8 @@ export default class extends Controller {
       this.setupStickyHeaderObserver()
 
       // Immediately update header data for current view
-      const weekViewContainer = document.getElementById('week-view-container')
-      const monthViewContainer = document.getElementById('month-view-container')
+      const weekViewContainer = document.getElementById('calendar-week-view-container')
+      const monthViewContainer = document.getElementById('calendar-month-view-container')
       
       if (weekViewContainer) {
         // Week view: update immediately
@@ -205,6 +205,16 @@ export default class extends Controller {
     }
   }
   
+  // Handle keyboard navigation for day cards
+  handleDayKey(event) {
+    // Only handle Enter and Space keys
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      // Trigger the same action as click
+      this.toggleDay(event)
+    }
+  }
+
   // Toggle day details (for month view expandable details)
   toggleDay(event) {
     const dayId = event.currentTarget.dataset.dayId
@@ -224,7 +234,7 @@ export default class extends Controller {
         const drawer = document.getElementById('details-drawer-modal')
         const panel = document.getElementById('details-drawer-panel')
         const content = document.getElementById('details-drawer-content')
-        const mainContent = document.getElementById('main-content-container')
+        const mainContent = document.getElementById('application-main-container')
         const closeBtn = document.getElementById('details-drawer-close-button')
 
         if (drawer && panel && content && mainContent) {
@@ -278,7 +288,7 @@ export default class extends Controller {
     const weekIndex = weekContainer.getAttribute('data-week-index')
     // Cross-controller access: week details slot is dynamically created and accessed
     // Per rules: Keep getElementById for dynamic ID-based access outside controller scope
-    const slot = document.getElementById(`week-details-${weekIndex}`)
+    const slot = document.getElementById(`calendar-week-details-${weekIndex}`)
     if (!slot) return
 
     // Ensure we have a cache of all detail elements to hide when needed
@@ -325,8 +335,8 @@ export default class extends Controller {
       return
     }
 
-    const weekViewContainer = document.getElementById('week-view-container')
-    const monthViewContainer = document.getElementById('month-view-container')
+    const weekViewContainer = document.getElementById('calendar-week-view-container')
+    const monthViewContainer = document.getElementById('calendar-month-view-container')
     const isWeekView = !!weekViewContainer
     const isMonthView = !!monthViewContainer
 
