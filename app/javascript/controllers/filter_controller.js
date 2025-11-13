@@ -8,17 +8,46 @@ export default class extends Controller {
   }
 
   // Navigate to filtered results when selection changes
-  change(event) {
+  async change(event) {
     const filterValue = event.target.value
-    const url = this.urlValue + '?filter=' + filterValue
-    
-    // Use Turbo navigation with frame targeting if specified
-    if (this.hasTurboFrameValue && this.turboFrameValue) {
-      Turbo.visit(url, { frame: this.turboFrameValue })
-    } else {
-      // Fallback to regular Turbo navigation
-      Turbo.visit(url)
+    const { dataset } = event.target
+    const baseUrlString = dataset.filterUrlValue || this.urlValue || window.location.href
+    const frameId = dataset.filterTurboFrameValue || this.turboFrameValue
+    const frame = frameId ? document.getElementById(frameId) : null
+
+    const targetUrl = new URL(baseUrlString, window.location.origin)
+    targetUrl.searchParams.set("filter", filterValue)
+
+    try {
+      const response = await fetch(targetUrl.toString(), {
+        headers: {
+          Accept: "text/vnd.turbo-stream.html, text/html",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        credentials: "same-origin"
+      })
+
+      if (!response.ok) {
+        throw new Error(`[filter#change] HTTP ${response.status}`)
+      }
+
+      const contentType = response.headers.get("content-type") || ""
+      if (contentType.includes("text/vnd.turbo-stream.html")) {
+        const html = await response.text()
+        Turbo.renderStreamMessage(html)
+        frame?.dispatchEvent(new CustomEvent("transactions:restore-scroll"))
+        return
+      }
+    } catch (error) {
+      console.error("[filter#change] Turbo stream request failed", error)
     }
+
+    if (frameId) {
+      Turbo.visit(targetUrl.toString(), { frame: frameId })
+      return
+    }
+
+    Turbo.visit(targetUrl.toString())
   }
 }
 

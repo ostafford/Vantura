@@ -30,3 +30,21 @@ document.addEventListener('turbo:frame-load', () => {
   // Recalculate in case header content changed within a frame
   calculateHeaderHeight()
 })
+
+// Temporary diagnostics for Turbo navigation behaviour
+if (import.meta.env?.DEV ?? true) {
+  const debugTurboEvent = (name) => (event) => {
+    console.debug(`[turbo:${name}]`, {
+      url: event.detail?.url,
+      frame: event.target?.id,
+      action: event.detail?.action
+    })
+  }
+
+  document.addEventListener("turbo:before-visit", debugTurboEvent("before-visit"))
+  document.addEventListener("turbo:visit", debugTurboEvent("visit"))
+  document.addEventListener("turbo:load", () => console.debug("[turbo:load]"))
+  document.addEventListener("turbo:before-cache", () => console.debug("[turbo:before-cache]"))
+  document.addEventListener("turbo:before-frame-render", debugTurboEvent("before-frame-render"))
+  document.addEventListener("turbo:frame-load", debugTurboEvent("frame-load"))
+}

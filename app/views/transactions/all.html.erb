@@ -29,100 +29,34 @@
     </div>
 <% end %>
 
-<div data-controller="filter recurring-modal" data-recurring-modal-target="content">
-  <!-- Month Navigation & Filter -->
-  <%= content_wrapper class: "py-4" do %>
-    <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep p-4">
-      <div class="flex items-center justify-between">
-        <!-- Month Navigation -->
-        <div class="flex gap-3">
-          <%= link_to transactions_path(year: @transactions_data[:date].prev_month.year, month: @transactions_data[:date].prev_month.month, filter: @transactions_data[:filter_type]),
-                      class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                      data: { turbo_frame: "transactions_content" } do %>
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Previous
-          <% end %>
+<main data-controller="filter recurring-modal" data-recurring-modal-target="content">
+  <%= content_wrapper class: "py-6" do %>
+    <%= turbo_frame_tag "transactions_content",
+          data: {
+            controller: "transactions-scroll",
+            transactions_scroll_storage_key_value: "transactions_content_scroll",
+            turbo_preserve_scroll: true
+          } do %>
+      <% if @account %>
+        <section class="mb-6" aria-label="Transaction summary statistics">
+          <div id="transactions-bento-cards-container" class="bento-grid">
+            <%= render partial: "transactions/bento_cards" %>
+          </div>
+        </section>
 
-          <%= link_to transactions_path(year: @transactions_data[:date].next_month.year, month: @transactions_data[:date].next_month.month, filter: @transactions_data[:filter_type]),
-                      class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                      data: { turbo_frame: "transactions_content" } do %>
-            Next
-            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          <% end %>
-        </div>
-
-        <!-- Month Display -->
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          <%= @transactions_data[:date].strftime("%B %Y") %>
-        </h2>
-
-        <!-- Filter Dropdown -->
-        <div class="relative">
-          <label for="transaction-filter-select" class="sr-only">Filter transactions</label>
-          <select id="transaction-filter-select" name="filter" 
-                  data-action="change->filter#change"
-                  data-filter-url-value="<%= transactions_path(year: @transactions_data[:year], month: @transactions_data[:month]) %>"
-                  data-filter-turbo-frame-value="transactions_content"
-                  class="block px-4 py-2 pr-10 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
-            <option value="all" <%= 'selected' if @transactions_data[:filter_type] == 'all' %>>All Transactions</option>
-            <option value="expenses" <%= 'selected' if @transactions_data[:filter_type] == 'expenses' %>>Expenses Only</option>
-            <option value="income" <%= 'selected' if @transactions_data[:filter_type] == 'income' %>>Income Only</option>
-            <option value="hypothetical" <%= 'selected' if @transactions_data[:filter_type] == 'hypothetical' %>>Hypothetical Only</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  <% end %>
-
-  <%= content_wrapper class: "py-4" do %>
-    <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep">
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-          <%= case @transactions_data[:filter_type]
-              when "expenses" then "Expense Transactions"
-              when "income" then "Income Transactions"
-              when "hypothetical" then "Hypothetical Transactions"
-              else "All Transactions"
-              end %>
-        </h2>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <% @transactions_data[:transactions].each do |transaction| %>
-              <%= render partial: 'shared/transactions/row', locals: { transaction: transaction, compact: false, show_date: true } %>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-
-      <% if @transactions_data[:transactions].empty? %>
-        <div class="px-6 py-12 text-center">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No transactions</h3>
-          <p class="mt-1 text-sm text-gray-500">No transactions found for the selected filter.</p>
-        </div>
+        <%= render "transactions/table_section",
+              transactions_data: @transactions_data,
+              filters_partial: "transactions/table_filters",
+              filters_locals: {
+                transactions_data: @transactions_data,
+                start_date: params[:start_date],
+                end_date: params[:end_date],
+                search_query: params[:q]
+              } %>
       <% end %>
-    </div>
+    <% end %>
   <% end %>
 
   <%= render 'shared/recurring_drawer' %>
-</div>
+</main>
 

@@ -6,7 +6,12 @@
 
   <%= content_wrapper class: "py-6" do %>
     <%# Turbo Frame for partial updates %>
-    <%= turbo_frame_tag "transactions_content" do %>
+    <%= turbo_frame_tag "transactions_content",
+          data: {
+            controller: "transactions-scroll",
+            transactions_scroll_storage_key_value: "transactions_content_scroll",
+            turbo_preserve_scroll: true
+          } do %>
       <% if @account %>
         <!-- Transaction Summary Section -->
         <section class="mb-6" aria-label="Transaction summary statistics">
@@ -15,179 +20,29 @@
           </div>
         </section>
 
-        <!-- Month Navigation & Filter -->
-        <nav class="mb-4" aria-label="Transaction navigation and filters">
-          <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep p-4">
-            <div class="flex items-center justify-between">
-              <!-- Month Navigation -->
-              <div id="transactions-month-navigation" class="flex gap-3">
-                <%= link_to transactions_path(year: @transactions_data[:date].prev_month.year, month: @transactions_data[:date].prev_month.month, filter: @transactions_data[:filter_type]),
-                            class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                            data: { turbo_frame: "transactions_content" } do %>
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                  </svg>
-                  Previous
-                <% end %>
-
-                <%= link_to transactions_path(year: @transactions_data[:date].next_month.year, month: @transactions_data[:date].next_month.month, filter: @transactions_data[:filter_type]),
-                            class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                            data: { turbo_frame: "transactions_content" } do %>
-                  Next
-                  <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                  </svg>
-                <% end %>
-              </div>
-
-              <!-- Month Display -->
-              <h2 id="transactions-current-month-heading" class="text-2xl font-bold text-gray-900 dark:text-white">
-                <%= @transactions_data[:date].strftime("%B %Y") %>
-              </h2>
-
-              <!-- Filter Dropdown -->
-              <div class="relative">
-                <label for="transaction-filter-select" class="sr-only">Filter transactions</label>
-                <select id="transaction-filter-select" name="filter" 
-                        data-action="change->filter#change"
-                        data-filter-url-value="<%= transactions_path(year: @transactions_data[:year], month: @transactions_data[:month], start_date: params[:start_date], end_date: params[:end_date]) %>"
-                        data-filter-turbo-frame-value="transactions_content"
-                        class="block px-4 py-2 pr-10 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
-                  <option value="all" <%= 'selected' if @transactions_data[:filter_type] == 'all' %>>All Transactions</option>
-                  <option value="expenses" <%= 'selected' if @transactions_data[:filter_type] == 'expenses' %>>Expenses Only</option>
-                  <option value="income" <%= 'selected' if @transactions_data[:filter_type] == 'income' %>>Income Only</option>
-                  <option value="hypothetical" <%= 'selected' if @transactions_data[:filter_type] == 'hypothetical' %>>Hypothetical Only</option>
-                </select>
-              </div>
-            </div>
-            
-            <!-- Date Range Filter -->
-            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <%= form_with url: transactions_path, method: :get, local: false, 
-                            data: { turbo_frame: "transactions_content" },
-                            class: "flex items-center gap-3 flex-wrap" do |f| %>
-                <%= f.hidden_field :filter, value: @transactions_data[:filter_type] %>
-                
-                <div class="flex items-center gap-2">
-                  <label for="date-range-start-input" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                    From:
-                  </label>
-                  <%= f.date_field :start_date, 
-                      id: "date-range-start-input",
-                      value: params[:start_date],
-                      class: "px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                  <label for="date-range-end-input" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                    To:
-                  </label>
-                  <%= f.date_field :end_date,
-                      id: "date-range-end-input",
-                      value: params[:end_date],
-                      class: "px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
-                </div>
-                
-                <div class="flex gap-2">
-                  <%= f.submit "Apply Date Range", 
-                      class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors" %>
-                  
-                  <% if params[:start_date].present? || params[:end_date].present? %>
-                    <%= link_to "Clear", 
-                        transactions_path(filter: @transactions_data[:filter_type], year: @transactions_data[:year], month: @transactions_data[:month]),
-                        data: { turbo_frame: "transactions_content" },
-                        class: "px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors" %>
-                  <% end %>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        </nav>
-
-        <!-- Search Bar -->
-        <div class="mb-4" data-controller="autocomplete" 
-             data-autocomplete-url-value="<%= search_transactions_path %>"
-             data-autocomplete-min-length-value="3"
-             data-autocomplete-month-value="<%= @transactions_data[:month] %>"
-             data-autocomplete-year-value="<%= @transactions_data[:year] %>">
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-            </div>
-            <input 
-              type="text" 
-              data-autocomplete-target="input"
-              placeholder="Search transactions by description, category, or merchant..."
-              class="block w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-            />
-          </div>
-          
-          <!-- Results Dropdown -->
-          <div data-autocomplete-target="results" 
-               class="hidden mt-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-96 overflow-y-auto z-10">
-            <ul class="py-2">
-              <!-- Results will be dynamically inserted here -->
-            </ul>
-          </div>
-        </div>
-
         <!-- Transaction Table -->
-        <section class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep" aria-label="Transaction list">
-          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-              <%= case @transactions_data[:filter_type]
-                  when "expenses" then "Expense Transactions"
-                  when "income" then "Income Transactions"
-                  when "hypothetical" then "Hypothetical Transactions"
-                  else "All Transactions"
-                  end %>
-            </h2>
-            
-            <!-- View in Calendar Link -->
-            <% calendar_date = @transactions_data[:date] %>
-            <% calendar_path = calendar_month_path(calendar_date.year, calendar_date.month) %>
-            <%= link_to calendar_path,
-                class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors",
-                title: "View this month in calendar",
-                aria: { label: "View this month in calendar" } do %>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-              <span>View in Calendar</span>
-            <% end %>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead class="bg-gray-50 dark:bg-gray-900">
-                <tr>
-                  <%# Always show Date header since _table_body always passes show_date: true %>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                <%= render partial: "transactions/table_body", locals: { transactions: @transactions_data[:transactions] } %>
-              </tbody>
-            </table>
-          </div>
-
-          <% if @transactions_data[:transactions].empty? %>
-            <div class="px-6 py-12 text-center">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-              <h3 class="mt-2 text-sm font-medium text-gray-900">No transactions</h3>
-              <p class="mt-1 text-sm text-gray-500">No transactions found for the selected filter.</p>
-            </div>
+        <%= render "transactions/table_section",
+            transactions_data: @transactions_data,
+            filter_additional_params: { start_date: params[:start_date], end_date: params[:end_date] },
+            filters_partial: "transactions/table_filters",
+            filters_locals: {
+              transactions_data: @transactions_data,
+              start_date: params[:start_date],
+              end_date: params[:end_date],
+              search_query: params[:q]
+            } do %>
+          <% calendar_date = @transactions_data[:date] %>
+          <% calendar_path = calendar_month_path(calendar_date.year, calendar_date.month) %>
+          <%= link_to calendar_path,
+              class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors",
+              title: "View this month in calendar",
+              aria: { label: "View this month in calendar" } do %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span>View in Calendar</span>
           <% end %>
-        </section>
+        <% end %>
       <% end %>
     <% end # Close turbo_frame_tag "transactions_content" %>
   <% end %>

@@ -79,21 +79,23 @@
 
 <%# Refresh calendar if it's open - dispatch a reload event %>
 <script>
-  console.log('Transaction created Turbo Stream executed');
-  // Refresh calendar if it's open
-  const calendarFrame = document.getElementById('calendar_content');
-  console.log('Calendar frame found:', calendarFrame);
-  if (calendarFrame) {
-    const currentUrl = window.location.href;
-    console.log('Current URL:', currentUrl);
-    if (currentUrl.includes('/calendar')) {
-      console.log('Dispatching transaction:created event');
-      // Dispatch a custom event that will trigger the calendar to reload
-      window.dispatchEvent(new CustomEvent('transaction:created', { 
-        detail: { transaction: { id: '<%= @transaction.id %>', date: '<%= @transaction.transaction_date %>' } } 
-      }));
+  (() => {
+    const calendarFrame = document.getElementById('calendar_content');
+    if (!calendarFrame) return;
+
+    if (window.location.href.includes('/calendar')) {
+      window.dispatchEvent(
+        new CustomEvent('transaction:created', {
+          detail: {
+            transaction: {
+              id: '<%= @transaction.id %>',
+              date: '<%= @transaction.transaction_date %>'
+            }
+          }
+        })
+      );
     }
-  }
+  })();
 </script>
 
 <%# Close the modal drawer %>

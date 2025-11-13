@@ -10,3 +10,65 @@
   </tbody>
 <% end %>
 
+<%# Refresh filters to keep date/search controls in sync with search context %>
+<%= turbo_stream.update "transactions-table-filters" do %>
+  <%= render "transactions/table_filters",
+      transactions_data: @transactions_data,
+      start_date: params[:start_date],
+      end_date: params[:end_date],
+      search_query: params[:q] %>
+<% end %>
+
+<%# Update the month heading to reflect search state %>
+<%= turbo_stream.update "transactions-current-month-heading" do %>
+  <% query = params[:q].to_s.strip %>
+  <% if @transactions_data[:filter_type] == "search" %>
+    <%= query.present? ? "Search Results for “#{h(query)}”" : "Search Results" %>
+  <% else %>
+    <%= @transactions_data[:date].strftime("%B %Y") %>
+  <% end %>
+<% end %>
+
+<%# Update the navigation links to keep search context %>
+<%= turbo_stream.update "transactions-month-navigation" do %>
+  <% prev_month = @transactions_data[:date].prev_month %>
+  <% next_month = @transactions_data[:date].next_month %>
+  <%= link_to search_transactions_path(
+                q: params[:q],
+                filter: params[:filter],
+                year: prev_month.year,
+                month: prev_month.month
+              ),
+              class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+              data: { turbo_frame: "transactions_content" } do %>
+    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+    Previous
+  <% end %>
+  <%= link_to search_transactions_path(
+                q: params[:q],
+                filter: params[:filter],
+                year: next_month.year,
+                month: next_month.month
+              ),
+              class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+              data: { turbo_frame: "transactions_content" } do %>
+    Next
+    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+    </svg>
+  <% end %>
+<% end %>
+
+<%# Update the table heading for search results %>
+<%= turbo_stream.update "transactions-table-heading" do %>
+  <%= case @transactions_data[:filter_type]
+      when "expenses" then "Expense Transactions"
+      when "income" then "Income Transactions"
+      when "hypothetical" then "Hypothetical Transactions"
+      when "search" then "Search Results"
+      else "All Transactions"
+      end %>
+<% end %>
+

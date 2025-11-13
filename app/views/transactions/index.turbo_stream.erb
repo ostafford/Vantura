@@ -10,28 +10,33 @@
   </tbody>
 <% end %>
 
-<%# Update the month heading %>
-<%= turbo_stream.update "transactions-current-month-heading" do %>
-  <%= @transactions_data[:date].strftime("%B %Y") %>
+<%# Refresh filters to keep date/search controls in sync with current state %>
+<%= turbo_stream.update "transactions-table-filters" do %>
+  <%= render "transactions/table_filters",
+      transactions_data: @transactions_data,
+      start_date: params[:start_date],
+      end_date: params[:end_date],
+      search_query: params[:q] %>
 <% end %>
 
-<%# Update the navigation links %>
-<%= turbo_stream.update "transactions-month-navigation" do %>
-  <%= link_to transactions_path(year: @transactions_data[:date].prev_month.year, month: @transactions_data[:date].prev_month.month, filter: @transactions_data[:filter_type]),
-              class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-              data: { turbo_frame: "transactions_content" } do %>
-    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-    </svg>
-    Previous
-  <% end %>
-  <%= link_to transactions_path(year: @transactions_data[:date].next_month.year, month: @transactions_data[:date].next_month.month, filter: @transactions_data[:filter_type]),
-              class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-              data: { turbo_frame: "transactions_content" } do %>
-    Next
-    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-    </svg>
-  <% end %>
+<%# Re-render the header to keep navigation, heading, and actions in sync %>
+<%= turbo_stream.replace "transactions-table-header" do %>
+  <header id="transactions-table-header" class="px-6 py-5 border-b bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+    <%= render "transactions/navigation_controls",
+          transactions_data: @transactions_data,
+          filter_additional_params: { start_date: params[:start_date], end_date: params[:end_date] } do %>
+      <% calendar_date = @transactions_data[:date] %>
+      <% calendar_path = calendar_month_path(calendar_date.year, calendar_date.month) %>
+      <%= link_to calendar_path,
+          class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors",
+          title: "View this month in calendar",
+          aria: { label: "View this month in calendar" } do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <span>View in Calendar</span>
+      <% end %>
+    <% end %>
+  </header>
 <% end %>
 

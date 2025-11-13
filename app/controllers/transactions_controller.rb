@@ -80,7 +80,7 @@ class TransactionsController < ApplicationController
   end
 
   def transaction_params
-    params.require(:transaction).permit(:description, :amount, :transaction_date, :category, :merchant)
+    params.require(:transaction).permit(:description, :amount, :transaction_date, :category, :merchant, :status)
   end
 
   def assign_dashboard_stats

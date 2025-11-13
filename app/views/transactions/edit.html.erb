@@ -1,11 +1,124 @@
-<h1>Edit Transaction</h1>
+<% content_for :title, "Edit Transaction - Vantura" %>
+<% content_for :page_header_title, "Edit Transaction" %>
+<% content_for :page_header_subtitle, "Update the transaction details below" %>
 
-<%= form_with model: @transaction, local: true do |form| %>
-  <%= form.text_field :description %>
-  <%= form.number_field :amount, step: 0.01 %>
-  <%= form.date_field :transaction_date, value: @transaction.transaction_date&.strftime("%Y-%m-%d") %>
-  <%= form.text_field :category %>
-  <%= form.text_field :merchant %>
-  <%= form.submit "Update Transaction" %>
+<main>
+  <%= content_wrapper class: "py-6" do %>
+    <div class="mx-auto max-w-4xl bg-white dark:bg-gray-800 shadow-deep rounded-2xl border border-gray-200 dark:border-gray-700">
+      <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Transaction Details</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+          Make sure the information reflects the actual transaction. Fields marked with
+          <span class="text-red-500" aria-hidden="true">*</span>
+          are required.
+        </p>
+      </div>
+
+      <%= form_with model: @transaction, class: "px-8 py-8 space-y-8" do |form| %>
+        <section aria-labelledby="transaction-summary-section">
+          <h2 id="transaction-summary-section" class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Summary
+          </h2>
+
+          <div class="grid grid-cols-2 gap-6 md:grid-cols-1">
+            <div>
+              <%= form.label :description,
+                  "Description",
+                  class: "block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2",
+                  for: "transaction-description-input" %>
+              <%= form.text_field :description,
+                  id: "transaction-description-input",
+                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all",
+                  placeholder: "e.g., Grocery store purchase",
+                  required: true,
+                  autocomplete: "off" %>
+            </div>
+
+            <div>
+              <label for="transaction-amount-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                Amount <span class="text-red-500" aria-hidden="true">*</span>
+              </label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-3 flex items-center text-gray-500 dark:text-gray-400 font-semibold">$</span>
+                <%= form.number_field :amount,
+                    id: "transaction-amount-input",
+                    step: 0.01,
+                    required: true,
+                    class: "w-full pl-8 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all",
+                    aria: { describedby: "transaction-amount-help" } %>
+              </div>
+              <p id="transaction-amount-help" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Use a negative amount for expenses and positive for income.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="transaction-meta-section">
+          <h2 id="transaction-meta-section" class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Additional Details
+          </h2>
+
+          <div class="grid grid-cols-2 gap-6 md:grid-cols-1">
+            <div>
+              <%= form.label :transaction_date,
+                  "Transaction Date",
+                  class: "block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2",
+                  for: "transaction-date-input" %>
+              <%= form.date_field :transaction_date,
+                  id: "transaction-date-input",
+                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all",
+                  required: true %>
+            </div>
+
+            <div>
+              <%= form.label :category,
+                  "Category",
+                  class: "block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2",
+                  for: "transaction-category-input" %>
+              <%= form.text_field :category,
+                  id: "transaction-category-input",
+                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all",
+                  placeholder: "e.g., Utilities, Dining",
+                  autocomplete: "off" %>
+            </div>
+
+            <div>
+              <%= form.label :merchant,
+                  "Merchant",
+                  class: "block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2",
+                  for: "transaction-merchant-input" %>
+              <%= form.text_field :merchant,
+                  id: "transaction-merchant-input",
+                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all",
+                  placeholder: "e.g., Trader Joe’s",
+                  autocomplete: "off" %>
+            </div>
+
+            <div>
+              <%= form.label :status,
+                  "Status",
+                  class: "block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2",
+                  for: "transaction-status-select" %>
+              <%= form.select :status,
+                  Transaction.statuses.keys.map { |key| [key.humanize, key] },
+                  { prompt: "Select status" },
+                  id: "transaction-status-select",
+                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" %>
+            </div>
+          </div>
+        </section>
+
+        <div class="flex items-center justify-between gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <%= link_to "Cancel",
+              transaction_path(@transaction),
+              class: "inline-flex items-center justify-center px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" %>
+
+          <%= form.submit "Update Transaction",
+              class: "inline-flex justify-center px-5 py-3 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-600 dark:focus:ring-offset-gray-900" %>
+        </div>
+      <% end %>
+    </div>
 <% end %>
+</main>
 
