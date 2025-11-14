@@ -15,7 +15,7 @@ import { Controller } from "@hotwired/stimulus"
  * @see .cursor/rules/development/hotwire/stimulus_controllers.mdc
  */
 export default class extends Controller {
-  static targets = ["toggleButton", "toggleIcon"]
+  static targets = ["toggleButton", "toggleIcon", "navContainer", "formContainer", "header", "footer"]
 
   connect() {
     // Cross-controller access: application-main-container is shared layout element
@@ -28,6 +28,11 @@ export default class extends Controller {
     // Load saved state from localStorage (defaults to collapsed)
     const savedState = localStorage.getItem('sidebarExpanded')
     this.isExpanded = savedState === null ? false : savedState === 'true'
+    
+    // Form mode state (managed by modal controllers)
+    this.formMode = false
+    this.previousState = null // Store state before entering form mode
+    this.originalHeaderHTML = null // Store original header HTML for restoration
     
     // Set up media query listener for responsive behavior
     this.mediaQuery = window.matchMedia('(min-width: 1024px)')
@@ -67,9 +72,71 @@ export default class extends Controller {
   toggle(event) {
     event?.preventDefault()
     event?.stopPropagation()
+    
+    // Disable toggle when in form mode
+    if (this.formMode) {
+      return
+    }
+    
     this.isExpanded = !this.isExpanded
     this.updateSidebarState()
     this.saveState()
+  }
+  
+  // Enter form mode (called by modal controllers)
+  enterFormMode() {
+    if (this.formMode) return // Already in form mode
+    
+    // Store current state
+    this.previousState = {
+      isExpanded: this.isExpanded
+    }
+    
+    this.formMode = true
+    this.updateSidebarState()
+    
+    // Hide nav, header, and footer; show form container
+    if (this.hasNavContainerTarget) {
+      this.navContainerTarget.classList.add('hidden')
+    }
+    if (this.hasHeaderTarget) {
+      this.headerTarget.classList.add('hidden')
+    }
+    if (this.hasFooterTarget) {
+      this.footerTarget.classList.add('hidden')
+    }
+    if (this.hasFormContainerTarget) {
+      this.formContainerTarget.classList.remove('hidden')
+    }
+  }
+  
+  // Exit form mode (called by modal controllers)
+  exitFormMode() {
+    if (!this.formMode) return // Not in form mode
+    
+    this.formMode = false
+    
+    // Restore previous state
+    if (this.previousState) {
+      this.isExpanded = this.previousState.isExpanded
+      this.previousState = null
+    }
+    
+    this.updateSidebarState()
+    
+    // Show nav, header, and footer; hide form container
+    if (this.hasNavContainerTarget) {
+      this.navContainerTarget.classList.remove('hidden')
+    }
+    if (this.hasHeaderTarget) {
+      this.headerTarget.classList.remove('hidden')
+    }
+    if (this.hasFooterTarget) {
+      this.footerTarget.classList.remove('hidden')
+    }
+    if (this.hasFormContainerTarget) {
+      this.formContainerTarget.classList.add('hidden')
+    }
   }
 
   updateSidebarState() {
@@ -88,30 +155,41 @@ export default class extends Controller {
     this.element.classList.remove('hidden')
     this.element.classList.add('lg:flex', 'flex')
 
-    // Apply expanded/collapsed state
-    if (this.isExpanded) {
+    // Apply expanded/collapsed/form mode state
+    if (this.formMode) {
+      // Form mode: w-96 sidebar, lg:ml-96 margin
+      this.element.classList.remove('w-16', 'w-48')
+      this.element.classList.add('w-96')
+      // Update icon to point left (<<)
+      this.updateToggleIcon(true)
+      
+      // Update main content margin
+      if (this.mainContentElement) {
+        this.mainContentElement.classList.remove('lg:ml-48', 'lg:ml-16')
+        this.mainContentElement.classList.add('lg:ml-96')
+      }
+    } else if (this.isExpanded) {
       // Expanded: w-48 sidebar, lg:ml-48 margin
-      this.element.classList.remove('w-16')
+      this.element.classList.remove('w-16', 'w-96')
       this.element.classList.add('w-48')
       // Update icon to point left (<<)
       this.updateToggleIcon(true)
+      
+      // Update main content margin
+      if (this.mainContentElement) {
+        this.mainContentElement.classList.remove('lg:ml-48', 'lg:ml-16', 'lg:ml-96')
+        this.mainContentElement.classList.add('lg:ml-48')
+      }
     } else {
       // Collapsed: w-16 sidebar, lg:ml-16 margin
-      this.element.classList.remove('w-48')
+      this.element.classList.remove('w-48', 'w-96')
       this.element.classList.add('w-16')
       // Update icon to point right (>>)
       this.updateToggleIcon(false)
-    }
-
-    // Update main content margin classes
-    if (this.mainContentElement) {
-      // Remove all margin classes
-      this.mainContentElement.classList.remove('lg:ml-48', 'lg:ml-16')
       
-      // Add appropriate margin class
-      if (this.isExpanded) {
-        this.mainContentElement.classList.add('lg:ml-48')
-      } else {
+      // Update main content margin
+      if (this.mainContentElement) {
+        this.mainContentElement.classList.remove('lg:ml-48', 'lg:ml-16', 'lg:ml-96')
         this.mainContentElement.classList.add('lg:ml-16')
       }
     }

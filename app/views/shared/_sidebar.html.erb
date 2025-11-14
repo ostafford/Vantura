@@ -3,7 +3,7 @@
        class="hidden lg:flex fixed left-0 top-0 h-full w-16 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col z-50 transition-all duration-300 ease-in-out overflow-hidden">
   
   <!-- Sidebar Header with Logo and Toggle -->
-  <div id="sidebar-header" class="flex items-center justify-between py-4 px-4 shadow-deep flex-shrink-0 sidebar-header">
+  <div id="sidebar-header" class="flex items-center justify-between py-4 px-4 shadow-deep flex-shrink-0 sidebar-header" data-sidebar-target="header">
     <!-- Logo -->
     <%= link_to root_path, class: "flex items-center gap-2 text-primary-700 dark:text-primary-500 hover:opacity-80 transition-opacity flex-shrink-0" do %>
       <svg class="w-8 h-8 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
@@ -25,7 +25,9 @@
   </div>
 
   <!-- Navigation Links -->
-  <nav class="flex-1 overflow-y-auto py-4 px-2" aria-label="Main navigation">
+  <nav class="flex-1 overflow-y-auto py-4 px-2" 
+       aria-label="Main navigation"
+       data-sidebar-target="navContainer">
     <%= sidebar_nav_link_to "Dashboard", root_path, icon: "home" %>
     <%= sidebar_nav_link_to "Calendar", calendar_path, icon: "calendar" %>
     <%= sidebar_nav_link_to "Trends", trends_path, icon: "chart" %>
@@ -34,8 +36,13 @@
     <%= sidebar_nav_link_to "Projects", projects_path, icon: "folder" %>
   </nav>
 
+  <!-- Form Container (hidden by default, shown when form mode is active) -->
+  <div class="hidden flex-1 overflow-y-auto" data-sidebar-target="formContainer" id="sidebar-form-container">
+    <!-- Form content will be injected here by modal controllers -->
+  </div>
+
   <!-- Bottom Actions Section -->
-  <div class="border-t border-gray-200 dark:border-gray-800 px-2 py-4 space-y-2 flex-shrink-0">
+  <div class="border-t border-gray-200 dark:border-gray-800 px-2 py-4 space-y-2 flex-shrink-0" data-sidebar-target="footer">
     <!-- Sync Button (if account exists) -->
     <% if Current.user&.accounts&.any? %>
       <%= button_to sync_path, method: :post, 
