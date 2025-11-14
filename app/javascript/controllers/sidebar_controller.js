@@ -57,7 +57,7 @@ export default class extends Controller {
       this.element.classList.add('hidden')
       this.element.classList.remove('lg:flex', 'flex')
       if (this.mainContentElement) {
-        this.mainContentElement.classList.remove('lg:ml-64', 'lg:ml-16')
+        this.mainContentElement.classList.remove('lg:ml-48', 'lg:ml-16')
       }
       return
     }
@@ -68,23 +68,23 @@ export default class extends Controller {
 
     // Apply expanded/collapsed state
     if (this.isExpanded) {
-      // Expanded: w-64 sidebar, lg:ml-64 margin
+      // Expanded: w-48 sidebar, lg:ml-48 margin
       this.element.classList.remove('w-16')
-      this.element.classList.add('w-64')
+      this.element.classList.add('w-48')
     } else {
       // Collapsed: w-16 sidebar, lg:ml-16 margin
-      this.element.classList.remove('w-64')
+      this.element.classList.remove('w-48')
       this.element.classList.add('w-16')
     }
 
     // Update main content margin classes
     if (this.mainContentElement) {
       // Remove all margin classes
-      this.mainContentElement.classList.remove('lg:ml-64', 'lg:ml-16')
+      this.mainContentElement.classList.remove('lg:ml-48', 'lg:ml-16')
       
       // Add appropriate margin class
       if (this.isExpanded) {
-        this.mainContentElement.classList.add('lg:ml-64')
+        this.mainContentElement.classList.add('lg:ml-48')
       } else {
         this.mainContentElement.classList.add('lg:ml-16')
       }

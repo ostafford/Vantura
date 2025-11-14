@@ -182,7 +182,7 @@ module ApplicationHelper
   def sidebar_nav_link_to(text, path, icon:)
     active = current_page?(path) || (path == root_path && request.path == "/")
 
-    base_classes = "relative flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all group"
+    base_classes = "relative flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all group sidebar-nav-link"
     active_classes = "bg-primary/10 dark:bg-primary/20 text-primary-700 dark:text-primary-400"
     inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400"
 
@@ -222,7 +222,7 @@ module ApplicationHelper
       "folder" => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7a2 2 0 012-2h3l2 2h9a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"></path>'
     }
 
-    content_tag :svg, class: size_class, fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" do
+    content_tag :svg, class: "#{size_class} flex-shrink-0", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" do
       icons[icon_name].html_safe
     end
   end

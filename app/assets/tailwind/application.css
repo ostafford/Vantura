@@ -120,9 +120,37 @@
     display: none;
   }
 
-  /* Show labels when sidebar is expanded (w-64) */
-  .w-64 .sidebar-label {
+  /* Show labels when sidebar is expanded (w-48) */
+  .w-48 .sidebar-label {
     display: inline;
+  }
+
+  /* Center icons when sidebar is collapsed (w-16) */
+  .w-16 .sidebar-nav-link {
+    justify-content: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  /* Align icons to left when sidebar is expanded (w-48) */
+  .w-48 .sidebar-nav-link {
+    justify-content: flex-start;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Center action button icons when sidebar is collapsed (w-16) */
+  .w-16 .sidebar-action-button {
+    justify-content: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  /* Align action button icons to left when sidebar is expanded (w-48) */
+  .w-48 .sidebar-action-button {
+    justify-content: flex-start;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 
