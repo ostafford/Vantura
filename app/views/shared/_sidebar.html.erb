@@ -1,9 +1,9 @@
 <!-- Desktop Sidebar Navigation - Hidden on mobile, visible on desktop -->
 <aside data-controller="sidebar"
-       class="hidden lg:flex fixed left-0 top-0 h-full w-48 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col z-50 transition-all duration-300 ease-in-out overflow-hidden">
+       class="hidden lg:flex fixed left-0 top-0 h-full w-16 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-col z-50 transition-all duration-300 ease-in-out overflow-hidden">
   
   <!-- Sidebar Header with Logo and Toggle -->
-  <div class="flex items-center justify-between min-h-[92px] py-4 px-4 shadow-deep flex-shrink-0">
+  <div id="sidebar-header" class="flex items-center justify-between py-4 px-4 shadow-deep flex-shrink-0 sidebar-header">
     <!-- Logo -->
     <%= link_to root_path, class: "flex items-center gap-2 text-primary-700 dark:text-primary-500 hover:opacity-80 transition-opacity flex-shrink-0" do %>
       <svg class="w-8 h-8 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
@@ -18,8 +18,8 @@
             data-action="click->sidebar#toggle"
             aria-label="Toggle sidebar"
             class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 transition-all flex-shrink-0">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+      <svg class="w-5 h-5" data-sidebar-target="toggleIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
       </svg>
     </button>
   </div>
@@ -39,7 +39,7 @@
     <!-- Sync Button (if account exists) -->
     <% if Current.user&.accounts&.any? %>
       <%= button_to sync_path, method: :post, 
-          class: "w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-medium bg-primary-700 text-white hover:bg-primary-900 transition-all shadow-sm sidebar-action-button", 
+          class: "w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-medium bg-primary-700 text-white hover:bg-primary-900 transition-all shadow-deep sidebar-action-button", 
           data: { controller: "sync", action: "submit->sync#submit", disable_with: "Syncing..." },
           title: "Sync with Up Bank" do %>
         <svg class="w-5 h-5 flex-shrink-0" data-sync-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +53,7 @@
     <button type="button" 
             data-action="click->theme#toggle" 
             data-theme-target="button"
-            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors sidebar-action-button"
+            class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 shadow-deep hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors sidebar-action-button"
             title="Toggle theme">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
@@ -63,7 +63,7 @@
 
     <!-- Settings Link -->
     <%= link_to settings_path, 
-        class: "w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors sidebar-action-button",
+        class: "w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 shadow-deep hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors sidebar-action-button",
         title: "Settings" do %>
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -76,7 +76,7 @@
     <% if authenticated? %>
       <%= button_to session_path, method: :delete,
           form: { data: { turbo_confirm: "Are you sure you want to sign out?" } },
-          class: "w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors sidebar-action-button",
+          class: "w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 shadow-deep hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors sidebar-action-button",
           title: "Sign Out" do %>
         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>

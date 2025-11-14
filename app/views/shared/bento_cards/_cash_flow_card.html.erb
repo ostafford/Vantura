@@ -17,7 +17,7 @@
   current_date = local_assigns.fetch(:current_date, Date.today)
   account = local_assigns.fetch(:account, nil)
   element_id = local_assigns.fetch(:id, 'dashboard-cash-flow-card')
-  size_classes = local_assigns.fetch(:size, 'bento-span-1 bento-row-span-2')
+  size_classes = local_assigns.fetch(:size, 'bento-span-1 bento-row-span-3')
   period_label = local_assigns.fetch(:period_label, 'This month')
   
   net_cash_flow = income_total - expense_total
@@ -154,9 +154,9 @@
             <ul class="space-y-2" role="list">
               <% top_income_merchants.each_with_index do |merchant, index| %>
                 <% merchant_border_classes = if merchant[:hypothetical]
-                    "border border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-900/20"
+                    "bg-purple-50 dark:bg-purple-900/20 shadow-deep"
                   else
-                    "border border-gray-100 dark:border-gray-700"
+                    "bg-white/70 dark:bg-gray-800/60 shadow-deep"
                   end %>
                 <li class="flex items-center justify-between rounded-lg px-2 py-1 <%= merchant_border_classes %>" role="listitem">
                   <span class="text-xs font-medium <%= merchant[:hypothetical] ? 'text-purple-700 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300' %> truncate max-w-[60%]"
@@ -186,9 +186,9 @@
             <ul class="space-y-2" role="list">
               <% top_expense_merchants.each_with_index do |merchant, index| %>
                 <% merchant_border_classes = if merchant[:hypothetical]
-                    "border border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-900/20"
+                    "bg-purple-50 dark:bg-purple-900/20 shadow-deep"
                   else
-                    "border border-gray-100 dark:border-gray-700"
+                    "bg-white/70 dark:bg-gray-800/60 shadow-deep"
                   end %>
                 <li class="flex items-center justify-between rounded-lg px-2 py-1 <%= merchant_border_classes %>" role="listitem">
                   <span class="text-xs font-medium <%= merchant[:hypothetical] ? 'text-purple-700 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300' %> truncate max-w-[60%]"
@@ -223,7 +223,7 @@
             <% if top_income_categories.present? %>
               <ul class="space-y-2" role="list">
                 <% top_income_categories.each_with_index do |category, index| %>
-                  <li class="flex items-center justify-between py-1 px-2 rounded-lg border border-gray-100 dark:border-gray-700" role="listitem">
+                  <li class="flex items-center justify-between py-1 px-2 rounded-lg bg-white/70 shadow-deep dark:bg-gray-800/60" role="listitem">
                     <span class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate max-w-[60%]"
                           title="<%= category[:category] || 'Uncategorized' %>">
                       <%= category[:category] || 'Uncategorized' %>
@@ -250,7 +250,7 @@
             <% if top_expense_categories.present? %>
               <ul class="space-y-2" role="list">
                 <% top_expense_categories.each_with_index do |category, index| %>
-                  <li class="flex items-center justify-between py-1 px-2 rounded-lg border border-gray-100 dark:border-gray-700" role="listitem">
+                  <li class="flex items-center justify-between py-1 px-2 rounded-lg bg-white/70 shadow-deep dark:bg-gray-800/60" role="listitem">
                     <span class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate max-w-[60%]"
                           title="<%= category[:category] || 'Uncategorized' %>">
                       <%= category[:category] || 'Uncategorized' %>

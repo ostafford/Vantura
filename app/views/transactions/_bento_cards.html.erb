@@ -11,7 +11,7 @@
       <%# Search Results Mode: Show largest transaction %>
       <% largest = @transactions_data[:transactions].max_by { |t| t.amount.abs } %>
       <% if largest %>
-        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
           <p class="text-xs text-blue-200 mb-1">Largest Transaction</p>
           <div class="flex items-center justify-between">
             <p class="text-blue-50 font-semibold truncate"><%= largest.description %></p>
@@ -28,7 +28,7 @@
       <%# Normal Month View: Show spending pace and insights %>
       <% spending_pace = calculate_spending_pace(@transactions_data) %>
       
-      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 mb-3">
+      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep mb-3">
         <p class="text-xs text-blue-200 mb-2">Spending Pace</p>
         <div class="flex items-center gap-3 mb-2">
           <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
@@ -48,7 +48,7 @@
       </div>
       
       <% if @transactions_data[:transactions].any? %>
-        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
           <p class="text-xs text-blue-200 mb-1">Average Transaction</p>
           <p class="text-white text-2xl font-bold">
             <%= number_to_currency(@transactions_data[:expense_total] / @transactions_data[:expense_count]) if @transactions_data[:expense_count] > 0 %> / transaction

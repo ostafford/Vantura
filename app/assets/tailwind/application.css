@@ -152,6 +152,30 @@
     padding-left: 1rem;
     padding-right: 1rem;
   }
+
+  /* Stack header vertically when sidebar is collapsed (w-16) */
+  .w-16 .sidebar-header {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: auto;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  /* Center logo when sidebar is collapsed */
+  .w-16 .sidebar-header > a {
+    justify-content: center;
+  }
+
+  /* Keep header horizontal when sidebar is expanded (w-48) */
+  .w-48 .sidebar-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0;
+  }
 }
 
 /* Custom utilities layer */

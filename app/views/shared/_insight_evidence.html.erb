@@ -517,14 +517,14 @@
       <p class="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2 tracking-wide uppercase">Goal Progress</p>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div class="rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3">
+        <div class="rounded-lg bg-white dark:bg-gray-800 shadow-deep p-3">
           <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Projected Savings</p>
           <p class="text-sm font-semibold <%= projected_positive ? 'text-success-700 dark:text-success-400' : 'text-expense-700 dark:text-expense-400' %>">
             $<%= number_with_precision(evidence[:projected_savings], precision: 0) %>
           </p>
         </div>
 
-        <div class="rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3">
+        <div class="rounded-lg bg-white dark:bg-gray-800 shadow-deep p-3">
           <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Projected Savings Rate</p>
           <p class="text-sm font-semibold <%= projected_positive ? 'text-success-700 dark:text-success-400' : 'text-expense-700 dark:text-expense-400' %>">
             <%= number_with_precision(evidence[:projected_savings_rate_percentage] || 0, precision: 1) %>%
@@ -535,7 +535,7 @@
       <% if evidence[:goal_set] %>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
           <%= link_to settings_path(expand_goal: true), 
-              class: "rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 p-3 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-600 transition-colors cursor-pointer group",
+              class: "rounded-lg bg-blue-50 dark:bg-blue-900/20 shadow-deep p-3 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer group",
               title: "Click to edit your savings goal",
               id: "savings-goal-link" do %>
             <div class="flex items-center justify-between">
@@ -557,7 +557,7 @@
 
           <% if goal_gap_amount.present? || goal_gap_rate.present? %>
             <% gap_positive = goal_gap_amount.to_f.positive? || goal_gap_rate.to_f.positive? %>
-            <div class="rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-3">
+            <div class="rounded-lg bg-white dark:bg-gray-800 shadow-deep p-3">
               <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Distance to Goal</p>
               <% if goal_gap_amount.present? %>
                 <p class="text-sm font-semibold <%= gap_positive ? 'text-expense-700 dark:text-expense-400' : 'text-success-700 dark:text-success-400' %>">

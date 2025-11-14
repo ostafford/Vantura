@@ -66,7 +66,7 @@
     <!-- Nested Tiles -->
     <div class="space-y-2">
       <% if days_of_income_remaining.present? && days_of_income_remaining.positive? %>
-        <div class="rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+        <div class="rounded-xl bg-white/80 p-3 shadow-deep dark:bg-gray-800/60">
           <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Days Remaining</p>
           <p class="mt-1 text-lg font-semibold text-success-600 dark:text-success-400">
             <%= number_with_precision(days_of_income_remaining, precision: 1) %> days
@@ -75,7 +75,7 @@
         </div>
       <% end %>
 
-      <div class="rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+      <div class="rounded-xl bg-white/80 p-3 shadow-deep dark:bg-gray-800/60">
         <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Daily Average</p>
         <div class="mt-1 space-y-1">
           <div class="flex items-center justify-between">

@@ -63,7 +63,7 @@
     </header>
 
     <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-      <div class="flex flex-col rounded-2xl border border-gray-200 bg-white/80 p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800/60">
+      <div class="flex flex-col rounded-2xl bg-white/80 p-5 shadow-deep dark:bg-gray-800/60">
         <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
           Projected <%= period_label.downcase %>
         </p>
@@ -75,7 +75,7 @@
         </p>
 
         <% if is_month_view && pace_indicator.present? %>
-          <div class="mt-5 rounded-xl border border-gray-200 bg-white/75 p-4 dark:border-gray-700 dark:bg-gray-800/60">
+          <div class="mt-5 rounded-xl bg-white/75 p-4 shadow-deep dark:bg-gray-800/60">
             <div class="flex items-center justify-between gap-3">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -115,7 +115,7 @@
             </p>
           </div>
         <% else %>
-          <div class="mt-5 rounded-xl border border-gray-200 bg-white/75 p-4 dark:border-gray-700 dark:bg-gray-800/60">
+          <div class="mt-5 rounded-xl bg-white/75 p-4 shadow-deep dark:bg-gray-800/60">
             <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Week net
             </p>
@@ -132,7 +132,7 @@
         <% end %>
       </div>
 
-      <div class="flex flex-col rounded-2xl border border-gray-200 bg-white/90 p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800/70">
+      <div class="flex flex-col rounded-2xl bg-white/90 p-5 shadow-deep dark:bg-gray-800/70">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -160,7 +160,7 @@
               <% amount_label = number_to_currency(signed_amount.abs) %>
               <% description = item[:description].presence || "Upcoming transaction" %>
               <% item_type_label = item[:type].present? ? item[:type].to_s.humanize : nil %>
-              <li class="flex items-center justify-between rounded-xl border border-gray-200 bg-white/70 px-3 py-2 shadow-sm dark:border-gray-700 dark:bg-gray-800/60" role="listitem">
+              <li class="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 shadow-deep dark:bg-gray-800/60" role="listitem">
                 <div class="flex flex-col">
                   <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
                     <%= description %>
