@@ -89,7 +89,7 @@ export default class extends Controller {
       setTimeout(() => {
         this.modalTarget.classList.add('hidden')
         this.modalTarget.classList.remove('flex')
-      }, 300)
+      }, 500)
     } else {
       this.modalTarget.classList.add('hidden')
       this.modalTarget.classList.remove('flex')
@@ -102,7 +102,7 @@ export default class extends Controller {
         if (this.typeValue === "transaction") {
           this.updateTransactionTypeUI()
         }
-      }, 300)
+      }, 500)
     }
   }
 

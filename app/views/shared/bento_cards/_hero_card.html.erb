@@ -50,7 +50,7 @@
   icon_svg_size = is_compact ? 'w-6 h-6' : 'w-7 h-7'
   subtitle_container_classes = 'hero-subtitle text-lg font-semibold mt-0.5'
   subtitle_container_classes += text_color_class.include?('text-white') ? ' text-white/80' : ' text-gray-600 dark:text-gray-300'
-  title_container_classes = "hero-title #{title_size_class} font-bold truncate"
+  title_container_classes = "hero-title #{title_size_class} font-bold"
   title_container_classes += ' flex items-center gap-2' if status_badge.present?
   description_text_classes = if text_color_class.include?('text-white')
                                'text-white/80'
@@ -74,10 +74,10 @@
       </div>
       <div class="flex-1 min-w-0">
         <% if subtitle.present? && local_assigns[:inline_subtitle] %>
-          <!-- Inline layout: Title and subtitle on same line, subtitle on right -->
-          <div class="flex items-center justify-between gap-3">
+          <!-- Inline layout: Title and subtitle stacked on mobile, horizontal on desktop -->
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="<%= title_container_classes %> <%= text_color_class %>">
-              <span class="truncate">
+              <span class="break-words">
                 <%= title %>
               </span>
             </h2>
@@ -88,7 +88,7 @@
         <% else %>
           <!-- Default layout: Title above subtitle -->
           <h2 class="<%= title_container_classes %> <%= text_color_class %>">
-            <span class="truncate">
+            <span class="break-words">
               <%= title %>
             </span>
             <% if status_badge.present? %>

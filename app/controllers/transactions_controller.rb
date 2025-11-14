@@ -80,7 +80,7 @@ class TransactionsController < ApplicationController
   end
 
   def transaction_params
-    params.require(:transaction).permit(:description, :amount, :transaction_date, :category, :merchant, :status)
+    params.require(:transaction).permit(:description, :amount, :transaction_date, :category, :merchant, :status, :transaction_type)
   end
 
   def assign_dashboard_stats
@@ -115,6 +115,6 @@ class TransactionsController < ApplicationController
   end
 
   def handle_failed_create
-    respond_to { |format| format.turbo_stream { render turbo_stream: turbo_stream.replace("transactionModal", partial: "shared/transaction_drawer", locals: { default_transaction_date: Date.today }) }; format.html { redirect_back(fallback_location: root_path, alert: "Error adding transaction: #{@transaction.errors.full_messages.join(', ')}") } }
+    respond_to { |format| format.turbo_stream { render turbo_stream: turbo_stream.replace("transaction-modal", partial: "shared/transaction_drawer", locals: { default_transaction_date: Date.today }) }; format.html { redirect_back(fallback_location: root_path, alert: "Error adding transaction: #{@transaction.errors.full_messages.join(', ')}") } }
   end
 end

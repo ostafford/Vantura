@@ -5,6 +5,11 @@
        data-modal-target="modal"
        class="hidden z-50">
     
+    <!-- Overlay (backdrop) -->
+    <div class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-500 ease-in-out"
+         data-modal-target="overlay"
+         data-action="click->modal#closeOnBackground"
+         aria-hidden="true"></div>
     
     <!-- Drawer Panel (slides in from right - responsive width) -->
     <div class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-primary-700 shadow-deep flex flex-col transform translate-x-full transition-transform duration-500 ease-in-out border-l-2 border-gray-300 dark:border-gray-700 md:top-16 md:bottom-0"
@@ -38,7 +43,21 @@
 
       <!-- Drawer Content (Scrollable) -->
       <div class="flex-1 overflow-y-auto">
-        <%= form_with model: Transaction.new, url: transactions_path, method: :post, class: "p-6", id: "transaction-form", data: { modal_target: "form" } do |f| %>
+        <%= form_with model: (@transaction || Transaction.new), url: transactions_path, method: :post, class: "p-6", id: "transaction-form", data: { modal_target: "form" } do |f| %>
+          <!-- Error Summary (if any errors) -->
+          <% if @transaction&.errors&.any? %>
+            <div id="transaction-form-errors-container" class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-500 rounded-lg" role="alert">
+              <h4 class="text-sm font-semibold text-red-800 dark:text-red-300 mb-2">
+                <%= pluralize(@transaction.errors.count, "error") %> prohibited this transaction from being saved:
+              </h4>
+              <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-300">
+                <% @transaction.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          
           <div class="space-y-5">
             <!-- Transaction Type -->
             <fieldset>
@@ -86,7 +105,14 @@
                   id: "transaction-description-input",
                   data: { modal_target: "transactionDescription" },
                   autocomplete: "off",
-                  required: true %>
+                  required: true,
+                  aria_invalid: (@transaction&.errors&.key?(:description) && @transaction.errors[:description].any? ? "true" : "false"),
+                  aria_describedby: (@transaction&.errors&.key?(:description) && @transaction.errors[:description].any? ? "transaction-description-error" : nil) %>
+              <% if @transaction&.errors&.key?(:description) && @transaction.errors[:description].any? %>
+                <div id="transaction-description-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+                  <%= @transaction.errors[:description].first %>
+                </div>
+              <% end %>
             </div>
 
             <!-- Amount -->
@@ -103,8 +129,15 @@
                     id: "transaction-amount-input",
                     autocomplete: "off",
                     required: true,
-                    min: 0.01 %>
+                    min: 0.01,
+                    aria_invalid: (@transaction&.errors&.key?(:amount) && @transaction.errors[:amount].any? ? "true" : "false"),
+                    aria_describedby: (@transaction&.errors&.key?(:amount) && @transaction.errors[:amount].any? ? "transaction-amount-error" : nil) %>
               </div>
+              <% if @transaction&.errors&.key?(:amount) && @transaction.errors[:amount].any? %>
+                <div id="transaction-amount-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+                  <%= @transaction.errors[:amount].first %>
+                </div>
+              <% end %>
             </div>
 
             <!-- Date -->
@@ -117,7 +150,14 @@
                   class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 dark:focus:border-primary-500 transition-all",
                   id: "transaction-date-input",
                   autocomplete: "off",
-                  required: true %>
+                  required: true,
+                  aria_invalid: (@transaction&.errors&.key?(:transaction_date) && @transaction.errors[:transaction_date].any? ? "true" : "false"),
+                  aria_describedby: (@transaction&.errors&.key?(:transaction_date) && @transaction.errors[:transaction_date].any? ? "transaction-date-error" : nil) %>
+              <% if @transaction&.errors&.key?(:transaction_date) && @transaction.errors[:transaction_date].any? %>
+                <div id="transaction-date-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+                  <%= @transaction.errors[:transaction_date].first %>
+                </div>
+              <% end %>
             </div>
 
             <!-- Category -->
@@ -129,7 +169,14 @@
                   class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 dark:focus:border-primary-500 transition-all",
                   placeholder: "e.g., shopping, entertainment, food",
                   id: "transaction-category-input",
-                  autocomplete: "off" %>
+                  autocomplete: "off",
+                  aria_invalid: (@transaction&.errors&.key?(:category) && @transaction.errors[:category].any? ? "true" : "false"),
+                  aria_describedby: (@transaction&.errors&.key?(:category) && @transaction.errors[:category].any? ? "transaction-category-error" : nil) %>
+              <% if @transaction&.errors&.key?(:category) && @transaction.errors[:category].any? %>
+                <div id="transaction-category-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+                  <%= @transaction.errors[:category].first %>
+                </div>
+              <% end %>
             </div>
           </div>
 

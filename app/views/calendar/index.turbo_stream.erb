@@ -3,6 +3,55 @@
   <%= render partial: "calendar/bento_cards" %>
 <% end %>
 
+<%# Update the view switcher buttons (Month/Week toggle) %>
+<%= turbo_stream.update "calendar-view-switcher" do %>
+  <div class="inline-flex rounded-lg bg-white dark:bg-gray-800 p-0.5 md:p-1 shadow-lg">
+    <% week_switch_date = calendar_week_switch_date(@view, @date) %>
+    <%= view_switcher_button(
+      view: 'month',
+      icon: 'calendar',
+      label: 'Month',
+      active: @view == 'month',
+      path: calendar_month_path(@date.year, @date.month, view: 'month')
+    ) %>
+    <%= view_switcher_button(
+      view: 'week',
+      icon: 'clipboard',
+      label: 'Week',
+      active: @view == 'week',
+      path: calendar_month_path(week_switch_date.year, week_switch_date.month, week_switch_date.day, view: 'week')
+    ) %>
+  </div>
+  
+  <!-- Date Picker and Today Button -->
+  <div class="flex items-center gap-2">
+    <!-- Date Picker -->
+    <%= date_field_tag :jump_to_date, 
+        @date,
+        class: "px-3 py-2 text-sm border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 dark:focus:border-primary-500 transition-all",
+        id: "calendar-date-picker-input",
+        title: "Jump to specific date",
+        aria: { label: "Jump to specific date" },
+        data: { 
+          action: "change->calendar#jumpToDate",
+          turbo_frame: "calendar_content"
+        } %>
+    
+    <!-- Today Button -->
+    <% today_path = calendar_today_path(@view, Date.today) %>
+    <%= link_to(today_path,
+        class: "inline-flex items-center justify-center w-10 h-10 md:px-4 md:py-2 md:w-auto md:h-auto border-2 border-primary-700/30 dark:border-primary-500/20 rounded-xl md:rounded-2xl text-primary-700 dark:text-primary-500 bg-primary-700/5 dark:bg-primary-700/10 hover:bg-primary-700/10 dark:hover:bg-primary-700/20 hover:border-primary-700 dark:hover:border-primary-500 hover:shadow-lg hover:scale-105 transition-all font-medium text-xs md:text-sm",
+        title: "Jump to today",
+        aria: { label: "Jump to today" },
+        data: { turbo_frame: 'calendar_content', action: "click->frame-navigation#navigate" }) do %>
+      <svg class="w-5 h-5 md:w-4 md:h-4 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span class="hidden sm:inline">Today</span>
+    <% end %>
+  </div>
+<% end %>
+
 <%# Update the month/week navigation header %>
 <%= turbo_stream.update "calendar-month-navigation" do %>
   <%= render partial: "calendar/month_nav_wrapper" %>

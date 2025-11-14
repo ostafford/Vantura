@@ -9,12 +9,6 @@ class RecurringTransactionsController < ApplicationController
     return unless load_account
 
     @recurring_transactions = @account.recurring_transactions.order(created_at: :desc)
-
-    # Filter by category if provided
-    if params[:category].present?
-      @recurring_transactions = @recurring_transactions.where(recurring_category: params[:category])
-    end
-
     @breakdown = RecurringTransactions::BreakdownService.call(@account)
   end
 

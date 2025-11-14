@@ -187,41 +187,6 @@ class RecurringTransactionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "freelance", @recurring.recurring_category
   end
 
-  test "should filter by category" do
-    # Create recurring transactions with different categories
-    @account.recurring_transactions.create!(
-      description: "Netflix",
-      amount: -15.0,
-      frequency: "monthly",
-      next_occurrence_date: Date.today + 5.days,
-      is_active: true,
-      transaction_type: "expense",
-      recurring_category: "subscription",
-      date_tolerance_days: 3,
-      tolerance_type: "fixed",
-      amount_tolerance: 5.0
-    )
-
-    @account.recurring_transactions.create!(
-      description: "Electric Bill",
-      amount: -100.0,
-      frequency: "monthly",
-      next_occurrence_date: Date.today + 5.days,
-      is_active: true,
-      transaction_type: "expense",
-      recurring_category: "bill",
-      date_tolerance_days: 3,
-      tolerance_type: "fixed",
-      amount_tolerance: 5.0
-    )
-
-    get recurring_transactions_url, params: { account_id: @account.id, category: "subscription" }
-    assert_response :success
-
-    # Verify only subscription category is shown
-    assert_select "tr", count: 2  # Header + 1 subscription row
-  end
-
   test "should not update with invalid params" do
     patch recurring_transaction_url(@recurring), params: {
       account_id: @account.id,

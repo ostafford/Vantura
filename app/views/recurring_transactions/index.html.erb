@@ -101,42 +101,6 @@
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recurring Patterns</h2>
-          <div class="flex items-center gap-3">
-            <%= form_with url: recurring_transactions_path(account_id: @account.id), method: :get, local: true, class: "flex items-center gap-3" do |f| %>
-              <%= f.hidden_field :account_id, value: @account.id %>
-              <label for="category-filter-select" class="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Category:</label>
-              <select name="category" id="category-filter-select" 
-                      onchange="this.form.submit()"
-                      class="px-3 py-2 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-info-500 focus:border-info-500 dark:focus:border-info-300 transition-all text-sm">
-                <option value="" <%= params[:category].blank? ? 'selected' : '' %>>All Categories</option>
-                <% predefined_income = RecurringCategory.predefined_for_type("income") %>
-                <% predefined_expense = RecurringCategory.predefined_for_type("expense") %>
-                <% custom_categories = @account.recurring_categories.order(:transaction_type, :name) %>
-                
-                <% if predefined_income.any? || custom_categories.where(transaction_type: "income").any? %>
-                  <optgroup label="Income">
-                    <% predefined_income.each do |cat| %>
-                      <option value="<%= cat %>" <%= params[:category] == cat ? 'selected' : '' %>><%= cat.humanize %></option>
-                    <% end %>
-                    <% custom_categories.where(transaction_type: "income").each do |cat| %>
-                      <option value="<%= cat.name %>" <%= params[:category] == cat.name ? 'selected' : '' %>><%= cat.name %></option>
-                    <% end %>
-                  </optgroup>
-                <% end %>
-                
-                <% if predefined_expense.any? || custom_categories.where(transaction_type: "expense").any? %>
-                  <optgroup label="Expense">
-                    <% predefined_expense.each do |cat| %>
-                      <option value="<%= cat %>" <%= params[:category] == cat ? 'selected' : '' %>><%= cat.humanize %></option>
-                    <% end %>
-                    <% custom_categories.where(transaction_type: "expense").each do |cat| %>
-                      <option value="<%= cat.name %>" <%= params[:category] == cat.name ? 'selected' : '' %>><%= cat.name %></option>
-                    <% end %>
-                  </optgroup>
-                <% end %>
-              </select>
-            <% end %>
-          </div>
         </div>
       </div>
 

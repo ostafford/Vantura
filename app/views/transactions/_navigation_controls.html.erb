@@ -11,11 +11,11 @@
   }.merge(filter_additional_params)
 %>
 
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5"
      data-controller="frame-navigation"
      data-frame-navigation-frame-id-value="<%= frame_id %>">
   <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-    <div id="transactions-month-navigation" class="flex items-center justify-center gap-2">
+    <div id="transactions-month-navigation" class="flex items-center justify-center gap-2 px-2 py-2">
       <% prev_month = date.prev_month %>
       <%= link_to transactions_path(year: prev_month.year, month: prev_month.month, filter: filter_type),
                   class: "inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
@@ -38,24 +38,24 @@
         </svg>
       <% end %>
     </div>
-
-    <div class="flex flex-col gap-1 items-center text-center">
-      <h2 id="transactions-current-month-heading" class="text-xl font-bold text-gray-900 dark:text-white md:text-2xl">
-        <%= date.strftime("%B %Y") %>
-      </h2>
-      <p id="transactions-table-heading" class="text-sm font-medium text-gray-600 dark:text-gray-300">
-        <%= case filter_type
-            when "expenses" then "Expense Transactions"
-            when "income" then "Income Transactions"
-            when "hypothetical" then "Hypothetical Transactions"
-            when "search" then "Search Results"
-            else "All Transactions"
-            end %>
-      </p>
-    </div>
   </div>
 
-  <div class="flex flex-col items-center sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+  <div class="flex flex-col gap-1 items-center text-center">
+    <h2 id="transactions-current-month-heading" class="text-xl font-bold text-gray-900 dark:text-white md:text-2xl">
+      <%= date.strftime("%B %Y") %>
+    </h2>
+    <p id="transactions-table-heading" class="text-sm font-medium text-gray-600 dark:text-gray-300">
+      <%= case filter_type
+          when "expenses" then "Expense Transactions"
+          when "income" then "Income Transactions"
+          when "hypothetical" then "Hypothetical Transactions"
+          when "search" then "Search Results"
+          else "All Transactions"
+          end %>
+    </p>
+  </div>
+
+  <div class="flex flex-col items-center sm:flex-row sm:items-center gap-3 w-full sm:w-auto px-2 py-2">
     <div class="relative w-full sm:w-auto">
       <label for="transaction-filter-select" class="sr-only">Filter transactions</label>
       <select id="transaction-filter-select" name="filter"
