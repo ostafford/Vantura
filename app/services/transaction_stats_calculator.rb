@@ -13,6 +13,7 @@
 #   - transaction_count: Total transaction count
 #   - top_category: Category with highest total amount
 #   - top_category_amount: Amount for top category
+#   - category_breakdown: Top 5 categories with amounts and percentages
 #
 class TransactionStatsCalculator < ApplicationService
   def initialize(account, start_date, end_date)
@@ -30,7 +31,8 @@ class TransactionStatsCalculator < ApplicationService
       net_cash_flow: net_cash_flow,
       transaction_count: transaction_count,
       top_category: top_category,
-      top_category_amount: top_category_amount
+      top_category_amount: top_category_amount,
+      category_breakdown: category_breakdown
     }
   end
 
@@ -78,5 +80,29 @@ class TransactionStatsCalculator < ApplicationService
                            .group(:category)
                            .sum(:amount)
                            .max_by { |_, v| v.abs }
+  end
+
+  def category_breakdown
+    @category_breakdown ||= begin
+      expense_total_abs = expense_total
+      return [] if expense_total_abs.zero?
+
+      categories = transactions_in_range
+                   .expenses
+                   .where.not(category: [ nil, "" ])
+                   .group(:category)
+                   .sum(:amount)
+                   .map { |cat, amt| [ cat || "Uncategorized", amt.abs ] }
+                   .sort_by { |_, amt| -amt }
+                   .first(5)
+
+      categories.map do |category, amount|
+        {
+          name: category,
+          amount: amount.round(2),
+          percentage: ((amount / expense_total_abs) * 100).round(1)
+        }
+      end
+    end
   end
 end

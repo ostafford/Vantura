@@ -251,15 +251,15 @@ module ApplicationHelper
   def calculate_spending_pace(transactions_data)
     date = transactions_data[:date]
     expense_total = transactions_data[:expense_total] || 0
-    
+
     # Check if viewing current month by comparing year and month
     # This is more reliable than date equality comparison
     is_current_month = date.year == Date.today.year && date.month == Date.today.month
-    
+
     days_elapsed = is_current_month ? Date.today.day : date.end_of_month.day
     days_in_month = date.end_of_month.day
     month_progress = (days_elapsed.to_f / days_in_month * 100).round(1)
-    
+
     # Calculate if spending pace is on track
     # For current month: project full month based on current pace
     # For past months: compare actual vs actual (always 100%)
@@ -268,9 +268,9 @@ module ApplicationHelper
     else
       expense_total
     end
-    
+
     spending_rate = expected_expenses > 0 ? (expense_total / expected_expenses * 100) : 0
-    
+
     {
       is_current_month: is_current_month,
       days_elapsed: days_elapsed,
@@ -297,5 +297,97 @@ module ApplicationHelper
     else
       "bg-white dark:bg-gray-800"
     end
+  end
+
+  # Format percentage change with trend indicator
+  # @param current [Numeric] Current value
+  # @param previous [Numeric] Previous value
+  # @param context [String] Context for determining if increase is good ('expense', 'income', 'neutral')
+  # @return [Hash] Hash with :change, :change_pct, :trend_icon, :trend_color, :formatted
+  def calculate_change(current, previous, context: "neutral")
+    return { change: 0, change_pct: 0, trend_icon: "→", trend_color: "text-gray-500", formatted: "No change" } if previous.zero? && current.zero?
+
+    change = current - previous
+    change_pct = previous.positive? ? ((change / previous) * 100).round(1) : (current.positive? ? 100.0 : 0.0)
+
+    # Determine if change is positive based on context
+    # For expenses: decrease is good (negative change is positive)
+    # For income: increase is good (positive change is positive)
+    is_positive = case context
+    when "expense"
+      change.negative? # Spending less is good
+    when "income"
+      change.positive? # Earning more is good
+    else
+      change.positive? # Neutral: increase is positive
+    end
+
+    trend_icon = if change.positive?
+      "↑"
+    elsif change.negative?
+      "↓"
+    else
+      "→"
+    end
+
+    trend_color = if is_positive
+      "text-green-600 dark:text-green-400"
+    elsif change.zero?
+      "text-gray-500 dark:text-gray-400"
+    else
+      "text-red-600 dark:text-red-400"
+    end
+
+    sign = change.positive? ? "+" : ""
+    formatted = "#{sign}#{number_to_currency(change.abs)} (#{sign}#{change_pct}%)"
+
+    {
+      change: change,
+      change_pct: change_pct,
+      trend_icon: trend_icon,
+      trend_color: trend_color,
+      formatted: formatted,
+      is_positive: is_positive
+    }
+  end
+
+  # Format trend indicator with icon and color
+  # @param change_data [Hash] Result from calculate_change
+  # @return [String] HTML-safe string with trend indicator
+  def trend_indicator(change_data)
+    return content_tag(:span, "→", class: "text-gray-500 dark:text-gray-400") if change_data.nil?
+
+    content_tag(:span, change_data[:trend_icon], class: "font-bold #{change_data[:trend_color]}")
+  end
+
+  # Format percentage change for display with context-aware coloring
+  # @param change_pct [Numeric] Percentage change
+  # @param context [String] Context for determining if increase is good ('expense', 'income', 'neutral')
+  # @return [String] HTML-safe formatted percentage
+  def format_trend_percentage(change_pct, context: "neutral")
+    return content_tag(:span, "N/A", class: "text-gray-500 dark:text-gray-400") if change_pct.nil?
+
+    value = change_pct.is_a?(Numeric) ? change_pct.round(1) : 0.0
+    sign = value >= 0 ? "+" : ""
+
+    # Determine color based on context
+    is_positive = case context
+    when "expense"
+      value.negative? # Spending less is good
+    when "income"
+      value.positive? # Earning more is good
+    else
+      value.positive?
+    end
+
+    color_class = if is_positive
+      "text-green-600 dark:text-green-400"
+    elsif value.zero?
+      "text-gray-500 dark:text-gray-400"
+    else
+      "text-red-600 dark:text-red-400"
+    end
+
+    content_tag(:span, "#{sign}#{value}%", class: "font-semibold #{color_class}")
   end
 end

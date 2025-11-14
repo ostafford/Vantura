@@ -1,15 +1,22 @@
-<%# Hero Card (2x2) - Dynamic Insights %>
+<%# Enhanced Transaction Insights Hero Card (2x2) %>
+<% 
+  spending_pace = calculate_spending_pace(@transactions_data)
+  last_month = @transactions_data[:last_month_stats]
+  projected = @transactions_data[:projected_month_end]
+  largest = @transactions_data[:largest_transaction]
+  week_over_week = @transactions_data[:week_over_week]
+  savings_rate = @transactions_data[:savings_rate]
+%>
 <%= render 'shared/bento_cards/hero_card',
     title: "Transaction Insights",
     subtitle: "<span class='text-blue-100'>#{@transactions_data[:date].strftime('%B %Y')}</span>".html_safe,
     description: "Key financial insights at a glance",
     icon: 'chart',
-    size: 'bento-span-2 bento-row-span-2',
+    size: 'bento-span-1 bento-row-span-2',
     color: 'blue' do %>
-  <div class="space-y-4">
+  <div class="space-y-3">
     <% if @transactions_data[:filter_type] == 'search' %>
       <%# Search Results Mode: Show largest transaction %>
-      <% largest = @transactions_data[:transactions].max_by { |t| t.amount.abs } %>
       <% if largest %>
         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
           <p class="text-xs text-blue-200 mb-1">Largest Transaction</p>
@@ -25,10 +32,10 @@
         </div>
       <% end %>
     <% else %>
-      <%# Normal Month View: Show spending pace and insights %>
-      <% spending_pace = calculate_spending_pace(@transactions_data) %>
+      <%# Normal Month View: Enhanced insights %>
       
-      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep mb-3">
+      <%# Spending Pace %>
+      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
         <p class="text-xs text-blue-200 mb-2">Spending Pace</p>
         <div class="flex items-center gap-3 mb-2">
           <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
@@ -47,66 +54,375 @@
         </p>
       </div>
       
-      <% if @transactions_data[:transactions].any? %>
+      <%# Savings Rate %>
+      <% if @transactions_data[:income_total] > 0 %>
         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
-          <p class="text-xs text-blue-200 mb-1">Average Transaction</p>
+          <p class="text-xs text-blue-200 mb-1">Savings Rate</p>
           <p class="text-white text-2xl font-bold">
-            <%= number_to_currency(@transactions_data[:expense_total] / @transactions_data[:expense_count]) if @transactions_data[:expense_count] > 0 %> / transaction
+            <%= savings_rate %>%
           </p>
           <p class="text-xs text-blue-200 mt-1">
-            <% if @transactions_data[:net_cash_flow] >= 0 %>
-              <span class="inline-flex items-center">✓ Positive cash flow this month</span>
+            <% if savings_rate >= 20 %>
+              <span class="inline-flex items-center">✓ Excellent savings rate</span>
+            <% elsif savings_rate >= 10 %>
+              <span class="inline-flex items-center">✓ Good savings rate</span>
+            <% elsif savings_rate >= 0 %>
+              <span class="inline-flex items-center">⚠ Low savings rate</span>
             <% else %>
-              <span class="inline-flex items-center">⚠ Cash flow negative this month</span>
+              <span class="inline-flex items-center">⚠ Spending exceeds income</span>
             <% end %>
           </p>
+        </div>
+      <% end %>
+      
+      <%# Projected Month End (if current month) %>
+      <% if projected %>
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
+          <p class="text-xs text-blue-200 mb-1">Projected Month End</p>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-blue-100 text-xs">Expenses:</span>
+              <span class="text-white font-semibold"><%= number_to_currency(projected[:expense_total]) %></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-blue-100 text-xs">Income:</span>
+              <span class="text-white font-semibold"><%= number_to_currency(projected[:income_total]) %></span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+      
+      <%# Largest Transaction %>
+      <% if largest %>
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
+          <p class="text-xs text-blue-200 mb-1">Largest Transaction</p>
+          <div class="flex items-center justify-between">
+            <p class="text-blue-50 font-semibold truncate text-sm"><%= largest.description %></p>
+            <p class="text-white text-lg font-bold ml-2 whitespace-nowrap <%= largest.amount < 0 ? 'text-red-300' : 'text-green-300' %>">
+              <%= formatted_transaction_amount(largest) %>
+            </p>
+          </div>
+        </div>
+      <% end %>
+      
+      <%# Week-over-Week Comparison (if current month) %>
+      <% if week_over_week %>
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
+          <p class="text-xs text-blue-200 mb-1">Week-over-Week</p>
+          <div class="flex items-center justify-between">
+            <span class="text-blue-100 text-xs">This week:</span>
+            <span class="text-white font-semibold"><%= number_to_currency(week_over_week[:current_week_expenses]) %></span>
+          </div>
+          <div class="flex items-center justify-between mt-1">
+            <span class="text-blue-100 text-xs">Last week:</span>
+            <span class="text-white font-semibold"><%= number_to_currency(week_over_week[:previous_week_expenses]) %></span>
+          </div>
+          <% if week_over_week[:change_pct] != 0 %>
+            <p class="text-xs <%= week_over_week[:change_pct] < 0 ? 'text-green-300' : 'text-red-300' %> mt-1">
+              <%= week_over_week[:change_pct] > 0 ? '↑' : '↓' %> <%= week_over_week[:change_pct].abs %>% change
+            </p>
+          <% end %>
         </div>
       <% end %>
     <% end %>
   </div>
 <% end %>
 
-<!-- Expenses Card with Top 3 Merchants -->
-<%= render partial: 'shared/bento_cards/transaction_type_card',
-    locals: {
-      type: 'expense',
-      expense_total: @transactions_data[:expense_total],
-      expense_count: @transactions_data[:expense_count],
-      top_expense_merchants: @transactions_data[:top_expense_merchants],
-      current_date: @transactions_data[:date],
-      period: @transactions_data[:filter_type] == 'search' ? 'search' : 'month',
-      account: @account
-    } %>
+<%# Enhanced Expenses Card with Month-over-Month Comparison %>
+<% 
+  expense_change = last_month ? calculate_change(
+    @transactions_data[:expense_total],
+    last_month[:expense_total] || 0,
+    context: 'expense'
+  ) : nil
+  expense_avg = @transactions_data[:expense_count] > 0 ? (@transactions_data[:expense_total] / @transactions_data[:expense_count]) : 0
+  expense_avg_last = last_month && last_month[:expense_count] > 0 ? (last_month[:expense_total] / last_month[:expense_count]) : 0
+  expense_avg_change = calculate_change(expense_avg, expense_avg_last, context: 'expense')
+  three_month_avg = @transactions_data[:three_month_average]
+%>
+<%= render 'shared/bento_cards/stat_card',
+    id: 'dashboard-expenses-card',
+    title: "Expenses",
+    value: number_to_currency(@transactions_data[:expense_total]),
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions_data[:expense_count]}</span> transactions".html_safe,
+    detail: @transactions_data[:filter_type] == 'search' ? 'Search Results' : @transactions_data[:date].strftime('%B %Y'),
+    icon: 'arrow-down',
+    color: 'expense',
+    size: 'bento-span-1 bento-row-span-1',
+    link: transactions_path(year: @transactions_data[:year], month: @transactions_data[:month], filter: 'expenses'),
+    aria_label: "View Expenses details" do %>
+  
+  <div id="dashboard-expenses-card-merchants" class="mt-3 space-y-2">
+    <%# Month-over-Month Change %>
+    <% if expense_change %>
+      <div class="flex items-center justify-between text-xs pt-2 border-t border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">vs Last Month</span>
+        <div class="flex items-center gap-1">
+          <%= trend_indicator(expense_change) %>
+          <span class="<%= expense_change[:trend_color] %> font-semibold">
+            <%= format_trend_percentage(expense_change[:change_pct], context: 'expense') %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+    
+    <%# Average per Transaction %>
+    <div class="flex items-center justify-between text-xs">
+      <span class="text-gray-600 dark:text-gray-400">Avg per transaction</span>
+      <div class="flex items-center gap-1">
+        <span class="text-gray-900 dark:text-white font-semibold"><%= number_to_currency(expense_avg) %></span>
+        <% if expense_avg_change[:change] != 0 %>
+          <%= trend_indicator(expense_avg_change) %>
+        <% end %>
+      </div>
+    </div>
+    
+    <%# 3-Month Average Comparison %>
+    <% if three_month_avg && three_month_avg[:expense_total] > 0 %>
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-600 dark:text-gray-400">vs 3-mo avg</span>
+        <span class="text-gray-900 dark:text-white font-semibold">
+          <%= number_to_currency(three_month_avg[:expense_total]) %>
+        </span>
+      </div>
+    <% end %>
+    
+    <%# Top Merchants %>
+    <% if @transactions_data[:top_expense_merchants].any? %>
+      <div class="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+        <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">TOP MERCHANTS</p>
+        <div class="space-y-1.5">
+          <% @transactions_data[:top_expense_merchants].first(3).each do |merchant| %>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600 dark:text-gray-400 truncate"><%= merchant[:merchant] || 'Unknown' %></span>
+              <span class="text-gray-900 dark:text-white font-semibold ml-2 whitespace-nowrap">
+                <%= number_to_currency(merchant[:total]) %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
 
-<!-- Income Card with Top 3 Merchants -->
-<%= render partial: 'shared/bento_cards/transaction_type_card',
-    locals: {
-      type: 'income',
-      income_total: @transactions_data[:income_total],
-      income_count: @transactions_data[:income_count],
-      top_income_merchants: @transactions_data[:top_income_merchants],
-      current_date: @transactions_data[:date],
-      period: @transactions_data[:filter_type] == 'search' ? 'search' : 'month',
-      account: @account
-    } %>
+<%# Enhanced Income Card with Month-over-Month Comparison %>
+<% 
+  income_change = last_month ? calculate_change(
+    @transactions_data[:income_total],
+    last_month[:income_total] || 0,
+    context: 'income'
+  ) : nil
+  income_avg = @transactions_data[:income_count] > 0 ? (@transactions_data[:income_total] / @transactions_data[:income_count]) : 0
+  income_avg_last = last_month && last_month[:income_count] > 0 ? (last_month[:income_total] / last_month[:income_count]) : 0
+  income_avg_change = calculate_change(income_avg, income_avg_last, context: 'income')
+%>
+<%= render 'shared/bento_cards/stat_card',
+    id: 'dashboard-income-card',
+    title: "Income",
+    value: number_to_currency(@transactions_data[:income_total]),
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions_data[:income_count]}</span> transactions".html_safe,
+    detail: @transactions_data[:filter_type] == 'search' ? 'Search Results' : @transactions_data[:date].strftime('%B %Y'),
+    icon: 'arrow-up',
+    color: 'income',
+    size: 'bento-span-1 bento-row-span-1',
+    link: transactions_path(year: @transactions_data[:year], month: @transactions_data[:month], filter: 'income'),
+    aria_label: "View Income details" do %>
+  
+  <div id="dashboard-income-card-merchants" class="mt-3 space-y-2">
+    <%# Month-over-Month Change %>
+    <% if income_change %>
+      <div class="flex items-center justify-between text-xs pt-2 border-t border-gray-200 dark:border-gray-700">
+        <span class="text-gray-600 dark:text-gray-400">vs Last Month</span>
+        <div class="flex items-center gap-1">
+          <%= trend_indicator(income_change) %>
+          <span class="<%= income_change[:trend_color] %> font-semibold">
+            <%= format_trend_percentage(income_change[:change_pct], context: 'income') %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+    
+    <%# Average per Transaction %>
+    <div class="flex items-center justify-between text-xs">
+      <span class="text-gray-600 dark:text-gray-400">Avg per transaction</span>
+      <div class="flex items-center gap-1">
+        <span class="text-gray-900 dark:text-white font-semibold"><%= number_to_currency(income_avg) %></span>
+        <% if income_avg_change[:change] != 0 %>
+          <%= trend_indicator(income_avg_change) %>
+        <% end %>
+      </div>
+    </div>
+    
+    <%# 3-Month Average Comparison %>
+    <% if three_month_avg && three_month_avg[:income_total] > 0 %>
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-600 dark:text-gray-400">vs 3-mo avg</span>
+        <span class="text-gray-900 dark:text-white font-semibold">
+          <%= number_to_currency(three_month_avg[:income_total]) %>
+        </span>
+      </div>
+    <% end %>
+    
+    <%# Top Merchants %>
+    <% if @transactions_data[:top_income_merchants].any? %>
+      <div class="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+        <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">TOP MERCHANTS</p>
+        <div class="space-y-1.5">
+          <% @transactions_data[:top_income_merchants].first(3).each do |merchant| %>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600 dark:text-gray-400 truncate"><%= merchant[:merchant] || 'Unknown' %></span>
+              <span class="text-gray-900 dark:text-white font-semibold ml-2 whitespace-nowrap">
+                <%= number_to_currency(merchant[:total]) %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
 
-<!-- Transaction Count -->
+<%# Enhanced Total Transactions Card %>
+<% 
+  transaction_change = last_month ? calculate_change(
+    @transactions_data[:transaction_count],
+    last_month[:transaction_count] || 0,
+    context: 'neutral'
+  ) : nil
+  velocity = @transactions_data[:transaction_velocity]
+  expense_count_change = last_month ? calculate_change(
+    @transactions_data[:expense_count],
+    last_month[:expense_count] || 0,
+    context: 'neutral'
+  ) : nil
+  income_count_change = last_month ? calculate_change(
+    @transactions_data[:income_count],
+    last_month[:income_count] || 0,
+    context: 'neutral'
+  ) : nil
+%>
 <%= render 'shared/bento_cards/stat_card',
     title: "Total Transactions",
-    value: @transactions_data[:transactions].count.to_s,
-    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions_data[:filter_type].humanize}</span>".html_safe,
+    value: @transactions_data[:transaction_count].to_s,
+    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions_data[:expense_count]}</span> expenses • <span class='font-semibold text-gray-900 dark:text-white'>#{@transactions_data[:income_count]}</span> income".html_safe,
     detail: @transactions_data[:filter_type] == 'search' ? 'Search Results' : "Showing #{@transactions_data[:date].strftime('%B %Y')}",
     icon: 'chart',
     color: 'blue',
-    size: 'bento-span-2 bento-row-span-1' %>
+    size: 'bento-span-1 bento-row-span-1' do %>
+  
+  <div class="mt-3 space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+    <%# Month-over-Month Change %>
+    <% if transaction_change %>
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-600 dark:text-gray-400">vs Last Month</span>
+        <div class="flex items-center gap-1">
+          <%= trend_indicator(transaction_change) %>
+          <span class="<%= transaction_change[:trend_color] %> font-semibold">
+            <%= transaction_change[:change] > 0 ? '+' : '' %><%= transaction_change[:change] %> transactions
+          </span>
+        </div>
+      </div>
+    <% end %>
+    
+    <%# Daily Average %>
+    <% if velocity && velocity[:daily_average] > 0 %>
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-600 dark:text-gray-400">Daily average</span>
+        <span class="text-gray-900 dark:text-white font-semibold">
+          <%= velocity[:daily_average].round(1) %> / day
+        </span>
+      </div>
+    <% end %>
+    
+    <%# Expense/Income Count Changes %>
+    <% if expense_count_change %>
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-600 dark:text-gray-400">Expenses:</span>
+        <div class="flex items-center gap-1">
+          <%= trend_indicator(expense_count_change) %>
+          <span class="<%= expense_count_change[:trend_color] %> font-semibold">
+            <%= expense_count_change[:change] > 0 ? '+' : '' %><%= expense_count_change[:change] %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+    <% if income_count_change %>
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-600 dark:text-gray-400">Income:</span>
+        <div class="flex items-center gap-1">
+          <%= trend_indicator(income_count_change) %>
+          <span class="<%= income_count_change[:trend_color] %> font-semibold">
+            <%= income_count_change[:change] > 0 ? '+' : '' %><%= income_count_change[:change] %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
 
-<!-- Top Category -->
+<%# Enhanced Top Category Card %>
+<% 
+  category_breakdown = @transactions_data[:category_breakdown] || []
+  top_category = category_breakdown.first
+  top_category_last_month = last_month && last_month[:category_breakdown] ? last_month[:category_breakdown].find { |c| c[:name] == top_category[:name] } : nil if top_category
+  top_category_change = top_category && top_category_last_month ? calculate_change(
+    top_category[:amount],
+    top_category_last_month[:amount],
+    context: 'expense'
+  ) : nil
+  top_category_pct = @transactions_data[:expense_total] > 0 && top_category ? ((top_category[:amount] / @transactions_data[:expense_total]) * 100).round(1) : 0
+%>
 <%= render 'shared/bento_cards/stat_card',
     title: "Top Category",
-    value: @transactions_data[:top_category],
+    value: @transactions_data[:top_category] || "N/A",
     subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{number_to_currency(@transactions_data[:top_category_amount].abs)}</span>".html_safe,
     detail: @transactions_data[:filter_type] == 'search' ? 'Search Results' : @transactions_data[:date].strftime('%B %Y'),
     icon: 'tag',
     color: 'blue',
-    size: 'bento-span-2 bento-row-span-1' %>
-
+    size: 'bento-span-1 bento-row-span-1',
+    link: top_category ? transactions_path(year: @transactions_data[:year], month: @transactions_data[:month], filter: 'expenses', q: top_category[:name]) : nil do %>
+  
+  <div class="mt-3 space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+    <%# Percentage of Total Expenses %>
+    <% if top_category_pct > 0 %>
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-600 dark:text-gray-400">% of expenses</span>
+        <span class="text-gray-900 dark:text-white font-semibold"><%= top_category_pct %>%</span>
+      </div>
+    <% end %>
+    
+    <%# Month-over-Month Change %>
+    <% if top_category_change %>
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-gray-600 dark:text-gray-400">vs Last Month</span>
+        <div class="flex items-center gap-1">
+          <%= trend_indicator(top_category_change) %>
+          <span class="<%= top_category_change[:trend_color] %> font-semibold">
+            <%= format_trend_percentage(top_category_change[:change_pct], context: 'expense') %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+    
+    <%# Top 3 Categories %>
+    <% if category_breakdown.any? %>
+      <div class="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+        <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">TOP CATEGORIES</p>
+        <div class="space-y-1.5">
+          <% category_breakdown.first(3).each do |category| %>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600 dark:text-gray-400 truncate"><%= category[:name] %></span>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-500 dark:text-gray-500 text-[10px]"><%= category[:percentage] %>%</span>
+                <span class="text-gray-900 dark:text-white font-semibold ml-2 whitespace-nowrap">
+                  <%= number_to_currency(category[:amount]) %>
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
