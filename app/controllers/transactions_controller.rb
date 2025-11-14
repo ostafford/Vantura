@@ -49,7 +49,7 @@ class TransactionsController < ApplicationController
 
   def search
     return unless load_account
-    @transactions_data = TransactionSearchService.call(@account, params[:q], params.slice(:year, :month), params[:filter] || "all")
+    @transactions_data = TransactionSearchService.call(@account, params[:q], params.slice(:year, :month, :start_date, :end_date), params[:filter] || "all")
     respond_to do |format|
       format.html { redirect_to transactions_path(filter: @transactions_data[:filter_type], year: @transactions_data[:year], month: @transactions_data[:month], q: params[:q]) }
       format.turbo_stream

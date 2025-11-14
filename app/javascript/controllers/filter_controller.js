@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { visitFrame } from "helpers/frame_navigation_helper"
 
 // Connects to data-controller="filter"
 export default class extends Controller {
@@ -18,36 +19,8 @@ export default class extends Controller {
     const targetUrl = new URL(baseUrlString, window.location.origin)
     targetUrl.searchParams.set("filter", filterValue)
 
-    try {
-      const response = await fetch(targetUrl.toString(), {
-        headers: {
-          Accept: "text/vnd.turbo-stream.html, text/html",
-          "X-Requested-With": "XMLHttpRequest"
-        },
-        credentials: "same-origin"
-      })
-
-      if (!response.ok) {
-        throw new Error(`[filter#change] HTTP ${response.status}`)
-      }
-
-      const contentType = response.headers.get("content-type") || ""
-      if (contentType.includes("text/vnd.turbo-stream.html")) {
-        const html = await response.text()
-        Turbo.renderStreamMessage(html)
-        frame?.dispatchEvent(new CustomEvent("transactions:restore-scroll"))
-        return
-      }
-    } catch (error) {
-      console.error("[filter#change] Turbo stream request failed", error)
-    }
-
-    if (frameId) {
-      Turbo.visit(targetUrl.toString(), { frame: frameId })
-      return
-    }
-
-    Turbo.visit(targetUrl.toString())
+    frame?.dispatchEvent(new CustomEvent("frame-navigation:remember-scroll"))
+    await visitFrame(targetUrl.toString(), frameId)
   }
 }
 

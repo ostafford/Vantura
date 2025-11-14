@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { buildUrl } from "helpers/navigation_helper"
+import { visitFrame } from "helpers/frame_navigation_helper"
 
 /**
  * Week Navigation Controller
@@ -206,10 +207,10 @@ export default class extends Controller {
     const day = parseInt(event.currentTarget.dataset.weekStartDay)
     
     // Navigate to the selected week
-    this.navigateToWeek(year, month, day)
+    void this.navigateToWeek(year, month, day)
   }
 
-  navigateToWeek(year, month, day) {
+  async navigateToWeek(year, month, day) {
     // Use shared helper to build URL
     const url = buildUrl(this.urlPatternValue, this.urlTypeValue || 'week', year, month, day)
     
@@ -218,13 +219,10 @@ export default class extends Controller {
       return
     }
 
-    // Use Turbo Drive to navigate with proper frame targeting
-    // Turbo Drive automatically handles URL updates and browser history
     const frameId = this.hasTurboFrameValue ? this.turboFrameValue : 'calendar_content'
-    Turbo.visit(url, { 
-      frame: frameId,
-      action: 'replace'
-    })
+    const frame = document.getElementById(frameId)
+    frame?.dispatchEvent(new CustomEvent("frame-navigation:remember-scroll"))
+    await visitFrame(url, frameId)
     
     // Dispatch custom event to notify other controllers of week change
     window.dispatchEvent(new CustomEvent('week:changed', { 

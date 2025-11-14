@@ -10,14 +10,13 @@
   </tbody>
 <% end %>
 
-<%# Refresh filters to keep date/search controls in sync with search context %>
-<%= turbo_stream.update "transactions-table-filters" do %>
-  <%= render "transactions/table_filters",
-      transactions_data: @transactions_data,
-      start_date: params[:start_date],
-      end_date: params[:end_date],
-      search_query: params[:q] %>
+<%# Update the cards container for mobile view %>
+<%= turbo_stream.replace "transactions-cards-container" do %>
+  <%= render 'transactions/transaction_cards', transactions: @transactions_data[:transactions] %>
 <% end %>
+
+<%# DO NOT update filters during search - it replaces the input and resets cursor position %>
+<%# The input value is already correct (user typed it), and date filters haven't changed %>
 
 <%# Update the month heading to reflect search state %>
 <%= turbo_stream.update "transactions-current-month-heading" do %>

@@ -1,0 +1,29 @@
+<%# 
+  Transaction Cards Container
+  Renders a list of transaction cards for mobile view
+  
+  Required local: transactions (array of Transaction objects)
+  Optional locals: empty_state_title, empty_state_message
+%>
+<%
+  transactions = local_assigns.fetch(:transactions, [])
+  empty_state_title = local_assigns.fetch(:empty_state_title, "No transactions")
+  empty_state_message = local_assigns.fetch(:empty_state_message, "No transactions found for the selected filter.")
+%>
+
+<div id="transactions-cards-container" class="px-4 py-4 space-y-3">
+  <% if transactions.any? %>
+    <% transactions.each do |transaction| %>
+      <%= render 'transactions/transaction_card', transaction: transaction %>
+    <% end %>
+  <% else %>
+    <div class="px-4 py-12 text-center">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100"><%= empty_state_title %></h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= empty_state_message %></p>
+    </div>
+  <% end %>
+</div>
+

@@ -1,0 +1,62 @@
+<%# 
+  Transaction Card Component for Mobile View
+  Displays a single transaction in card format matching calendar card styling
+  
+  Required local: transaction
+%>
+<%
+  amount = transaction.amount
+  bg_class = transaction_card_bg_class(transaction)
+%>
+
+<div id="transaction-<%= transaction.id %>-card" 
+     class="flex flex-col px-4 py-4 rounded-lg border border-gray-200 dark:border-gray-700 <%= bg_class %> hover:shadow-md transition-all"
+     <%= 'aria-label="Hypothetical transaction: ' + transaction.description + '"' if transaction.is_hypothetical %>>
+  
+  <!-- Top Row: Date and Amount -->
+  <div class="flex items-start justify-between gap-4 mb-3">
+    <time datetime="<%= transaction.transaction_date.iso8601 %>" 
+          id="transaction-<%= transaction.id %>-date"
+          class="text-sm text-gray-600 dark:text-gray-400">
+      <%= transaction.transaction_date.strftime("%b %d, %Y") %>
+    </time>
+    
+    <div class="flex-shrink-0 text-right">
+      <div id="transaction-<%= transaction.id %>-amount" 
+           class="text-lg font-bold <%= amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+        <%= formatted_transaction_amount(transaction) %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Middle Section: Description -->
+  <div class="mb-3">
+    <p id="transaction-<%= transaction.id %>-description" 
+       class="text-base font-semibold text-gray-900 dark:text-white break-words">
+      <%= transaction.description %>
+    </p>
+  </div>
+  
+  <!-- Bottom Section: Category, Status Badges, and Actions -->
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <div class="flex flex-wrap items-center gap-2">
+      <!-- Category Badge -->
+      <span id="transaction-<%= transaction.id %>-category" 
+            class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+        <%= transaction.category&.humanize || "Uncategorized" %>
+      </span>
+      
+      <!-- Status Badges -->
+      <div id="transaction-<%= transaction.id %>-status" class="flex items-center gap-1.5">
+        <%= transaction_status_badge(transaction, compact: true) %>
+        <%= transaction_recurring_badge(transaction, compact: true) %>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div id="transaction-<%= transaction.id %>-actions" class="flex-shrink-0">
+      <%= transaction_action_buttons(transaction) %>
+    </div>
+  </div>
+</div>
+

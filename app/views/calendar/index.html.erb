@@ -21,7 +21,10 @@
         </section>
 
         <!-- View Switcher (Inside Turbo Frame, after Bento Grid) -->
-        <nav class="mb-4 flex items-center justify-between gap-2 md:gap-3" aria-label="Calendar view switcher">
+        <nav class="mb-4 flex items-center justify-between gap-2 md:gap-3"
+             aria-label="Calendar view switcher"
+             data-controller="frame-navigation"
+             data-frame-navigation-frame-id-value="calendar_content">
           <div class="inline-flex rounded-lg bg-white dark:bg-gray-800 p-0.5 md:p-1 shadow-lg">
             <% week_switch_date = calendar_week_switch_date(@view, @date) %>
             <%= view_switcher_button(
@@ -60,7 +63,7 @@
                 class: "inline-flex items-center justify-center w-10 h-10 md:px-4 md:py-2 md:w-auto md:h-auto border-2 border-primary-700/30 dark:border-primary-500/20 rounded-xl md:rounded-2xl text-primary-700 dark:text-primary-500 bg-primary-700/5 dark:bg-primary-700/10 hover:bg-primary-700/10 dark:hover:bg-primary-700/20 hover:border-primary-700 dark:hover:border-primary-500 hover:shadow-lg hover:scale-105 transition-all font-medium text-xs md:text-sm",
                 title: "Jump to today",
                 aria: { label: "Jump to today" },
-                data: { turbo_frame: 'calendar_content' }) do %>
+                data: { turbo_frame: 'calendar_content', action: "click->frame-navigation#navigate" }) do %>
               <svg class="w-5 h-5 md:w-4 md:h-4 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>

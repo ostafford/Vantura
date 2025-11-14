@@ -26,35 +26,20 @@
       <% end %>
     <% else %>
       <%# Normal Month View: Show spending pace and insights %>
-      <% 
-        # Check if viewing current month by comparing year and month
-        # This is more reliable than date equality comparison
-        is_current_month = @transactions_data[:date].year == Date.today.year && 
-                           @transactions_data[:date].month == Date.today.month
-        
-        days_elapsed = is_current_month ? Date.today.day : @transactions_data[:date].end_of_month.day 
-        days_in_month = @transactions_data[:date].end_of_month.day
-        month_progress = (days_elapsed.to_f / days_in_month * 100).round(1)
-        
-        # Calculate if spending pace is on track
-        # For current month: project full month based on current pace
-        # For past months: compare actual vs actual (always 100%)
-        expected_expenses = is_current_month ? (@transactions_data[:expense_total] / days_elapsed * days_in_month) : @transactions_data[:expense_total]
-        spending_rate = expected_expenses > 0 ? (@transactions_data[:expense_total] / expected_expenses * 100) : 0
-      %>
+      <% spending_pace = calculate_spending_pace(@transactions_data) %>
       
       <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 mb-3">
         <p class="text-xs text-blue-200 mb-2">Spending Pace</p>
         <div class="flex items-center gap-3 mb-2">
           <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
-            <div class="h-full <%= spending_rate > 100 ? 'bg-red-400' : spending_rate > 75 ? 'bg-yellow-400' : 'bg-green-400' %> rounded-full transition-all duration-300" style="width: <%= [spending_rate, 100].min %>%"></div>
+            <div class="h-full <%= spending_pace[:spending_rate] > 100 ? 'bg-red-400' : spending_pace[:spending_rate] > 75 ? 'bg-yellow-400' : 'bg-green-400' %> rounded-full transition-all duration-300" style="width: <%= [spending_pace[:spending_rate], 100].min %>%"></div>
           </div>
-          <span class="text-white text-sm font-semibold whitespace-nowrap"><%= spending_rate.round(0) %>%</span>
+          <span class="text-white text-sm font-semibold whitespace-nowrap"><%= spending_pace[:spending_rate].round(0) %>%</span>
         </div>
         <p class="text-xs text-blue-200">
-          <% if spending_rate > 100 %>
+          <% if spending_pace[:spending_rate] > 100 %>
             ⚠️ Spending ahead of pace
-          <% elsif spending_rate > 75 %>
+          <% elsif spending_pace[:spending_rate] > 75 %>
             ⚡ Spending on track
           <% else %>
             ✅ Spending under pace

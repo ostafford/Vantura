@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { buildUrl } from "helpers/navigation_helper"
+import { visitFrame } from "helpers/frame_navigation_helper"
 
 /**
  * Month Navigation Controller
@@ -101,7 +102,7 @@ export default class extends Controller {
     this.selectedMonth = parseInt(event.currentTarget.dataset.monthValue)
     
     // Navigate to the selected month/year
-    this.navigateToMonth(this.selectedYear, this.selectedMonth)
+    void this.navigateToMonth(this.selectedYear, this.selectedMonth)
   }
 
   updateMonthButtonStates() {
@@ -122,7 +123,7 @@ export default class extends Controller {
     })
   }
 
-  navigateToMonth(year, month) {
+  async navigateToMonth(year, month) {
     // Use shared helper to build URL
     const url = buildUrl(this.urlPatternValue, this.urlTypeValue || 'path', year, month)
     
@@ -131,13 +132,10 @@ export default class extends Controller {
       return
     }
 
-    // Use Turbo Drive to navigate with proper frame targeting
-    // Turbo Drive automatically handles URL updates and browser history
     const frameId = this.hasTurboFrameValue ? this.turboFrameValue : 'calendar_content'
-    Turbo.visit(url, { 
-      frame: frameId,
-      action: 'replace'
-    })
+    const frame = document.getElementById(frameId)
+    frame?.dispatchEvent(new CustomEvent("frame-navigation:remember-scroll"))
+    await visitFrame(url, frameId)
     
     // Dispatch custom event to notify other controllers of month change
     window.dispatchEvent(new CustomEvent('month:changed', { 

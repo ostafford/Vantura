@@ -15,16 +15,16 @@ export default class extends Controller {
     this.element.addEventListener("turbo:frame-load", this.restoreScrollHandler)
     this.element.addEventListener("turbo:before-fetch-request", this.rememberHandler)
     this.element.addEventListener("turbo:submit-start", this.rememberHandler)
-    this.element.addEventListener("transactions:restore-scroll", this.restoreScrollHandler)
-    this.element.addEventListener("transactions:remember-scroll", this.rememberHandler)
+    this.element.addEventListener("frame-navigation:restore-scroll", this.restoreScrollHandler)
+    this.element.addEventListener("frame-navigation:remember-scroll", this.rememberHandler)
   }
 
   disconnect() {
     this.element.removeEventListener("turbo:frame-load", this.restoreScrollHandler)
     this.element.removeEventListener("turbo:before-fetch-request", this.rememberHandler)
     this.element.removeEventListener("turbo:submit-start", this.rememberHandler)
-    this.element.removeEventListener("transactions:restore-scroll", this.restoreScrollHandler)
-    this.element.removeEventListener("transactions:remember-scroll", this.rememberHandler)
+    this.element.removeEventListener("frame-navigation:restore-scroll", this.restoreScrollHandler)
+    this.element.removeEventListener("frame-navigation:remember-scroll", this.rememberHandler)
   }
 
   handleClick(event) {

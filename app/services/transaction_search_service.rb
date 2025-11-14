@@ -100,11 +100,27 @@ class TransactionSearchService < ApplicationService
   end
 
   def start_date
-    @start_date ||= date.beginning_of_month
+    @start_date ||= begin
+      if @date_params[:start_date].present?
+        Date.parse(@date_params[:start_date])
+      else
+        date.beginning_of_month
+      end
+    rescue ArgumentError
+      date.beginning_of_month
+    end
   end
 
   def end_date
-    @end_date ||= date.end_of_month
+    @end_date ||= begin
+      if @date_params[:end_date].present?
+        Date.parse(@date_params[:end_date])
+      else
+        date.end_of_month
+      end
+    rescue ArgumentError
+      date.end_of_month
+    end
   end
 
   def search_transactions

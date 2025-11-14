@@ -1,45 +1,157 @@
-<div class="max-w-4xl mx-auto mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Transaction</h1>
+<% content_for :title, "Transaction Details - Vantura" %>
+<% content_for :page_header_title, "Transaction Details" %>
+<% content_for :page_header_subtitle, "View transaction information" %>
 
-  <div class="space-y-4">
-    <div>
-      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Description:</span>
-      <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @transaction.description %></span>
-    </div>
+<main>
+  <%= content_wrapper class: "py-6" do %>
+    <article id="transaction-<%= @transaction.id %>-container" 
+             class="mx-auto max-w-4xl bg-white dark:bg-gray-800 shadow-deep rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+             <%= 'aria-label="Hypothetical transaction: ' + @transaction.description + '"' if @transaction.is_hypothetical %>>
+      
+      <!-- Header Section -->
+      <header id="transaction-<%= @transaction.id %>-header" 
+              class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <h1 id="transaction-<%= @transaction.id %>-title" 
+            class="text-2xl font-bold text-gray-900 dark:text-white">
+          Transaction Details
+        </h1>
+        <p id="transaction-<%= @transaction.id %>-subtitle" 
+           class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+          <%= @transaction.description %>
+        </p>
+      </header>
 
-    <div>
-      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Amount:</span>
-      <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @transaction.amount < 0 ? "-" : "+" %>$<%= number_with_precision(@transaction.amount.abs, precision: 2) %></span>
-    </div>
+      <!-- Transaction Details Section -->
+      <section id="transaction-<%= @transaction.id %>-details-section" 
+               class="px-8 py-6" 
+               aria-labelledby="transaction-<%= @transaction.id %>-details-heading">
+        <h2 id="transaction-<%= @transaction.id %>-details-heading" 
+            class="sr-only">
+          Transaction Information
+        </h2>
 
-    <div>
-      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Date:</span>
-      <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @transaction.transaction_date.strftime("%b %d, %Y") if @transaction.transaction_date %></span>
-    </div>
+        <dl id="transaction-<%= @transaction.id %>-details-list" 
+            class="space-y-4">
+          
+          <!-- Description -->
+          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+            <dt id="transaction-<%= @transaction.id %>-description-label" 
+                class="text-sm font-semibold text-gray-700 dark:text-gray-300 sm:w-32 flex-shrink-0">
+              Description
+            </dt>
+            <dd id="transaction-<%= @transaction.id %>-description" 
+                class="text-base text-gray-900 dark:text-white">
+              <%= @transaction.description %>
+            </dd>
+          </div>
 
-    <% if @transaction.category.present? %>
-      <div>
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Category:</span>
-        <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @transaction.category %></span>
-      </div>
-    <% end %>
+          <!-- Amount -->
+          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+            <dt id="transaction-<%= @transaction.id %>-amount-label" 
+                class="text-sm font-semibold text-gray-700 dark:text-gray-300 sm:w-32 flex-shrink-0">
+              Amount
+            </dt>
+            <dd id="transaction-<%= @transaction.id %>-amount" 
+                class="text-lg font-bold <%= @transaction.amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+              <%= formatted_transaction_amount(@transaction) %>
+            </dd>
+          </div>
 
-    <% if @transaction.merchant.present? %>
-      <div>
-        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Merchant:</span>
-        <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @transaction.merchant %></span>
-      </div>
-    <% end %>
+          <!-- Date -->
+          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+            <dt id="transaction-<%= @transaction.id %>-date-label" 
+                class="text-sm font-semibold text-gray-700 dark:text-gray-300 sm:w-32 flex-shrink-0">
+              Date
+            </dt>
+            <dd id="transaction-<%= @transaction.id %>-date" 
+                class="text-base text-gray-900 dark:text-white">
+              <% if @transaction.transaction_date %>
+                <time datetime="<%= @transaction.transaction_date.iso8601 %>">
+                  <%= @transaction.transaction_date.strftime("%B %d, %Y") %>
+                </time>
+              <% else %>
+                <span class="text-gray-500 dark:text-gray-400">Not set</span>
+              <% end %>
+            </dd>
+          </div>
 
-    <div>
-      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
-      <span class="ml-2 text-gray-900 dark:text-gray-100"><%= @transaction.status.humanize %></span>
-    </div>
+          <!-- Category -->
+          <% if @transaction.category.present? %>
+            <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+              <dt id="transaction-<%= @transaction.id %>-category-label" 
+                  class="text-sm font-semibold text-gray-700 dark:text-gray-300 sm:w-32 flex-shrink-0">
+                Category
+              </dt>
+              <dd id="transaction-<%= @transaction.id %>-category" 
+                  class="text-base text-gray-900 dark:text-white">
+                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                  <%= @transaction.category.humanize %>
+                </span>
+              </dd>
+            </div>
+          <% end %>
 
-    <div class="mt-6">
-      <%= link_to "Edit", edit_transaction_path(@transaction), class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" %>
-      <%= link_to "Back to List", transactions_path, class: "ml-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium" %>
-    </div>
-  </div>
-</div>
+          <!-- Merchant -->
+          <% if @transaction.merchant.present? %>
+            <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+              <dt id="transaction-<%= @transaction.id %>-merchant-label" 
+                  class="text-sm font-semibold text-gray-700 dark:text-gray-300 sm:w-32 flex-shrink-0">
+                Merchant
+              </dt>
+              <dd id="transaction-<%= @transaction.id %>-merchant" 
+                  class="text-base text-gray-900 dark:text-white">
+                <%= @transaction.merchant %>
+              </dd>
+            </div>
+          <% end %>
+
+          <!-- Status -->
+          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+            <dt id="transaction-<%= @transaction.id %>-status-label" 
+                class="text-sm font-semibold text-gray-700 dark:text-gray-300 sm:w-32 flex-shrink-0">
+              Status
+            </dt>
+            <dd id="transaction-<%= @transaction.id %>-status" 
+                class="text-base">
+              <div class="flex items-center gap-1.5">
+                <%= transaction_status_badge(@transaction) %>
+                <%= transaction_recurring_badge(@transaction) %>
+              </div>
+            </dd>
+          </div>
+
+        </dl>
+      </section>
+
+      <!-- Actions Section -->
+      <footer id="transaction-<%= @transaction.id %>-actions-section" 
+              class="px-8 py-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <nav id="transaction-<%= @transaction.id %>-actions-nav" 
+             aria-label="Transaction actions">
+          <div class="flex items-center gap-4">
+            <%= link_to edit_transaction_path(@transaction),
+                id: "transaction-<%= @transaction.id %>-edit-button",
+                class: "inline-flex items-center justify-center px-5 py-3 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-600 dark:focus:ring-offset-gray-900",
+                aria: { label: "Edit transaction: #{@transaction.description}" } do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Edit
+            <% end %>
+
+            <%= link_to transactions_path,
+                id: "transaction-<%= @transaction.id %>-back-button",
+                class: "inline-flex items-center justify-center px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                aria: { label: "Back to transactions list" } do %>
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              Back to List
+            <% end %>
+          </div>
+        </nav>
+      </footer>
+    </article>
+  <% end %>
+</main>
 

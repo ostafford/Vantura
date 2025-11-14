@@ -109,7 +109,7 @@ export default class extends Controller {
   }
 
   // Handle date picker change to jump to specific date
-  jumpToDate(event) {
+  async jumpToDate(event) {
     const selectedDate = new Date(event.target.value)
     if (!selectedDate || isNaN(selectedDate.getTime())) {
       return
@@ -120,6 +120,6 @@ export default class extends Controller {
     const currentView = url.searchParams.get('view') || 'month'
     
     // Use navigation helper to navigate
-    navigateToCalendarDate(selectedDate, currentView, 'calendar_content')
+    await navigateToCalendarDate(selectedDate, currentView, 'calendar_content')
   }
 }

@@ -10,6 +10,11 @@
   </tbody>
 <% end %>
 
+<%# Update the cards container for mobile view %>
+<%= turbo_stream.replace "transactions-cards-container" do %>
+  <%= render 'transactions/transaction_cards', transactions: @transactions_data[:transactions] %>
+<% end %>
+
 <%# Refresh filters to keep date/search controls in sync with current state %>
 <%= turbo_stream.update "transactions-table-filters" do %>
   <%= render "transactions/table_filters",
@@ -21,7 +26,7 @@
 
 <%# Re-render the header to keep navigation, heading, and actions in sync %>
 <%= turbo_stream.replace "transactions-table-header" do %>
-  <header id="transactions-table-header" class="px-6 py-5 border-b bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+  <header id="transactions-table-header" class="px-4 py-4 sm:px-6 sm:py-5 border-b bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
     <%= render "transactions/navigation_controls",
           transactions_data: @transactions_data,
           filter_additional_params: { start_date: params[:start_date], end_date: params[:end_date] } do %>

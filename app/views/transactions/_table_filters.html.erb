@@ -10,12 +10,14 @@
 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
   <div class="flex flex-wrap items-center gap-3">
     <%= form_with url: transactions_path, method: :get, local: false,
-                  data: { turbo_frame: frame_id, action: "turbo:submit-start->transactions-scroll#remember" },
-                  class: "flex flex-wrap items-center gap-3" do |f| %>
+                  data: { 
+                    turbo_frame: frame_id, 
+                    action: "turbo:submit-start->transactions-scroll#remember"
+                  },
+                  class: "flex flex-wrap items-center justify-center gap-3",
+                  id: "date-range-filter-form" do |f| %>
       <%= f.hidden_field :filter, value: transactions_data[:filter_type] %>
-      <% if search_query.present? %>
-        <%= f.hidden_field :q, value: search_query %>
-      <% end %>
+      <%= f.hidden_field :q, value: search_query, id: "date-range-form-search-query" %>
 
       <div class="flex items-center gap-2">
         <label for="date-range-start-input" class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
@@ -46,9 +48,9 @@
               transactions_path(filter: transactions_data[:filter_type],
                                 year: transactions_data[:year],
                                 month: transactions_data[:month]),
-              data: { controller: "transactions-navigation",
+              data: { controller: "frame-navigation",
                       turbo_frame: frame_id,
-                      action: "click->transactions-scroll#remember click->transactions-navigation#navigate" },
+                      action: "click->transactions-scroll#remember click->frame-navigation#navigate" },
               class: "px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors" %>
         <% end %>
       </div>
@@ -59,15 +61,23 @@
        data-autocomplete-url-value="<%= search_url %>"
        data-autocomplete-min-length-value="3"
        data-autocomplete-month-value="<%= transactions_data[:month] %>"
-       data-autocomplete-year-value="<%= transactions_data[:year] %>">
+       data-autocomplete-year-value="<%= transactions_data[:year] %>"
+       <% if start_date.present? %>
+       data-autocomplete-start-date-value="<%= start_date %>"
+       <% end %>
+       <% if end_date.present? %>
+       data-autocomplete-end-date-value="<%= end_date %>"
+       <% end %>>
     <div class="relative">
       <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
       </div>
+      <label for="transaction-search-input" class="sr-only">Search transactions</label>
       <input
         type="text"
+        id="transaction-search-input"
         data-autocomplete-target="input"
         placeholder="Search transactions by description, category, or merchant..."
         value="<%= search_query %>"

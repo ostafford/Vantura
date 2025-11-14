@@ -1,3 +1,5 @@
+import { visitFrame } from "helpers/frame_navigation_helper"
+
 /**
  * Calendar Navigation Helper
  * 
@@ -31,16 +33,12 @@ export function buildCalendarUrl(date, view) {
  * @param {string} view - View type ('week' or 'month')
  * @param {string} frameId - Turbo Frame ID (default: 'calendar_content')
  */
-export function navigateToCalendarDate(date, view, frameId = 'calendar_content') {
+export async function navigateToCalendarDate(date, view, frameId = 'calendar_content') {
   const calendarPath = buildCalendarUrl(date, view)
   
   // Navigate using Turbo Frame
   const calendarFrame = document.getElementById(frameId)
-  if (calendarFrame) {
-    Turbo.visit(calendarPath, {
-      frame: frameId,
-      action: 'replace'
-    })
-  }
+  calendarFrame?.dispatchEvent(new CustomEvent("frame-navigation:remember-scroll"))
+  await visitFrame(calendarPath, frameId)
 }
 

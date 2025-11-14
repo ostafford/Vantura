@@ -12,7 +12,7 @@
 %>
 
 <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-deep overflow-hidden" aria-label="Transaction list">
-  <header id="transactions-table-header" class="px-6 py-5 border-b bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+  <header id="transactions-table-header" class="px-4 py-4 sm:px-6 sm:py-5 border-b bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
     <%= render "transactions/navigation_controls",
           transactions_data: transactions_data,
           frame_id: frame_id,
@@ -26,12 +26,21 @@
   </header>
 
   <% if filters_partial.present? %>
-    <div id="transactions-table-filters" class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+    <div id="transactions-table-filters" class="px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       <%= render filters_partial, filters_locals %>
     </div>
   <% end %>
 
-  <div class="overflow-x-auto">
+  <!-- Mobile Card View -->
+  <div class="block md:hidden">
+    <%= render 'transactions/transaction_cards', 
+        transactions: transactions,
+        empty_state_title: empty_state_title,
+        empty_state_message: empty_state_message %>
+  </div>
+
+  <!-- Desktop Table View -->
+  <div class="hidden md:block overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
       <thead class="bg-gray-50 dark:bg-gray-900">
         <tr>
@@ -48,15 +57,5 @@
       </tbody>
     </table>
   </div>
-
-  <% if transactions.empty? %>
-    <div class="px-6 py-12 text-center">
-      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-      </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900"><%= empty_state_title %></h3>
-      <p class="mt-1 text-sm text-gray-500"><%= empty_state_message %></p>
-    </div>
-  <% end %>
 </section>
 

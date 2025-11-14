@@ -240,7 +240,14 @@ module CalendarHelper
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
-    link_to path, class: classes, data: { view: view, turbo_frame: "calendar_content", calendar_target: "viewLink" } do
+    link_to path,
+            class: classes,
+            data: {
+              view: view,
+              turbo_frame: "calendar_content",
+              calendar_target: "viewLink",
+              action: "click->frame-navigation#navigate"
+            } do
       concat month_icon_svg if view == "month"
       concat week_icon_svg if view == "week"
       concat content_tag(:span, label, class: "hidden sm:inline")

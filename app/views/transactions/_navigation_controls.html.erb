@@ -11,16 +11,17 @@
   }.merge(filter_additional_params)
 %>
 
-<div class="flex flex-wrap items-center justify-between gap-4"
-     data-controller="transactions-navigation"
-     data-transactions-navigation-frame-id-value="<%= frame_id %>">
-  <div class="flex flex-wrap items-center gap-4">
-    <div id="transactions-month-navigation" class="flex items-center gap-2">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+     data-controller="frame-navigation"
+     data-frame-navigation-frame-id-value="<%= frame_id %>">
+  <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+    <div id="transactions-month-navigation" class="flex items-center justify-center gap-2">
       <% prev_month = date.prev_month %>
       <%= link_to transactions_path(year: prev_month.year, month: prev_month.month, filter: filter_type),
-                  class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                  data: { turbo_frame: frame_id, action: "click->transactions-scroll#remember click->transactions-navigation#navigate" } do %>
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  class: "inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                  data: { turbo_frame: frame_id, action: "click->transactions-scroll#remember click->frame-navigation#navigate" },
+                  aria: { label: "Navigate to previous month: #{prev_month.strftime('%B %Y')}" } do %>
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
         Previous
@@ -28,16 +29,17 @@
 
       <% next_month = date.next_month %>
       <%= link_to transactions_path(year: next_month.year, month: next_month.month, filter: filter_type),
-                  class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
-                  data: { turbo_frame: frame_id, action: "click->transactions-scroll#remember click->transactions-navigation#navigate" } do %>
+                  class: "inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                  data: { turbo_frame: frame_id, action: "click->transactions-scroll#remember click->frame-navigation#navigate" },
+                  aria: { label: "Navigate to next month: #{next_month.strftime('%B %Y')}" } do %>
         Next
-        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
       <% end %>
     </div>
 
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-1 items-center text-center">
       <h2 id="transactions-current-month-heading" class="text-xl font-bold text-gray-900 dark:text-white md:text-2xl">
         <%= date.strftime("%B %Y") %>
       </h2>
@@ -53,14 +55,14 @@
     </div>
   </div>
 
-  <div class="flex flex-wrap items-center gap-3">
-    <div class="relative">
+  <div class="flex flex-col items-center sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+    <div class="relative w-full sm:w-auto">
       <label for="transaction-filter-select" class="sr-only">Filter transactions</label>
       <select id="transaction-filter-select" name="filter"
               data-action="change->transactions-scroll#remember change->filter#change"
               data-filter-url-value="<%= transactions_path(filter_url_params) %>"
               data-filter-turbo-frame-value="<%= frame_id %>"
-              class="block px-4 py-2 pr-10 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
+              class="block w-full sm:w-auto px-4 py-2 pr-10 text-sm sm:text-base text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
         <option value="all" <%= 'selected' if filter_type == 'all' %>>All Transactions</option>
         <option value="expenses" <%= 'selected' if filter_type == 'expenses' %>>Expenses Only</option>
         <option value="income" <%= 'selected' if filter_type == 'income' %>>Income Only</option>
