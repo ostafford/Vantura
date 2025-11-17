@@ -9,18 +9,29 @@ module Settings::Integrations::UpBank
     # Only validate if user is actually changing the token (not just dots)
     if token.present? && !token.match?(/^•+$/)
       # Use Rails.error.handle to capture errors and provide fallback behavior
-      result = Rails.error.handle(StandardError, context: { user_id: Current.user.id, action: "update_up_bank_token" }) do
+      result = Rails.error.handle(StandardError, context: { user_id: Current.user.id, action: "update_up_bank_token" },
+  fallback: ->(error) {
+    Rails.logger.error "CAUGHT EXCEPTION: #{error.class} - #{error.message}"
+    Rails.logger.error error.backtrace.first(10).join("\n")
+    { success: false, message: "Error: #{error.message}" }
+  }) do
         # Validate token by pinging Up Bank API
         unless validate_up_bank_token(token)
           return { success: false, message: "Invalid Up Bank token. Please check your token and try again." }
         end
 
         # Token is valid, save it
+        # Token is valid, save it
+        Rails.logger.info "Attempting to save token for user #{Current.user.id}"
+        Rails.logger.info "User valid before save? #{Current.user.valid?}"
+        Rails.logger.info "User errors before save: #{Current.user.errors.full_messages}"
+
         if Current.user.update(up_bank_token: token)
           Rails.logger.info "[SECURITY] Up Bank token updated for: #{Current.user.email_address} from IP: #{request.remote_ip}"
           trigger_up_bank_sync
         else
-          return { success: false, message: "Failed to save token.", render_errors: true }
+          Rails.logger.error "Failed to save token. Errors: #{Current.user.errors.full_messages}"
+          return { success: false, message: "Failed to save token: #{Current.user.errors.full_messages.join(', ')}", render_errors: true }
         end
       end
 
