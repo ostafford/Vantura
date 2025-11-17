@@ -197,6 +197,21 @@ module ApplicationHelper
     end
   end
 
+  def navbar_nav_link_to(text, path, icon:)
+    active = current_page?(path) || (path == root_path && request.path == "/")
+
+    base_classes = "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0"
+    active_classes = "bg-primary/10 dark:bg-primary/20 text-primary-700 dark:text-primary-400 border-b-2 border-primary-700 dark:border-primary-400"
+    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+
+    classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
+
+    link_to path, class: classes, title: text do
+      concat nav_icon(icon, mobile: false)
+      concat content_tag(:span, text)
+    end
+  end
+
   # Reusable content wrapper following DRY principles
   # Provides consistent responsive padding and max-width across all pages
   def content_wrapper(options = {}, &block)

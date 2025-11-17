@@ -66,33 +66,25 @@
       <%= turbo_stream_from Current.user %>
     <% end %>
 
-    <!-- Desktop Sidebar Navigation (only show when authenticated) -->
+    <!-- Desktop Navbar with integrated page header (only show when authenticated) -->
     <% if Current.user %>
-      <%= render 'shared/sidebar' %>
+      <%= render 'shared/navbar' %>
     <% end %>
 
-    <!-- Main content wrapper (adjusts margin for sidebar on desktop) -->
+    <!-- Main content wrapper -->
     <main id="application-main-container" 
           role="main"
           aria-label="Main content"
           data-modal-target="content"
-          class="flex-1 overflow-auto transition-all duration-300 ease-in-out 
-                  lg:ml-16">
-      
-      <!-- Page Header (now inside main container) -->
-      <% if content_for?(:page_header_title) %>
-        <%= render 'shared/page_header', 
-            title: content_for(:page_header_title),
-            subtitle: content_for(:page_header_subtitle),
-            padding: content_for(:page_header_padding),
-            show_back_link: content_for(:page_header_show_back_link).present?,
-            flex_wrap: content_for(:page_header_flex_wrap).present? do %>
-          <%= content_for(:page_header_actions) %>
-        <% end %>
-      <% end %>
+          class="flex-1 overflow-auto transition-all duration-300 ease-in-out">
       
       <%= yield %>
     </main>
+
+    <!-- Form Drawer for Desktop (only show when authenticated) -->
+    <% if Current.user %>
+      <%= render 'shared/form_drawer' %>
+    <% end %>
 
     <!-- Mobile Navigation (only show when authenticated) -->
     <% if Current.user %>

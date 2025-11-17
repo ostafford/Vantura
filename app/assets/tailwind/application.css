@@ -115,46 +115,53 @@
   }
 
   /* Sidebar navigation styles */
-  /* Hide labels when sidebar is collapsed (w-16) */
-  .w-16 .sidebar-label {
+  /* Hide labels when sidebar is collapsed (w-16 or sidebar-collapsed) */
+  .w-16 .sidebar-label,
+  .sidebar-collapsed .sidebar-label {
     display: none;
   }
 
-  /* Show labels when sidebar is expanded (w-48) */
-  .w-48 .sidebar-label {
+  /* Show labels when sidebar is expanded (w-48 or sidebar-expanded) */
+  .w-48 .sidebar-label,
+  .sidebar-expanded .sidebar-label {
     display: inline;
   }
 
-  /* Center icons when sidebar is collapsed (w-16) */
-  .w-16 .sidebar-nav-link {
+  /* Center icons when sidebar is collapsed (w-16 or sidebar-collapsed) */
+  .w-16 .sidebar-nav-link,
+  .sidebar-collapsed .sidebar-nav-link {
     justify-content: center;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
 
-  /* Align icons to left when sidebar is expanded (w-48) */
-  .w-48 .sidebar-nav-link {
+  /* Align icons to left when sidebar is expanded (w-48 or sidebar-expanded) */
+  .w-48 .sidebar-nav-link,
+  .sidebar-expanded .sidebar-nav-link {
     justify-content: flex-start;
     padding-left: 1rem;
     padding-right: 1rem;
   }
 
-  /* Center action button icons when sidebar is collapsed (w-16) */
-  .w-16 .sidebar-action-button {
+  /* Center action button icons when sidebar is collapsed (w-16 or sidebar-collapsed) */
+  .w-16 .sidebar-action-button,
+  .sidebar-collapsed .sidebar-action-button {
     justify-content: center;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
 
-  /* Align action button icons to left when sidebar is expanded (w-48) */
-  .w-48 .sidebar-action-button {
+  /* Align action button icons to left when sidebar is expanded (w-48 or sidebar-expanded) */
+  .w-48 .sidebar-action-button,
+  .sidebar-expanded .sidebar-action-button {
     justify-content: flex-start;
     padding-left: 1rem;
     padding-right: 1rem;
   }
 
-  /* Stack header vertically when sidebar is collapsed (w-16) */
-  .w-16 .sidebar-header {
+  /* Stack header vertically when sidebar is collapsed (w-16 or sidebar-collapsed) */
+  .w-16 .sidebar-header,
+  .sidebar-collapsed .sidebar-header {
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -165,12 +172,14 @@
   }
 
   /* Center logo when sidebar is collapsed */
-  .w-16 .sidebar-header > a {
+  .w-16 .sidebar-header > a,
+  .sidebar-collapsed .sidebar-header > a {
     justify-content: center;
   }
 
-  /* Keep header horizontal when sidebar is expanded (w-48) */
-  .w-48 .sidebar-header {
+  /* Keep header horizontal when sidebar is expanded (w-48 or sidebar-expanded) */
+  .w-48 .sidebar-header,
+  .sidebar-expanded .sidebar-header {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -180,6 +189,16 @@
 
 /* Custom utilities layer */
 @layer utilities {
+  /* Hide scrollbar but maintain scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+
   /* Text shadow utilities for better readability on gradients */
   .drop-shadow-sm {
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));

@@ -90,25 +90,24 @@ export default class extends Controller {
     // Check if we're on desktop (lg breakpoint)
     const isDesktop = this.mediaQuery?.matches ?? window.innerWidth >= 1024
     
-    // Re-check sidebar controller and form container (they might not be initialized yet)
-    if (!this.sidebarController || !this.sidebarFormContainer) {
-      this.sidebarElement = document.querySelector('[data-controller*="sidebar"]')
-      this.sidebarController = this.sidebarElement ? this.application.getControllerForElementAndIdentifier(this.sidebarElement, 'sidebar') : null
-      this.sidebarFormContainer = document.getElementById('sidebar-form-container')
+    // Re-check form drawer controller (it might not be initialized yet)
+    if (!this.formDrawerController) {
+      this.formDrawerElement = document.querySelector('[data-controller*="form-drawer"]')
+      this.formDrawerController = this.formDrawerElement ? this.application.getControllerForElementAndIdentifier(this.formDrawerElement, 'form-drawer') : null
     }
     
-    if (isDesktop && this.sidebarController && this.sidebarFormContainer && this.hasDrawerTarget) {
-      // Desktop: Use sidebar expansion
-      this.openInSidebar()
+    if (isDesktop && this.formDrawerController && this.hasDrawerTarget) {
+      // Desktop: Use form drawer
+      this.openInDrawer()
     } else {
       // Mobile: Use drawer behavior
       this.openAsDrawer()
     }
   }
   
-  // Open form in sidebar (desktop)
-  openInSidebar() {
-    // Ensure drawer is reset to initial state (hidden, translated out)
+  // Open form in drawer (desktop)
+  openInDrawer() {
+    // Ensure mobile drawer is reset to initial state (hidden, translated out)
     if (this.hasDrawerTarget) {
       this.drawerTarget.classList.remove('translate-x-0')
       this.drawerTarget.classList.add('translate-x-full')
@@ -117,66 +116,33 @@ export default class extends Controller {
       this.contentTarget.style.marginRight = '0'
     }
     
-    // Enter sidebar form mode
-    if (this.sidebarController) {
-      this.sidebarController.enterFormMode()
-    }
-    
-    // Clone drawer content and inject into sidebar form container
-    if (this.hasDrawerTarget && this.sidebarFormContainer) {
-      // Clear existing content
-      this.sidebarFormContainer.innerHTML = ''
-      
-      // Clone the drawer content (excluding the fixed positioning classes)
+    // Clone drawer content for form drawer
+    if (this.hasDrawerTarget && this.formDrawerController) {
+      // Clone the drawer content
       const drawerContent = this.drawerTarget.cloneNode(true)
       
-      // Extract header (gradient header) and move it to sidebar header position
-      const formHeader = drawerContent.querySelector('.bg-gradient-to-r')
-      const sidebarHeader = this.sidebarController?.headerTarget
-      
-      if (formHeader && sidebarHeader) {
-        // Store original header HTML if not already stored
-        if (!this.sidebarController.originalHeaderHTML) {
-          this.sidebarController.originalHeaderHTML = sidebarHeader.innerHTML
-        }
-        
-        // Clone header and inject into sidebar header position
-        const clonedHeader = formHeader.cloneNode(true)
-        // Remove the original header from drawer content
-        formHeader.remove()
-        // Replace sidebar header content with form header
-        sidebarHeader.innerHTML = clonedHeader.innerHTML
-        sidebarHeader.classList.remove('hidden')
-        // Update header classes to match form header styling
-        sidebarHeader.classList.add('bg-gradient-to-r', 'from-info-500', 'via-info-700', 'to-info-500', 'dark:from-info-700', 'dark:via-info-900', 'dark:to-info-700', 'px-6', 'py-5')
-        sidebarHeader.classList.remove('py-4', 'px-4')
+      // Remove overlay if present (we don't need it in form drawer)
+      const overlay = drawerContent.querySelector('[data-modal-target="overlay"]')
+      if (overlay) {
+        overlay.remove()
       }
       
-      // Remove fixed positioning classes and make it fit sidebar
+      // Remove fixed positioning classes and make it fit drawer
       drawerContent.classList.remove('fixed', 'inset-y-0', 'right-0', 'w-full', 'sm:w-96', 'translate-x-full', 'translate-x-0', 'border-l-2', 'md:top-16', 'md:bottom-0')
       drawerContent.classList.add('w-full', 'h-full', 'flex', 'flex-col')
       
-      // Append to sidebar form container
-      this.sidebarFormContainer.appendChild(drawerContent)
+      // Set content in form drawer and open it
+      this.formDrawerController.setContentElement(drawerContent)
+      this.formDrawerController.open()
       
-      // Re-initialize targets in the new location (match modal controller - use drawerContent)
-      this.reinitializeTargets(drawerContent)
-      
-      // Re-initialize close button in header (match modal controller pattern)
-      if (sidebarHeader) {
-        const headerCloseButton = sidebarHeader.querySelector('button[type="button"]')
-        if (headerCloseButton) {
-          headerCloseButton.removeAttribute('data-action')
-          headerCloseButton.addEventListener('click', (e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            this.close(e)
-          })
-        }
+      // Re-initialize targets in the new location
+      const formDrawerContent = this.formDrawerController.contentTarget
+      if (formDrawerContent) {
+        this.reinitializeTargets(formDrawerContent)
       }
     }
     
-    // Keep modal hidden on desktop (form is in sidebar, not in modal)
+    // Keep modal hidden on desktop (form is in drawer, not in modal)
     // Modal container remains in DOM for form submission tracking
     this.modalTarget.classList.add('hidden')
     this.modalTarget.classList.remove('flex')
@@ -293,37 +259,20 @@ export default class extends Controller {
     // Check if we're on desktop
     const isDesktop = this.mediaQuery.matches
     
-    if (isDesktop && this.sidebarController) {
-      // Desktop: Exit sidebar form mode
-      this.closeFromSidebar()
+    if (isDesktop && this.formDrawerController) {
+      // Desktop: Close form drawer
+      this.closeFromDrawer()
     } else {
       // Mobile: Close drawer
       this.closeDrawer()
     }
   }
   
-  // Close from sidebar (desktop)
-  closeFromSidebar() {
-    // Restore sidebar header
-    if (this.sidebarController?.headerTarget && this.sidebarController.originalHeaderHTML) {
-      const sidebarHeader = this.sidebarController.headerTarget
-      // Restore original header HTML
-      sidebarHeader.innerHTML = this.sidebarController.originalHeaderHTML
-      // Reset header classes
-      sidebarHeader.classList.remove('bg-gradient-to-r', 'from-info-500', 'via-info-700', 'to-info-500', 'dark:from-info-700', 'dark:via-info-900', 'dark:to-info-700', 'px-6', 'py-5')
-      sidebarHeader.classList.add('py-4', 'px-4')
-      // Clear stored HTML (will be re-stored on next open if needed)
-      this.sidebarController.originalHeaderHTML = null
-    }
-    
-    // Exit sidebar form mode
-    if (this.sidebarController) {
-      this.sidebarController.exitFormMode()
-    }
-    
-    // Clear sidebar form container
-    if (this.sidebarFormContainer) {
-      this.sidebarFormContainer.innerHTML = ''
+  // Close from drawer (desktop)
+  closeFromDrawer() {
+    // Close form drawer
+    if (this.formDrawerController) {
+      this.formDrawerController.close()
     }
     
     // Hide modal
@@ -520,10 +469,9 @@ export default class extends Controller {
   }
 
   connect() {
-    // Cross-controller access: sidebar is shared layout element
-    this.sidebarElement = document.querySelector('[data-controller*="sidebar"]')
-    this.sidebarController = this.sidebarElement ? this.application.getControllerForElementAndIdentifier(this.sidebarElement, 'sidebar') : null
-    this.sidebarFormContainer = document.getElementById('sidebar-form-container')
+    // Cross-controller access: form drawer is shared layout element
+    this.formDrawerElement = document.querySelector('[data-controller*="form-drawer"]')
+    this.formDrawerController = this.formDrawerElement ? this.application.getControllerForElementAndIdentifier(this.formDrawerElement, 'form-drawer') : null
     
     // Media query for responsive behavior
     this.mediaQuery = window.matchMedia('(min-width: 1024px)')
