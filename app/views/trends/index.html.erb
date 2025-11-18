@@ -173,7 +173,7 @@
             subtitle: "#{trends_current_date.strftime('%B %Y')}",
             description: "Track your financial trends, compare month-over-month changes, and gain insights into your spending patterns.",
             icon: 'chart',
-            size: 'bento-span-2 bento-row-span-2',
+            size: 'col-span-1 md:col-span-2 row-span-2',
             color: 'success' do %>
           <div class="mt-6">
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
@@ -291,7 +291,7 @@
 
 
         <!-- 5. Top Merchant Card (1x2) - Expanded -->
-        <div class="bento-span-1 bento-row-span-2 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6" id="top-merchant-card">
+        <div class="col-span-1 row-span-2 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6" id="top-merchant-card">
           <div class="flex flex-col h-full">
             <!-- Header -->
             <div class="mb-4">
@@ -334,7 +334,7 @@
                   $<%= number_with_precision(top_item[:amount], precision: 2) %>
                 </p>
                   <% if top_item[:change_pct] && top_item[:change_pct] != 0 %>
-                    <span class="text-xs <%= top_item[:change_pct] > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+                    <span class="text-xs <%= top_item[:change_pct] > 0 ? 'amount-negative' : 'amount-positive' %>">
                       <%= top_item[:change_pct] > 0 ? "↑" : "↓" %><%= top_item[:change_pct].abs %>%
                     </span>
                   <% end %>
@@ -381,7 +381,7 @@
                       $<%= number_with_precision(trends_current_month_income, precision: 0) %>
                     </span>
                     <% if trends_income_change_pct != 0 %>
-                      <span class="text-xs <%= trends_income_change_pct > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                      <span class="text-xs <%= trends_income_change_pct > 0 ? 'amount-positive' : 'amount-negative' %>">
                         <%= trends_income_change_pct > 0 ? "↑" : "↓" %><%= trends_income_change_pct.abs %>%
                       </span>
                     <% end %>
@@ -399,7 +399,7 @@
                       $<%= number_with_precision(trends_current_month_expenses, precision: 0) %>
                     </span>
                     <% if trends_expense_change_pct != 0 %>
-                      <span class="text-xs <%= trends_expense_change_pct > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+                      <span class="text-xs <%= trends_expense_change_pct > 0 ? 'amount-negative' : 'amount-positive' %>">
                         <%= trends_expense_change_pct > 0 ? "↑" : "↓" %><%= trends_expense_change_pct.abs %>%
                       </span>
                     <% end %>
@@ -417,7 +417,7 @@
                       <%= trends_net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(trends_net_savings.abs, precision: 0) %>
                     </span>
                     <% if trends_net_change_pct != 0 %>
-                      <span class="text-xs <%= trends_net_change_pct > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                      <span class="text-xs <%= trends_net_change_pct > 0 ? 'amount-positive' : 'amount-negative' %>">
                         <%= trends_net_change_pct > 0 ? "↑" : "↓" %><%= trends_net_change_pct.abs %>%
                       </span>
                     <% end %>
@@ -435,7 +435,7 @@
                       <%= number_with_precision(trends_savings_rate, precision: 1) %>%
                     </span>
                     <% if trends_savings_rate_change != 0 %>
-                      <span class="text-xs <%= trends_savings_rate_change > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+                      <span class="text-xs <%= trends_savings_rate_change > 0 ? 'amount-positive' : 'amount-negative' %>">
                         <%= trends_savings_rate_change > 0 ? "↑" : "↓" %><%= trends_savings_rate_change.abs.round(1) %>%
                       </span>
                     <% end %>

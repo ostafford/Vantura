@@ -1,6 +1,6 @@
 <% 
   hypothetical_total = calculate_hypothetical_total(hypothetical_income, hypothetical_expenses)
-  size = local_assigns.fetch(:size, 'bento-span-2 bento-row-span-1')
+  size = local_assigns.fetch(:size, 'col-span-1 md:col-span-2 row-span-1')
 %>
 <%= render 'shared/bento_cards/stat_card',
     title: "Hypothetical",

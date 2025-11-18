@@ -13,9 +13,9 @@
          data-expense-template-url-value="<%= templates_project_expenses_path(@project) %>"
        <% end %>>
     <% if @expense.errors.any? %>
-      <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-        <h3 class="text-sm font-medium text-red-800 dark:text-red-300 mb-2">Please fix the following errors:</h3>
-        <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-400">
+      <div class="mb-6 p-4 form-error-bg form-error-border rounded-lg">
+        <h3 class="text-sm font-medium form-error-text mb-2">Please fix the following errors:</h3>
+        <ul class="list-disc list-inside text-sm form-error-text">
           <% @expense.errors.full_messages.each do |msg| %>
             <li><%= msg %></li>
           <% end %>
@@ -35,7 +35,7 @@
         <input type="text" 
                data-expense-template-target="input"
                placeholder="Search by merchant or category (e.g., Gas bill, Utilities...)"
-               class="w-full border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+               class="w-full border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
         <div data-expense-template-target="results" 
              class="hidden absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
           <ul class="py-1"></ul>

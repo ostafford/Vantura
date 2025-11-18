@@ -35,8 +35,8 @@ module ApplicationHelper
     content_tag :span, "Recurring",
       id: "transaction-#{transaction.id}-recurring-badge",
       class: compact ?
-        "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300" :
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300",
+        "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium badge-recurring" :
+        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium badge-recurring",
       "aria-label": "Recurring transaction"
   end
 
@@ -49,9 +49,9 @@ module ApplicationHelper
 
     # Color coding based on transaction type and category
     color_classes = if transaction_type == "income"
-      "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+      "amount-positive-bg text-income-800 dark:text-income-300"
     else
-      "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
+      "badge-recurring"
     end
 
     content_tag :span, category_name,
@@ -65,7 +65,7 @@ module ApplicationHelper
   # Format transaction amount with color
   def formatted_transaction_amount(transaction)
     amount = transaction.amount
-    color_class = amount < 0 ? "text-expense-600 dark:text-expense-400" : "text-income-600 dark:text-income-400"
+    color_class = amount_color_class(amount)
     sign = amount < 0 ? "-" : "+"
 
     content_tag :span, class: color_class do
@@ -73,12 +73,19 @@ module ApplicationHelper
     end
   end
 
+  # Return semantic color class for transaction amounts
+  # @param amount [Numeric] Transaction amount (negative = expense, positive = income)
+  # @return [String] CSS class name ('amount-negative' or 'amount-positive')
+  def amount_color_class(amount)
+    amount < 0 ? 'amount-negative' : 'amount-positive'
+  end
+
   # Format balance with green for positive, red for negative
   def formatted_balance(balance)
     color_class = balance >= 0 ? "text-success-300 dark:text-success-400" : "text-red-300 dark:text-red-400"
     sign = balance >= 0 ? "" : "-"
 
-    content_tag :span, class: "text-3xl font-bold #{color_class} drop-shadow-md" do
+    content_tag :span, class: "text-3xl font-bold #{color_class} text-glow-md" do
       "#{sign}$#{number_to_currency(balance, unit: '').strip}"
     end
   end

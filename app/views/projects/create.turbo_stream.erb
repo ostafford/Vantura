@@ -6,7 +6,7 @@
         subtitle: @projects_data[:total_expenses_cents] > 0 ? format_cents(@projects_data[:total_expenses_cents]) : "No expenses yet",
         description: "Track and manage shared expense projects. Collaborate with team members, split costs equally, and monitor project spending across all your active projects.",
         icon: 'chart',
-        size: 'bento-span-2 bento-row-span-2',
+        size: 'col-span-1 md:col-span-2 row-span-2',
         color: 'primary' do %>
     <div class="mt-6 space-y-4">
       <% if @projects_data[:total_projects] > 0 %>
@@ -50,7 +50,7 @@
       detail: "Across all projects",
       icon: 'chart',
       color: 'blue',
-      size: 'bento-span-1 bento-row-span-2' %>
+      size: 'col-span-1 row-span-2' %>
 <% end %>
 
 <%= turbo_stream.replace "total-expenses-card" do %>
@@ -62,7 +62,7 @@
       detail: "All time",
       icon: 'dollar',
       color: 'red',
-      size: 'bento-span-1 bento-row-span-2' %>
+      size: 'col-span-1 row-span-2' %>
 <% end %>
 
 <%= turbo_stream.replace "total-participants-card" do %>
@@ -74,7 +74,7 @@
       detail: "Unique members",
       icon: 'chart',
       color: 'blue',
-      size: 'bento-span-1 bento-row-span-2' %>
+      size: 'col-span-1 row-span-2' %>
 <% end %>
 
 <%= turbo_stream.replace "active-projects-card" do %>
@@ -86,7 +86,7 @@
       detail: "With expenses",
       icon: 'arrow-up',
       color: 'green',
-      size: 'bento-span-1 bento-row-span-2' %>
+      size: 'col-span-1 row-span-2' %>
 <% end %>
 
 <%# Update the table body %>

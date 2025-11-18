@@ -21,7 +21,7 @@
           subtitle: @selected_filter ? @selected_filter.name : @current_date.strftime('%B %Y'),
           description: "Deep insights into your spending patterns with interactive pie charts, bar charts, and line graphs. Create custom filters by category, merchant, status, or recurring patterns. Analyze your financial data from multiple perspectives to identify trends and make informed decisions.",
           icon: 'chart',
-          size: 'bento-span-2 bento-row-span-2',
+          size: 'col-span-1 md:col-span-2 row-span-2',
           color: 'blue' do %>
         <div class="flex items-center justify-between mb-3">
           <p class="text-blue-50 text-sm">Total: <%= number_to_currency(@breakdown_data.values.sum(&:abs)) %></p>
@@ -37,7 +37,7 @@
         <h2 id="summary-heading" class="sr-only">Financial Summary</h2>
         
         <!-- Category Breakdown Card (1x1) -->
-        <article class="bento-span-1 bento-row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+        <article class="col-span-1 row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
           <div class="flex flex-col h-full">
             <!-- Header -->
             <header class="mb-4">
@@ -82,7 +82,7 @@
         </article>
 
         <!-- Top Merchants Card (1x1) -->
-        <article class="bento-span-1 bento-row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+        <article class="col-span-1 row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
           <div class="flex flex-col h-full">
             <!-- Header -->
             <header class="mb-4">

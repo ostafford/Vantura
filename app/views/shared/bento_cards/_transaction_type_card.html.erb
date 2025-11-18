@@ -30,7 +30,7 @@
     detail: period_text(local_assigns.fetch(:period, 'month')),
     icon: icon,
     color: color,
-    size: 'bento-span-1 bento-row-span-2',
+    size: 'col-span-1 row-span-2',
     link: transactions_path(year: current_date.year, month: current_date.month, filter: filter) do %>
   <!-- Account vs Projected Breakdown -->
   <% if has_projections %>

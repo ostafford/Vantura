@@ -30,14 +30,14 @@ module BentoCardsHelper
     end
 
     # Badge color based on NET CASH FLOW (Income - Expenses)
-    badge_bg = change_is_positive ? "bg-green-100 dark:bg-green-900/30" : "bg-red-100 dark:bg-red-900/30"
-    badge_text = change_is_positive ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
+    badge_bg = change_is_positive ? "amount-positive-bg" : "amount-negative-bg"
+    badge_text = change_is_positive ? "amount-positive" : "amount-negative"
     icon_path = change_is_positive ?
       '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />' :
       '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />'
 
     # Value color based on ACTUAL BALANCE (positive or negative)
-    value_color = balance_is_positive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+    value_color = balance_is_positive ? "amount-positive" : "amount-negative"
 
     # Calculate breakdown between current balance and upcoming net impact
     current_balance_value = current_balance.nil? ? balance : current_balance

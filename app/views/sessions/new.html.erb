@@ -14,9 +14,9 @@
       <%= form_with url: session_url, id: "user-login-form", aria_labelledby: "user-login-heading", class: "p-4 space-y-4 md:p-8 md:space-y-6" do |form| %>
         <% if flash[:alert] %>
           <div id="user-login-error-alert" 
-               class="p-4 mb-4 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20" 
+               class="p-4 mb-4 rounded-lg form-error-border form-error-bg" 
                role="alert">
-            <p class="text-sm font-medium text-red-900 dark:text-red-100">
+            <p class="text-sm font-medium form-error-text">
               <%= flash[:alert] %>
             </p>
           </div>

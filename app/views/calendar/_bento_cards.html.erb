@@ -22,7 +22,7 @@
     subtitle: format_month_year(@date),
     description: "Track your balance trajectory and upcoming activity while you explore the calendar. Switch between views to see how income, expenses, and projections shift over time.",
     icon: 'calendar',
-    size: 'bento-span-1 bento-row-span-1',
+    size: 'col-span-1 row-span-1',
     color: 'blue',
     id: 'calendar-overview-hero-card' do %>
   <div class="flex flex-col gap-4">
@@ -112,7 +112,7 @@
         current_date: @date,
         account: @account,
         id: 'calendar-cash-flow-card',
-        size: 'bento-span-2 bento-row-span-1',
+        size: 'col-span-1 md:col-span-2 row-span-1',
         period_label: 'This month'
       }
     else
@@ -132,7 +132,7 @@
         current_date: @date,
         account: @account,
         id: 'calendar-cash-flow-card',
-        size: 'bento-span-2 bento-row-span-1',
+        size: 'col-span-1 md:col-span-2 row-span-1',
         period_label: 'This week'
       }
     end

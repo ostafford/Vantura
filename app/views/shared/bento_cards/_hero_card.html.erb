@@ -4,7 +4,7 @@
   subtitle = local_assigns.fetch(:subtitle, nil)
   description = local_assigns.fetch(:description, nil)
   icon = local_assigns.fetch(:icon, 'chart')
-  size = local_assigns.fetch(:size, 'bento-span-2 bento-row-span-2')
+  size = local_assigns.fetch(:size, 'col-span-1 md:col-span-2 row-span-2')
   color_scheme = local_assigns.fetch(:color, 'primary')
   element_id = local_assigns.fetch(:id, nil)
   status_badge = local_assigns[:status_badge]
@@ -43,7 +43,7 @@
   icon_path = icon_map[icon] || icon_map['chart']
   
   # Determine if this is a compact card (1x2 or smaller)
-  is_compact = size.include?('bento-span-1')
+  is_compact = size.include?('col-span-1')
   padding_class = is_compact ? 'p-6 md:px-6 md:pt-6 md:pb-4' : 'p-6 md:px-8 md:pt-8 md:pb-6'
   title_size_class = is_compact ? 'text-2xl' : 'text-3xl'
   icon_size_class = is_compact ? 'w-10 h-10' : 'w-12 h-12'
@@ -109,7 +109,7 @@
     <!-- Section 2: Description -->
     <div class="hero-description flex-1 flex items-center">
       <% if description.present? %>
-        <p class="<%= description_text_classes %> text-sm leading-relaxed drop-shadow-sm w-full">
+        <p class="<%= description_text_classes %> text-sm leading-relaxed text-glow-sm w-full">
           <%= description %>
         </p>
       <% end %>

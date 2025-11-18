@@ -121,7 +121,7 @@
                               </label>
                             <% end %>
                           <% else %>
-                            <span class="text-sm <%= contrib.paid ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400' %>">
+                            <span class="text-sm <%= contrib.paid ? 'status-success' : 'text-gray-500 dark:text-gray-400' %>">
                               <%= contrib.paid ? 'Paid' : 'Not paid' %>
                             </span>
                           <% end %>

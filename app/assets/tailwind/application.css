@@ -5,8 +5,13 @@
 
 /* Base styles - applied at the foundation layer */
 @layer base {
-  /* Prevent oversized elements */
-  * {
+  /* Keep structural containers from exceeding viewport width */
+  body,
+  main,
+  section,
+  header,
+  footer,
+  article {
     max-width: 100vw;
   }
   
@@ -17,45 +22,27 @@
     max-width: 100vw;
   }
   
-  /* Ensure main container doesn't allow horizontal overflow */
-  #application-main-container {
-    overflow-x: hidden;
-    max-width: 100vw;
-  }
-  
   /* Prevent child elements from causing horizontal overflow */
-  #application-main-container > * {
+  :where(#application-main-container > *) {
     max-width: 100%;
-    overflow-x: hidden;
   }
   
   /* Add explicit heading styles for better semantic structure */
   h1 {
-    @apply text-3xl font-bold;
+    @apply text-3xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight mb-4;
   }
   
   h2 {
-    @apply text-2xl font-semibold;
+    @apply text-2xl font-semibold text-gray-900 dark:text-white leading-snug tracking-tight mb-3;
   }
   
   h3 {
-    @apply text-xl font-semibold;
+    @apply text-xl font-semibold text-gray-900 dark:text-white leading-snug mb-2;
   }
 }
 
 /* Custom components - reusable component classes */
 @layer components {
-  /* Container utility */
-  .vantura-container {
-    max-width: 100vw;
-    overflow-x: hidden;
-  }
-
-  /* Spinning animation for sync button */
-  .spinning {
-    animation: spin 1s linear infinite;
-  }
-
   /* Bento Grid Layout - Using Tailwind's responsive variants */
   .bento-grid {
     display: grid;
@@ -75,54 +62,6 @@
     }
   }
 
-  /* Bento grid item spans - Mobile-first responsive design */
-  .bento-span-1 { 
-    grid-column: span 1; 
-  }
-  
-  .bento-span-2 { 
-    grid-column: span 1;
-    
-    @variant md {
-      grid-column: span 2;
-    }
-  }
-  
-  .bento-span-3 { 
-    grid-column: span 1;
-    
-    @variant md {
-      grid-column: span 2;
-    }
-    
-    @variant lg {
-      grid-column: span 3;
-    }
-  }
-  
-  .bento-span-4 { 
-    grid-column: span 1;
-    
-    @variant md {
-      grid-column: span 2;
-    }
-    
-    @variant lg {
-      grid-column: span 4;
-    }
-  }
-
-  /* Modal/Drawer responsive utilities */
-  .md\:mr-96 {
-    @variant md {
-      margin-right: 24rem; /* 384px - matches drawer width */
-    }
-  }
-
-  .bento-row-span-1 { grid-row: span 1; }
-  .bento-row-span-2 { grid-row: span 2; }
-  .bento-row-span-3 { grid-row: span 3; }
-  
   /* Responsive stat card value that scales with card size */
   .stat-card-value {
     font-size: clamp(1.5rem, 4vw, 2.5rem); /* Scales from 1.5rem to 2.5rem based on viewport */
@@ -138,19 +77,16 @@
 
   /* Sidebar navigation styles */
   /* Hide labels when sidebar is collapsed (w-16 or sidebar-collapsed) */
-  .w-16 .sidebar-label,
   .sidebar-collapsed .sidebar-label {
     display: none;
   }
 
   /* Show labels when sidebar is expanded (w-48 or sidebar-expanded) */
-  .w-48 .sidebar-label,
   .sidebar-expanded .sidebar-label {
     display: inline;
   }
 
   /* Center icons when sidebar is collapsed (w-16 or sidebar-collapsed) */
-  .w-16 .sidebar-nav-link,
   .sidebar-collapsed .sidebar-nav-link {
     justify-content: center;
     padding-left: 0.5rem;
@@ -158,7 +94,6 @@
   }
 
   /* Align icons to left when sidebar is expanded (w-48 or sidebar-expanded) */
-  .w-48 .sidebar-nav-link,
   .sidebar-expanded .sidebar-nav-link {
     justify-content: flex-start;
     padding-left: 1rem;
@@ -166,7 +101,6 @@
   }
 
   /* Center action button icons when sidebar is collapsed (w-16 or sidebar-collapsed) */
-  .w-16 .sidebar-action-button,
   .sidebar-collapsed .sidebar-action-button {
     justify-content: center;
     padding-left: 0.5rem;
@@ -174,7 +108,6 @@
   }
 
   /* Align action button icons to left when sidebar is expanded (w-48 or sidebar-expanded) */
-  .w-48 .sidebar-action-button,
   .sidebar-expanded .sidebar-action-button {
     justify-content: flex-start;
     padding-left: 1rem;
@@ -182,7 +115,6 @@
   }
 
   /* Stack header vertically when sidebar is collapsed (w-16 or sidebar-collapsed) */
-  .w-16 .sidebar-header,
   .sidebar-collapsed .sidebar-header {
     flex-direction: column;
     justify-content: center;
@@ -194,13 +126,11 @@
   }
 
   /* Center logo when sidebar is collapsed */
-  .w-16 .sidebar-header > a,
   .sidebar-collapsed .sidebar-header > a {
     justify-content: center;
   }
 
   /* Keep header horizontal when sidebar is expanded (w-48 or sidebar-expanded) */
-  .w-48 .sidebar-header,
   .sidebar-expanded .sidebar-header {
     flex-direction: row;
     justify-content: space-between;
@@ -221,16 +151,16 @@
     display: none;  /* Chrome, Safari and Opera */
   }
 
-  /* Text shadow utilities for better readability on gradients */
-  .drop-shadow-sm {
+  /* Text glow utilities for better readability on gradients */
+  .text-glow-sm {
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
   }
 
-  .drop-shadow-md {
+  .text-glow-md {
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
   }
 
-  .drop-shadow-lg {
+  .text-glow-lg {
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
   }
 
@@ -239,30 +169,92 @@
   .shadow-deep {
     box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.35), 
                 0 15px 30px -8px rgba(0, 0, 0, 0.25),
-                0 5px 15px -4px rgba(0, 0, 0, 0.15),
-                0 0 0 1px rgba(0, 0, 0, 0.08);
+                0 5px 15px -4px rgba(0, 0, 0, 0.15);
   }
 
   /* Dark mode: Deep black shadows for pronounced floating effect */
   .dark .shadow-deep {
     box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 
                 0 15px 30px -8px rgba(0, 0, 0, 0.45),
+                0 5px 15px -4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Optional border ring for elevated cards */
+  .shadow-deep-border {
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.35), 
+                0 15px 30px -8px rgba(0, 0, 0, 0.25),
+                0 5px 15px -4px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .shadow-deep-border {
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 
+                0 15px 30px -8px rgba(0, 0, 0, 0.45),
                 0 5px 15px -4px rgba(0, 0, 0, 0.3),
                 0 0 0 1px rgba(0, 0, 0, 0.15);
   }
 
-  /* Insight cards - remove border from shadow-deep to match bento cards */
-  /* Higher specificity override in utilities layer to ensure it takes precedence */
-  .insight-card.shadow-deep {
-    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.35), 
-                0 15px 30px -8px rgba(0, 0, 0, 0.25),
-                0 5px 15px -4px rgba(0, 0, 0, 0.15) !important;
+  /* Semantic color utilities for common patterns */
+  
+  /* Transaction amounts - negative (expenses) */
+  .amount-negative {
+    @apply text-expense-600 dark:text-expense-400;
   }
 
-  .dark .insight-card.shadow-deep {
-    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 
-                0 15px 30px -8px rgba(0, 0, 0, 0.45),
-                0 5px 15px -4px rgba(0, 0, 0, 0.3) !important;
+  .amount-negative-bg {
+    @apply bg-expense-50 dark:bg-expense-900/20;
+  }
+
+  .amount-negative-border {
+    @apply border-expense-200 dark:border-expense-800;
+  }
+
+  /* Transaction amounts - positive (income) */
+  .amount-positive {
+    @apply text-income-600 dark:text-income-400;
+  }
+
+  .amount-positive-bg {
+    @apply bg-income-50 dark:bg-income-900/20;
+  }
+
+  .amount-positive-border {
+    @apply border-income-200 dark:border-income-800;
+  }
+
+  /* Recurring badges and indicators */
+  .badge-recurring {
+    @apply bg-info-100 dark:bg-info-900/30 text-info-800 dark:text-info-300;
+  }
+
+  /* Success states (settled transactions, success messages) */
+  .status-success {
+    @apply text-success-600 dark:text-success-400;
+  }
+
+  .status-success-bg {
+    @apply bg-success-50 dark:bg-success-900/20;
+  }
+
+  .status-success-border {
+    @apply border-success-200 dark:border-success-800;
+  }
+
+  /* Form errors - using warning colors (errors ≠ negative amounts) */
+  .form-error {
+    @apply text-warning-600 dark:text-warning-400;
+  }
+
+  .form-error-bg {
+    @apply bg-warning-50 dark:bg-warning-900/20;
+  }
+
+  .form-error-border {
+    @apply border-warning-200 dark:border-warning-800;
+  }
+
+  .form-error-text {
+    @apply text-warning-800 dark:text-warning-200;
   }
 }
 
@@ -278,11 +270,6 @@
 }
 
 /* Keyframe animations */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 @keyframes slide-in {
   from {
     opacity: 0;
@@ -295,7 +282,7 @@
 }
 
 /* Vantura Brand Colors - Semantic Color System */
-/* Hex Colors: PRIMARY #2D3047, EXPENSE #C8553D, INCOME #588B8B, SUCCESS #7BA05B, WARNING #AA98A9, INFO #72A0C1, NEUTRAL #DBD7D2 */
+/* Hex reference: PRIMARY #2D3047, EXPENSE #C8553D, INCOME #588B8B, SUCCESS #7BA05B, WARNING #AA98A9, INFO #72A0C1, CORAL #FF6B6B, NEUTRAL #DBD7D2 */
 @theme {
   /* PRIMARY - Main brand color, navigation, primary actions */
   --color-primary-50: oklch(0.95 0.01 255);
@@ -374,6 +361,19 @@
   --color-info-800: oklch(0.40 0.07 230);
   --color-info-900: oklch(0.33 0.06 230);
   --color-info-950: oklch(0.26 0.05 230);
+
+  /* CORAL - Accent gradients, live sync indicators */
+  --color-coral-50: oklch(0.97 0.02 30);
+  --color-coral-100: oklch(0.94 0.04 30);
+  --color-coral-200: oklch(0.90 0.07 30);
+  --color-coral-300: oklch(0.84 0.11 30);
+  --color-coral-400: oklch(0.77 0.15 30);
+  --color-coral-500: oklch(0.70 0.18 30);            /* Main coral accent */
+  --color-coral-600: oklch(0.63 0.19 30);
+  --color-coral-700: oklch(0.56 0.18 30);
+  --color-coral-800: oklch(0.48 0.16 30);
+  --color-coral-900: oklch(0.40 0.14 30);
+  --color-coral-950: oklch(0.32 0.12 30);
   
   /* NEUTRAL - Backgrounds, subtle separators */
   --color-neutral-50: oklch(0.98 0.01 90);

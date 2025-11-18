@@ -4,7 +4,7 @@
     subtitle: @project_show_data[:total_expenses_cents] > 0 ? format_cents(@project_show_data[:total_expenses_cents]) : "No expenses yet",
     description: "Overview of project expenses, participants, and activity. Track shared costs and monitor contributions across all project expenses.",
     icon: 'chart',
-    size: 'bento-span-2 bento-row-span-2',
+    size: 'col-span-1 md:col-span-2 row-span-2',
     color: 'primary' do %>
   <div class="mt-6 space-y-4">
     <!-- Owner Section -->
@@ -94,7 +94,7 @@
     detail: @project_show_data[:date].strftime("%B %Y"),
     icon: 'dollar',
     color: 'red',
-    size: 'bento-span-1 bento-row-span-1' do %>
+    size: 'col-span-1 row-span-1' do %>
   <%= render_top_categories(@project_show_data[:project_stats][:top_categories_current_month], @project_show_data[:project_stats][:current_month_total_cents]) %>
 <% end %>
 
@@ -114,7 +114,7 @@
     detail: format_cents(@project_show_data[:project_stats][:mom_change_cents].abs) + (mom_is_positive ? " increase" : " decrease"),
     icon: mom_icon,
     color: mom_color,
-    size: 'bento-span-1 bento-row-span-1' do %>
+    size: 'col-span-1 row-span-1' do %>
   <%= render_top_categories(@project_show_data[:project_stats][:top_categories_current_month], @project_show_data[:project_stats][:current_month_total_cents]) %>
 <% end %>
 
@@ -135,7 +135,7 @@
     detail: "#{ytd_period} comparison",
     icon: 'calendar',
     color: yoy_color,
-    size: 'bento-span-1 bento-row-span-1' do %>
+    size: 'col-span-1 row-span-1' do %>
   <%= render_top_categories(@project_show_data[:project_stats][:top_categories_ytd_this_year], @project_show_data[:project_stats][:ytd_this_year_cents]) %>
 <% end %>
 
@@ -152,7 +152,7 @@
     detail: "Weighted average for #{next_month_name}",
     icon: 'chart',
     color: 'blue',
-    size: 'bento-span-1 bento-row-span-1' do %>
+    size: 'col-span-1 row-span-1' do %>
   <%= render_top_categories(@project_show_data[:project_stats][:top_categories_last_month], @project_show_data[:project_stats][:last_month_total_cents]) %>
 <% end %>
     

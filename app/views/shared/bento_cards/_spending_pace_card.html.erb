@@ -4,7 +4,7 @@
   projected_total = local_assigns.fetch(:projected_total, 0.0)
   velocity_change_pct = local_assigns.fetch(:velocity_change_pct, 0.0)
   spending_rate = local_assigns.fetch(:spending_rate, 0.0)
-  size = local_assigns.fetch(:size, 'bento-span-2 bento-row-span-1')
+  size = local_assigns.fetch(:size, 'col-span-1 md:col-span-2 row-span-1')
   element_id = local_assigns.fetch(:id, 'calendar-spending-pace-card')
   
   # Calculate spending rate percentage (how far through month's expected spending)
@@ -26,10 +26,10 @@
     indicator_text = "text-yellow-700 dark:text-yellow-400"
   else
     pace_status = "Behind pace"
-    pace_color = "text-green-600 dark:text-green-400"
-    bar_color = "bg-green-400"
-    indicator_bg = "bg-green-100 dark:bg-green-900/30"
-    indicator_text = "text-green-700 dark:text-green-400"
+    pace_color = "status-success"
+    bar_color = "bg-success-400"
+    indicator_bg = "status-success-bg"
+    indicator_text = "status-success"
   end
   
   # Format comparison text
@@ -42,7 +42,7 @@
   end
 %>
 
-<div class="bento-span-2 bento-row-span-1 from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800 rounded-2xl shadow-deep p-6"<%= " id=#{element_id.inspect}" if element_id.present? %>>
+<div class="col-span-1 md:col-span-2 row-span-1 from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800 rounded-2xl shadow-deep p-6"<%= " id=#{element_id.inspect}" if element_id.present? %>>
   <div class="stat-card-container flex flex-col h-full">
     <!-- Section 1: Icon, Title, and Value -->
     <div class="stat-card-main-content flex-1">

@@ -52,7 +52,7 @@
               Amount
             </dt>
             <dd id="transaction-<%= @transaction.id %>-amount" 
-                class="text-lg font-bold <%= @transaction.amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+                class="text-lg font-bold <%= amount_color_class(@transaction.amount) %>">
               <%= formatted_transaction_amount(@transaction) %>
             </dd>
           </div>

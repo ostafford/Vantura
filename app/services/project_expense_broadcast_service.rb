@@ -87,7 +87,7 @@ class ProjectExpenseBroadcastService < ApplicationService
         detail: "Across all projects",
         icon: "chart",
         color: "blue",
-        size: "bento-span-1 bento-row-span-2"
+        size: "col-span-1 row-span-2"
       }
     )
     Turbo::StreamsChannel.broadcast_replace_to(user, target: "total-projects-card", html: html)
@@ -103,7 +103,7 @@ class ProjectExpenseBroadcastService < ApplicationService
         detail: "All time",
         icon: "dollar",
         color: "red",
-        size: "bento-span-1 bento-row-span-2"
+        size: "col-span-1 row-span-2"
       }
     )
     Turbo::StreamsChannel.broadcast_replace_to(user, target: "total-expenses-card", html: html)
@@ -119,7 +119,7 @@ class ProjectExpenseBroadcastService < ApplicationService
         detail: "Unique members",
         icon: "chart",
         color: "blue",
-        size: "bento-span-1 bento-row-span-2"
+        size: "col-span-1 row-span-2"
       }
     )
     Turbo::StreamsChannel.broadcast_replace_to(user, target: "total-participants-card", html: html)
@@ -135,7 +135,7 @@ class ProjectExpenseBroadcastService < ApplicationService
         detail: "With expenses",
         icon: "arrow-up",
         color: "green",
-        size: "bento-span-1 bento-row-span-2"
+        size: "col-span-1 row-span-2"
       }
     )
     Turbo::StreamsChannel.broadcast_replace_to(user, target: "active-projects-card", html: html)

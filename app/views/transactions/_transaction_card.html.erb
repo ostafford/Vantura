@@ -23,7 +23,7 @@
     
     <div class="flex-shrink-0 text-right">
       <div id="transaction-<%= transaction.id %>-amount" 
-           class="text-lg font-bold <%= amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+           class="text-lg font-bold <%= amount_color_class(amount) %>">
         <%= formatted_transaction_amount(transaction) %>
       </div>
     </div>

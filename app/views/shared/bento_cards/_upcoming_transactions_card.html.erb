@@ -5,7 +5,7 @@
   upcoming_recurring_income = local_assigns.fetch(:upcoming_recurring_income, [])
   upcoming_hypothetical_expenses = local_assigns.fetch(:upcoming_hypothetical_expenses, [])
   upcoming_hypothetical_income = local_assigns.fetch(:upcoming_hypothetical_income, [])
-  size = local_assigns.fetch(:size, 'bento-span-2 bento-row-span-1')
+  size = local_assigns.fetch(:size, 'col-span-1 md:col-span-2 row-span-1')
   element_id = local_assigns.fetch(:id, 'calendar-upcoming-transactions-card')
   
   # Calculate totals
@@ -73,7 +73,7 @@
   total_items = all_upcoming_expenses.count + all_upcoming_income.count
 %>
 
-<div class="bento-span-2 bento-row-span-1 from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800 rounded-2xl shadow-deep p-6"<%= " id=#{element_id.inspect}" if element_id.present? %>>
+<div class="col-span-1 md:col-span-2 row-span-1 from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800 rounded-2xl shadow-deep p-6"<%= " id=#{element_id.inspect}" if element_id.present? %>>
   <div class="stat-card-container flex flex-col h-full">
     <!-- Section 1: Icon, Title, and Value -->
     <div class="stat-card-main-content flex-1">
@@ -98,7 +98,7 @@
           <div class="mb-3">
             <div class="flex items-center justify-between text-xs">
               <span class="text-gray-600 dark:text-gray-400">Net impact:</span>
-              <span class="font-semibold <%= net_impact >= 0 ? 'text-green-600 dark:text-green-400' : 'text-expense-600 dark:text-expense-400' %>">
+              <span class="font-semibold <%= amount_color_class(net_impact) %>">
                 <%= net_impact >= 0 ? '+' : '' %>$<%= number_with_precision(net_impact, precision: 2) %>
               </span>
             </div>

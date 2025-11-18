@@ -16,7 +16,7 @@
           subtitle: "#{active_recurring.count} active patterns",
           description: "Manage your recurring income and expense patterns with automatic transaction generation. Create recurring transactions from existing transactions, set frequencies (weekly, monthly, etc.), and project your future cash flow. Track income and expense patterns separately for better financial planning.",
           icon: 'refresh',
-          size: 'bento-span-2 bento-row-span-2',
+          size: 'col-span-1 md:col-span-2 row-span-2',
           color: 'blue' do %>
         <div class="flex items-center justify-between mb-3">
           <p class="text-blue-50 text-sm">
@@ -42,7 +42,7 @@
           detail: "Recurring income",
           icon: 'arrow-up',
           color: 'income',
-          size: 'bento-span-1 bento-row-span-1' %>
+          size: 'col-span-1 row-span-1' %>
       
       <!-- This Week - Expenses -->
       <%= render 'shared/bento_cards/stat_card',
@@ -52,7 +52,7 @@
           detail: "Recurring expenses",
           icon: 'arrow-down',
           color: 'expense',
-          size: 'bento-span-1 bento-row-span-1' %>
+          size: 'col-span-1 row-span-1' %>
       
       <!-- This Month - Income -->
       <%= render 'shared/bento_cards/stat_card',
@@ -62,7 +62,7 @@
           detail: "Projected income",
           icon: 'arrow-up',
           color: 'income',
-          size: 'bento-span-1 bento-row-span-1' %>
+          size: 'col-span-1 row-span-1' %>
       
       <!-- This Month - Expenses -->
       <%= render 'shared/bento_cards/stat_card',
@@ -72,7 +72,7 @@
           detail: "Projected expenses",
           icon: 'arrow-down',
           color: 'expense',
-          size: 'bento-span-1 bento-row-span-1' %>
+          size: 'col-span-1 row-span-1' %>
       
       <!-- Active Patterns Card -->
       <%= render 'shared/bento_cards/stat_card',
@@ -82,7 +82,7 @@
           detail: "#{active_recurring.expense_transactions.count} expenses",
           icon: 'refresh',
           color: 'blue',
-          size: 'bento-span-1 bento-row-span-1' %>
+          size: 'col-span-1 row-span-1' %>
       
       <!-- Most Common Frequency Card -->
       <% frequencies = active_recurring.group(:frequency).count %>
@@ -94,7 +94,7 @@
           detail: "#{frequencies[most_common] || 0} patterns",
           icon: 'chart',
           color: 'blue',
-          size: 'bento-span-1 bento-row-span-1' %>
+          size: 'col-span-1 row-span-1' %>
     </div>
     
     <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep">

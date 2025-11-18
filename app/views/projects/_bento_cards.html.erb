@@ -5,7 +5,7 @@
       subtitle: @projects_data[:total_expenses_cents] > 0 ? format_cents(@projects_data[:total_expenses_cents]) : "No expenses yet",
       description: "Track and manage shared expense projects. Collaborate with team members, split costs equally, and monitor project spending across all your active projects.",
       icon: 'chart',
-      size: 'bento-span-2 bento-row-span-2',
+      size: 'col-span-1 md:col-span-2 row-span-2',
       color: 'primary' do %>
   <div class="mt-6 space-y-4">
     <% if @projects_data[:total_projects] > 0 %>
@@ -46,7 +46,7 @@
     detail: "All time",
     icon: 'dollar',
     color: 'red',
-    size: 'bento-span-1 bento-row-span-1' %>
+    size: 'col-span-1 row-span-1' %>
 
 <!-- Total Projects Card -->
 <%= render 'shared/bento_cards/stat_card',
@@ -57,7 +57,7 @@
     detail: "Across all projects",
     icon: 'chart',
     color: 'blue',
-    size: 'bento-span-1 bento-row-span-1' %>
+    size: 'col-span-1 row-span-1' %>
 
 
 <!-- Total Participants Card -->
@@ -69,7 +69,7 @@
     detail: "Unique members",
     icon: 'chart',
     color: 'blue',
-    size: 'bento-span-1 bento-row-span-1' %>
+    size: 'col-span-1 row-span-1' %>
 
 <!-- Active Projects Card -->
 <%= render 'shared/bento_cards/stat_card',
@@ -80,5 +80,5 @@
     detail: "With expenses",
     icon: 'arrow-up',
     color: 'green',
-    size: 'bento-span-1 bento-row-span-1' %>
+    size: 'col-span-1 row-span-1' %>
 

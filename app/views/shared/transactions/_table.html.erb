@@ -27,7 +27,7 @@
     <tfoot class="bg-gray-50">
       <tr>
         <td colspan="<%= show_date ? 5 : 4 %>" class="px-6 py-4 text-sm font-semibold text-gray-900 text-right">Total:</td>
-        <td class="px-6 py-4 text-sm font-bold text-right <%= computed_total < 0 ? 'text-red-600' : 'text-green-600' %>">
+        <td class="px-6 py-4 text-sm font-bold text-right <%= amount_color_class(computed_total) %>">
           <%= computed_total < 0 ? '-' : '+' %>$<%= number_with_precision(computed_total.abs, precision: 2) %>
         </td>
       </tr>

@@ -17,7 +17,7 @@
   current_date = local_assigns.fetch(:current_date, Date.today)
   account = local_assigns.fetch(:account, nil)
   element_id = local_assigns.fetch(:id, 'dashboard-cash-flow-card')
-  size_classes = local_assigns.fetch(:size, 'bento-span-1 bento-row-span-3')
+  size_classes = local_assigns.fetch(:size, 'col-span-1 row-span-3')
   period_label = local_assigns.fetch(:period_label, 'This month')
   
   net_cash_flow = income_total - expense_total
@@ -82,12 +82,12 @@
     <!-- Net Cash Flow Column -->
     <div class="flex flex-col">
       <div class="flex items-center gap-2 mb-1">
-        <svg class="w-5 h-5 <%= net_cash_flow >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 <%= amount_color_class(net_cash_flow) %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
         <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Net</h3>
       </div>
-      <p class="text-2xl font-bold <%= net_cash_flow >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+      <p class="text-2xl font-bold <%= amount_color_class(net_cash_flow) %>">
         <%= net_cash_flow >= 0 ? '+' : '' %>$<%= number_with_precision(net_cash_flow, precision: 2) %>
       </p>
       <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
