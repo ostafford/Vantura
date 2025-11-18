@@ -59,7 +59,8 @@
 <!-- Mobile Navigation (Bottom Bar + Burger Menu) - Hidden on desktop -->
 <div data-controller="mobile-menu" class="lg:hidden">
   <!-- Mobile Bottom Bar -->
-  <nav class="fixed top-0 inset-x-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky z-40 shadow-sm">
+  <nav data-controller="navbar-scroll"
+       class="fixed bottom-0 left-0 right-0 w-full h-16 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-40 shadow-sm transform transition-transform duration-300 ease-in-out translate-y-0 overflow-hidden">
     <div class="flex items-center justify-between h-16 px-4">
       <!-- Logo -->
       <%= link_to root_path, class: "flex items-center gap-2 text-primary-700 dark:text-primary-500 hover:opacity-80 transition-opacity" do %>

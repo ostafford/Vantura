@@ -10,6 +10,25 @@
     max-width: 100vw;
   }
   
+  /* Prevent horizontal scrolling on body and html */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+  
+  /* Ensure main container doesn't allow horizontal overflow */
+  #application-main-container {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  /* Prevent child elements from causing horizontal overflow */
+  #application-main-container > * {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
   /* Add explicit heading styles for better semantic structure */
   h1 {
     @apply text-3xl font-bold;
@@ -43,12 +62,15 @@
     gap: 1rem;
     grid-template-columns: repeat(1, 1fr);
     grid-auto-rows: minmax(140px, auto);
+    /* Cards align with container edge (via content_wrapper px-4 = 16px on mobile) */
+    /* Card internal padding (p-6 = 24px) matches Recent Transactions header (px-6 = 24px) */
+    /* Both result in 40px total spacing from screen edge for content */
     
-    @variant md {
+    @media (min-width: 768px) {
       grid-template-columns: repeat(2, 1fr);
     }
     
-    @variant lg {
+    @media (min-width: 1024px) {
       grid-template-columns: repeat(3, 1fr);
     }
   }

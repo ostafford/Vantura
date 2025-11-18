@@ -1,4 +1,6 @@
 module ApplicationHelper
+  # Transaction UI Helpers
+
   # Render transaction status badges (Hypothetical, Pending, Settled)
   def transaction_status_badge(transaction, compact: false)
     badge_id = "transaction-#{transaction.id}-status-badge"
@@ -133,13 +135,15 @@ module ApplicationHelper
     end
   end
 
+  # Navigation Helpers
+
   # Navigation helpers for persistent nav
   def nav_link_to(text, path, icon:)
     active = current_page?(path) || (path == root_path && request.path == "/")
 
     base_classes = "flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-all"
     active_classes = "bg-primary/10 dark:bg-primary/20 text-primary-700 dark:text-primary-400 border-b-2 border-primary-700 dark:border-primary-400"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -169,7 +173,7 @@ module ApplicationHelper
 
     base_classes = "flex items-center gap-3 px-6 py-3 text-base font-medium transition-all"
     active_classes = "text-primary-700 dark:text-primary-400 bg-primary/10 dark:bg-primary/20"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400"
+    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -184,7 +188,7 @@ module ApplicationHelper
 
     base_classes = "relative flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all group sidebar-nav-link"
     active_classes = "bg-primary/10 dark:bg-primary/20 text-primary-700 dark:text-primary-400"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400"
+    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -200,9 +204,9 @@ module ApplicationHelper
   def navbar_nav_link_to(text, path, icon:)
     active = current_page?(path) || (path == root_path && request.path == "/")
 
-    base_classes = "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0"
-    active_classes = "bg-primary/10 dark:bg-primary/20 text-primary-700 dark:text-primary-400 border-b-2 border-primary-700 dark:border-primary-400"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+    base_classes = "relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0"
+    active_classes = "bg-primary-700 text-white dark:bg-primary/20 dark:text-primary-400 border-t-2 border-primary-800 dark:border-primary-400"
+    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -211,6 +215,8 @@ module ApplicationHelper
       concat content_tag(:span, text)
     end
   end
+
+  # Layout Helpers
 
   # Reusable content wrapper following DRY principles
   # Provides consistent responsive padding and max-width across all pages
@@ -242,10 +248,14 @@ module ApplicationHelper
     end
   end
 
+  # User Helpers
+
   def user_display_name(user)
     return user&.email_address if user.nil?
     user.respond_to?(:name) && user.name.present? ? user.name : user.email_address
   end
+
+  # Date Helpers
 
   # Calculate days remaining in a month
   # @param date [Date] Date to calculate from
@@ -254,7 +264,10 @@ module ApplicationHelper
     date.end_of_month.day - date.day
   end
 
+  # Formatting Helpers
+
   # Calculate spending pace metrics for a given month
+  # Delegates to SpendingPaceCalculator service object
   # @param transactions_data [Hash] Hash containing :date, :expense_total keys
   # @return [Hash] Hash with spending pace calculations:
   #   - is_current_month [Boolean] Whether viewing current month
@@ -264,36 +277,7 @@ module ApplicationHelper
   #   - expected_expenses [Float] Expected expenses for full month
   #   - spending_rate [Float] Spending rate percentage (0-100+)
   def calculate_spending_pace(transactions_data)
-    date = transactions_data[:date]
-    expense_total = transactions_data[:expense_total] || 0
-
-    # Check if viewing current month by comparing year and month
-    # This is more reliable than date equality comparison
-    is_current_month = date.year == Date.today.year && date.month == Date.today.month
-
-    days_elapsed = is_current_month ? Date.today.day : date.end_of_month.day
-    days_in_month = date.end_of_month.day
-    month_progress = (days_elapsed.to_f / days_in_month * 100).round(1)
-
-    # Calculate if spending pace is on track
-    # For current month: project full month based on current pace
-    # For past months: compare actual vs actual (always 100%)
-    expected_expenses = if is_current_month && days_elapsed > 0
-      (expense_total / days_elapsed * days_in_month)
-    else
-      expense_total
-    end
-
-    spending_rate = expected_expenses > 0 ? (expense_total / expected_expenses * 100) : 0
-
-    {
-      is_current_month: is_current_month,
-      days_elapsed: days_elapsed,
-      days_in_month: days_in_month,
-      month_progress: month_progress,
-      expected_expenses: expected_expenses,
-      spending_rate: spending_rate
-    }
+    SpendingPaceCalculator.calculate(transactions_data)
   end
 
   # Return background class for transaction card based on transaction amount and type
@@ -315,55 +299,13 @@ module ApplicationHelper
   end
 
   # Format percentage change with trend indicator
+  # Delegates to TrendCalculator service object
   # @param current [Numeric] Current value
   # @param previous [Numeric] Previous value
   # @param context [String] Context for determining if increase is good ('expense', 'income', 'neutral')
-  # @return [Hash] Hash with :change, :change_pct, :trend_icon, :trend_color, :formatted
+  # @return [Hash] Hash with :change, :change_pct, :trend_icon, :trend_color, :formatted, :is_positive
   def calculate_change(current, previous, context: "neutral")
-    return { change: 0, change_pct: 0, trend_icon: "→", trend_color: "text-gray-500", formatted: "No change" } if previous.zero? && current.zero?
-
-    change = current - previous
-    change_pct = previous.positive? ? ((change / previous) * 100).round(1) : (current.positive? ? 100.0 : 0.0)
-
-    # Determine if change is positive based on context
-    # For expenses: decrease is good (negative change is positive)
-    # For income: increase is good (positive change is positive)
-    is_positive = case context
-    when "expense"
-      change.negative? # Spending less is good
-    when "income"
-      change.positive? # Earning more is good
-    else
-      change.positive? # Neutral: increase is positive
-    end
-
-    trend_icon = if change.positive?
-      "↑"
-    elsif change.negative?
-      "↓"
-    else
-      "→"
-    end
-
-    trend_color = if is_positive
-      "text-green-600 dark:text-green-400"
-    elsif change.zero?
-      "text-gray-500 dark:text-gray-400"
-    else
-      "text-red-600 dark:text-red-400"
-    end
-
-    sign = change.positive? ? "+" : ""
-    formatted = "#{sign}#{number_to_currency(change.abs)} (#{sign}#{change_pct}%)"
-
-    {
-      change: change,
-      change_pct: change_pct,
-      trend_icon: trend_icon,
-      trend_color: trend_color,
-      formatted: formatted,
-      is_positive: is_positive
-    }
+    TrendCalculator.calculate_change(current, previous, context: context)
   end
 
   # Format trend indicator with icon and color
