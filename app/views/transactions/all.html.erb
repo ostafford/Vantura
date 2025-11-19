@@ -4,26 +4,26 @@
 <% content_for :page_header_actions do %>
     <div class="flex gap-3">
       <!-- Expenses Card -->
-      <div class="bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 shadow-sm">
-        <p class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Expenses</p>
-        <p class="text-xl font-bold text-red-600 dark:text-red-400">
+      <div class="bg-white dark:bg-neutral-800 border amount-negative-border rounded-lg px-4 py-3 shadow-sm">
+        <p class="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Expenses</p>
+        <p class="text-xl font-bold amount-negative">
           $<%= number_with_precision(@transactions_data[:expense_total], precision: 2) %>
         </p>
       </div>
       
       <!-- Income Card -->
-      <div class="bg-white dark:bg-gray-800 border amount-positive-border rounded-lg px-4 py-3 shadow-sm">
-        <p class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Income</p>
+      <div class="bg-white dark:bg-neutral-800 border amount-positive-border rounded-lg px-4 py-3 shadow-sm">
+        <p class="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Income</p>
         <p class="text-xl font-bold amount-positive">
           $<%= number_with_precision(@transactions_data[:income_total], precision: 2) %>
         </p>
       </div>
       
       <!-- Transaction Count -->
-      <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-3 flex items-center">
+      <div class="bg-neutral-50 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-lg px-4 py-3 flex items-center">
         <div class="text-center">
-          <p class="text-xl font-bold text-gray-900 dark:text-white"><%= @transactions_data[:transactions].count %></p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">transactions</p>
+          <p class="text-xl font-bold text-neutral-base"><%= @transactions_data[:transactions].count %></p>
+          <p class="text-xs text-neutral-muted">transactions</p>
         </div>
       </div>
     </div>
@@ -57,6 +57,6 @@
     <% end %>
   <% end %>
 
-  <%= render 'shared/recurring_drawer' %>
+  <%= render 'shared/drawers/recurring_drawer' %>
 </main>
 

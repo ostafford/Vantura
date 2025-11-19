@@ -28,13 +28,6 @@
     <%# DNS prefetch for external APIs to reduce latency on first request %>
     <link rel="dns-prefetch" href="//api.up.com.au">
 
-    <%# Theme initialization - must run before stylesheet to prevent FOUC
-        This script MUST be inline (not external) because:
-        1. It must execute synchronously before stylesheet loads
-        2. External scripts with defer/async would run too late
-        3. FOUC (Flash of Unstyled Content) would occur if theme class isn't applied immediately
-        This is an intentional exception to JavaScript best practices for performance reasons.
-    %>
     <script>
       // Initialize theme before page renders to prevent Flash of Unstyled Content (FOUC)
       (function() {
@@ -54,13 +47,12 @@
       })();
     </script>
 
-    <%# Includes Tailwind CSS (built) and application styles %>
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload", preload: true %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%# Includes Tailwind CSS (built from app/assets/tailwind/application.css) %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-controller="theme modal sync" class="flex flex-col h-screen bg-neutral-100 dark:bg-primary-900">
+  <body data-controller="theme modal sync" class="flex flex-col h-screen bg-neutral-50 dark:bg-neutral-900">
     <!-- WebSocket subscription for real-time updates (available on all pages) -->
     <% if Current.user %>
       <%= turbo_stream_from Current.user %>
@@ -68,7 +60,7 @@
 
     <!-- Desktop Navbar with integrated page header (only show when authenticated) -->
     <% if Current.user %>
-      <%= render 'shared/navbar' %>
+      <%= render 'shared/layout/navbar' %>
     <% end %>
 
     <!-- Main content wrapper -->
@@ -83,17 +75,17 @@
 
     <!-- Form Drawer for Desktop (only show when authenticated) -->
     <% if Current.user %>
-      <%= render 'shared/form_drawer' %>
+      <%= render 'shared/layout/form_drawer' %>
     <% end %>
 
     <!-- Mobile Navigation (only show when authenticated) -->
     <% if Current.user %>
-      <%= render 'shared/navigation' %>
+      <%= render 'shared/layout/navigation' %>
     <% end %>
     
     <!-- Sync notification container (available on all pages) -->
     <div id="app-sync-notification-container"></div>
     
-    <%= render 'shared/notifications' %>
+    <%= render 'shared/layout/notifications' %>
   </body>
 </html>

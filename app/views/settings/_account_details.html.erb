@@ -1,6 +1,6 @@
 <% stats = account_statistics(account) %>
 
-<div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 space-y-4">
+<div class="surface-card-base rounded-lg p-4 border-table-divider space-y-4">
   <div id="<%= dom_id(account, "goal_section") %>">
     <%= render "settings/account_goal_section",
                account: account,
@@ -8,26 +8,26 @@
                goal_form_state: nil %>
   </div>
 
-  <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Account Statistics</h4>
+  <h4 class="text-sm font-semibold text-neutral-base mb-3">Account Statistics</h4>
   
   <!-- This Month Stats -->
   <div class="grid grid-cols-2 gap-4 mb-4">
-    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-      <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">This Month Income</p>
-      <p class="text-lg font-bold text-success-600 dark:text-success-400">
+    <div class="surface-card-base rounded-lg p-3">
+      <p class="text-xs text-neutral-muted mb-1">This Month Income</p>
+      <p class="text-lg font-bold amount-positive">
         $<%= number_with_precision(stats[:month_stats][:income_total], precision: 2) %>
       </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400">
+      <p class="text-xs text-neutral-muted">
         <%= pluralize(stats[:month_stats][:income_count], 'transaction') %>
       </p>
     </div>
     
-    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-      <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">This Month Expenses</p>
-      <p class="text-lg font-bold text-expense-600 dark:text-expense-400">
+    <div class="surface-card-base rounded-lg p-3">
+      <p class="text-xs text-neutral-muted mb-1">This Month Expenses</p>
+      <p class="text-lg font-bold amount-negative">
         $<%= number_with_precision(stats[:month_stats][:expense_total], precision: 2) %>
       </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400">
+      <p class="text-xs text-neutral-muted">
         <%= pluralize(stats[:month_stats][:expense_count], 'transaction') %>
       </p>
     </div>
@@ -35,9 +35,9 @@
   
   <!-- Net Cash Flow -->
   <% net_positive = stats[:month_stats][:net_cash_flow] >= 0 %>
-  <div class="mb-4 p-3 <%= net_positive ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' %> border rounded-lg">
-    <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Net Cash Flow (This Month)</p>
-    <p class="text-xl font-bold <%= net_positive ? 'text-success-700 dark:text-success-500' : 'text-expense-700 dark:text-expense-500' %>">
+  <div class="mb-4 p-3 <%= net_positive ? 'surface-net-positive' : 'surface-net-negative' %> rounded-lg">
+    <p class="text-xs text-neutral-muted mb-1">Net Cash Flow (This Month)</p>
+    <p class="text-xl font-bold <%= net_positive ? 'amount-positive' : 'amount-negative' %>">
       $<%= number_with_precision(stats[:month_stats][:net_cash_flow], precision: 2) %>
     </p>
   </div>
@@ -45,35 +45,35 @@
   <!-- Summary Stats -->
   <div class="grid grid-cols-3 gap-3 mb-4 text-center">
     <div>
-      <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">All Time</p>
-      <p class="text-sm font-bold text-gray-900 dark:text-white">
+      <p class="text-xs text-neutral-muted mb-1">All Time</p>
+      <p class="text-sm font-bold text-neutral-base">
         <%= number_with_delimiter(stats[:all_time_count]) %>
       </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400">transactions</p>
+      <p class="text-xs text-neutral-muted">transactions</p>
     </div>
     
     <div>
-      <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">This Month</p>
-      <p class="text-sm font-bold text-gray-900 dark:text-white">
+      <p class="text-xs text-neutral-muted mb-1">This Month</p>
+      <p class="text-sm font-bold text-neutral-base">
         <%= number_with_delimiter(stats[:month_stats][:transaction_count]) %>
       </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400">transactions</p>
+      <p class="text-xs text-neutral-muted">transactions</p>
     </div>
     
     <div>
-      <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Active Recurring</p>
-      <p class="text-sm font-bold text-gray-900 dark:text-white">
+      <p class="text-xs text-neutral-muted mb-1">Active Recurring</p>
+      <p class="text-sm font-bold text-neutral-base">
         <%= number_with_delimiter(stats[:active_recurring_count]) %>
       </p>
-      <p class="text-xs text-gray-500 dark:text-gray-400">patterns</p>
+      <p class="text-xs text-neutral-muted">patterns</p>
     </div>
   </div>
   
   <!-- Quick Actions -->
-  <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+  <div class="pt-3 border-t border-table-divider">
     <%= link_to transactions_path, 
         id: "account-#{account.id}-view-transactions-link",
-        class: "inline-flex items-center px-4 py-2 bg-primary-700 hover:bg-primary-900 text-white rounded-lg hover:shadow-md hover:scale-105 transition-all font-semibold text-sm" do %>
+        class: "btn-primary px-4 py-2 text-sm" do %>
       <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
       </svg>

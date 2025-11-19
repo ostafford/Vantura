@@ -34,7 +34,7 @@
           <% calendar_date = @transactions_data[:date] %>
           <% calendar_path = calendar_month_path(calendar_date.year, calendar_date.month) %>
           <%= link_to calendar_path,
-              class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors",
+              class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors",
               title: "View this month in calendar",
               aria: { label: "View this month in calendar" } do %>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,6 +47,6 @@
     <% end # Close turbo_frame_tag "transactions_content" %>
   <% end %>
 
-  <%= render 'shared/recurring_drawer' %>
+  <%= render 'shared/drawers/recurring_drawer' %>
 </main>
 

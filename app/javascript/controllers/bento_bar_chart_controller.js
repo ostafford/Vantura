@@ -204,10 +204,10 @@ export default class extends Controller {
       "shadow-sm"
     ]
     const inactiveClasses = [
-      "text-gray-700",
-      "dark:text-gray-300",
-      "hover:bg-gray-50",
-      "dark:hover:bg-gray-700",
+      "text-neutral-700",
+      "dark:text-neutral-300",
+      "hover:bg-neutral-50",
+      "dark:hover:bg-neutral-700",
       "bg-transparent"
     ]
 

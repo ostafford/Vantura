@@ -2,21 +2,21 @@
 
 <main id="password-update-page-container" aria-label="Password update page">
   <!-- Breadcrumb Navigation -->
-  <nav id="breadcrumb-navigation" class="bg-gradient-to-r from-cream-100 to-white dark:from-primary-900 dark:to-primary-950 border-b border-primary-700/20 dark:border-primary-900/30" aria-label="Breadcrumb">
+  <nav id="breadcrumb-navigation" class="bg-gradient-to-r from-neutral-100 to-white dark:from-primary-900 dark:to-primary-950 border-b border-primary-700/20 dark:border-primary-900/30" aria-label="Breadcrumb">
     <%= content_wrapper class: "py-2" do %>
       <ol id="breadcrumb-list" class="flex items-center gap-2">
         <% if Current.user.present? %>
           <li>
-            <%= link_to settings_path, id: "breadcrumb-settings-link", class: "text-sm text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 font-medium transition-colors" do %>
+            <%= link_to settings_path, id: "breadcrumb-settings-link", class: "text-sm text-neutral-600 dark:text-neutral-400 hover-link-primary font-medium" do %>
               Settings
             <% end %>
           </li>
           <li>
-            <span class="text-sm text-gray-400 dark:text-gray-500" aria-hidden="true">/</span>
+            <span class="text-sm text-neutral-400 dark:text-neutral-500" aria-hidden="true">/</span>
           </li>
         <% end %>
         <li>
-          <span id="breadcrumb-current-page" class="text-sm text-gray-900 dark:text-white font-medium">Update Password</span>
+          <span id="breadcrumb-current-page" class="text-sm text-neutral-900 dark:text-white font-medium">Update Password</span>
         </li>
       </ol>
     <% end %>
@@ -29,7 +29,7 @@
       <!-- Header -->
       <header id="user-password-update-header" class="px-4 py-4 bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-900 dark:to-primary-700 md:px-8 md:py-6">
         <h1 id="user-password-update-heading" class="text-2xl md:text-3xl font-bold text-white">Update Password</h1>
-        <p class="text-xs md:text-sm font-normal text-orange-100 mt-1">Enter your new password below</p>
+        <p class="text-xs md:text-sm font-normal text-primary-100 mt-1">Enter your new password below</p>
       </header>
 
       <!-- Form -->
@@ -37,12 +37,12 @@
         <!-- Error Messages -->
         <% if @user.errors.any? %>
           <div id="user-password-update-errors-container" 
-               class="p-4 mb-4 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20" 
+               class="p-4 mb-4 rounded-lg form-error-border form-error-bg" 
                role="alert">
-            <h3 class="text-sm font-semibold text-red-900 dark:text-red-100 mb-2">
+            <h3 class="text-sm form-error-text mb-2">
               <%= pluralize(@user.errors.count, "error") %> prevented your password from being reset:
             </h3>
-            <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
+            <ul class="text-sm form-error space-y-1 ml-5 list-disc">
               <% @user.errors.full_messages.each do |message| %>
                 <li><%= message %></li>
               <% end %>
@@ -52,7 +52,7 @@
 
         <!-- Password Field -->
         <div id="user-password-update-password-field">
-          <label for="user-password-update-password-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label for="user-password-update-password-input" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
             New Password
           </label>
           <%= form.password_field :password,
@@ -64,9 +64,9 @@
               aria_required: true,
               aria_invalid: (@user.errors[:password].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:password].any? ? "user-password-update-password-error" : nil),
-              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white transition-all focus-ring focus:border-transparent" %>
           <% if @user.errors[:password].any? %>
-            <div id="user-password-update-password-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+            <div id="user-password-update-password-error" class="form-error mt-1" role="alert">
               <%= @user.errors[:password].first %>
             </div>
           <% end %>
@@ -74,7 +74,7 @@
 
         <!-- Password Confirmation Field -->
         <div id="user-password-update-confirmation-field">
-          <label for="user-password-update-confirmation-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label for="user-password-update-confirmation-input" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
             Confirm New Password
           </label>
           <%= form.password_field :password_confirmation,
@@ -86,9 +86,9 @@
               aria_required: true,
               aria_invalid: (@user.errors[:password_confirmation].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:password_confirmation].any? ? "user-password-update-confirmation-error" : nil),
-              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white transition-all focus-ring focus:border-transparent" %>
           <% if @user.errors[:password_confirmation].any? %>
-            <div id="user-password-update-confirmation-error" class="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+            <div id="user-password-update-confirmation-error" class="form-error mt-1" role="alert">
               <%= @user.errors[:password_confirmation].first %>
             </div>
           <% end %>
@@ -98,7 +98,7 @@
         <div id="user-password-update-actions">
           <%= form.submit "Save",
               id: "user-password-update-submit-button",
-              class: "relative w-full min-h-[44px] px-6 py-3 rounded-xl text-center font-semibold text-white bg-gradient-to-r from-primary-700 to-primary-500 shadow-lg transition-all hover:from-primary-900 hover:to-primary-600" %>
+              class: "btn-primary w-full min-h-[44px]" %>
         </div>
       <% end %>
     </section>

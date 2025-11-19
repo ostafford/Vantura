@@ -9,7 +9,7 @@
 %>
 <%= render 'shared/bento_cards/hero_card',
     title: "Transaction Insights",
-    subtitle: "<span class='text-blue-100'>#{@transactions_data[:date].strftime('%B %Y')}</span>".html_safe,
+    subtitle: "<span class='text-overlay-subtle'>#{@transactions_data[:date].strftime('%B %Y')}</span>".html_safe,
     description: "Key financial insights at a glance",
     icon: 'chart',
     size: 'col-span-1 row-span-2',
@@ -19,15 +19,15 @@
       <%# Search Results Mode: Show largest transaction %>
       <% if largest %>
         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
-          <p class="text-xs text-blue-200 mb-1">Largest Transaction</p>
+          <p class="text-xs text-overlay-muted mb-1">Largest Transaction</p>
           <div class="flex items-center justify-between">
-            <p class="text-blue-50 font-semibold truncate"><%= largest.description %></p>
+            <p class="text-white font-semibold truncate"><%= largest.description %></p>
             <p class="text-white text-lg font-bold ml-2 whitespace-nowrap <%= amount_color_class(largest.amount) %>">
               <%= formatted_transaction_amount(largest) %>
             </p>
           </div>
           <% if largest.merchant.present? %>
-            <p class="text-xs text-blue-200 mt-1">from <%= largest.merchant %></p>
+            <p class="text-xs text-overlay-muted mt-1">from <%= largest.merchant %></p>
           <% end %>
         </div>
       <% end %>
@@ -36,14 +36,14 @@
       
       <%# Spending Pace %>
       <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
-        <p class="text-xs text-blue-200 mb-2">Spending Pace</p>
+        <p class="text-xs text-overlay-muted mb-2">Spending Pace</p>
         <div class="flex items-center gap-3 mb-2">
           <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
-            <div class="h-full <%= spending_pace[:spending_rate] > 100 ? 'bg-red-400' : spending_pace[:spending_rate] > 75 ? 'bg-yellow-400' : 'bg-green-400' %> rounded-full transition-all duration-300" style="width: <%= [spending_pace[:spending_rate], 100].min %>%"></div>
+            <div class="h-full <%= spending_pace[:spending_rate] > 100 ? 'pace-ahead-bg' : spending_pace[:spending_rate] > 75 ? 'pace-on-track-bg' : 'pace-behind-bg' %> rounded-full transition-all duration-300" style="width: <%= [spending_pace[:spending_rate], 100].min %>%"></div>
           </div>
           <span class="text-white text-sm font-semibold whitespace-nowrap"><%= spending_pace[:spending_rate].round(0) %>%</span>
         </div>
-        <p class="text-xs text-blue-200">
+        <p class="text-xs text-overlay-muted">
           <% if spending_pace[:spending_rate] > 100 %>
             ⚠️ Spending ahead of pace
           <% elsif spending_pace[:spending_rate] > 75 %>
@@ -57,11 +57,11 @@
       <%# Savings Rate %>
       <% if @transactions_data[:income_total] > 0 %>
         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
-          <p class="text-xs text-blue-200 mb-1">Savings Rate</p>
+          <p class="text-xs text-overlay-muted mb-1">Savings Rate</p>
           <p class="text-white text-2xl font-bold">
             <%= savings_rate %>%
           </p>
-          <p class="text-xs text-blue-200 mt-1">
+          <p class="text-xs text-overlay-muted mt-1">
             <% if savings_rate >= 20 %>
               <span class="inline-flex items-center">✓ Excellent savings rate</span>
             <% elsif savings_rate >= 10 %>
@@ -78,14 +78,14 @@
       <%# Projected Month End (if current month) %>
       <% if projected %>
         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
-          <p class="text-xs text-blue-200 mb-1">Projected Month End</p>
+          <p class="text-xs text-overlay-muted mb-1">Projected Month End</p>
           <div class="space-y-1">
             <div class="flex items-center justify-between">
-              <span class="text-blue-100 text-xs">Expenses:</span>
+              <span class="text-overlay-subtle text-xs">Expenses:</span>
               <span class="text-white font-semibold"><%= number_to_currency(projected[:expense_total]) %></span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-blue-100 text-xs">Income:</span>
+              <span class="text-overlay-subtle text-xs">Income:</span>
               <span class="text-white font-semibold"><%= number_to_currency(projected[:income_total]) %></span>
             </div>
           </div>
@@ -95,9 +95,9 @@
       <%# Largest Transaction %>
       <% if largest %>
         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
-          <p class="text-xs text-blue-200 mb-1">Largest Transaction</p>
+          <p class="text-xs text-overlay-muted mb-1">Largest Transaction</p>
           <div class="flex items-center justify-between">
-            <p class="text-blue-50 font-semibold truncate text-sm"><%= largest.description %></p>
+            <p class="text-white font-semibold truncate text-sm"><%= largest.description %></p>
             <p class="text-white text-lg font-bold ml-2 whitespace-nowrap <%= amount_color_class(largest.amount) %>">
               <%= formatted_transaction_amount(largest) %>
             </p>
@@ -108,13 +108,13 @@
       <%# Week-over-Week Comparison (if current month) %>
       <% if week_over_week %>
         <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-deep">
-          <p class="text-xs text-blue-200 mb-1">Week-over-Week</p>
+          <p class="text-xs text-overlay-muted mb-1">Week-over-Week</p>
           <div class="flex items-center justify-between">
-            <span class="text-blue-100 text-xs">This week:</span>
+            <span class="text-overlay-subtle text-xs">This week:</span>
             <span class="text-white font-semibold"><%= number_to_currency(week_over_week[:current_week_expenses]) %></span>
           </div>
           <div class="flex items-center justify-between mt-1">
-            <span class="text-blue-100 text-xs">Last week:</span>
+            <span class="text-overlay-subtle text-xs">Last week:</span>
             <span class="text-white font-semibold"><%= number_to_currency(week_over_week[:previous_week_expenses]) %></span>
           </div>
           <% if week_over_week[:change_pct] != 0 %>
@@ -144,7 +144,7 @@
     id: 'dashboard-expenses-card',
     title: "Expenses",
     value: number_to_currency(@transactions_data[:expense_total]),
-    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions_data[:expense_count]}</span> transactions".html_safe,
+    subtitle: "<span class='font-semibold text-neutral-base'>#{@transactions_data[:expense_count]}</span> transactions".html_safe,
     detail: @transactions_data[:filter_type] == 'search' ? 'Search Results' : @transactions_data[:date].strftime('%B %Y'),
     icon: 'arrow-down',
     color: 'expense',
@@ -155,8 +155,8 @@
   <div id="dashboard-expenses-card-merchants" class="mt-3 space-y-2">
     <%# Month-over-Month Change %>
     <% if expense_change %>
-      <div class="flex items-center justify-between text-xs pt-2 border-t border-gray-200 dark:border-gray-700">
-        <span class="text-gray-600 dark:text-gray-400">vs Last Month</span>
+      <div class="flex items-center justify-between text-xs pt-2 border-t border-neutral-200 dark:border-neutral-700">
+        <span class="text-neutral-600 dark:text-neutral-400">vs Last Month</span>
         <div class="flex items-center gap-1">
           <%= trend_indicator(expense_change) %>
           <span class="<%= expense_change[:trend_color] %> font-semibold">
@@ -168,9 +168,9 @@
     
     <%# Average per Transaction %>
     <div class="flex items-center justify-between text-xs">
-      <span class="text-gray-600 dark:text-gray-400">Avg per transaction</span>
+      <span class="text-neutral-600 dark:text-neutral-400">Avg per transaction</span>
       <div class="flex items-center gap-1">
-        <span class="text-gray-900 dark:text-white font-semibold"><%= number_to_currency(expense_avg) %></span>
+        <span class="text-neutral-base font-semibold"><%= number_to_currency(expense_avg) %></span>
         <% if expense_avg_change[:change] != 0 %>
           <%= trend_indicator(expense_avg_change) %>
         <% end %>
@@ -180,8 +180,8 @@
     <%# 3-Month Average Comparison %>
     <% if three_month_avg && three_month_avg[:expense_total] > 0 %>
       <div class="flex items-center justify-between text-xs">
-        <span class="text-gray-600 dark:text-gray-400">vs 3-mo avg</span>
-        <span class="text-gray-900 dark:text-white font-semibold">
+        <span class="text-neutral-600 dark:text-neutral-400">vs 3-mo avg</span>
+        <span class="text-neutral-base font-semibold">
           <%= number_to_currency(three_month_avg[:expense_total]) %>
         </span>
       </div>
@@ -189,13 +189,13 @@
     
     <%# Top Merchants %>
     <% if @transactions_data[:top_expense_merchants].any? %>
-      <div class="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
-        <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">TOP MERCHANTS</p>
+      <div class="pt-2 border-t border-neutral-200 dark:border-neutral-700 mt-2">
+        <p class="text-xs font-medium text-neutral-label mb-2">TOP MERCHANTS</p>
         <div class="space-y-1.5">
           <% @transactions_data[:top_expense_merchants].first(3).each do |merchant| %>
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600 dark:text-gray-400 truncate"><%= merchant[:merchant] || 'Unknown' %></span>
-              <span class="text-gray-900 dark:text-white font-semibold ml-2 whitespace-nowrap">
+              <span class="text-neutral-600 dark:text-neutral-400 truncate"><%= merchant[:merchant] || 'Unknown' %></span>
+              <span class="text-neutral-base font-semibold ml-2 whitespace-nowrap">
                 <%= number_to_currency(merchant[:total]) %>
               </span>
             </div>
@@ -221,7 +221,7 @@
     id: 'dashboard-income-card',
     title: "Income",
     value: number_to_currency(@transactions_data[:income_total]),
-    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions_data[:income_count]}</span> transactions".html_safe,
+    subtitle: "<span class='font-semibold text-neutral-base'>#{@transactions_data[:income_count]}</span> transactions".html_safe,
     detail: @transactions_data[:filter_type] == 'search' ? 'Search Results' : @transactions_data[:date].strftime('%B %Y'),
     icon: 'arrow-up',
     color: 'income',
@@ -232,8 +232,8 @@
   <div id="dashboard-income-card-merchants" class="mt-3 space-y-2">
     <%# Month-over-Month Change %>
     <% if income_change %>
-      <div class="flex items-center justify-between text-xs pt-2 border-t border-gray-200 dark:border-gray-700">
-        <span class="text-gray-600 dark:text-gray-400">vs Last Month</span>
+      <div class="flex items-center justify-between text-xs pt-2 border-t border-neutral-200 dark:border-neutral-700">
+        <span class="text-neutral-600 dark:text-neutral-400">vs Last Month</span>
         <div class="flex items-center gap-1">
           <%= trend_indicator(income_change) %>
           <span class="<%= income_change[:trend_color] %> font-semibold">
@@ -245,9 +245,9 @@
     
     <%# Average per Transaction %>
     <div class="flex items-center justify-between text-xs">
-      <span class="text-gray-600 dark:text-gray-400">Avg per transaction</span>
+      <span class="text-neutral-600 dark:text-neutral-400">Avg per transaction</span>
       <div class="flex items-center gap-1">
-        <span class="text-gray-900 dark:text-white font-semibold"><%= number_to_currency(income_avg) %></span>
+        <span class="text-neutral-base font-semibold"><%= number_to_currency(income_avg) %></span>
         <% if income_avg_change[:change] != 0 %>
           <%= trend_indicator(income_avg_change) %>
         <% end %>
@@ -257,8 +257,8 @@
     <%# 3-Month Average Comparison %>
     <% if three_month_avg && three_month_avg[:income_total] > 0 %>
       <div class="flex items-center justify-between text-xs">
-        <span class="text-gray-600 dark:text-gray-400">vs 3-mo avg</span>
-        <span class="text-gray-900 dark:text-white font-semibold">
+        <span class="text-neutral-600 dark:text-neutral-400">vs 3-mo avg</span>
+        <span class="text-neutral-base font-semibold">
           <%= number_to_currency(three_month_avg[:income_total]) %>
         </span>
       </div>
@@ -266,13 +266,13 @@
     
     <%# Top Merchants %>
     <% if @transactions_data[:top_income_merchants].any? %>
-      <div class="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
-        <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">TOP MERCHANTS</p>
+      <div class="pt-2 border-t border-neutral-200 dark:border-neutral-700 mt-2">
+        <p class="text-xs font-medium text-neutral-label mb-2">TOP MERCHANTS</p>
         <div class="space-y-1.5">
           <% @transactions_data[:top_income_merchants].first(3).each do |merchant| %>
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600 dark:text-gray-400 truncate"><%= merchant[:merchant] || 'Unknown' %></span>
-              <span class="text-gray-900 dark:text-white font-semibold ml-2 whitespace-nowrap">
+              <span class="text-neutral-600 dark:text-neutral-400 truncate"><%= merchant[:merchant] || 'Unknown' %></span>
+              <span class="text-neutral-base font-semibold ml-2 whitespace-nowrap">
                 <%= number_to_currency(merchant[:total]) %>
               </span>
             </div>
@@ -305,17 +305,17 @@
 <%= render 'shared/bento_cards/stat_card',
     title: "Total Transactions",
     value: @transactions_data[:transaction_count].to_s,
-    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@transactions_data[:expense_count]}</span> expenses • <span class='font-semibold text-gray-900 dark:text-white'>#{@transactions_data[:income_count]}</span> income".html_safe,
+    subtitle: "<span class='font-semibold text-neutral-base'>#{@transactions_data[:expense_count]}</span> expenses • <span class='font-semibold text-neutral-base'>#{@transactions_data[:income_count]}</span> income".html_safe,
     detail: @transactions_data[:filter_type] == 'search' ? 'Search Results' : "Showing #{@transactions_data[:date].strftime('%B %Y')}",
     icon: 'chart',
     color: 'blue',
     size: 'col-span-1 row-span-1' do %>
   
-  <div class="mt-3 space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+  <div class="mt-3 space-y-2 pt-2 border-t border-neutral-200 dark:border-neutral-700">
     <%# Month-over-Month Change %>
     <% if transaction_change %>
       <div class="flex items-center justify-between text-xs">
-        <span class="text-gray-600 dark:text-gray-400">vs Last Month</span>
+        <span class="text-neutral-600 dark:text-neutral-400">vs Last Month</span>
         <div class="flex items-center gap-1">
           <%= trend_indicator(transaction_change) %>
           <span class="<%= transaction_change[:trend_color] %> font-semibold">
@@ -328,8 +328,8 @@
     <%# Daily Average %>
     <% if velocity && velocity[:daily_average] > 0 %>
       <div class="flex items-center justify-between text-xs">
-        <span class="text-gray-600 dark:text-gray-400">Daily average</span>
-        <span class="text-gray-900 dark:text-white font-semibold">
+        <span class="text-neutral-600 dark:text-neutral-400">Daily average</span>
+        <span class="text-neutral-base font-semibold">
           <%= velocity[:daily_average].round(1) %> / day
         </span>
       </div>
@@ -338,7 +338,7 @@
     <%# Expense/Income Count Changes %>
     <% if expense_count_change %>
       <div class="flex items-center justify-between text-xs">
-        <span class="text-gray-600 dark:text-gray-400">Expenses:</span>
+        <span class="text-neutral-600 dark:text-neutral-400">Expenses:</span>
         <div class="flex items-center gap-1">
           <%= trend_indicator(expense_count_change) %>
           <span class="<%= expense_count_change[:trend_color] %> font-semibold">
@@ -349,7 +349,7 @@
     <% end %>
     <% if income_count_change %>
       <div class="flex items-center justify-between text-xs">
-        <span class="text-gray-600 dark:text-gray-400">Income:</span>
+        <span class="text-neutral-600 dark:text-neutral-400">Income:</span>
         <div class="flex items-center gap-1">
           <%= trend_indicator(income_count_change) %>
           <span class="<%= income_count_change[:trend_color] %> font-semibold">
@@ -376,26 +376,26 @@
 <%= render 'shared/bento_cards/stat_card',
     title: "Top Category",
     value: @transactions_data[:top_category] || "N/A",
-    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{number_to_currency(@transactions_data[:top_category_amount].abs)}</span>".html_safe,
+    subtitle: "<span class='font-semibold text-neutral-base'>#{number_to_currency(@transactions_data[:top_category_amount].abs)}</span>".html_safe,
     detail: @transactions_data[:filter_type] == 'search' ? 'Search Results' : @transactions_data[:date].strftime('%B %Y'),
     icon: 'tag',
     color: 'blue',
     size: 'col-span-1 row-span-1',
     link: top_category ? transactions_path(year: @transactions_data[:year], month: @transactions_data[:month], filter: 'expenses', q: top_category[:name]) : nil do %>
   
-  <div class="mt-3 space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+  <div class="mt-3 space-y-2 pt-2 border-t border-neutral-200 dark:border-neutral-700">
     <%# Percentage of Total Expenses %>
     <% if top_category_pct > 0 %>
       <div class="flex items-center justify-between text-xs">
-        <span class="text-gray-600 dark:text-gray-400">% of expenses</span>
-        <span class="text-gray-900 dark:text-white font-semibold"><%= top_category_pct %>%</span>
+        <span class="text-neutral-600 dark:text-neutral-400">% of expenses</span>
+        <span class="text-neutral-base font-semibold"><%= top_category_pct %>%</span>
       </div>
     <% end %>
     
     <%# Month-over-Month Change %>
     <% if top_category_change %>
       <div class="flex items-center justify-between text-xs">
-        <span class="text-gray-600 dark:text-gray-400">vs Last Month</span>
+        <span class="text-neutral-600 dark:text-neutral-400">vs Last Month</span>
         <div class="flex items-center gap-1">
           <%= trend_indicator(top_category_change) %>
           <span class="<%= top_category_change[:trend_color] %> font-semibold">
@@ -407,15 +407,15 @@
     
     <%# Top 3 Categories %>
     <% if category_breakdown.any? %>
-      <div class="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
-        <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">TOP CATEGORIES</p>
+      <div class="pt-2 border-t border-neutral-200 dark:border-neutral-700 mt-2">
+        <p class="text-xs font-medium text-neutral-label mb-2">TOP CATEGORIES</p>
         <div class="space-y-1.5">
           <% category_breakdown.first(3).each do |category| %>
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600 dark:text-gray-400 truncate"><%= category[:name] %></span>
+              <span class="text-neutral-600 dark:text-neutral-400 truncate"><%= category[:name] %></span>
               <div class="flex items-center gap-2">
-                <span class="text-gray-500 dark:text-gray-500 text-[10px]"><%= category[:percentage] %>%</span>
-                <span class="text-gray-900 dark:text-white font-semibold ml-2 whitespace-nowrap">
+                <span class="text-neutral-500 dark:text-neutral-500 text-[10px]"><%= category[:percentage] %>%</span>
+                <span class="text-neutral-base font-semibold ml-2 whitespace-nowrap">
                   <%= number_to_currency(category[:amount]) %>
                 </span>
               </div>

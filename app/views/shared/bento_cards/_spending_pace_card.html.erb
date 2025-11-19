@@ -14,22 +14,22 @@
   # Determine pace indicator and colors
   if spending_rate > 100
     pace_status = "Ahead of pace"
-    pace_color = "text-red-600 dark:text-red-400"
-    bar_color = "bg-red-400"
-    indicator_bg = "bg-red-100 dark:bg-red-900/30"
-    indicator_text = "text-red-700 dark:text-red-400"
+    pace_color = "pace-ahead"
+    bar_color = "pace-ahead-bg"
+    indicator_bg = "pace-ahead-badge"
+    indicator_text = "pace-ahead"
   elsif spending_rate > 75
     pace_status = "On track"
-    pace_color = "text-yellow-600 dark:text-yellow-400"
-    bar_color = "bg-yellow-400"
-    indicator_bg = "bg-yellow-100 dark:bg-yellow-900/30"
-    indicator_text = "text-yellow-700 dark:text-yellow-400"
+    pace_color = "pace-on-track"
+    bar_color = "pace-on-track-bg"
+    indicator_bg = "pace-on-track-badge"
+    indicator_text = "pace-on-track"
   else
     pace_status = "Behind pace"
-    pace_color = "status-success"
-    bar_color = "bg-success-400"
-    indicator_bg = "status-success-bg"
-    indicator_text = "status-success"
+    pace_color = "pace-behind"
+    bar_color = "pace-behind-bg"
+    indicator_bg = "pace-behind-badge"
+    indicator_text = "pace-behind"
   end
   
   # Format comparison text
@@ -42,21 +42,21 @@
   end
 %>
 
-<div class="col-span-1 md:col-span-2 row-span-1 from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800 rounded-2xl shadow-deep p-6"<%= " id=#{element_id.inspect}" if element_id.present? %>>
+<div class="col-span-1 md:col-span-2 row-span-1 from-info-50 to-white dark:from-info-900/10 dark:to-neutral-800 rounded-2xl shadow-deep p-6"<%= " id=#{element_id.inspect}" if element_id.present? %>>
   <div class="stat-card-container flex flex-col h-full">
     <!-- Section 1: Icon, Title, and Value -->
     <div class="stat-card-main-content flex-1">
       <!-- Top Row: Icon, Title, and Value -->
       <div class="flex items-center gap-4 mb-4">
-        <div class="stat-card-icon inline-flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex-shrink-0">
-          <svg class="w-6 h-6 text-primary-700 dark:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="stat-card-icon inline-flex items-center justify-center w-12 h-12 surface-info rounded-xl flex-shrink-0">
+          <svg class="w-6 h-6 text-info-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
           </svg>
         </div>
         
         <div class="flex-1 min-w-0">
-          <p class="stat-card-title text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Spending Pace</p>
-          <p class="stat-card-value font-bold text-primary-700 dark:text-primary-500">$<%= number_with_precision(daily_rate, precision: 2) %>/day</p>
+          <p class="stat-card-title text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1">Spending Pace</p>
+          <p class="stat-card-value font-bold text-info-dark">$<%= number_with_precision(daily_rate, precision: 2) %>/day</p>
         </div>
       </div>
       
@@ -65,10 +65,10 @@
         <!-- Progress Bar -->
         <div class="mb-3">
           <div class="flex items-center gap-3 mb-2">
-            <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div class="flex-1 h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
               <div class="h-full <%= bar_color %> rounded-full transition-all duration-300" style="width: <%= pace_percentage %>%"></div>
             </div>
-            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap"><%= spending_rate.round(0) %>%</span>
+            <span class="text-sm font-semibold text-neutral-label whitespace-nowrap"><%= spending_rate.round(0) %>%</span>
           </div>
           
           <!-- Pace Indicator Badge -->
@@ -79,15 +79,15 @@
         
         <!-- Projected Spending -->
         <div class="mb-2">
-          <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Projected month-end spending</p>
-          <p class="text-lg font-bold text-gray-900 dark:text-white">$<%= number_with_precision(projected_total, precision: 2) %></p>
+          <p class="text-xs text-neutral-muted mb-1">Projected month-end spending</p>
+          <p class="text-lg font-bold text-neutral-base">$<%= number_with_precision(projected_total, precision: 2) %></p>
         </div>
       </div>
     </div>
     
     <!-- Section 2: Footer with comparison -->
-    <div class="stat-card-footer pt-4 border-t border-gray-200 dark:border-gray-700">
-      <p class="stat-card-detail text-xs text-gray-400 dark:text-gray-500">
+    <div class="stat-card-footer pt-4 border-t border-neutral-200 dark:border-neutral-700">
+      <p class="stat-card-detail text-xs text-neutral-400 dark:text-neutral-500">
         <%= comparison_text %>
       </p>
     </div>

@@ -111,15 +111,15 @@ module DashboardHelper
     normalized_status = status.respond_to?(:to_sym) ? status.to_sym : :on_track
 
     container_classes = {
-      on_track: "bg-green-50 text-green-700 border-green-200 dark:bg-green-500/30 dark:text-green-200 dark:border-green-400/50",
-      caution: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-yellow-500/30 dark:text-yellow-200 dark:border-yellow-400/50",
-      off_track: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-red-500/30 dark:text-red-200 dark:border-red-400/50"
+      on_track: "badge-settled",
+      caution: "badge-pending",
+      off_track: "badge-off-track"
     }
 
     indicator_classes = {
-      on_track: "bg-green-500 dark:bg-green-300",
-      caution: "bg-amber-500 dark:bg-yellow-300",
-      off_track: "bg-rose-500 dark:bg-red-300"
+      on_track: "dot-success",
+      caution: "dot-warning",
+      off_track: "dot-expense"
     }
 
     labels = {
@@ -305,20 +305,20 @@ module DashboardHelper
 
     target_icon_color = case daily_target_data[:status]
     when :on_track
-                          "bg-emerald-400/20 text-emerald-200"
+      "icon-bg-success"
     when :caution
-                          "bg-amber-400/20 text-amber-200"
+      "icon-bg-warning"
     else
-                          "bg-rose-500/20 text-rose-200"
+      "icon-bg-expense"
     end
 
     target_text_color = case daily_target_data[:status]
     when :on_track
-                          "text-emerald-200"
+      "text-overlay-success"
     when :caution
-                          "text-amber-200"
+      "text-overlay-warning"
     else
-                          "text-rose-200"
+      "text-overlay-expense"
     end
 
     {

@@ -33,10 +33,10 @@ export default class extends Controller {
       this.submitTarget.disabled = !isValid
       if (isValid) {
         this.submitTarget.classList.remove("opacity-50", "cursor-not-allowed")
-        this.submitTarget.classList.add("hover:bg-red-700")
+        this.submitTarget.classList.add("hover:bg-expense-700")
       } else {
         this.submitTarget.classList.add("opacity-50", "cursor-not-allowed")
-        this.submitTarget.classList.remove("hover:bg-red-700")
+        this.submitTarget.classList.remove("hover:bg-expense-700")
       }
     }
     

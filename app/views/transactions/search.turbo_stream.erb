@@ -5,7 +5,7 @@
 
 <%# Update the table body with search results %>
 <%= turbo_stream.replace "transactions-table-body" do %>
-  <tbody id="transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+  <tbody id="transactions-table-body" class="bg-white dark:bg-neutral-800 divide-table-divider">
     <%= render partial: "transactions/table_body", locals: { transactions: @transactions_data[:transactions] } %>
   </tbody>
 <% end %>
@@ -38,7 +38,7 @@
                 year: prev_month.year,
                 month: prev_month.month
               ),
-              class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+              class: "btn-secondary px-4 py-2",
               data: { turbo_frame: "transactions_content" } do %>
     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -51,7 +51,7 @@
                 year: next_month.year,
                 month: next_month.month
               ),
-              class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+              class: "btn-secondary px-4 py-2",
               data: { turbo_frame: "transactions_content" } do %>
     Next
     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

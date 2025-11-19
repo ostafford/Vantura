@@ -18,8 +18,8 @@ export function formatBalance(amount) {
     maximumFractionDigits: 2 
   })
   const colorClass = isNegative 
-    ? 'text-red-700 dark:text-red-200' 
-    : 'text-green-700 dark:text-green-200'
+    ? 'amount-negative' 
+    : 'amount-positive'
   
   return { 
     text: `${isNegative ? '-' : ''}$${formatted}`, 

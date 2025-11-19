@@ -2,7 +2,7 @@
   <select name="recurring_category" id="recurring-category-select" 
           data-recurring-modal-target="categorySelect"
           data-action="change->recurring-modal#toggleCustomCategory"
-          class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-success-500 focus:border-success-500 dark:focus:border-success-300 transition-all">
+          class="w-full px-4 py-3 border-2 border-neutral-200 dark:border-neutral-600 bg-neutral-50 dark:bg-primary-900 text-neutral-base rounded-lg focus-ring-success transition-all">
     <option value="">None</option>
     <% @categories.each do |category| %>
       <option value="<%= category %>"><%= category.humanize %></option>

@@ -60,19 +60,19 @@ module CalendarHelper
   end
 
   def calendar_day_bg_class(total:, in_current_month: true, is_today: false, is_weekend: false)
-    return "bg-gray-50 dark:bg-gray-900" unless in_current_month
+    return "bg-neutral-50 dark:bg-neutral-900" unless in_current_month
 
     base = if total > 0
-      "bg-green-50 dark:bg-green-900/15"
+      "day-bg-positive"
     elsif total < 0
-      "bg-red-50 dark:bg-red-900/15"
+      "day-bg-negative"
     else
-      "bg-white dark:bg-gray-800"
+      "day-bg-neutral"
     end
 
-    # Add subtle weekend tint (very light gray overlay)
-    weekend_class = is_weekend ? " bg-gray-50/50 dark:bg-gray-700/20" : ""
-    today_class = is_today ? " border-2 border-primary-700/40 dark:border-primary-500/40" : ""
+    # Add subtle weekend tint and today border using semantic utilities
+    weekend_class = is_weekend ? " day-bg-weekend" : ""
+    today_class = is_today ? " day-border-today" : ""
 
     base + weekend_class + today_class
   end
@@ -104,7 +104,7 @@ module CalendarHelper
   def format_date_range_with_count(start_date, end_date, count, year)
     {
       value: "#{start_date.strftime('%b %d')} - #{end_date.strftime('%b %d')}".html_safe,
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{count} transactions</span>".html_safe,
+      subtitle: "<span class='font-semibold text-neutral-base'>#{count} transactions</span>".html_safe,
       detail: year.to_s
     }
   end
@@ -235,8 +235,8 @@ module CalendarHelper
   # @return [String] HTML for view switcher button
   def view_switcher_button(view:, icon:, label:, active:, path:)
     base_classes = "inline-flex items-center justify-center w-10 h-10 md:px-4 md:py-2 md:w-auto md:h-auto rounded-md text-xs md:text-sm font-medium transition-all"
-    active_classes = "bg-primary-700 text-white shadow-sm"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+    active_classes = "btn-toggle-active shadow-sm"
+    inactive_classes = "nav-link-inactive"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -274,26 +274,26 @@ module CalendarHelper
     if spending_rate > 100
       {
         status: "Ahead of pace",
-        pace_color: "text-red-600 dark:text-red-400",
-        bar_color: "bg-red-400",
-        indicator_bg: "bg-red-100 dark:bg-red-900/30",
-        indicator_text: "text-red-700 dark:text-red-400"
+        pace_color: "pace-ahead",
+        bar_color: "pace-ahead-bg",
+        indicator_bg: "pace-ahead-badge",
+        indicator_text: "pace-ahead"
       }
     elsif spending_rate > 75
       {
         status: "On track",
-        pace_color: "text-yellow-600 dark:text-yellow-400",
-        bar_color: "bg-yellow-400",
-        indicator_bg: "bg-yellow-100 dark:bg-yellow-900/30",
-        indicator_text: "text-yellow-700 dark:text-yellow-400"
+        pace_color: "pace-on-track",
+        bar_color: "pace-on-track-bg",
+        indicator_bg: "pace-on-track-badge",
+        indicator_text: "pace-on-track"
       }
     else
       {
         status: "Behind pace",
-        pace_color: "text-green-600 dark:text-green-400",
-        bar_color: "bg-green-400",
-        indicator_bg: "bg-green-100 dark:bg-green-900/30",
-        indicator_text: "text-green-700 dark:text-green-400"
+        pace_color: "pace-behind",
+        bar_color: "pace-behind-bg",
+        indicator_bg: "pace-behind-badge",
+        indicator_text: "pace-behind"
       }
     end
   end

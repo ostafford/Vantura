@@ -13,20 +13,20 @@
     <!-- Connected Accounts Display -->
     <% if Current.user.accounts.any? %>
       <section id="connected-accounts-section" class="mt-6 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Connected Accounts</h2>
+        <h2 class="text-xl font-bold text-neutral-base mb-4">Connected Accounts</h2>
         <ul id="connected-accounts-list" class="space-y-0" aria-label="Connected bank accounts">
           <% Current.user.accounts.each do |account| %>
-            <li id="account-<%= account.id %>-item" class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0" data-controller="collapsible">
+            <li id="account-<%= account.id %>-item" class="flex items-center justify-between py-3 border-b border-table-divider last:border-0" data-controller="collapsible">
               <div class="flex-1 flex items-center justify-between cursor-pointer" data-action="click->collapsible#toggle">
                 <div>
-                  <p class="font-medium text-gray-900 dark:text-white"><%= account.display_name %></p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400"><%= account.account_type.humanize %></p>
+                  <p class="font-medium text-neutral-base"><%= account.display_name %></p>
+                  <p class="text-sm text-neutral-muted"><%= account.account_type.humanize %></p>
                 </div>
                 <div class="text-right mr-4">
-                  <p class="text-lg font-bold text-primary-700 dark:text-primary-500">
+                  <p class="text-lg font-bold text-brand">
                     $<%= number_with_precision(account.current_balance, precision: 2) %>
                   </p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                  <p class="text-xs text-neutral-muted">
                     Last synced: <%= account.last_synced_at ? time_ago_in_words(account.last_synced_at) + " ago" : "Never" %>
                   </p>
                 </div>
@@ -35,7 +35,7 @@
                         data-collapsible-target="toggle"
                         aria-expanded="false"
                         aria-controls="account-<%= account.id %>-details-content"
-                        class="flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                        class="flex items-center text-neutral-muted hover:text-neutral-label transition-colors"
                         aria-label="Toggle account details">
                   <svg class="w-5 h-5 transition-transform"
                        data-collapsible-target="icon"
@@ -47,7 +47,7 @@
                 </button>
               </div>
               <div id="account-<%= account.id %>-details-content"
-                   class="hidden w-full mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
+                   class="hidden w-full mt-3 pt-3 border-t border-table-divider"
                    data-collapsible-target="content">
                 <%= render 'settings/account_details', account: account %>
               </div>
@@ -60,8 +60,8 @@
     <!-- Bank Integrations Section -->
     <section id="bank-integrations-section" class="mt-6">
       <div class="mb-4">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Bank Integrations</h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Connect your bank accounts to sync transactions</p>
+        <h2 class="text-2xl font-bold text-neutral-base">Bank Integrations</h2>
+        <p class="text-sm text-neutral-muted mt-1">Connect your bank accounts to sync transactions</p>
       </div>
 
       <div id="bank-integrations-content">

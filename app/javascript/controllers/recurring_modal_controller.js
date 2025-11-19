@@ -35,7 +35,7 @@ export default class extends Controller {
     this.descriptionTarget.textContent = description
     
     const formattedAmount = (amount < 0 ? '-' : '+') + '$' + Math.abs(amount).toFixed(2)
-    const amountColor = amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
+    const amountColor = amount < 0 ? 'amount-negative' : 'amount-positive'
     this.amountTarget.textContent = formattedAmount
     this.amountTarget.className = 'font-semibold ' + amountColor
     
@@ -412,7 +412,7 @@ export default class extends Controller {
         if (suggestionDiv) {
           suggestionDiv.textContent = 'No pattern detected. Please select manually.'
           suggestionDiv.classList.remove('hidden')
-          suggestionDiv.className = 'mt-2 text-xs text-gray-500 dark:text-gray-400'
+          suggestionDiv.className = 'mt-2 text-xs text-neutral-muted'
         }
       }
     } catch (error) {
@@ -421,7 +421,7 @@ export default class extends Controller {
       if (suggestionDiv) {
         suggestionDiv.textContent = 'Unable to detect pattern. Please select manually.'
         suggestionDiv.classList.remove('hidden')
-        suggestionDiv.className = 'mt-2 text-xs text-red-500 dark:text-red-400'
+        suggestionDiv.className = 'mt-2 text-xs form-error'
       }
     } finally {
       button.disabled = false

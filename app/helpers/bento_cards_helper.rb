@@ -106,7 +106,7 @@ module BentoCardsHelper
   # @param balance [Numeric] Balance value
   # @return [String] CSS class for balance color
   def balance_color_class(balance)
-    balance >= 0 ? "text-green-400 dark:text-green-300" : "text-red-400 dark:text-red-300"
+    balance >= 0 ? "amount-positive" : "amount-negative"
   end
 
   # Format balance with color class

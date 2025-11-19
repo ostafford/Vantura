@@ -4,28 +4,35 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
-      /* Email-safe CSS - inline styles in templates will override these */
+      /* Email-safe CSS - inline styles required for email client compatibility */
+      /* NOTE: Hex colors are intentional exceptions for email compatibility */
+      /* All colors are mapped to semantic design system tokens for reference */
       body {
         margin: 0;
         padding: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         font-size: 16px;
         line-height: 1.5;
+        /* Maps to: text-neutral-700 dark:text-neutral-200 */
         color: #333333;
+        /* Maps to: bg-neutral-50 dark:bg-neutral-900 */
         background-color: #f5f5f5;
       }
       /* Container for email content */
       .email-container {
         max-width: 600px;
         margin: 0 auto;
+        /* Maps to: bg-white dark:bg-neutral-800 */
         background-color: #ffffff;
       }
       /* Link styling */
       a {
+        /* Maps to: text-primary-600 dark:text-primary-400 */
         color: #2563eb;
         text-decoration: underline;
       }
       a:hover {
+        /* Maps to: text-primary-700 dark:text-primary-300 */
         color: #1d4ed8;
       }
       /* Basic typography */

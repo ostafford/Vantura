@@ -130,21 +130,21 @@ export default class extends Controller {
     // Update button states
     if (this.hasMerchantButtonTarget) {
       if (this.currentViewType === "merchant") {
-        this.merchantButtonTarget.classList.add("bg-primary-700", "text-white")
-        this.merchantButtonTarget.classList.remove("bg-gray-100", "dark:bg-gray-800", "text-gray-700", "dark:text-gray-300")
+        this.merchantButtonTarget.classList.remove("btn-toggle-inactive")
+        this.merchantButtonTarget.classList.add("btn-toggle-active")
       } else {
-        this.merchantButtonTarget.classList.remove("bg-primary-700", "text-white")
-        this.merchantButtonTarget.classList.add("bg-gray-100", "dark:bg-gray-800", "text-gray-700", "dark:text-gray-300")
+        this.merchantButtonTarget.classList.remove("btn-toggle-active")
+        this.merchantButtonTarget.classList.add("btn-toggle-inactive")
       }
     }
 
     if (this.hasCategoryButtonTarget) {
       if (this.currentViewType === "category") {
-        this.categoryButtonTarget.classList.add("bg-primary-700", "text-white")
-        this.categoryButtonTarget.classList.remove("bg-gray-100", "dark:bg-gray-800", "text-gray-700", "dark:text-gray-300")
+        this.categoryButtonTarget.classList.remove("btn-toggle-inactive")
+        this.categoryButtonTarget.classList.add("btn-toggle-active")
       } else {
-        this.categoryButtonTarget.classList.remove("bg-primary-700", "text-white")
-        this.categoryButtonTarget.classList.add("bg-gray-100", "dark:bg-gray-800", "text-gray-700", "dark:text-gray-300")
+        this.categoryButtonTarget.classList.remove("btn-toggle-active")
+        this.categoryButtonTarget.classList.add("btn-toggle-inactive")
       }
     }
   }

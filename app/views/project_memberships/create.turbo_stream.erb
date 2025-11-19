@@ -2,9 +2,9 @@
   <%= turbo_frame_tag "project-members-section" do %>
     <div>
       <div class="flex items-center justify-between mb-2">
-        <div class="text-white/80 text-xs font-medium uppercase tracking-wider">Members</div>
+        <div class="text-overlay-subtle text-xs font-medium uppercase tracking-wider">Members</div>
         <% if can_manage_members?(@project) %>
-          <button type="button" data-action="click->modal#open" class="text-white/80 hover:text-white text-xs font-medium uppercase tracking-wider transition-colors">
+          <button type="button" data-action="click->modal#open" class="btn-overlay-text text-xs font-medium uppercase tracking-wider">
             + Add Member
           </button>
         <% end %>
@@ -15,16 +15,16 @@
           <% @project.members.each do |member| %>
             <% membership = membership_by_user[member.id] %>
             <% level = membership&.access_level || 'limited' %>
-            <div id="<%= dom_id(membership || member) %>" class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/15 backdrop-blur-sm rounded-lg border border-white/25">
-              <div class="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center text-white font-medium text-xs">
+            <div id="<%= dom_id(membership || member) %>" class="inline-flex items-center gap-2 px-3 py-1.5 surface-member-card">
+              <div class="w-7 h-7 rounded-full surface-member-avatar flex items-center justify-center text-white font-medium text-xs">
                 <%= user_display_name(member).first.upcase %>
               </div>
-              <span class="text-white/90 text-sm"><%= user_display_name(member) %></span>
-              <span class="ml-2 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded bg-white/20 text-white/90 border border-white/30">
+              <span class="text-member-name text-sm"><%= user_display_name(member) %></span>
+              <span class="ml-2 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded badge-member-level">
                 <%= level == 'full' ? 'Full' : 'Limited' %>
               </span>
               <% if can_manage_members?(@project) && membership %>
-                <%= button_to project_membership_path(@project, membership), method: :delete, form: { data: { turbo: true }, class: "ml-2" }, class: "text-white/60 hover:text-white transition-colors", title: "Remove member" do %>
+                <%= button_to project_membership_path(@project, membership), method: :delete, form: { data: { turbo: true }, class: "ml-2" }, class: "btn-overlay-action", title: "Remove member" do %>
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                   </svg>
@@ -34,7 +34,7 @@
           <% end %>
         </div>
       <% else %>
-        <div id="project-members-empty" class="text-white/60 text-sm italic">
+        <div id="project-members-empty" class="text-overlay-empty">
           No additional members
         </div>
       <% end %>
@@ -51,23 +51,23 @@
        data-notification-type-value="success"
        data-notification-auto-dismiss-value="true"
        data-notification-dismiss-after-value="5000"
-       class="w-96 bg-white/95 dark:bg-primary-700/95 backdrop-blur-sm rounded-xl shadow-deep pointer-events-auto overflow-hidden transform translate-x-full opacity-0 transition-all duration-300 ease-out">
+       class="w-96 surface-notification rounded-xl shadow-deep pointer-events-auto overflow-hidden transform translate-x-full opacity-0 transition-all duration-300 ease-out">
     <div class="p-4">
       <div class="flex items-start">
         <div class="flex-shrink-0">
-          <svg class="h-6 w-6 text-success-500 dark:text-success-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-6 w-6 icon-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div class="ml-3 w-0 flex-1 pt-0.5">
-          <p class="text-success-700 dark:text-success-300 text-sm font-medium">
+          <p class="status-success-text text-sm font-medium">
             Member added successfully
           </p>
         </div>
         <div class="ml-4 flex-shrink-0 flex">
           <button type="button" 
                   data-action="click->notification#dismiss"
-                  class="text-success-500 dark:text-success-300 hover:text-success-700 dark:hover:text-success-500">
+                  class="icon-success hover-success">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>

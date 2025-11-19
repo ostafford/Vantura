@@ -11,7 +11,7 @@
       <button type="button"
               data-action="click->collapsible#toggle"
               data-collapsible-target="toggle"
-              class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg surface-card-light text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 surface-info-hover transition-colors"
               title="Dismissed insights"
               aria-expanded="false">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,8 +26,8 @@
       </button>
       
       <div data-collapsible-target="content" 
-           class="hidden absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-3 z-50 space-y-1.5">
-        <p class="text-xs font-semibold text-gray-900 dark:text-white mb-2">Restore Dismissed Insights</p>
+           class="hidden absolute right-0 top-full mt-2 w-64 surface-card-medium rounded-lg shadow-deep border border-neutral-200 dark:border-neutral-700 p-3 z-50 space-y-1.5">
+        <p class="text-xs font-semibold text-neutral-900 dark:text-white mb-2">Restore Dismissed Insights</p>
         <% 
           insight_type_labels = {
             "spending_velocity" => "Spending Velocity",
@@ -46,7 +46,7 @@
           <%= form_with url: insights_undismiss_path, method: :post, local: false, class: "block" do |f| %>
             <%= f.hidden_field :insight_type, value: insight_type %>
             <%= f.button type: :submit, 
-                class: "w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors",
+                class: "w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md surface-card-medium text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-600 surface-info-hover transition-colors",
                 data: { 
                   controller: "insight-restore",
                   action: "click->insight-restore#restore"

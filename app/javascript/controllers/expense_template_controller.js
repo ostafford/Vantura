@@ -101,7 +101,7 @@ export default class extends Controller {
     
     if (templates.length === 0) {
       ul.innerHTML = `
-        <li class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+        <li class="px-4 py-3 text-sm text-neutral-muted">
           ${this.inputTarget.value.trim() ? 'No templates found' : 'No templates available'}
         </li>
       `
@@ -115,14 +115,14 @@ export default class extends Controller {
       const amount = template.last_amount ? this.formatCurrency(template.last_amount / 100.0) : 'N/A'
       
       return `
-        <li class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer border-b border-gray-200 dark:border-gray-700 last:border-b-0" 
+        <li class="px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer border-b border-neutral-200 dark:border-neutral-700 last:border-b-0" 
             data-index="${index}"
             role="button"
             tabindex="0">
           <div class="flex items-center justify-between">
             <div class="flex-1">
-              <p class="text-sm font-medium text-gray-900 dark:text-white">${merchant} - ${category}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">Last: ${amount}</p>
+              <p class="text-sm font-medium text-neutral-base">${merchant} - ${category}</p>
+              <p class="text-xs text-neutral-muted">Last: ${amount}</p>
             </div>
           </div>
         </li>

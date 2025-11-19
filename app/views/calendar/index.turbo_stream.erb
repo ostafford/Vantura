@@ -5,7 +5,7 @@
 
 <%# Update the view switcher buttons (Month/Week toggle) %>
 <%= turbo_stream.update "calendar-view-switcher" do %>
-  <div class="inline-flex rounded-lg bg-white dark:bg-gray-800 p-0.5 md:p-1 shadow-lg">
+  <div class="inline-flex rounded-lg bg-white dark:bg-neutral-800 p-0.5 md:p-1 shadow-lg">
     <% week_switch_date = calendar_week_switch_date(@view, @date) %>
     <%= view_switcher_button(
       view: 'month',
@@ -28,7 +28,7 @@
     <!-- Date Picker -->
     <%= date_field_tag :jump_to_date, 
         @date,
-        class: "px-3 py-2 text-sm border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 dark:focus:border-primary-500 transition-all",
+        class: "input-base input-focus transition-all",
         id: "calendar-date-picker-input",
         title: "Jump to specific date",
         aria: { label: "Jump to specific date" },
@@ -40,7 +40,7 @@
     <!-- Today Button -->
     <% today_path = calendar_today_path(@view, Date.today) %>
     <%= link_to(today_path,
-        class: "inline-flex items-center justify-center w-10 h-10 md:px-4 md:py-2 md:w-auto md:h-auto border-2 border-primary-700/30 dark:border-primary-500/20 rounded-xl md:rounded-2xl text-primary-700 dark:text-primary-500 bg-primary-700/5 dark:bg-primary-700/10 hover:bg-primary-700/10 dark:hover:bg-primary-700/20 hover:border-primary-700 dark:hover:border-primary-500 hover:shadow-lg hover:scale-105 transition-all font-medium text-xs md:text-sm",
+        class: "inline-flex items-center justify-center w-10 h-10 md:px-4 md:py-2 md:w-auto md:h-auto border-2 surface-primary-border rounded-xl md:rounded-2xl text-brand surface-primary surface-primary-hover hover:shadow-lg hover:scale-105 transition-all font-medium text-xs md:text-sm",
         title: "Jump to today",
         aria: { label: "Jump to today" },
         data: { turbo_frame: 'calendar_content', action: "click->frame-navigation#navigate" }) do %>

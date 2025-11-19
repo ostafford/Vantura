@@ -30,20 +30,20 @@
   # Color classes based on color scheme
   case color
   when 'red', 'coral', 'expense'
-    bg_gradient = 'bg-expense-100 dark:bg-expense-900/20'
-    icon_bg = 'bg-expense-200 dark:bg-expense-900/30'
-    icon_text = 'text-expense-500 dark:text-expense-400'
-    value_text = 'text-expense-500 dark:text-expense-400'
+    bg_gradient = 'card-bg-expense'
+    icon_bg = 'icon-bg-expense-alt'
+    icon_text = 'text-expense-light'
+    value_text = 'text-expense-light'
   when 'green', 'gold', 'income'
-    bg_gradient = 'bg-income-200 dark:bg-income-900/20'
-    icon_bg = 'bg-income-400 dark:bg-income-900/30'
-    icon_text = 'text-income-700 dark:text-income-400'
-    value_text = 'text-income-700 dark:text-income-400'
-  else # blue
-    bg_gradient = 'from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800'
-    icon_bg = 'bg-blue-100 dark:bg-blue-900/30'
-    icon_text = 'text-primary-700 dark:text-primary-500'
-    value_text = 'text-primary-700 dark:text-primary-500'
+    bg_gradient = 'card-bg-income'
+    icon_bg = 'icon-bg-income-alt'
+    icon_text = 'text-income-dark'
+    value_text = 'text-income-dark'
+  else # info / default
+    bg_gradient = 'from-info-50 to-white dark:from-info-900/10 dark:to-neutral-800'
+    icon_bg = 'surface-info'
+    icon_text = 'text-info-dark'
+    value_text = 'text-info-dark'
   end
   
   # Build CSS classes
@@ -73,14 +73,14 @@
           
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
-              <p class="stat-card-title text-sm font-medium text-gray-600 dark:text-gray-400"><%= title %></p>
+              <p class="stat-card-title text-sm font-medium text-neutral-600 dark:text-neutral-400"><%= title %></p>
               <% if tooltip.present? %>
                 <span class="cursor-help"
                       data-controller="tooltip"
                       data-tooltip-content-value="<%= tooltip %>"
                       data-tooltip-position-value="top"
                       data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">
-                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-neutral-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </span>
@@ -100,12 +100,12 @@
       
       <!-- Section 2: Subtitle and Detail (footer) -->
       <% if subtitle.present? || detail.present? %>
-        <div class="stat-card-footer pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="stat-card-footer pt-4 border-t border-neutral-200 dark:border-neutral-700">
           <% if subtitle.present? %>
-            <p class="stat-card-subtitle text-sm text-gray-500 dark:text-gray-400"><%= subtitle %></p>
+            <p class="stat-card-subtitle text-sm text-neutral-muted"><%= subtitle %></p>
           <% end %>
           <% if detail.present? %>
-            <p class="stat-card-detail text-xs text-gray-400 dark:text-gray-500 mt-1"><%= detail %></p>
+            <p class="stat-card-detail text-xs text-neutral-400 dark:text-neutral-500 mt-1"><%= detail %></p>
           <% end %>
         </div>
       <% end %>
@@ -126,14 +126,14 @@
           
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
-              <p class="stat-card-title text-sm font-medium text-gray-600 dark:text-gray-400"><%= title %></p>
+              <p class="stat-card-title text-sm font-medium text-neutral-600 dark:text-neutral-400"><%= title %></p>
               <% if tooltip.present? %>
                 <span class="cursor-help"
                       data-controller="tooltip"
                       data-tooltip-content-value="<%= tooltip %>"
                       data-tooltip-position-value="top"
                       data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">
-                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-neutral-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </span>
@@ -153,12 +153,12 @@
       
       <!-- Section 2: Subtitle and Detail (footer) -->
       <% if subtitle.present? || detail.present? %>
-        <div class="stat-card-footer pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="stat-card-footer pt-4 border-t border-neutral-200 dark:border-neutral-700">
           <% if subtitle.present? %>
-            <p class="stat-card-subtitle text-sm text-gray-500 dark:text-gray-400"><%= subtitle %></p>
+            <p class="stat-card-subtitle text-sm text-neutral-muted"><%= subtitle %></p>
           <% end %>
           <% if detail.present? %>
-            <p class="stat-card-detail text-xs text-gray-400 dark:text-gray-500 mt-1"><%= detail %></p>
+            <p class="stat-card-detail text-xs text-neutral-400 dark:text-neutral-500 mt-1"><%= detail %></p>
           <% end %>
         </div>
       <% end %>

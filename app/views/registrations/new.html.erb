@@ -7,7 +7,7 @@
       <!-- Header -->
       <header id="user-registration-header" class="px-4 py-4 bg-gradient-to-r from-primary-700 to-primary-500 dark:from-primary-900 dark:to-primary-700 md:px-8 md:py-6">
         <h1 id="user-registration-heading" class="text-2xl font-bold text-white md:text-3xl">Create Account</h1>
-        <p class="text-xs font-normal text-orange-100 mt-1 md:text-sm">Join Vantura to track your finances</p>
+        <p class="text-xs font-normal text-header-subtitle mt-1 md:text-sm">Join Vantura to track your finances</p>
       </header>
 
       <!-- Form -->
@@ -27,7 +27,7 @@
 
         <!-- Name -->
         <div id="user-registration-name-field">
-          <label for="user-name-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label for="user-name-input" class="block text-sm font-medium text-neutral-label mb-2">
             Full Name
           </label>
           <%= form.text_field :name,
@@ -38,20 +38,20 @@
               aria_required: false,
               aria_invalid: (@user.errors[:name].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:name].any? ? "user-name-error" : nil),
-              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-base transition-all focus-ring-primary focus:border-transparent" %>
           <% if @user.errors[:name].any? %>
             <div id="user-name-error" class="text-sm font-normal form-error mt-1" role="alert">
               <%= @user.errors[:name].first %>
             </div>
           <% end %>
-          <p class="text-xs font-normal text-gray-500 dark:text-gray-400 mt-1 md:text-sm">
+          <p class="text-xs font-normal text-neutral-muted mt-1 md:text-sm">
             Optional - This name will be displayed in project cards and member lists
           </p>
         </div>
 
         <!-- Email Address -->
         <div id="user-registration-email-field">
-          <label for="user-email-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label for="user-email-input" class="block text-sm font-medium text-neutral-label mb-2">
             Email Address
           </label>
           <%= form.email_field :email_address,
@@ -63,7 +63,7 @@
               aria_required: true,
               aria_invalid: (@user.errors[:email_address].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:email_address].any? ? "user-email-error" : nil),
-              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-base transition-all focus-ring-primary focus:border-transparent" %>
           <% if @user.errors[:email_address].any? %>
             <div id="user-email-error" class="text-sm font-normal form-error mt-1" role="alert">
               <%= @user.errors[:email_address].first %>
@@ -73,7 +73,7 @@
 
         <!-- Password -->
         <div id="user-registration-password-field">
-          <label for="user-password-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label for="user-password-input" class="block text-sm font-medium text-neutral-label mb-2">
             Password
           </label>
           <%= form.password_field :password,
@@ -85,20 +85,20 @@
               aria_required: true,
               aria_invalid: (@user.errors[:password].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:password].any? ? "user-password-error" : nil),
-              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-base transition-all focus-ring-primary focus:border-transparent" %>
           <% if @user.errors[:password].any? %>
             <div id="user-password-error" class="text-sm font-normal form-error mt-1" role="alert">
               <%= @user.errors[:password].first %>
             </div>
           <% end %>
-          <p class="text-xs font-normal text-gray-500 dark:text-gray-400 mt-1 md:text-sm">
+          <p class="text-xs font-normal text-neutral-muted mt-1 md:text-sm">
             Must be at least 8 characters
           </p>
         </div>
 
         <!-- Password Confirmation -->
         <div id="user-registration-password-confirmation-field">
-          <label for="user-password-confirmation-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label for="user-password-confirmation-input" class="block text-sm font-medium text-neutral-label mb-2">
             Confirm Password
           </label>
           <%= form.password_field :password_confirmation,
@@ -110,7 +110,7 @@
               aria_required: true,
               aria_invalid: (@user.errors[:password_confirmation].any? ? "true" : "false"),
               aria_describedby: (@user.errors[:password_confirmation].any? ? "user-password-confirmation-error" : nil),
-              class: "w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-primary-700 focus:border-transparent" %>
+              class: "w-full px-4 py-3 rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-base transition-all focus-ring-primary focus:border-transparent" %>
           <% if @user.errors[:password_confirmation].any? %>
             <div id="user-password-confirmation-error" class="text-sm font-normal form-error mt-1" role="alert">
               <%= @user.errors[:password_confirmation].first %>
@@ -122,14 +122,14 @@
         <div id="user-registration-actions">
           <%= form.submit "Create Account",
               id: "user-registration-submit-button",
-              class: "relative w-full min-h-[44px] px-6 py-3 rounded-xl text-center font-semibold text-white bg-gradient-to-r from-primary-700 to-primary-500 shadow-lg transition-all hover:from-primary-900 hover:to-primary-600" %>
+              class: "relative w-full min-h-[44px] action-primary text-center" %>
         </div>
 
         <!-- Sign In Link -->
         <div class="text-center">
-          <p class="text-sm font-normal text-gray-600 dark:text-gray-400">
+          <p class="text-sm font-normal text-neutral-600 dark:text-neutral-400">
             Already have an account?
-            <%= link_to "Sign in", new_session_path, class: "font-medium text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-500" %>
+            <%= link_to "Sign in", new_session_path, class: "font-medium link-primary" %>
           </p>
         </div>
       <% end %>
@@ -137,7 +137,7 @@
 
     <!-- Footer -->
     <div class="mt-6 text-center">
-      <p class="text-xs font-normal text-gray-500 dark:text-gray-400">
+      <p class="text-xs font-normal text-neutral-muted">
         By creating an account, you agree to securely store your Up Bank Personal Access Token.
         <br>
         Your token is encrypted and never shared.

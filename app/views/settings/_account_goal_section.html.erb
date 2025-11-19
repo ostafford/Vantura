@@ -2,30 +2,30 @@
 <% rate_percentage_value = goal_form_state&.dig(:rate_percentage) || account_goal_rate_percentage(account) %>
 <% amount_value = goal_form_state&.dig(:amount_value) || account.target_savings_amount %>
 
-<section class="bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/30 dark:to-primary-800 rounded-xl border border-primary-100 dark:border-primary-700 p-4"
+<section class="surface-card-gradient rounded-xl border border-primary-200 dark:border-primary-800 p-4"
          aria-labelledby="<%= dom_id(account, "goal_section_title") %>">
   <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
     <div>
       <h4 id="<%= dom_id(account, "goal_section_title") %>"
-          class="text-base font-semibold text-primary-900 dark:text-white">
+          class="text-base heading-brand">
         Monthly Savings Goal
       </h4>
-      <p class="text-sm text-primary-700 dark:text-primary-200 mt-1">
+      <p class="text-sm body-brand mt-1">
         Decide how much you want to keep after covering expenses. We’ll use this goal to guide budgets and insights.
       </p>
     </div>
     <div class="md:text-right">
-      <p class="text-sm font-medium text-primary-900 dark:text-primary-100">
+      <p class="text-sm heading-brand">
         <%= account_goal_summary(account) %>
       </p>
-      <p class="text-xs text-primary-600 dark:text-primary-300 mt-1">
+      <p class="text-xs caption-brand mt-1">
         <%= account_goal_last_updated(account) %>
       </p>
     </div>
   </div>
 
   <% if goal_feedback.present? %>
-    <div class="<%= goal_feedback[:type] == :notice ? 'bg-green-50 border-green-200 text-green-900 dark:bg-green-900/30 dark:border-green-700 dark:text-green-200' : 'bg-red-50 border-red-200 text-red-900 dark:bg-red-900/30 dark:border-red-700 dark:text-red-200' %> border rounded-lg px-4 py-3 mt-4"
+    <div class="<%= goal_feedback[:type] == :notice ? 'surface-success-feedback surface-success-feedback-border text-success-feedback' : 'surface-danger surface-danger-border text-danger-body' %> rounded-lg px-4 py-3 mt-4"
          role="status">
       <p class="text-sm font-medium"><%= goal_feedback[:message] %></p>
     </div>
@@ -37,12 +37,12 @@
                 data: { controller: "savings-goal" },
                 html: { class: "mt-4 space-y-4" } do |form| %>
     <fieldset class="space-y-3" data-savings-goal-target="fieldset">
-      <legend class="text-sm font-semibold text-primary-900 dark:text-primary-100">
+      <legend class="text-sm heading-brand">
         Choose how you want to set your goal
       </legend>
 
       <div class="space-y-2">
-        <label class="flex items-start gap-3 p-3 bg-white dark:bg-primary-900/40 border border-primary-100 dark:border-primary-700 rounded-lg hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
+        <label class="radio-label-base">
           <%= form.radio_button :goal_mode,
                                  "break_even",
                                  checked: selected_mode == :break_even,
@@ -53,15 +53,15 @@
                                  aria: { describedby: "#{dom_id(account, :goal_break_even_description)}" },
                                  class: "mt-1" %>
           <span>
-            <span class="text-sm font-semibold text-primary-900 dark:text-primary-100">Break even</span>
+            <span class="text-sm heading-brand">Break even</span>
             <span id="<%= dom_id(account, :goal_break_even_description) %>"
-                  class="block text-xs text-primary-600 dark:text-primary-300">
+                  class="block text-xs caption-brand">
               Cover expenses and finish the month at $0.
             </span>
           </span>
         </label>
 
-        <label class="flex items-start gap-3 p-3 bg-white dark:bg-primary-900/40 border border-primary-100 dark:border-primary-700 rounded-lg hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
+        <label class="radio-label-base">
           <%= form.radio_button :goal_mode,
                                  "rate",
                                  checked: selected_mode == :rate,
@@ -72,9 +72,9 @@
                                  aria: { describedby: "#{dom_id(account, :goal_rate_description)}" },
                                  class: "mt-1" %>
           <span>
-            <span class="text-sm font-semibold text-primary-900 dark:text-primary-100">Save a percentage</span>
+            <span class="text-sm heading-brand">Save a percentage</span>
             <span id="<%= dom_id(account, :goal_rate_description) %>"
-                  class="block text-xs text-primary-600 dark:text-primary-300">
+                  class="block text-xs caption-brand">
               Pick the share of income you want left over for savings or investing.
             </span>
           </span>
@@ -84,7 +84,7 @@
              data-savings-goal-target="rateGroup"
              data-visible="<%= selected_mode == :rate %>">
           <label for="<%= dom_id(account, :goal_rate_input) %>"
-                 class="block text-xs font-medium text-primary-700 dark:text-primary-200 mb-1">
+                 class="block text-xs font-medium body-brand mb-1">
             Savings percentage (0% - 30%)
           </label>
           <div class="flex items-center gap-2">
@@ -98,15 +98,15 @@
                                     savings_goal_target: "rateInput",
                                     action: "input->savings-goal#updateRateValue change->savings-goal#updateRateValue"
                                   },
-                                  class: "w-28 px-3 py-2 text-sm bg-white dark:bg-primary-900/60 border border-primary-200 dark:border-primary-600 rounded-lg text-primary-900 dark:text-primary-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent" %>
-            <span class="text-sm font-semibold text-primary-800 dark:text-primary-200"
+                                  class: "w-28 px-3 py-2 text-sm input-primary-bg surface-primary-border rounded-lg heading-brand focus-ring focus:border-transparent" %>
+            <span class="text-sm font-semibold body-brand"
                   data-savings-goal-target="rateValue">
               <%= number_with_precision(rate_percentage_value.to_f, precision: 1, strip_insignificant_zeros: true) %>%
             </span>
           </div>
         </div>
 
-        <label class="flex items-start gap-3 p-3 bg-white dark:bg-primary-900/40 border border-primary-100 dark:border-primary-700 rounded-lg hover:border-primary-300 dark:hover:border-primary-500 transition-colors">
+        <label class="radio-label-base">
           <%= form.radio_button :goal_mode,
                                  "amount",
                                  checked: selected_mode == :amount,
@@ -117,9 +117,9 @@
                                  aria: { describedby: "#{dom_id(account, :goal_amount_description)}" },
                                  class: "mt-1" %>
           <span>
-            <span class="text-sm font-semibold text-primary-900 dark:text-primary-100">Save a fixed amount</span>
+            <span class="text-sm heading-brand">Save a fixed amount</span>
             <span id="<%= dom_id(account, :goal_amount_description) %>"
-                  class="block text-xs text-primary-600 dark:text-primary-300">
+                  class="block text-xs caption-brand">
               Set an exact dollar amount you want left over each month.
             </span>
           </span>
@@ -129,11 +129,11 @@
              data-savings-goal-target="amountGroup"
              data-visible="<%= selected_mode == :amount %>">
           <label for="<%= dom_id(account, :goal_amount_input) %>"
-                 class="block text-xs font-medium text-primary-700 dark:text-primary-200 mb-1">
+                 class="block text-xs font-medium body-brand mb-1">
             Savings amount (minimum $1)
           </label>
           <div class="relative max-w-xs">
-            <span class="absolute inset-y-0 left-3 flex items-center text-sm text-primary-500 dark:text-primary-300">$</span>
+            <span class="absolute inset-y-0 left-3 flex items-center text-sm accent-brand">$</span>
             <%= form.number_field :target_savings_amount_value,
                                   value: amount_value.present? ? number_with_precision(amount_value, precision: 2) : nil,
                                   id: dom_id(account, :goal_amount_input),
@@ -142,18 +142,18 @@
                                   data: {
                                     savings_goal_target: "amountInput"
                                   },
-                                  class: "w-full pl-7 pr-3 py-2 text-sm bg-white dark:bg-primary-900/60 border border-primary-200 dark:border-primary-600 rounded-lg text-primary-900 dark:text-primary-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent" %>
+                                  class: "w-full pl-7 pr-3 py-2 text-sm input-primary-bg surface-primary-border rounded-lg heading-brand focus-ring focus:border-transparent" %>
           </div>
         </div>
       </div>
     </fieldset>
 
     <div class="flex items-center justify-between">
-      <p class="text-xs text-primary-600 dark:text-primary-300">
+      <p class="text-xs caption-brand">
         Tip: You can update this goal anytime. We’ll show your progress in insights and budgets.
       </p>
       <%= form.submit "Save goal",
-                      class: "inline-flex items-center px-4 py-2 bg-primary-700 hover:bg-primary-900 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" %>
+                      class: "action-primary px-4 py-2 text-sm" %>
     </div>
   <% end %>
 </section>

@@ -2,7 +2,7 @@
 <% if @view == 'week' %>
   <% prev_week_date = @date - 1.week %>
   <% next_week_date = @date + 1.week %>
-  <%= render 'shared/month_navigation', 
+  <%= render 'shared/ui/month_navigation', 
       title: "Week of #{@date.beginning_of_week(:monday).strftime('%b %d')} - #{@date.end_of_week(:monday).strftime('%b %d, %Y')}",
       prev_path: calendar_month_path(prev_week_date.year, prev_week_date.month, prev_week_date.day, view: 'week'),
       next_path: calendar_month_path(next_week_date.year, next_week_date.month, next_week_date.day, view: 'week'),
@@ -12,7 +12,7 @@
     <%= add_transaction_button %>
   <% end %>
 <% else %>
-  <%= render 'shared/month_navigation', 
+  <%= render 'shared/ui/month_navigation', 
       prev_path: calendar_month_path(@date.prev_month.year, @date.prev_month.month, view: 'month'),
       next_path: calendar_month_path(@date.next_month.year, @date.next_month.month, view: 'month'),
       current_date: @date,

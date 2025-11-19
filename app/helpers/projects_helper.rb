@@ -10,7 +10,7 @@ module ProjectsHelper
   # Format percentage change with sign and appropriate styling
   # Returns HTML-safe string with +/- sign and color classes
   def format_percentage_change(change_pct)
-    return content_tag(:span, "N/A", class: "text-gray-500 dark:text-gray-400") if change_pct.nil?
+    return content_tag(:span, "N/A", class: "text-neutral-muted") if change_pct.nil?
 
     # Round to 1 decimal place if not already
     value = change_pct.is_a?(Numeric) ? change_pct.round(1) : 0.0
@@ -20,7 +20,7 @@ module ProjectsHelper
     sign = is_positive ? "+" : ""
 
     # Color classes based on direction
-    color_class = is_positive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+    color_class = is_positive ? "amount-positive" : "amount-negative"
 
     content_tag(:span, "#{sign}#{value}%", class: "font-semibold #{color_class}")
   end
@@ -50,11 +50,11 @@ module ProjectsHelper
       percentage_text = percentage ? " • #{percentage}%" : ""
 
       content_tag(:div, class: "flex items-center justify-between text-xs") do
-        content_tag(:span, class: "text-gray-600 dark:text-gray-400") do
-          content_tag(:span, h(category_name), class: "font-medium text-gray-700 dark:text-gray-300") +
-          (percentage ? content_tag(:span, percentage_text, class: "text-gray-500 dark:text-gray-500") : "".html_safe)
+        content_tag(:span, class: "text-neutral-muted") do
+          content_tag(:span, h(category_name), class: "font-medium text-neutral-label") +
+          (percentage ? content_tag(:span, percentage_text, class: "text-neutral-muted") : "".html_safe)
         end +
-        content_tag(:span, format_cents(cat_total), class: "font-semibold text-gray-700 dark:text-gray-300")
+        content_tag(:span, format_cents(cat_total), class: "font-semibold text-neutral-label")
       end
     end
 

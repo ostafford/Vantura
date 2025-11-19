@@ -12,7 +12,7 @@
          aria-hidden="true"></div>
     
     <!-- Drawer Panel (slides in from right - responsive width) -->
-    <div class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-primary-700 shadow-deep shadow-deep-border flex flex-col transform translate-x-full transition-transform duration-500 ease-in-out border-l-2 border-gray-300 dark:border-gray-700 md:top-16 md:bottom-0 z-50"
+    <div class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-primary-700 shadow-deep shadow-deep-border flex flex-col transform translate-x-full transition-transform duration-500 ease-in-out border-l-2 border-neutral-300 dark:border-neutral-700 md:top-16 md:bottom-0 z-50"
          data-modal-target="drawer">
       
       <!-- Drawer Header -->
@@ -61,7 +61,7 @@
           <div class="space-y-5">
             <!-- Transaction Type -->
             <fieldset>
-              <legend class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Transaction Type</legend>
+              <legend class="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-3">Transaction Type</legend>
               <div class="grid grid-cols-2 gap-3">
                 <label for="transaction-type-expense-radio" class="transaction-type-option cursor-pointer">
                   <%= f.radio_button :transaction_type, 'expense', 
@@ -69,12 +69,12 @@
                       id: "transaction-type-expense-radio",
                       class: "hidden transaction-type-radio",
                       data: { action: "change->modal#updateTransactionTypeUI", modal_target: "typeRadio" } %>
-                  <div class="transaction-type-card border-2 border-expense-500 dark:border-expense-500 bg-red-50 dark:bg-red-900/20 rounded-lg p-4 text-center transition-all hover:shadow-md"
+                  <div class="transaction-type-card border-2 border-expense-solid amount-negative-bg rounded-lg p-4 text-center transition-all hover:shadow-md"
                        data-modal-target="typeCard">
-                    <svg class="w-8 h-8 mx-auto mb-2 text-expense-500 dark:text-expense-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-8 h-8 mx-auto mb-2 text-expense-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                     </svg>
-                    <span class="font-semibold text-sm text-expense-700 dark:text-expense-400">Expense</span>
+                    <span class="font-semibold text-sm text-expense-dark">Expense</span>
                   </div>
                 </label>
                 
@@ -83,12 +83,12 @@
                       id: "transaction-type-income-radio",
                       class: "hidden transaction-type-radio",
                       data: { action: "change->modal#updateTransactionTypeUI", modal_target: "typeRadio" } %>
-                  <div class="transaction-type-card border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg p-4 text-center hover:border-success-500 hover:shadow-md transition-all"
+                  <div class="transaction-type-card border-2 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded-lg p-4 text-center hover-border-success hover:shadow-md transition-all"
                        data-modal-target="typeCard">
-                    <svg class="w-8 h-8 mx-auto mb-2 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-8 h-8 mx-auto mb-2 icon-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
                     </svg>
-                    <span class="font-semibold text-sm text-success-700 dark:text-success-300">Income</span>
+                    <span class="font-semibold text-sm status-success-text">Income</span>
                   </div>
                 </label>
               </div>
@@ -96,11 +96,11 @@
 
             <!-- Description -->
             <div>
-              <label for="transaction-description-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+              <label for="transaction-description-input" class="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                 <span id="transaction-description-label" data-modal-target="descriptionLabel">What are you buying?</span>
               </label>
               <%= f.text_field :description, 
-                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 dark:focus:border-primary-500 transition-all",
+                  class: "w-full px-4 py-3 border-2 border-neutral-200 dark:border-neutral-600 bg-neutral-50 dark:bg-primary-900 text-neutral-base rounded-lg focus-ring-primary focus:border-primary-700 dark:focus:border-primary-500 transition-all",
                   placeholder: "e.g., New laptop, Restaurant dinner",
                   id: "transaction-description-input",
                   data: { modal_target: "transactionDescription" },
@@ -117,14 +117,14 @@
 
             <!-- Amount -->
             <div>
-              <label for="transaction-amount-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+              <label for="transaction-amount-input" class="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                 <span id="transaction-amount-label" data-modal-target="amountLabel">How much will it cost?</span>
               </label>
               <div class="relative">
-                <span class="absolute left-4 top-3 text-gray-500 dark:text-gray-400 text-lg font-semibold">$</span>
+                <span class="absolute left-4 top-3 text-neutral-muted text-lg font-semibold">$</span>
                 <%= f.number_field :amount, 
                     step: 0.01,
-                    class: "w-full pl-10 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 dark:focus:border-primary-500 transition-all text-lg",
+                    class: "w-full pl-10 pr-4 py-3 border-2 border-neutral-200 dark:border-neutral-600 bg-neutral-50 dark:bg-primary-900 text-neutral-base rounded-lg focus-ring-primary focus:border-primary-700 dark:focus:border-primary-500 transition-all text-lg",
                     placeholder: "0.00",
                     id: "transaction-amount-input",
                     autocomplete: "off",
@@ -142,12 +142,12 @@
 
             <!-- Date -->
             <div>
-              <label for="transaction-date-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+              <label for="transaction-date-input" class="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                 <span id="transaction-date-label" data-modal-target="dateLabel">When do you plan to buy it?</span>
               </label>
               <%= f.date_field :transaction_date, 
                   value: default_transaction_date,
-                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 dark:focus:border-primary-500 transition-all",
+                  class: "w-full px-4 py-3 border-2 border-neutral-200 dark:border-neutral-600 bg-neutral-50 dark:bg-primary-900 text-neutral-base rounded-lg focus-ring-primary focus:border-primary-700 dark:focus:border-primary-500 transition-all",
                   id: "transaction-date-input",
                   autocomplete: "off",
                   required: true,
@@ -162,11 +162,11 @@
 
             <!-- Category -->
             <div>
-              <label for="transaction-category-input" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                Category <span class="text-gray-400 dark:text-gray-500 font-normal">(optional)</span>
+              <label for="transaction-category-input" class="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
+                Category <span class="text-neutral-400 dark:text-neutral-500 font-normal">(optional)</span>
               </label>
               <%= f.text_field :category, 
-                  class: "w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-primary-900 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-700 focus:border-primary-700 dark:focus:border-primary-500 transition-all",
+                  class: "w-full px-4 py-3 border-2 border-neutral-200 dark:border-neutral-600 bg-neutral-50 dark:bg-primary-900 text-neutral-base rounded-lg focus-ring-primary focus:border-primary-700 dark:focus:border-primary-500 transition-all",
                   placeholder: "e.g., shopping, entertainment, food",
                   id: "transaction-category-input",
                   autocomplete: "off",
@@ -181,7 +181,7 @@
           </div>
 
           <!-- Drawer Footer (Sticky at bottom) -->
-          <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div class="mt-6 pt-6 border-t border-neutral-200 dark:border-neutral-700">
             <div class="flex gap-3">
               <%= f.submit "Add Transaction", 
                   id: "transaction-submit-button",
@@ -189,7 +189,7 @@
               <button type="button" 
                       id="transaction-form-cancel-button"
                       data-action="click->modal#close" 
-                      class="px-5 py-3 bg-white dark:bg-primary-950 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-primary-900 font-semibold transition-all">
+                      class="px-5 py-3 bg-white dark:bg-primary-950 border-2 border-neutral-300 dark:border-neutral-600 text-neutral-label rounded-lg hover:bg-neutral-50 dark:hover:bg-primary-900 font-semibold transition-all">
                 Cancel
               </button>
             </div>

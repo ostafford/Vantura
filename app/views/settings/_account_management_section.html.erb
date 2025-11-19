@@ -1,7 +1,7 @@
 <!-- Danger Zone - Account Deletion -->
-<div id="account-deletion-section" class="mt-6 bg-gradient-to-br from-red-50 to-white dark:from-red-900/10 dark:to-gray-800 rounded-2xl shadow-deep overflow-hidden">
-  <div class="bg-red-50 dark:bg-red-900/20 px-6 py-4 border-b border-red-200 dark:border-red-800">
-    <h2 class="text-xl font-bold text-red-900 dark:text-red-100 flex items-center">
+<div id="account-deletion-section" class="mt-6 bg-gradient-to-br from-expense-50 to-white dark:from-expense-900/10 dark:to-neutral-800 rounded-2xl shadow-deep overflow-hidden">
+  <div class="surface-danger surface-danger-border px-6 py-4 border-b">
+    <h2 class="text-xl font-bold text-danger-heading flex items-center">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
       </svg>
@@ -10,14 +10,14 @@
   </div>
 
   <div class="p-6">
-    <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Delete Account</h3>
-    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+    <h3 class="font-semibold text-neutral-base mb-2">Delete Account</h3>
+    <p class="text-sm text-neutral-muted mb-4">
       Permanently delete your Vantura account and all associated data. This action cannot be undone.
     </p>
 
-    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
-      <p class="text-sm font-medium text-red-900 dark:text-red-100 mb-2">This will permanently delete:</p>
-      <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
+    <div class="surface-danger surface-danger-border rounded-lg p-4 mb-4">
+      <p class="text-sm font-medium text-danger-heading mb-2">This will permanently delete:</p>
+      <ul class="text-sm text-danger-body space-y-1 ml-5 list-disc">
         <li>Your user account and login credentials</li>
         <li>Your encrypted Up Bank token</li>
         <li>All synced bank accounts (<%= @statistics[:accounts_count] %> account<%= @statistics[:accounts_count] == 1 ? '' : 's' %>)</li>
@@ -27,8 +27,8 @@
       </ul>
     </div>
 
-    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
-      <p class="text-sm text-yellow-800 dark:text-yellow-200">
+    <div class="surface-warning-notice surface-warning-notice-border rounded-lg p-4 mb-4">
+      <p class="text-sm text-warning-notice">
         <strong>Note:</strong> This only deletes your Vantura account. Your actual Up Bank account and 
         transactions remain unaffected. You can always sign up again and re-sync your data.
       </p>
@@ -41,7 +41,7 @@
               data-collapsible-target="toggle"
               aria-expanded="false"
               aria-controls="account-deletion-confirmation-section"
-              class="inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all font-semibold shadow-lg">
+              class="btn-destructive-full px-6 py-3">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
         </svg>
@@ -50,20 +50,20 @@
 
       <!-- Confirmation Section (Collapsible) -->
       <div id="account-deletion-confirmation-section"
-           class="hidden mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6"
+           class="hidden mt-4 surface-danger surface-danger-border rounded-lg p-6"
            data-controller="deletion"
            data-collapsible-target="content">
-      <h4 class="text-lg font-semibold text-red-900 dark:text-red-100 mb-4">Final Confirmation Required</h4>
+      <h4 class="text-lg font-semibold text-danger-heading mb-4">Final Confirmation Required</h4>
       
-      <p class="text-sm text-red-800 dark:text-red-200 mb-4">
+      <p class="text-sm text-danger-body mb-4">
         To confirm account deletion, please type <strong>DELETE</strong> in the field below.
       </p>
 
       <% transactions_count = Current.user.accounts.joins(:transactions).count %>
       
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4 border border-red-200 dark:border-red-800">
-        <p class="text-sm font-medium text-red-900 dark:text-red-100 mb-2">Summary of what will be deleted:</p>
-        <ul class="text-sm text-red-800 dark:text-red-200 space-y-1 ml-5 list-disc">
+      <div class="surface-card-base rounded-lg p-4 mb-4 surface-danger-border">
+        <p class="text-sm font-medium text-danger-heading mb-2">Summary of what will be deleted:</p>
+        <ul class="text-sm text-danger-body space-y-1 ml-5 list-disc">
           <li>Your user account and login credentials</li>
           <li>Your encrypted Up Bank token</li>
           <li><%= pluralize(@statistics[:accounts_count], 'synced bank account') %></li>
@@ -81,7 +81,7 @@
         <%= hidden_field_tag :confirmation_token, session[:deletion_token], id: "account-deletion-token-input" %>
         
         <div>
-          <label for="account-deletion-input" class="block text-sm font-medium text-red-900 dark:text-red-100 mb-2">
+          <label for="account-deletion-input" class="label-base text-danger-heading">
             Type "DELETE" to confirm
           </label>
           <%= text_field_tag :confirmation_text,
@@ -95,9 +95,9 @@
               aria_required: false,
               aria_invalid: "false",
               aria_describedby: "account-deletion-error",
-              class: "w-full px-4 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-red-300 dark:border-red-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all font-mono" %>
+              class: "w-full px-4 py-3 text-neutral-base bg-white dark:bg-neutral-800 input-danger rounded-xl transition-all font-mono focus:outline-none" %>
           <div id="account-deletion-error"
-               class="hidden text-sm text-red-600 dark:text-red-400 mt-1"
+               class="hidden form-error mt-1"
                data-deletion-target="error"
                role="alert">
             The confirmation text must match "DELETE" exactly.
@@ -109,11 +109,11 @@
               id: "account-deletion-submit-button",
               data: { deletion_target: "submit" },
               disabled: true,
-              class: "inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-xl font-semibold shadow-lg opacity-50 cursor-not-allowed transition-all" %>
+              class: "btn-destructive-full opacity-50 cursor-not-allowed" %>
           <button type="button"
                   id="account-deletion-cancel-button"
                   data-action="click->collapsible#toggle"
-                  class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 hover:shadow-md transition-all font-semibold">
+                  class="btn-secondary">
             Cancel
           </button>
         </div>

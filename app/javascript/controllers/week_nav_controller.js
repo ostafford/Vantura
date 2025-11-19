@@ -177,8 +177,8 @@ export default class extends Controller {
       button.type = 'button'
       button.className = `w-full px-3 py-2 text-sm text-left rounded-lg transition-all ${
         isCurrentWeek 
-          ? 'bg-primary-700 text-white dark:bg-primary-600' 
-          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+          ? 'btn-toggle-active' 
+          : 'btn-toggle-inactive'
       }`
       button.dataset.action = 'click->week-nav#selectWeek'
       button.dataset.weekStartYear = week.start.getFullYear()

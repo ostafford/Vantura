@@ -7,32 +7,32 @@
   avg_daily_expenses = spending_rate_data[:avg_daily_expenses] || 0
 %>
 
-<div class="col-span-1 row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-deep p-6">
+<div class="col-span-1 row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-neutral-800 dark:to-neutral-900 rounded-2xl shadow-deep p-6">
   <div class="flex flex-col h-full">
     <!-- Header -->
     <div class="mb-4">
       <div class="flex items-center gap-2">
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Spending Rate</h3>
+        <h3 class="text-base font-semibold text-neutral-base">Spending Rate</h3>
         <span class="cursor-help"
               data-controller="tooltip"
               data-tooltip-content-value="Spending rate compares your daily spending to daily income. A rate above 1.0 means you're spending more than you earn daily."
               data-tooltip-position-value="top"
               data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">
-          <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 text-neutral-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </span>
       </div>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">vs Income Rate</p>
+      <p class="text-xs text-neutral-muted mt-1">vs Income Rate</p>
     </div>
 
     <!-- Main Value -->
     <div class="flex-1 mb-4">
       <div class="mb-3">
-        <p class="text-3xl font-bold text-primary-700 dark:text-primary-400">
+        <p class="text-3xl font-bold text-brand">
           <%= number_with_precision(spending_rate, precision: 2) %>
         </p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p class="text-xs text-neutral-muted mt-1">
           Daily spending / Daily income
         </p>
       </div>
@@ -41,23 +41,23 @@
       <div class="mb-3">
         <div class="flex items-center justify-between mb-1">
           <div class="flex items-center gap-1">
-            <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">Income Utilization</span>
+            <span class="text-xs font-semibold text-neutral-600 dark:text-neutral-400">Income Utilization</span>
             <span class="cursor-help"
                   data-controller="tooltip"
                   data-tooltip-content-value="Percentage of your income used for expenses. Above 100% means you're spending more than you earn."
                   data-tooltip-position-value="top"
                   data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">
-              <svg class="w-3 h-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-3 h-3 text-neutral-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </span>
           </div>
-          <span class="text-xs font-semibold <%= income_utilization_pct > 100 ? 'text-expense-600 dark:text-expense-400' : 'text-success-600 dark:text-success-400' %>">
+          <span class="text-xs font-semibold <%= income_utilization_pct > 100 ? 'amount-negative' : 'status-success' %>">
             <%= number_with_precision(income_utilization_pct, precision: 1) %>%
           </span>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-          <div class="h-2 rounded-full <%= income_utilization_pct > 100 ? 'bg-expense-500' : 'bg-success-500' %>" 
+        <div class="w-full bg-neutral-200 rounded-full h-2 dark:bg-neutral-700">
+          <div class="h-2 rounded-full <%= income_utilization_pct > 100 ? 'progress-expense' : 'progress-success' %>" 
                style="width: <%= [income_utilization_pct, 100].min %>%"></div>
         </div>
       </div>
@@ -66,27 +66,27 @@
     <!-- Nested Tiles -->
     <div class="space-y-2">
       <% if days_of_income_remaining.present? && days_of_income_remaining.positive? %>
-        <div class="rounded-xl bg-white/80 p-3 shadow-deep dark:bg-gray-800/60">
-          <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Days Remaining</p>
-          <p class="mt-1 text-lg font-semibold text-success-600 dark:text-success-400">
+        <div class="rounded-xl bg-white/80 p-3 shadow-deep dark:bg-neutral-800/60">
+          <p class="text-xs font-semibold uppercase tracking-wide text-neutral-muted">Days Remaining</p>
+          <p class="mt-1 text-lg font-semibold status-success">
             <%= number_with_precision(days_of_income_remaining, precision: 1) %> days
           </p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">of income at current pace</p>
+          <p class="text-xs text-neutral-muted">of income at current pace</p>
         </div>
       <% end %>
 
-      <div class="rounded-xl bg-white/80 p-3 shadow-deep dark:bg-gray-800/60">
-        <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Daily Average</p>
+      <div class="rounded-xl bg-white/80 p-3 shadow-deep dark:bg-neutral-800/60">
+        <p class="text-xs font-semibold uppercase tracking-wide text-neutral-muted">Daily Average</p>
         <div class="mt-1 space-y-1">
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-600 dark:text-gray-400">Income</span>
-            <span class="text-sm font-semibold text-income-600 dark:text-income-400">
+            <span class="text-xs text-neutral-600 dark:text-neutral-400">Income</span>
+            <span class="text-sm font-semibold amount-positive">
               $<%= number_with_precision(avg_daily_income, precision: 2) %>
             </span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-600 dark:text-gray-400">Expenses</span>
-            <span class="text-sm font-semibold text-expense-600 dark:text-expense-400">
+            <span class="text-xs text-neutral-600 dark:text-neutral-400">Expenses</span>
+            <span class="text-sm font-semibold amount-negative">
               $<%= number_with_precision(avg_daily_expenses, precision: 2) %>
             </span>
           </div>

@@ -1,6 +1,6 @@
 <!-- Desktop Navbar - Sticky top navigation -->
 <nav id="main-navbar" 
-     class="hidden lg:block sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm"
+     class="hidden lg:block sticky top-0 z-50 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 shadow-sm"
      aria-label="Main navigation">
   <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
     <!-- Navigation Row -->
@@ -9,7 +9,7 @@
       <div class="flex items-center gap-6 lg:gap-8 flex-1 min-w-0">
         <!-- Logo -->
         <%= link_to root_path, 
-            class: "flex items-center gap-2 text-primary-700 dark:text-primary-500 hover:opacity-80 transition-opacity flex-shrink-0",
+            class: "flex items-center gap-2 text-brand hover:opacity-80 transition-opacity flex-shrink-0",
             id: "navbar-logo-link" do %>
           <svg class="w-8 h-8 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.84-.95-6.5-4.5-6.5-8.5V8.3l6.5-3.11 6.5 3.11v3.2c0 4-2.66 7.55-6.5 8.5z"/>
@@ -33,7 +33,7 @@
         <!-- Sync Button (if account exists) -->
         <% if Current.user&.accounts&.any? %>
           <%= button_to sync_path, method: :post, 
-              class: "inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium bg-primary-700 text-white rounded-lg hover:bg-primary-900 transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900", 
+              class: "inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium bg-primary-700 text-white rounded-lg hover:bg-primary-900 transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900", 
               data: { controller: "sync", action: "submit->sync#submit", disable_with: "Syncing..." },
               title: "Sync with Up Bank",
               id: "navbar-sync-button" do %>
@@ -48,7 +48,7 @@
         <button type="button" 
                 data-action="click->theme#toggle" 
                 data-theme-target="button"
-                class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-neutral-label bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
                 title="Toggle theme"
                 id="navbar-theme-toggle-button">
           <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@
           <button type="button" 
                   data-action="click->dropdown#toggle"
                   data-dropdown-target="button"
-                  class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                  class="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-neutral-label bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
                   aria-label="User menu"
                   aria-expanded="false"
                   id="navbar-user-menu-button">
@@ -74,11 +74,11 @@
 
           <!-- Dropdown Menu -->
           <div data-dropdown-target="menu"
-               class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50"
+               class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-neutral-200 dark:border-neutral-700 py-1 z-50"
                id="navbar-user-menu-dropdown">
             <!-- Settings Link -->
             <%= link_to settings_path, 
-                class: "flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors",
+                class: "flex items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-label hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors",
                 id: "navbar-settings-link" do %>
               <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -88,13 +88,13 @@
             <% end %>
 
             <!-- Divider -->
-            <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+            <div class="border-t border-neutral-200 dark:border-neutral-700 my-1"></div>
 
             <!-- Sign Out Button -->
             <% if authenticated? %>
               <%= button_to session_path, method: :delete,
                   form: { data: { turbo_confirm: "Are you sure you want to sign out?" } },
-                  class: "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left",
+                  class: "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-neutral-label hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors text-left",
                   id: "navbar-sign-out-button" do %>
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>

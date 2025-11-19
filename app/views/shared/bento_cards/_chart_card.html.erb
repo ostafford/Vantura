@@ -10,14 +10,14 @@
   # Icon color schemes
   case icon_color
   when 'success'
-    icon_bg = 'bg-success-500/10 dark:bg-success-700/20'
-    icon_text = 'text-success-500 dark:text-success-300'
+    icon_bg = 'surface-success-light bg-success-opacity'
+    icon_text = 'icon-success'
   when 'income'
-    icon_bg = 'bg-income-500/10 dark:bg-income-500/20'
-    icon_text = 'text-income-700 dark:text-income-400'
+    icon_bg = 'icon-bg-income-alt'
+    icon_text = 'text-income-dark'
   else # primary
     icon_bg = 'bg-primary-700/10 dark:bg-primary-500/20'
-    icon_text = 'text-primary-700 dark:text-primary-500'
+    icon_text = 'text-brand'
   end
   
   # Chart type icons
@@ -38,9 +38,9 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-4">
     <div>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white"><%= title %></h3>
+      <h3 class="text-lg font-semibold text-neutral-base"><%= title %></h3>
       <% if subtitle.present? %>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"><%= subtitle %></p>
+        <p class="text-sm text-neutral-muted mt-1"><%= subtitle %></p>
       <% end %>
     </div>
     <div class="inline-flex items-center justify-center w-10 h-10 <%= icon_bg %> rounded-lg">
@@ -51,13 +51,13 @@
   </div>
   
   <!-- Chart Placeholder -->
-  <div class="h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-primary-950 dark:to-primary-900 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600">
+  <div class="h-full flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-primary-950 dark:to-primary-900 rounded-xl border-2 border-dashed border-neutral-300 dark:border-neutral-600">
     <div class="text-center p-8">
-      <svg class="w-20 h-20 mx-auto text-gray-400 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-20 h-20 mx-auto text-neutral-400 dark:text-neutral-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <%= icon_svg.html_safe %>
       </svg>
-      <p class="text-gray-600 dark:text-gray-400 font-medium text-lg"><%= chart_name %> Coming Soon</p>
-      <p class="text-sm text-gray-500 dark:text-gray-500 mt-2"><%= description %></p>
+      <p class="text-neutral-600 dark:text-neutral-400 font-medium text-lg"><%= chart_name %> Coming Soon</p>
+      <p class="text-sm text-neutral-500 dark:text-neutral-500 mt-2"><%= description %></p>
     </div>
   </div>
 </div>

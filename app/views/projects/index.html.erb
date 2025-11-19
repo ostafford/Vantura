@@ -2,7 +2,7 @@
 <% content_for :page_header_title, "Projects" %>
 <% content_for :page_header_subtitle, "Manage your shared expense projects" %>
 <% content_for :page_header_actions do %>
-    <%= link_to new_project_path, class: "inline-flex items-center justify-center w-12 h-12 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-xl border border-primary-600 dark:border-primary-500 hover:scale-110 hover:shadow-lg transition-all", title: "New Project" do %>
+    <%= link_to new_project_path, class: "inline-flex items-center justify-center w-12 h-12 btn-primary-icon hover:scale-110 hover:shadow-lg transition-all", title: "New Project" do %>
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
       </svg>
@@ -17,46 +17,46 @@
     </section>
 
     <!-- Projects List Table -->
-    <section class="bg-gradient-to-br from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-deep" aria-label="Projects list">
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Projects List</h2>
+    <section class="surface-table-container rounded-lg shadow-deep" aria-label="Projects list">
+      <div class="px-6 py-4 border-table-divider border-b">
+        <h2 class="text-xl font-bold text-neutral-base">Projects List</h2>
       </div>
 
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+        <table class="min-w-full divide-table-divider divide-y">
+          <thead class="bg-table-header">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Participants</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-muted uppercase tracking-wider">Participants</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-neutral-muted uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody id="projects-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody id="projects-table-body" class="bg-white dark:bg-neutral-800 divide-table-divider divide-y">
             <% if @projects_data[:projects].any? %>
               <% @projects_data[:projects].each do |project| %>
                 <tr>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <%= link_to project.name, project_path(project), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 font-medium" %>
+                    <%= link_to project.name, project_path(project), class: "link-primary font-medium" %>
                   </td>
                   <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900 dark:text-gray-100">
+                    <div class="text-sm text-neutral-900 dark:text-neutral-100">
                       <%= (project.participants.map { |u| user_display_name(u) }).join(", ") %>
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <%= link_to "View", project_path(project), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300" %>
+                    <%= link_to "View", project_path(project), class: "link-primary" %>
                   </td>
                 </tr>
               <% end %>
             <% else %>
               <tr>
                 <td colspan="3" class="px-6 py-12 text-center">
-                  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
-                  <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No projects</h3>
-                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating your first project.</p>
-                  <%= link_to "New Project", new_project_path, class: "mt-4 inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg font-medium transition-colors" %>
+                  <h3 class="mt-2 text-sm font-medium text-neutral-base">No projects</h3>
+                  <p class="mt-1 text-sm text-neutral-muted">Get started by creating your first project.</p>
+                  <%= link_to "New Project", new_project_path, class: "mt-4 btn-primary" %>
                 </td>
               </tr>
             <% end %>

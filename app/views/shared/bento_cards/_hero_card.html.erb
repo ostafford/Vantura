@@ -14,14 +14,14 @@
     'primary' => 'from-primary-700 to-primary-900 dark:from-primary-700 dark:to-primary-950',
     'success' => 'from-success-500 to-success-700 dark:from-success-700 dark:to-success-900',
     'expense' => 'from-expense-500 to-expense-700 dark:from-expense-700 dark:to-expense-900',
-    'neutral' => 'from-neutral-100 to-white dark:from-gray-800 dark:to-gray-900'
+    'neutral' => 'from-neutral-100 to-white dark:from-neutral-800 dark:to-neutral-900'
   }
 
   text_color_map = {
     'primary' => 'text-white',
     'success' => 'text-white',
     'expense' => 'text-white',
-    'neutral' => 'text-gray-900 dark:text-white'
+    'neutral' => 'text-neutral-base'
   }
 
   gradient_classes = color_map[color_scheme] || color_map['primary']
@@ -49,13 +49,13 @@
   icon_size_class = is_compact ? 'w-10 h-10' : 'w-12 h-12'
   icon_svg_size = is_compact ? 'w-6 h-6' : 'w-7 h-7'
   subtitle_container_classes = 'hero-subtitle text-lg font-semibold mt-0.5'
-  subtitle_container_classes += text_color_class.include?('text-white') ? ' text-white/80' : ' text-gray-600 dark:text-gray-300'
+  subtitle_container_classes += text_color_class.include?('text-white') ? ' text-white/80' : ' text-neutral-label'
   title_container_classes = "hero-title #{title_size_class} font-bold"
   title_container_classes += ' flex items-center gap-2' if status_badge.present?
   description_text_classes = if text_color_class.include?('text-white')
                                'text-white/80'
                              else
-                               'text-gray-600 dark:text-gray-300'
+                               'text-neutral-label'
                              end
 %>
 

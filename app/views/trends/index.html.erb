@@ -10,7 +10,7 @@
       <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <!-- Time Range Selector -->
         <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Time Range:</span>
+          <span class="text-sm font-medium text-neutral-label">Time Range:</span>
           <% ["current", 3, 6, 12, "all"].each do |months| %>
             <% 
               current_selection = session[:trends_months] || 6
@@ -22,7 +22,7 @@
               end
             %>
             <%= link_to trends_path(months: months),
-                        class: "px-4 py-2 text-sm font-medium rounded-lg transition-colors #{active ? 'bg-primary-700 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}" do %>
+                        class: "px-4 py-2 text-sm font-medium rounded-lg transition-colors #{active ? 'btn-toggle-active' : 'btn-toggle-inactive'}" do %>
               <%= months == "all" ? "All" : (months == "current" ? "Current" : "#{months}M") %>
             <% end %>
           <% end %>
@@ -30,13 +30,13 @@
 
         <!-- View Type Toggle -->
         <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">View by:</span>
+          <span class="text-sm font-medium text-neutral-label">View by:</span>
           <% ["category", "merchant"].each do |view_type| %>
             <% active = (session[:trends_view_type] || "category") == view_type %>
             <%= button_to update_preference_trends_path,
                           method: :patch,
                           params: { view_type: view_type },
-                          class: "px-4 py-2 text-sm font-medium rounded-lg transition-colors #{active ? 'bg-primary-700 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}" do %>
+                          class: "px-4 py-2 text-sm font-medium rounded-lg transition-colors #{active ? 'btn-toggle-active' : 'btn-toggle-inactive'}" do %>
               <%= view_type.capitalize %>
             <% end %>
           <% end %>
@@ -48,14 +48,14 @@
         <section id="trends-financial-insights-section" class="mb-6" aria-label="Financial insights">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Financial Insights</h2>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Actionable recommendations based on your spending patterns</p>
+              <h2 class="text-2xl font-bold text-neutral-base">Financial Insights</h2>
+              <p class="text-sm text-neutral-muted mt-1">Actionable recommendations based on your spending patterns</p>
             </div>
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <% @trends_stats[:insights].each do |insight| %>
-              <%= render 'shared/insight_card', insight: insight %>
+              <%= render 'shared/ui/insight_card', insight: insight %>
             <% end %>
           </div>
         </section>
@@ -64,19 +64,19 @@
       <!-- Charts Section -->
       <% if trends_historical_data.present? %>
         <section class="mb-6" aria-label="Financial trends charts" data-controller="trends">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Trends & Visualizations</h2>
+          <h2 class="text-2xl font-bold text-neutral-base mb-4">Trends & Visualizations</h2>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <!-- Spending Trends Chart (Line Chart) -->
-            <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6" id="spending-trends-chart-card">
+            <div class="surface-empty-state rounded-2xl shadow-deep p-6" id="spending-trends-chart-card">
               <div class="mb-4">
                 <div class="flex items-center gap-2">
-                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Spending Trends</h3>
+                  <h3 class="text-lg font-semibold text-neutral-base">Spending Trends</h3>
                   <span class="cursor-help"
                         data-controller="tooltip"
                         data-tooltip-content-value="Track your income, expenses, and net savings over time."
                         data-tooltip-position-value="top"
                         data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">
-                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-neutral-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </span>
@@ -93,7 +93,7 @@
                     date_range_text = "#{start_date.strftime('%b %Y')} - #{trends_current_date.strftime('%b %Y')}"
                   end
                 %>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Income vs Expenses over time • <%= date_range_text %></p>
+                <p class="text-sm text-neutral-muted mt-1">Income vs Expenses over time • <%= date_range_text %></p>
               </div>
               <div data-controller="chart"
                    data-chart-type-value="line"
@@ -103,13 +103,13 @@
                      { name: 'Net Savings', data: trends_historical_data.map { |d| d[:net_savings] } }
                    ].to_json %>"
                    data-chart-labels-value="<%= trends_historical_data.map { |d| d[:month_name] }.to_json %>"
-                   data-chart-colors-value="<%= ['#10B981', '#EF4444', '#3B82F6'].to_json %>"
+                   data-chart-colors-value="<%= trends_spending_chart_colors.to_json %>"
                    data-chart-height-value="300"
                    id="spending-trends-chart">
               </div>
               <!-- Footer with Links to Related Cards -->
-              <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+              <div class="mt-4 pt-4 border-t border-table-divider flex items-center justify-between">
+                <div class="flex items-center gap-4 text-xs text-neutral-muted">
                   <span>Related:</span>
                 </div>
               </div>
@@ -118,31 +118,31 @@
 
           <!-- Savings Rate Trend Chart (Line Chart) -->
           <% if trends_savings_rate_trend.present? %>
-            <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6" id="savings-rate-chart-card">
+            <div class="surface-empty-state rounded-2xl shadow-deep p-6" id="savings-rate-chart-card">
               <div class="mb-4">
                 <div class="flex items-center gap-2">
-                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Savings Rate Trend</h3>
+                  <h3 class="text-lg font-semibold text-neutral-base">Savings Rate Trend</h3>
                   <span class="cursor-help"
                         data-controller="tooltip"
                         data-tooltip-content-value="Track your savings rate percentage over time. A positive rate means you're saving money, while a negative rate indicates overspending."
                         data-tooltip-position-value="top"
                         data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">
-                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-neutral-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </span>
                 </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Percentage of income saved over time</p>
+                <p class="text-sm text-neutral-muted mt-1">Percentage of income saved over time</p>
               </div>
-              <% 
-                goal_rate_pct = @account&.target_savings_rate ? (@account.target_savings_rate * 100).round(1) : nil
-                chart_series = [{ name: 'Savings Rate', data: trends_savings_rate_trend.map { |d| d[:savings_rate] } }]
-                chart_colors = ['#10B981']
-                if goal_rate_pct.present? && goal_rate_pct > 0
-                  chart_series << { name: 'Goal', data: trends_savings_rate_trend.map { |d| d[:goal_rate] } }
-                  chart_colors << '#8B5CF6'
-                end
-              %>
+                <% 
+                  goal_rate_pct = @account&.target_savings_rate ? (@account.target_savings_rate * 100).round(1) : nil
+                  chart_series = [{ name: 'Savings Rate', data: trends_savings_rate_trend.map { |d| d[:savings_rate] } }]
+                  chart_colors = trends_savings_rate_chart_colors(include_goal: false)
+                  if goal_rate_pct.present? && goal_rate_pct > 0
+                    chart_series << { name: 'Goal', data: trends_savings_rate_trend.map { |d| d[:goal_rate] } }
+                    chart_colors = trends_savings_rate_chart_colors(include_goal: true)
+                  end
+                %>
               <div data-controller="chart"
                    data-chart-type-value="line"
                    data-chart-series-value="<%= chart_series.to_json %>"
@@ -152,9 +152,9 @@
                    id="savings-rate-chart">
               </div>
               <!-- Footer with Link to Related Card -->
-              <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div class="mt-4 pt-4 border-t border-table-divider">
                 <a href="#savings-rate-card" 
-                   class="text-xs text-primary-600 hover:text-primary-800 dark:text-primary-400 hover:underline"
+                   class="text-xs text-primary-600 dark:text-primary-400 hover:underline"
                    data-action="click->trends#scrollToCard">
                   View Current Savings Rate →
                 </a>
@@ -180,18 +180,18 @@
               <!-- Net Savings Tile -->
               <div class="rounded-xl bg-white/5 p-4 backdrop-blur-sm shadow-lg">
                 <div class="flex items-center gap-2 mb-3">
-                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg <%= trends_net_savings >= 0 ? 'bg-emerald-400/20 text-emerald-200' : 'bg-rose-500/20 text-rose-200' %>">
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg <%= trends_net_savings >= 0 ? 'icon-bg-success' : 'icon-bg-expense' %>">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </span>
                   <span class="text-xs font-semibold uppercase tracking-wide text-white/70">Net Savings</span>
                 </div>
-                <p class="text-3xl font-bold <%= trends_net_savings >= 0 ? 'text-emerald-200' : 'text-rose-200' %>">
+                <p class="text-3xl font-bold <%= trends_net_savings >= 0 ? 'amount-positive' : 'amount-negative' %>">
                   <%= trends_net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(trends_net_savings.abs, precision: 0) %>
                 </p>
                 <% if trends_net_change_pct && trends_net_change_pct != 0 %>
-                  <p class="mt-2 text-xs <%= trends_net_change_pct > 0 ? 'text-emerald-300' : 'text-rose-300' %>">
+                  <p class="mt-2 text-xs <%= trends_net_change_pct > 0 ? 'amount-positive' : 'amount-negative' %>">
                     <%= trends_net_change_pct > 0 ? "↑" : "↓" %><%= trends_net_change_pct.abs.round(1) %>% vs last month
                   </p>
                 <% end %>
@@ -200,7 +200,7 @@
               <!-- Savings Rate Tile -->
               <div class="rounded-xl bg-white/5 p-4 backdrop-blur-sm shadow-lg">
                 <div class="flex items-center gap-2 mb-3">
-                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg <%= trends_savings_rate >= 0 ? 'bg-emerald-400/20 text-emerald-200' : 'bg-rose-500/20 text-rose-200' %>">
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg <%= trends_savings_rate >= 0 ? 'icon-bg-success' : 'icon-bg-expense' %>">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
@@ -208,11 +208,11 @@
                   <span class="text-xs font-semibold uppercase tracking-wide text-white/70">Savings Rate</span>
                 </div>
                 <div class="flex items-baseline gap-2">
-                  <p class="text-3xl font-bold <%= trends_savings_rate >= 0 ? 'text-emerald-200' : 'text-rose-200' %>">
+                  <p class="text-3xl font-bold <%= trends_savings_rate >= 0 ? 'amount-positive' : 'amount-negative' %>">
                     <%= number_with_precision(trends_savings_rate, precision: 1) %>%
                   </p>
                   <% if trends_savings_rate_change != 0 %>
-                    <span class="text-xs <%= trends_savings_rate_change > 0 ? 'text-emerald-300' : 'text-rose-300' %>">
+                    <span class="text-xs <%= trends_savings_rate_change > 0 ? 'amount-positive' : 'amount-negative' %>">
                       <%= trends_savings_rate_change > 0 ? "↑" : "↓" %><%= trends_savings_rate_change.abs.round(1) %>%
                     </span>
                   <% end %>
@@ -237,14 +237,14 @@
               <!-- Income Utilization Tile -->
               <div class="rounded-xl bg-white/5 p-4 backdrop-blur-sm shadow-lg">
                 <div class="flex items-center gap-2 mb-3">
-                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg <%= trends_income_utilization_pct <= 80 ? 'bg-emerald-400/20 text-emerald-200' : (trends_income_utilization_pct <= 95 ? 'bg-amber-400/20 text-amber-200' : 'bg-rose-500/20 text-rose-200') %>">
+                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg <%= trends_income_utilization_pct <= 80 ? 'icon-bg-success' : (trends_income_utilization_pct <= 95 ? 'icon-bg-warning' : 'icon-bg-expense') %>">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                   </span>
                   <span class="text-xs font-semibold uppercase tracking-wide text-white/70">Income Utilization</span>
                 </div>
-                <p class="text-3xl font-bold <%= trends_income_utilization_pct <= 80 ? 'text-emerald-200' : (trends_income_utilization_pct <= 95 ? 'text-amber-200' : 'text-rose-200') %>">
+                <p class="text-3xl font-bold <%= trends_income_utilization_pct <= 80 ? 'amount-positive' : (trends_income_utilization_pct <= 95 ? 'text-warning-600 dark:text-warning-400' : 'amount-negative') %>">
                   <%= number_with_precision(trends_income_utilization_pct, precision: 1) %>%
                 </p>
                 <p class="mt-2 text-xs text-white/60">
@@ -291,13 +291,13 @@
 
 
         <!-- 5. Top Merchant Card (1x2) - Expanded -->
-        <div class="col-span-1 row-span-2 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6" id="top-merchant-card">
+        <div class="col-span-1 row-span-2 surface-empty-state rounded-2xl shadow-deep p-6" id="top-merchant-card">
           <div class="flex flex-col h-full">
             <!-- Header -->
             <div class="mb-4">
               <div class="flex items-center gap-2">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top <%= (session[:trends_view_type] || "category").capitalize %></h3>
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+                <h3 class="text-lg font-semibold text-neutral-base">Top <%= (session[:trends_view_type] || "category").capitalize %></h3>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold surface-primary surface-primary-border">
                   Top
                 </span>
                 <span class="cursor-help"
@@ -305,12 +305,12 @@
                       data-tooltip-content-value="Your highest spending <%= (session[:trends_view_type] || "category") %> this month. Shows total amount, percentage of expenses, and month-over-month change."
                       data-tooltip-position-value="top"
                       data-action="mouseenter->tooltip#show mouseleave->tooltip#hide">
-                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-neutral-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </span>
               </div>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p class="text-sm text-neutral-muted mt-1">
                 <%= trends_current_date.strftime('%B %Y') %>
               </p>
             </div>
@@ -319,18 +319,18 @@
             <div class="flex-1 space-y-4">
               <% top_item = trends_category_breakdown.first || { name: "No data", amount: 0, count: 0, change_pct: 0, change_amount: 0 } %>
               <!-- Item Name -->
-              <div class="pb-3 border-b border-gray-200 dark:border-gray-700">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1"><%= (session[:trends_view_type] || "category").capitalize %> Name</p>
-                <p class="text-lg font-bold text-gray-900 dark:text-white">
+              <div class="pb-3 border-b border-table-divider">
+                <p class="text-xs text-neutral-muted mb-1"><%= (session[:trends_view_type] || "category").capitalize %> Name</p>
+                <p class="text-lg font-bold text-neutral-base">
                   <%= truncate(top_item[:name], length: 25) %>
                 </p>
               </div>
 
               <!-- Total Amount -->
-              <div class="pb-3 border-b border-gray-200 dark:border-gray-700">
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Spent</p>
+              <div class="pb-3 border-b border-table-divider">
+                <p class="text-xs text-neutral-muted mb-1">Total Spent</p>
                 <div class="flex items-center gap-2">
-                <p class="text-2xl font-bold text-income-500 dark:text-income-400">
+                <p class="text-2xl font-bold text-income-light">
                   $<%= number_with_precision(top_item[:amount], precision: 2) %>
                 </p>
                   <% if top_item[:change_pct] && top_item[:change_pct] != 0 %>
@@ -340,7 +340,7 @@
                   <% end %>
                 </div>
                 <% if top_item[:change_amount] && top_item[:change_amount] != 0 %>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p class="text-xs text-neutral-muted mt-1">
                     <%= top_item[:change_amount] > 0 ? "+" : "" %>$<%= number_with_precision(top_item[:change_amount].abs, precision: 2) %> vs last month
                   </p>
                 <% end %>
@@ -351,15 +351,15 @@
               <% if total_expenses > 0 %>
                 <% item_pct = top_item[:pct_of_total] || ((top_item[:amount] / total_expenses) * 100).round(1) %>
                 <div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">of Total Expenses</p>
-                  <p class="text-3xl font-bold text-primary-700 dark:text-primary-400">
+                  <p class="text-xs text-neutral-muted mb-1">of Total Expenses</p>
+                  <p class="text-3xl font-bold text-brand">
                     <%= item_pct %>%
                   </p>
                 </div>
               <% else %>
                 <div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">of Total Expenses</p>
-                  <p class="text-3xl font-bold text-primary-700 dark:text-primary-400">
+                  <p class="text-xs text-neutral-muted mb-1">of Total Expenses</p>
+                  <p class="text-3xl font-bold text-brand">
                     N/A
                   </p>
                 </div>
@@ -367,17 +367,17 @@
             </div>
 
             <!-- Month Comparison Section -->
-            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">Month Comparison</p>
+            <div class="mt-4 pt-4 border-t border-table-divider">
+              <p class="text-xs font-semibold text-neutral-muted mb-3 uppercase tracking-wide">Month Comparison</p>
               <div class="space-y-2 text-sm">
                 <!-- Income -->
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-1.5">
-                    <div class="w-1.5 h-1.5 rounded-full bg-success-500 dark:bg-success-300"></div>
-                    <span class="text-xs text-gray-600 dark:text-gray-400">Income</span>
+                    <div class="w-1.5 h-1.5 rounded-full dot-success"></div>
+                    <span class="text-xs text-neutral-label">Income</span>
                   </div>
                   <div class="flex items-center gap-1">
-                    <span class="text-xs font-semibold text-success-500 dark:text-success-300">
+                    <span class="text-xs font-semibold icon-success">
                       $<%= number_with_precision(trends_current_month_income, precision: 0) %>
                     </span>
                     <% if trends_income_change_pct != 0 %>
@@ -391,11 +391,11 @@
                 <!-- Expenses -->
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-1.5">
-                    <div class="w-1.5 h-1.5 rounded-full bg-expense-500 dark:bg-expense-400"></div>
-                    <span class="text-xs text-gray-600 dark:text-gray-400">Expenses</span>
+                    <div class="w-1.5 h-1.5 rounded-full dot-expense"></div>
+                    <span class="text-xs text-neutral-label">Expenses</span>
                   </div>
                   <div class="flex items-center gap-1">
-                    <span class="text-xs font-semibold text-expense-500 dark:text-expense-400">
+                    <span class="text-xs font-semibold text-expense-light">
                       $<%= number_with_precision(trends_current_month_expenses, precision: 0) %>
                     </span>
                     <% if trends_expense_change_pct != 0 %>
@@ -407,13 +407,13 @@
                 </div>
 
                 <!-- Net -->
-                <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between pt-2 border-t border-table-divider">
                   <div class="flex items-center gap-1.5">
                     <div class="w-1.5 h-1.5 rounded-full bg-primary-700 dark:bg-primary-500"></div>
-                    <span class="text-xs font-semibold text-gray-900 dark:text-white">Net</span>
+                    <span class="text-xs font-semibold text-neutral-base">Net</span>
                   </div>
                   <div class="flex items-center gap-1">
-                    <span class="text-xs font-bold <%= trends_net_savings >= 0 ? 'text-success-600 dark:text-success-400' : 'text-expense-600 dark:text-expense-400' %>">
+                    <span class="text-xs font-bold <%= trends_net_savings >= 0 ? 'status-success' : 'amount-negative' %>">
                       <%= trends_net_savings >= 0 ? "+" : "-" %>$<%= number_with_precision(trends_net_savings.abs, precision: 0) %>
                     </span>
                     <% if trends_net_change_pct != 0 %>
@@ -425,13 +425,13 @@
                 </div>
 
                 <!-- Savings Rate -->
-                <div class="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between pt-2 border-t border-table-divider">
                   <div class="flex items-center gap-1.5">
-                    <div class="w-1.5 h-1.5 rounded-full bg-success-500 dark:bg-success-300"></div>
-                    <span class="text-xs text-gray-600 dark:text-gray-400">Savings Rate</span>
+                    <div class="w-1.5 h-1.5 rounded-full dot-success"></div>
+                    <span class="text-xs text-neutral-label">Savings Rate</span>
                   </div>
                   <div class="flex items-center gap-1">
-                    <span class="text-xs font-semibold <%= trends_savings_rate >= 0 ? 'text-success-500 dark:text-success-300' : 'text-expense-500 dark:text-expense-400' %>">
+                    <span class="text-xs font-semibold <%= trends_savings_rate >= 0 ? 'icon-success' : 'text-expense-light' %>">
                       <%= number_with_precision(trends_savings_rate, precision: 1) %>%
                     </span>
                     <% if trends_savings_rate_change != 0 %>
@@ -445,8 +445,8 @@
             </div>
 
             <!-- Footer -->
-            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <p class="text-xs text-gray-500 dark:text-gray-400">
+            <div class="mt-4 pt-4 border-t border-table-divider">
+              <p class="text-xs text-neutral-muted">
                 Based on real transactions
               </p>
             </div>
@@ -471,10 +471,10 @@
 
     <% else %>
       <!-- No Account Message -->
-      <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-deep p-12 text-center">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">No account found</h2>
-        <p class="text-gray-600 dark:text-gray-400">Please sync your Up Bank account first.</p>
-        <%= link_to "Go to Settings", settings_path, class: "inline-flex items-center mt-4 px-6 py-3 bg-primary-700 text-white rounded-lg hover:bg-primary-900 transition-colors" %>
+        <div class="surface-empty-state rounded-lg shadow-deep p-12 text-center">
+        <h2 class="text-2xl font-bold text-neutral-base mb-4">No account found</h2>
+        <p class="text-neutral-label">Please sync your Up Bank account first.</p>
+        <%= link_to "Go to Settings", settings_path, class: "btn-primary mt-4 px-6 py-3" %>
       </div>
     <% end %>
   <% end %>

@@ -4,7 +4,7 @@
 <%# If no members remain, replace the members list with empty state %>
 <% unless @project.members.any? %>
   <%= turbo_stream.replace "project-members-list" do %>
-    <div id="project-members-empty" class="text-white/60 text-sm italic">
+    <div id="project-members-empty" class="text-overlay-empty">
       No additional members
     </div>
   <% end %>
@@ -15,23 +15,23 @@
        data-notification-type-value="success"
        data-notification-auto-dismiss-value="true"
        data-notification-dismiss-after-value="5000"
-       class="w-96 bg-white/95 dark:bg-primary-700/95 backdrop-blur-sm rounded-xl shadow-deep pointer-events-auto overflow-hidden transform translate-x-full opacity-0 transition-all duration-300 ease-out">
+       class="w-96 surface-notification rounded-xl shadow-deep pointer-events-auto overflow-hidden transform translate-x-full opacity-0 transition-all duration-300 ease-out">
     <div class="p-4">
       <div class="flex items-start">
         <div class="flex-shrink-0">
-          <svg class="h-6 w-6 text-success-500 dark:text-success-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-6 w-6 icon-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div class="ml-3 w-0 flex-1 pt-0.5">
-          <p class="text-success-700 dark:text-success-300 text-sm font-medium">
+          <p class="status-success-text text-sm font-medium">
             Member removed successfully
           </p>
         </div>
         <div class="ml-4 flex-shrink-0 flex">
           <button type="button" 
                   data-action="click->notification#dismiss"
-                  class="text-success-500 dark:text-success-300 hover:text-success-700 dark:hover:text-success-500">
+                  class="icon-success hover-success">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>

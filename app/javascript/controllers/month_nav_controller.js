@@ -114,11 +114,11 @@ export default class extends Controller {
       
       // Update classes based on current month display
       if (isCurrentMonth) {
-        button.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-200', 'dark:hover:bg-gray-600')
-        button.classList.add('bg-primary-700', 'text-white', 'dark:bg-primary-600')
+        button.classList.remove('btn-toggle-inactive')
+        button.classList.add('btn-toggle-active')
       } else {
-        button.classList.remove('bg-primary-700', 'text-white', 'dark:bg-primary-600')
-        button.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-200', 'dark:hover:bg-gray-600')
+        button.classList.remove('btn-toggle-active')
+        button.classList.add('btn-toggle-inactive')
       }
     })
   }

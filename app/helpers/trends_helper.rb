@@ -151,4 +151,39 @@ module TrendsHelper
   def trends_quick_actions
     @trends_stats&.dig(:quick_actions) || []
   end
+
+  # Chart color helpers
+  # Returns hex color values for chart libraries that require hex colors
+  # These correspond to our semantic color tokens:
+  # - success-500: #10B981 (green for income/positive values)
+  # - expense-500: #EF4444 (red for expenses/negative values)
+  # - primary-500: #3B82F6 (blue for primary actions/net savings)
+  # - planning-500: #8B5CF6 (purple for goals/planning)
+  def trends_chart_color_success
+    "#10B981"
+  end
+
+  def trends_chart_color_expense
+    "#EF4444"
+  end
+
+  def trends_chart_color_primary
+    "#3B82F6"
+  end
+
+  def trends_chart_color_planning
+    "#8B5CF6"
+  end
+
+  # Returns array of chart colors for spending trends (income, expenses, net savings)
+  def trends_spending_chart_colors
+    [ trends_chart_color_success, trends_chart_color_expense, trends_chart_color_primary ]
+  end
+
+  # Returns array of chart colors for savings rate (savings rate, goal)
+  def trends_savings_rate_chart_colors(include_goal: false)
+    colors = [ trends_chart_color_success ]
+    colors << trends_chart_color_planning if include_goal
+    colors
+  end
 end

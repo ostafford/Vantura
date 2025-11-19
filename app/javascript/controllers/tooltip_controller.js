@@ -58,7 +58,7 @@ export default class extends Controller {
 
   createTooltip() {
     this.tooltip = document.createElement("div")
-    this.tooltip.className = "fixed z-50 px-3 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-gray-800 rounded-lg shadow-lg pointer-events-none transition-opacity duration-200 opacity-0 max-w-xs"
+    this.tooltip.className = "fixed z-50 px-3 py-2 text-sm font-medium text-white bg-neutral-900 dark:bg-neutral-800 rounded-lg shadow-lg pointer-events-none transition-opacity duration-200 opacity-0 max-w-xs"
     this.tooltip.innerHTML = this.contentValue || this.element.getAttribute("title") || ""
     
     // Remove title attribute to prevent default browser tooltip

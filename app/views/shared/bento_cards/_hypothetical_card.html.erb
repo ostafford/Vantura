@@ -5,7 +5,7 @@
 <%= render 'shared/bento_cards/stat_card',
     title: "Hypothetical",
     value: "#{hypothetical_total < 0 ? '-' : ''}#{number_to_currency(hypothetical_total.abs)}",
-    subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>Projected</span>".html_safe,
+    subtitle: "<span class='font-semibold text-neutral-base'>Projected</span>".html_safe,
     detail: "#{number_to_currency(hypothetical_income)} income • #{number_to_currency(hypothetical_expenses)} expenses",
     icon: 'refresh',
     color: 'blue',

@@ -3,7 +3,7 @@
 <% content_for :page_header_subtitle, "Deep insights into your financial patterns" %>
 <% content_for :page_header_actions do %>
     <div class="flex gap-3">
-      <%= link_to trends_path, class: "inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors", aria: { label: "Navigate back to trends page" } do %>
+      <%= link_to trends_path, class: "btn-secondary px-4 py-2", aria: { label: "Navigate back to trends page" } do %>
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
@@ -24,12 +24,12 @@
           size: 'col-span-1 md:col-span-2 row-span-2',
           color: 'blue' do %>
         <div class="flex items-center justify-between mb-3">
-          <p class="text-blue-50 text-sm">Total: <%= number_to_currency(@breakdown_data.values.sum(&:abs)) %></p>
-          <p class="text-blue-100 text-xs">
+          <p class="text-overlay-subtle text-sm">Total: <%= number_to_currency(@breakdown_data.values.sum(&:abs)) %></p>
+          <p class="text-overlay-muted text-xs">
             Income: <%= number_to_currency(@current_month_income) %> • Expenses: <%= number_to_currency(@current_month_expenses) %>
           </p>
         </div>
-        <p class="text-blue-50 text-xs">Views: Pie Chart • Bar Chart • Line Chart • Custom Filters</p>
+        <p class="text-overlay-subtle text-xs">Views: Pie Chart • Bar Chart • Line Chart • Custom Filters</p>
       <% end %>
       
       <!-- Bento Grid Layout -->
@@ -37,19 +37,19 @@
         <h2 id="summary-heading" class="sr-only">Financial Summary</h2>
         
         <!-- Category Breakdown Card (1x1) -->
-        <article class="col-span-1 row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+        <article class="col-span-1 row-span-1 surface-card-gradient rounded-2xl shadow-deep p-6">
           <div class="flex flex-col h-full">
             <!-- Header -->
             <header class="mb-4">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top Categories</h3>
-                <div class="inline-flex items-center justify-center w-8 h-8 bg-primary-700/10 dark:bg-primary-500/20 rounded-lg" aria-hidden="true">
-                  <svg class="w-4 h-4 text-primary-700 dark:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 class="text-lg font-semibold text-neutral-base">Top Categories</h3>
+                <div class="inline-flex items-center justify-center w-8 h-8 icon-bg-primary-overlay rounded-lg" aria-hidden="true">
+                  <svg class="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>
               </div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
+              <p class="text-xs text-neutral-muted">
                 <%= @current_date.strftime('%B %Y') %>
               </p>
             </header>
@@ -59,14 +59,14 @@
               <% if @category_breakdown.any? %>
                 <div class="space-y-2">
                   <% @category_breakdown.sort_by { |_, amount| -amount }.first(3).each do |category, amount| %>
-                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between p-2 surface-card-base rounded-lg border border-table-divider">
                       <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-primary-500"></div>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        <div class="w-2 h-2 rounded-full dot-primary"></div>
+                        <span class="text-sm font-medium text-neutral-base truncate">
                           <%= truncate(category&.humanize || "Uncategorized", length: 15) %>
                         </span>
                       </div>
-                      <span class="text-sm font-semibold <%= amount < 0 ? 'text-expense-500 dark:text-expense-400' : 'text-income-500 dark:text-income-400' %>">
+                      <span class="text-sm font-semibold <%= amount < 0 ? 'text-expense-light' : 'text-income-light' %>">
                         $<%= number_with_precision(amount.abs, precision: 0) %>
                       </span>
                     </div>
@@ -74,7 +74,7 @@
                 </div>
               <% else %>
                 <div class="flex items-center justify-center h-full">
-                  <p class="text-xs text-gray-500 dark:text-gray-400 text-center">No data</p>
+                  <p class="text-xs text-neutral-muted text-center">No data</p>
                 </div>
               <% end %>
             </div>
@@ -82,19 +82,19 @@
         </article>
 
         <!-- Top Merchants Card (1x1) -->
-        <article class="col-span-1 row-span-1 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+        <article class="col-span-1 row-span-1 surface-card-gradient rounded-2xl shadow-deep p-6">
           <div class="flex flex-col h-full">
             <!-- Header -->
             <header class="mb-4">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top Merchants</h3>
-                <div class="inline-flex items-center justify-center w-8 h-8 bg-primary-700/10 dark:bg-primary-500/20 rounded-lg" aria-hidden="true">
-                  <svg class="w-4 h-4 text-primary-700 dark:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 class="text-lg font-semibold text-neutral-base">Top Merchants</h3>
+                <div class="inline-flex items-center justify-center w-8 h-8 icon-bg-primary-overlay rounded-lg" aria-hidden="true">
+                  <svg class="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
               </div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
+              <p class="text-xs text-neutral-muted">
                 This month
               </p>
             </header>
@@ -104,16 +104,16 @@
               <% if @merchant_breakdown.any? %>
                 <div class="space-y-2">
                   <% @merchant_breakdown.first(3).each_with_index do |(merchant, amount), index| %>
-                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between p-2 surface-card-base rounded-lg border border-table-divider">
                       <div class="flex items-center gap-2">
-                        <div class="flex items-center justify-center w-6 h-6 bg-primary-100 dark:bg-primary-900/30 rounded-full">
-                          <span class="text-xs font-bold text-primary-700 dark:text-primary-400">#<%= index + 1 %></span>
+                        <div class="flex items-center justify-center w-6 h-6 surface-primary rounded-full">
+                          <span class="text-xs font-bold text-brand">#<%= index + 1 %></span>
                         </div>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        <span class="text-sm font-medium text-neutral-base truncate">
                           <%= truncate(merchant, length: 12) %>
                         </span>
                       </div>
-                      <span class="text-sm font-semibold text-expense-500 dark:text-expense-400">
+                      <span class="text-sm font-semibold text-expense-light">
                         $<%= number_with_precision(amount.abs, precision: 0) %>
                       </span>
                     </div>
@@ -121,7 +121,7 @@
                 </div>
               <% else %>
                 <div class="flex items-center justify-center h-full">
-                  <p class="text-xs text-gray-500 dark:text-gray-400 text-center">No data</p>
+                  <p class="text-xs text-neutral-muted text-center">No data</p>
                 </div>
               <% end %>
             </div>
@@ -133,32 +133,32 @@
       
 
       <!-- Additional Analysis Coming Soon -->
-      <section class="mt-8 bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-2xl shadow-deep p-6">
+      <section class="mt-8 surface-card-gradient rounded-2xl shadow-deep p-6">
         <div class="text-center">
-          <div class="inline-flex items-center justify-center w-16 h-16 bg-success-500/10 dark:bg-success-700/20 rounded-2xl mb-4" aria-hidden="true">
-            <svg class="w-8 h-8 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="inline-flex items-center justify-center w-16 h-16 icon-bg-success rounded-2xl mb-4" aria-hidden="true">
+            <svg class="w-8 h-8 icon-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">More Analysis Features Coming Soon</h2>
-          <p class="text-gray-600 dark:text-gray-400 mb-4">
+          <h2 class="text-xl font-bold text-neutral-base mb-2">More Analysis Features Coming Soon</h2>
+          <p class="text-neutral-muted mb-4">
             We're working on adding more advanced analytics including trend charts, spending patterns, and predictive insights.
           </p>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-neutral-muted">
             <div class="flex items-center justify-center gap-2">
-              <svg class="w-4 h-4 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg class="w-4 h-4 icon-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Trend Charts</span>
             </div>
             <div class="flex items-center justify-center gap-2">
-              <svg class="w-4 h-4 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg class="w-4 h-4 icon-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Spending Patterns</span>
             </div>
             <div class="flex items-center justify-center gap-2">
-              <svg class="w-4 h-4 text-success-500 dark:text-success-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg class="w-4 h-4 icon-success" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Predictive Insights</span>
@@ -169,10 +169,10 @@
 
     <% else %>
       <!-- No Account Message -->
-      <div class="bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900 rounded-lg shadow-deep p-12 text-center">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">No account found</h2>
-        <p class="text-gray-600 dark:text-gray-400">Please sync your Up Bank account first.</p>
-        <%= link_to "Go to Settings", settings_path, class: "inline-flex items-center mt-4 px-6 py-3 bg-primary-700 text-white rounded-lg hover:bg-primary-900 transition-colors" %>
+      <div class="surface-card-gradient rounded-lg shadow-deep p-12 text-center">
+        <h2 class="text-2xl font-bold text-neutral-base mb-4">No account found</h2>
+        <p class="text-neutral-muted">Please sync your Up Bank account first.</p>
+        <%= link_to "Go to Settings", settings_path, class: "btn-primary mt-4 px-6 py-3" %>
       </div>
     <% end %>
   <% end %>
@@ -393,7 +393,7 @@ function initializeFilterDropdown() {
       // Clear filter parameters
       const filterParamsDiv = document.getElementById('filter-params');
       if (filterParamsDiv) {
-        filterParamsDiv.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 italic">Select at least one filter type above</p>';
+        filterParamsDiv.innerHTML = '<p class="text-sm text-neutral-muted italic">Select at least one filter type above</p>';
       }
       
       // Hide custom date range
@@ -408,8 +408,8 @@ function initializeFilterDropdown() {
         checkbox.checked = false;
         const label = checkbox.closest('.filter-type-label');
         if (label) {
-          label.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
-          label.classList.add('border-gray-200', 'dark:border-gray-600');
+          label.classList.remove('btn-filter-active');
+          label.classList.add('btn-filter-inactive');
         }
       });
       
@@ -419,8 +419,8 @@ function initializeFilterDropdown() {
         radio.checked = false;
         const label = radio.closest('.date-range-label');
         if (label) {
-          label.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
-          label.classList.add('border-gray-200', 'dark:border-gray-600');
+          label.classList.remove('btn-filter-active');
+          label.classList.add('btn-filter-inactive');
         }
       });
     }
@@ -497,7 +497,7 @@ function initializeFilterDropdown() {
       
       // Create tooltip
       const tooltip = document.createElement('div');
-      tooltip.className = 'absolute bg-gray-900 text-white px-3 py-2 rounded-lg text-sm pointer-events-none z-10';
+      tooltip.className = 'absolute surface-tooltip px-3 py-2 rounded-lg text-sm pointer-events-none z-10';
       tooltip.innerHTML = `
         <div class="font-semibold">${category}</div>
         <div>$${parseFloat(amount).toLocaleString()} (${percentage}%)</div>
@@ -563,17 +563,17 @@ function initializeFilterDropdown() {
       const categoriesHtml = filteredCategories.map(cat => `
             <label class="flex items-center">
           <input type="checkbox" name="filter_params[categories][]" value="${cat}" class="mr-2 category-checkbox" ${selectedCategories.includes(cat) ? 'checked' : ''}>
-          <span class="text-sm text-gray-700 dark:text-gray-300">${cat}</span>
+          <span class="text-sm text-neutral-label">${cat}</span>
             </label>
       `).join('');
       
       const filterNote = (selectedMerchants.length > 0 || selectedStatuses.length > 0) ? ' (filtered)' : '';
       
       html = `
-        <div class="bg-gray-50 dark:bg-primary-950 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Category Filter${filterNote}</h4>
+        <div class="surface-filter-container p-4 rounded-lg border border-table-divider">
+          <h4 class="text-sm font-semibold text-neutral-base mb-3">Category Filter${filterNote}</h4>
           <div class="space-y-2 max-h-48 overflow-y-auto">
-            ${categoriesHtml || '<p class="text-sm text-gray-500 dark:text-gray-400 italic">No categories found</p>'}
+            ${categoriesHtml || '<p class="text-sm text-neutral-muted italic">No categories found</p>'}
           </div>
         </div>
       `;
@@ -610,17 +610,17 @@ function initializeFilterDropdown() {
       const merchantsHtml = filteredMerchants.map(merchant => `
             <label class="flex items-center">
           <input type="checkbox" name="filter_params[merchants][]" value="${merchant}" class="mr-2" ${selectedMerchants.includes(merchant) ? 'checked' : ''}>
-          <span class="text-sm text-gray-700 dark:text-gray-300">${merchant}</span>
+          <span class="text-sm text-neutral-label">${merchant}</span>
             </label>
       `).join('');
       
       const filterNote = (selectedCategories.length > 0 || selectedStatuses.length > 0) ? ' (filtered)' : '';
       
       html = `
-        <div class="merchant-filter-section bg-gray-50 dark:bg-primary-950 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Merchant Filter${filterNote}</h4>
+        <div class="merchant-filter-section surface-filter-container p-4 rounded-lg border border-table-divider">
+          <h4 class="text-sm font-semibold text-neutral-base mb-3">Merchant Filter${filterNote}</h4>
           <div class="space-y-2 max-h-48 overflow-y-auto">
-            ${merchantsHtml || '<p class="text-sm text-gray-500 dark:text-gray-400 italic">No merchants found</p>'}
+            ${merchantsHtml || '<p class="text-sm text-neutral-muted italic">No merchants found</p>'}
           </div>
         </div>
       `;
@@ -653,37 +653,37 @@ function initializeFilterDropdown() {
       const statusesHtml = filteredStatuses.map(status => `
         <label class="flex items-center">
           <input type="checkbox" name="filter_params[statuses][]" value="${status}" class="mr-2" ${selectedStatuses.includes(status) ? 'checked' : ''}>
-          <span class="text-sm text-gray-700 dark:text-gray-300">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+          <span class="text-sm text-neutral-label">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
         </label>
       `).join('');
       
       const filterNote = (selectedCategories.length > 0 || selectedMerchants.length > 0) ? ' (filtered)' : '';
       
       html = `
-        <div class="bg-gray-50 dark:bg-primary-950 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Status Filter${filterNote}</h4>
+        <div class="surface-filter-container p-4 rounded-lg border border-table-divider">
+          <h4 class="text-sm font-semibold text-neutral-base mb-3">Status Filter${filterNote}</h4>
           <div class="space-y-2">
-            ${statusesHtml || '<p class="text-sm text-gray-500 dark:text-gray-400 italic">No statuses found</p>'}
+            ${statusesHtml || '<p class="text-sm text-neutral-muted italic">No statuses found</p>'}
           </div>
         </div>
       `;
     } else if (filterType === 'recurring_transactions') {
       const selectedRecurring = selectedParams.recurring_transactions;
       html = `
-        <div class="bg-gray-50 dark:bg-primary-950 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Recurring Transactions</h4>
+        <div class="surface-filter-container p-4 rounded-lg border border-table-divider">
+          <h4 class="text-sm font-semibold text-neutral-base mb-3">Recurring Transactions</h4>
           <div class="space-y-2">
             <label class="flex items-center">
               <input type="radio" name="filter_params[recurring_transactions]" value="true" class="mr-2" ${selectedRecurring === 'true' ? 'checked' : ''}>
-              <span class="text-sm text-gray-700 dark:text-gray-300">From Recurring Only</span>
+              <span class="text-sm text-neutral-label">From Recurring Only</span>
             </label>
             <label class="flex items-center">
               <input type="radio" name="filter_params[recurring_transactions]" value="false" class="mr-2" ${selectedRecurring === 'false' ? 'checked' : ''}>
-              <span class="text-sm text-gray-700 dark:text-gray-300">Non-Recurring Only</span>
+              <span class="text-sm text-neutral-label">Non-Recurring Only</span>
             </label>
             <label class="flex items-center">
               <input type="radio" name="filter_params[recurring_transactions]" value="both" class="mr-2" ${selectedRecurring === 'both' ? 'checked' : ''}>
-              <span class="text-sm text-gray-700 dark:text-gray-300">Both</span>
+              <span class="text-sm text-neutral-label">Both</span>
             </label>
           </div>
         </div>
@@ -719,17 +719,17 @@ function initializeFilterDropdown() {
       const label = checkbox.closest('.filter-type-label');
       if (label) {
         if (checkbox.checked) {
-          label.classList.add('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
-          label.classList.remove('border-gray-200', 'dark:border-gray-600');
+          label.classList.add('btn-filter-active');
+          label.classList.remove('btn-filter-inactive');
         } else {
-          label.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
-          label.classList.add('border-gray-200', 'dark:border-gray-600');
+          label.classList.remove('btn-filter-active');
+          label.classList.add('btn-filter-inactive');
         }
       }
     });
     
     if (selectedTypes.length === 0) {
-      filterParamsDiv.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 italic">Select at least one filter type above</p>';
+      filterParamsDiv.innerHTML = '<p class="text-sm text-neutral-muted italic">Select at least one filter type above</p>';
       return;
     }
     
@@ -764,10 +764,10 @@ function initializeFilterDropdown() {
       const radio = label.querySelector('input[type="radio"]');
       if (radio.checked) {
         label.classList.add('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
-        label.classList.remove('border-gray-200', 'dark:border-gray-600');
+        label.classList.remove('border-neutral-200', 'dark:border-neutral-600');
       } else {
         label.classList.remove('bg-primary-100', 'dark:bg-primary-900', 'border-primary-500', 'dark:border-primary-500');
-        label.classList.add('border-gray-200', 'dark:border-gray-600');
+        label.classList.add('border-neutral-200', 'dark:border-neutral-600');
       }
     });
     

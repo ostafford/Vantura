@@ -45,10 +45,10 @@
         id: 'total-projects-card',
         title: "Total Projects",
         value: @total_projects.to_s,
-        subtitle: "<span class='font-semibold text-gray-900 dark:text-gray-300'>#{@active_projects}</span> active".html_safe,
+        subtitle: "<span class='font-semibold text-neutral-900 dark:text-neutral-300'>#{@active_projects}</span> active".html_safe,
         detail: "Across all projects",
         icon: 'chart',
-        color: 'blue',
+        color: 'info',
         size: 'col-span-1 row-span-2' %>
   <% end %>
 
@@ -57,10 +57,10 @@
         id: 'total-expenses-card',
         title: "Total Expenses",
         value: format_cents(@total_expenses_cents),
-        subtitle: "<span class='font-semibold text-gray-900 dark:text-gray-300'>#{@total_projects}</span> projects".html_safe,
+        subtitle: "<span class='font-semibold text-neutral-900 dark:text-neutral-300'>#{@total_projects}</span> projects".html_safe,
         detail: "All time",
         icon: 'dollar',
-        color: 'red',
+        color: 'expense',
         size: 'col-span-1 row-span-2' %>
   <% end %>
 
@@ -69,10 +69,10 @@
         id: 'total-participants-card',
         title: "Total Participants",
         value: @total_participants.to_s,
-        subtitle: "<span class='font-semibold text-gray-900 dark:text-gray-300'>#{@total_projects}</span> projects".html_safe,
+        subtitle: "<span class='font-semibold text-neutral-900 dark:text-neutral-300'>#{@total_projects}</span> projects".html_safe,
         detail: "Unique members",
         icon: 'chart',
-        color: 'blue',
+        color: 'info',
         size: 'col-span-1 row-span-2' %>
   <% end %>
 
@@ -81,10 +81,10 @@
         id: 'active-projects-card',
         title: "Active Projects",
         value: @active_projects.to_s,
-        subtitle: "<span class='font-semibold text-gray-900 dark:text-gray-300'>#{@total_projects - @active_projects}</span> inactive".html_safe,
+        subtitle: "<span class='font-semibold text-neutral-900 dark:text-neutral-300'>#{@total_projects - @active_projects}</span> inactive".html_safe,
         detail: "With expenses",
         icon: 'arrow-up',
-        color: 'green',
+        color: 'success',
         size: 'col-span-1 row-span-2' %>
   <% end %>
 
@@ -98,19 +98,19 @@
     <div class="p-4">
       <div class="flex items-start">
         <div class="flex-shrink-0">
-          <svg class="h-6 w-6 text-success-500 dark:text-success-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-6 w-6 icon-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div class="ml-3 w-0 flex-1 pt-0.5">
-          <p class="text-success-700 dark:text-success-300 text-sm font-medium">
+          <p class="status-success-text text-sm font-medium">
             Expense added successfully!
           </p>
         </div>
         <div class="ml-4 flex-shrink-0 flex">
           <button type="button" 
                   data-action="click->notification#dismiss"
-                  class="text-success-500 dark:text-success-300 hover:text-success-700 dark:hover:text-success-500">
+                  class="icon-success hover-success">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>

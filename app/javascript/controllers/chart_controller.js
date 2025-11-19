@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import ApexCharts from "apexcharts"
+import { getChartColorPalette } from "helpers/chart_colors"
 
 export default class extends Controller {
   static values = {
@@ -36,7 +37,7 @@ export default class extends Controller {
     // Check if we have data to render
     if (!this.seriesValue || this.seriesValue.length === 0) {
       console.log('No series data available')
-      this.element.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">No data available</div>'
+      this.element.innerHTML = '<div class="flex items-center justify-center h-full text-neutral-muted">No data available</div>'
       return
     }
 
@@ -107,7 +108,7 @@ export default class extends Controller {
       },
       series: seriesData,
       labels: limitedLabels,
-      colors: this.colorsValue || ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6B7280'],
+      colors: this.colorsValue || getChartColorPalette(),
       dataLabels: {
         enabled: true,
         style: {
@@ -142,7 +143,7 @@ export default class extends Controller {
         align: 'center',
         verticalAlign: 'middle',
         style: {
-          color: '#6B7280',
+          color: getChartColorPalette()[8], // neutral-500
           fontSize: '14px'
         }
       }
@@ -268,11 +269,11 @@ export default class extends Controller {
         console.log(`${this.typeValue} chart rendered successfully!`)
       }).catch((error) => {
         console.error("Chart rendering failed:", error)
-        this.element.innerHTML = '<div class="flex items-center justify-center h-full text-red-500">Chart rendering failed</div>'
+        this.element.innerHTML = '<div class="flex items-center justify-center h-full form-error">Chart rendering failed</div>'
       })
     } catch (error) {
       console.error("Chart creation failed:", error)
-      this.element.innerHTML = '<div class="flex items-center justify-center h-full text-red-500">Chart creation failed</div>'
+      this.element.innerHTML = '<div class="flex items-center justify-center h-full form-error">Chart creation failed</div>'
     }
   }
 }

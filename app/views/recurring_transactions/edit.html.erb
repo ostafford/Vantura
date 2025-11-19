@@ -1,5 +1,5 @@
-<div class="max-w-2xl mx-auto mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md" data-controller="recurring-edit">
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Edit Recurring Transaction</h1>
+<div class="max-w-2xl mx-auto mt-8 p-6 surface-card-base rounded-lg shadow-md" data-controller="recurring-edit">
+  <h1 class="text-2xl font-bold text-neutral-base mb-6">Edit Recurring Transaction</h1>
 
   <%= form_with model: @recurring, local: true, class: "space-y-6" do |form| %>
     <% if @recurring.errors.any? %>
@@ -16,46 +16,46 @@
     <% end %>
 
     <div>
-      <%= form.label :description, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-      <%= form.text_field :description, class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" %>
+      <%= form.label :description, class: "label-base" %>
+      <%= form.text_field :description, class: "w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" %>
     </div>
 
     <div>
-      <%= form.label :amount, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-      <%= form.number_field :amount, step: 0.01, class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" %>
+      <%= form.label :amount, class: "label-base" %>
+      <%= form.number_field :amount, step: 0.01, class: "w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" %>
     </div>
 
     <div>
-      <%= form.label :frequency, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= form.label :frequency, class: "label-base" %>
       <%= form.select :frequency, options_for_select([
         ["Weekly", "weekly"],
         ["Fortnightly", "fortnightly"],
         ["Monthly", "monthly"],
         ["Quarterly", "quarterly"],
         ["Yearly", "yearly"]
-      ], @recurring.frequency), {}, { class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" } %>
+      ], @recurring.frequency), {}, { class: "w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" } %>
     </div>
 
     <div>
-      <%= form.label :transaction_type, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= form.label :transaction_type, class: "label-base" %>
       <%= form.select :transaction_type, options_for_select([
         ["Expense", "expense"],
         ["Income", "income"]
-      ], @recurring.transaction_type), {}, { class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" } %>
+      ], @recurring.transaction_type), {}, { class: "w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" } %>
     </div>
 
     <div>
-      <%= form.label :next_occurrence_date, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-      <%= form.date_field :next_occurrence_date, value: @recurring.next_occurrence_date&.strftime("%Y-%m-%d"), class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" %>
+      <%= form.label :next_occurrence_date, class: "label-base" %>
+      <%= form.date_field :next_occurrence_date, value: @recurring.next_occurrence_date&.strftime("%Y-%m-%d"), class: "w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" %>
     </div>
 
     <div>
-      <%= form.label :category, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-      <%= form.text_field :category, class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" %>
+      <%= form.label :category, class: "label-base" %>
+      <%= form.text_field :category, class: "w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" %>
     </div>
 
     <div>
-      <%= form.label :recurring_category, "Recurring Category (optional)", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+      <%= form.label :recurring_category, "Recurring Category (optional)", class: "label-base" %>
       <% 
         # Build category options, ensuring "other" only appears once
         category_options = [["None", ""]] + 
@@ -71,42 +71,42 @@
           { 
             id: "edit-recurring-category-select",
             data: { action: "change->recurring-edit#toggleCustomCategory" },
-            class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" 
+            class: "w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" 
           } %>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Helps categorize your recurring transactions</p>
+      <p class="text-xs text-neutral-muted mt-1">Helps categorize your recurring transactions</p>
       
       <!-- Custom Category Input (shown when "Other" is selected) -->
       <div id="edit-custom-category-field" class="hidden mt-3">
-        <label for="edit-custom-category-name-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label for="edit-custom-category-name-input" class="label-base">
           Custom Category Name
         </label>
         <input type="text" 
                name="custom_category_name" 
                id="edit-custom-category-name-input"
                placeholder="e.g., Gym Membership, Client Payment"
-               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" />
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">This will be saved for future use</p>
+               class="w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" />
+        <p class="text-xs text-neutral-muted mt-1">This will be saved for future use</p>
       </div>
     </div>
 
     <div>
-      <%= form.label :merchant_pattern, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-      <%= form.text_field :merchant_pattern, class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" %>
+      <%= form.label :merchant_pattern, class: "label-base" %>
+      <%= form.text_field :merchant_pattern, class: "w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" %>
     </div>
 
     <div>
-      <%= form.label :amount_tolerance, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-      <%= form.number_field :amount_tolerance, step: 0.01, class: "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-info-500 focus:border-info-500" %>
+      <%= form.label :amount_tolerance, class: "label-base" %>
+      <%= form.number_field :amount_tolerance, step: 0.01, class: "w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-base focus-ring-info focus-border-info" %>
     </div>
 
     <div class="flex items-center">
-      <%= form.check_box :is_active, class: "h-4 w-4 text-info-600 border-gray-300 rounded focus:ring-info-500" %>
-      <%= form.label :is_active, "Active", class: "ml-2 text-sm text-gray-700 dark:text-gray-300" %>
+      <%= form.check_box :is_active, class: "h-4 w-4 border-neutral-300 rounded focus-ring-info" %>
+      <%= form.label :is_active, "Active", class: "ml-2 text-sm text-neutral-label" %>
     </div>
 
     <div class="flex gap-4">
-      <%= form.submit "Update Recurring Transaction", class: "px-4 py-2 bg-info-600 text-white rounded-lg hover:bg-info-700 focus:ring-2 focus:ring-info-500 focus:ring-offset-2 transition-colors font-medium" %>
-      <%= link_to "Cancel", recurring_transactions_path(account_id: @account.id), class: "px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium" %>
+      <%= form.submit "Update Recurring Transaction", class: "px-4 py-2 btn-info rounded-lg focus-ring-info focus:ring-offset-2 transition-colors font-medium" %>
+      <%= link_to "Cancel", recurring_transactions_path(account_id: @account.id), class: "px-4 py-2 btn-secondary font-medium" %>
     </div>
   <% end %>
 </div>

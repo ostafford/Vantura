@@ -5,7 +5,7 @@
 
 <%# Replace the entire tbody to avoid nested <tbody> causing header misalignment %>
 <%= turbo_stream.replace "transactions-table-body" do %>
-  <tbody id="transactions-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+  <tbody id="transactions-table-body" class="bg-white dark:bg-neutral-800 divide-table-divider">
     <%= render partial: "transactions/table_body", locals: { transactions: @transactions_data[:transactions] } %>
   </tbody>
 <% end %>
@@ -26,14 +26,14 @@
 
 <%# Re-render the header to keep navigation, heading, and actions in sync %>
 <%= turbo_stream.replace "transactions-table-header" do %>
-  <header id="transactions-table-header" class="px-4 py-4 sm:px-6 sm:py-5 border-b bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+  <header id="transactions-table-header" class="px-4 py-4 sm:px-6 sm:py-5 border-b bg-table-header border-table-divider">
     <%= render "transactions/navigation_controls",
           transactions_data: @transactions_data,
           filter_additional_params: { start_date: params[:start_date], end_date: params[:end_date] } do %>
       <% calendar_date = @transactions_data[:date] %>
       <% calendar_path = calendar_month_path(calendar_date.year, calendar_date.month) %>
       <%= link_to calendar_path,
-          class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors",
+          class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors",
           title: "View this month in calendar",
           aria: { label: "View this month in calendar" } do %>
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

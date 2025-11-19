@@ -320,10 +320,10 @@ export default class extends Controller {
     // First, reset all cards to unselected state
     this.typeCardTargets.forEach((card) => {
       card.classList.remove(
-        'border-expense-500', 'dark:border-expense-500', 'bg-red-50', 'dark:bg-red-900/20',
-        'border-success-500', 'dark:border-success-500', 'bg-green-50', 'dark:bg-green-900/20'
+        'amount-negative-border', 'amount-negative-bg',
+        'amount-positive-border', 'amount-positive-bg'
       )
-      card.classList.add('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
+      card.classList.add('border-neutral-300', 'dark:border-neutral-600', 'bg-white', 'dark:bg-neutral-800')
     })
     
     // Find the checked radio and its corresponding card
@@ -338,13 +338,13 @@ export default class extends Controller {
           const card = label.querySelector('[data-modal-target="typeCard"]')
           if (card) {
             // Remove unselected classes
-            card.classList.remove('border-gray-300', 'dark:border-gray-600', 'bg-white', 'dark:bg-gray-700')
+            card.classList.remove('border-neutral-300', 'dark:border-neutral-600', 'bg-white', 'dark:bg-neutral-800')
             
             // Add selected classes based on type
             if (radio.value === 'expense') {
-              card.classList.add('border-expense-500', 'dark:border-expense-500', 'bg-red-50', 'dark:bg-red-900/20')
+              card.classList.add('amount-negative-border', 'amount-negative-bg')
             } else {
-              card.classList.add('border-success-500', 'dark:border-success-500', 'bg-green-50', 'dark:bg-green-900/20')
+              card.classList.add('amount-positive-border', 'amount-positive-bg')
             }
           }
         }

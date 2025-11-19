@@ -73,21 +73,21 @@
   total_items = all_upcoming_expenses.count + all_upcoming_income.count
 %>
 
-<div class="col-span-1 md:col-span-2 row-span-1 from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800 rounded-2xl shadow-deep p-6"<%= " id=#{element_id.inspect}" if element_id.present? %>>
+<div class="col-span-1 md:col-span-2 row-span-1 from-info-50 to-white dark:from-info-900/10 dark:to-neutral-800 rounded-2xl shadow-deep p-6"<%= " id=#{element_id.inspect}" if element_id.present? %>>
   <div class="stat-card-container flex flex-col h-full">
     <!-- Section 1: Icon, Title, and Value -->
     <div class="stat-card-main-content flex-1">
       <!-- Top Row: Icon, Title, and Value -->
       <div class="flex items-center gap-4 mb-4">
-        <div class="stat-card-icon inline-flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex-shrink-0">
-          <svg class="w-6 h-6 text-primary-700 dark:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="stat-card-icon inline-flex items-center justify-center w-12 h-12 surface-info rounded-xl flex-shrink-0">
+          <svg class="w-6 h-6 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
         </div>
         
         <div class="flex-1 min-w-0">
-          <p class="stat-card-title text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Upcoming Transactions</p>
-          <p class="stat-card-value font-bold text-primary-700 dark:text-primary-500"><%= days_remaining %> days remaining</p>
+          <p class="stat-card-title text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1">Upcoming Transactions</p>
+          <p class="stat-card-value font-bold text-brand"><%= days_remaining %> days remaining</p>
         </div>
       </div>
       
@@ -97,14 +97,14 @@
           <!-- Net Impact -->
           <div class="mb-3">
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600 dark:text-gray-400">Net impact:</span>
+              <span class="text-neutral-600 dark:text-neutral-400">Net impact:</span>
               <span class="font-semibold <%= amount_color_class(net_impact) %>">
                 <%= net_impact >= 0 ? '+' : '' %>$<%= number_with_precision(net_impact, precision: 2) %>
               </span>
             </div>
             <div class="flex items-center justify-between text-xs mt-1">
-              <span class="text-gray-500 dark:text-gray-500">
-                <span class="font-semibold text-gray-700 dark:text-gray-300"><%= total_items %></span> <%= total_items == 1 ? 'item' : 'items' %> scheduled
+              <span class="text-neutral-500 dark:text-neutral-500">
+                <span class="font-semibold text-neutral-label"><%= total_items %></span> <%= total_items == 1 ? 'item' : 'items' %> scheduled
               </span>
             </div>
           </div>
@@ -113,15 +113,15 @@
           <% if top_expenses.any? %>
             <div class="mb-3">
               <div class="flex items-center gap-1 mb-1">
-                <span class="text-expense-600 dark:text-expense-400 font-semibold text-xs">↓ Expenses:</span>
-                <span class="text-expense-600 dark:text-expense-400 font-bold text-xs">$<%= number_with_precision(total_expenses, precision: 2) %></span>
+                <span class="amount-negative font-semibold text-xs">↓ Expenses:</span>
+                <span class="amount-negative font-bold text-xs">$<%= number_with_precision(total_expenses, precision: 2) %></span>
               </div>
               <% top_expenses.each do |item| %>
-                <div class="text-xs text-gray-600 dark:text-gray-400 truncate mb-0.5">
-                  <time datetime="<%= item[:date].iso8601 %>" class="text-gray-500 dark:text-gray-500"><%= item[:date].strftime('%b %d') %></time>
+                <div class="text-xs text-neutral-600 dark:text-neutral-400 truncate mb-0.5">
+                  <time datetime="<%= item[:date].iso8601 %>" class="text-neutral-500 dark:text-neutral-500"><%= item[:date].strftime('%b %d') %></time>
                   <span class="mx-1">•</span>
                   <span class="truncate"><%= item[:description] %></span>
-                  <span class="font-semibold text-gray-700 dark:text-gray-300 ml-1">$<%= number_with_precision(item[:amount], precision: 2) %></span>
+                  <span class="font-semibold text-neutral-label ml-1">$<%= number_with_precision(item[:amount], precision: 2) %></span>
                 </div>
               <% end %>
             </div>
@@ -131,21 +131,21 @@
           <% if top_income.any? %>
             <div>
               <div class="flex items-center gap-1 mb-1">
-                <span class="text-income-600 dark:text-income-400 font-semibold text-xs">↑ Income:</span>
-                <span class="text-income-600 dark:text-income-400 font-bold text-xs">$<%= number_with_precision(total_income, precision: 2) %></span>
+                <span class="amount-positive font-semibold text-xs">↑ Income:</span>
+                <span class="amount-positive font-bold text-xs">$<%= number_with_precision(total_income, precision: 2) %></span>
               </div>
               <% top_income.each do |item| %>
-                <div class="text-xs text-gray-600 dark:text-gray-400 truncate mb-0.5">
-                  <time datetime="<%= item[:date].iso8601 %>" class="text-gray-500 dark:text-gray-500"><%= item[:date].strftime('%b %d') %></time>
+                <div class="text-xs text-neutral-600 dark:text-neutral-400 truncate mb-0.5">
+                  <time datetime="<%= item[:date].iso8601 %>" class="text-neutral-500 dark:text-neutral-500"><%= item[:date].strftime('%b %d') %></time>
                   <span class="mx-1">•</span>
                   <span class="truncate"><%= item[:description] %></span>
-                  <span class="font-semibold text-gray-700 dark:text-gray-300 ml-1">$<%= number_with_precision(item[:amount], precision: 2) %></span>
+                  <span class="font-semibold text-neutral-label ml-1">$<%= number_with_precision(item[:amount], precision: 2) %></span>
                 </div>
               <% end %>
             </div>
           <% end %>
         <% else %>
-          <div class="text-xs text-gray-400 dark:text-gray-500 italic">
+          <div class="text-xs text-neutral-400 dark:text-neutral-500 italic">
             No upcoming transactions scheduled
           </div>
         <% end %>

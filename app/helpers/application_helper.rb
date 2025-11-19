@@ -4,28 +4,23 @@ module ApplicationHelper
   # Render transaction status badges (Hypothetical, Pending, Settled)
   def transaction_status_badge(transaction, compact: false)
     badge_id = "transaction-#{transaction.id}-status-badge"
-    if transaction.is_hypothetical
-      content_tag :span, "Hypothetical",
-        id: badge_id,
-        class: compact ?
-          "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300" :
-          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300",
-        "aria-label": "Transaction status: Hypothetical"
-    elsif transaction.status == "HELD"
-      content_tag :span, "Pending",
-        id: badge_id,
-        class: compact ?
-          "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300" :
-          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300",
-        "aria-label": "Transaction status: Pending"
-    else
-      content_tag :span, "Settled",
-        id: badge_id,
-        class: compact ?
-          "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300" :
-          "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 dark:bg-success-900/30 text-success-800 dark:text-success-300",
-        "aria-label": "Transaction status: Settled"
-    end
+    label, status_class =
+      if transaction.is_hypothetical
+        [ "Hypothetical", "badge-hypothetical" ]
+      elsif transaction.status == "HELD"
+        [ "Pending", "badge-pending" ]
+      else
+        [ "Settled", "badge-settled" ]
+      end
+
+    badge_classes = compact ?
+      "inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium #{status_class}" :
+      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium #{status_class}"
+
+    content_tag :span, label,
+      id: badge_id,
+      class: badge_classes,
+      "aria-label": "Transaction status: #{label}"
   end
 
   # Render recurring badge if transaction is recurring
@@ -49,7 +44,7 @@ module ApplicationHelper
 
     # Color coding based on transaction type and category
     color_classes = if transaction_type == "income"
-      "amount-positive-bg text-income-800 dark:text-income-300"
+      "badge-income"
     else
       "badge-recurring"
     end
@@ -77,15 +72,15 @@ module ApplicationHelper
   # @param amount [Numeric] Transaction amount (negative = expense, positive = income)
   # @return [String] CSS class name ('amount-negative' or 'amount-positive')
   def amount_color_class(amount)
-    amount < 0 ? 'amount-negative' : 'amount-positive'
+    amount < 0 ? "amount-negative" : "amount-positive"
   end
 
   # Format balance with green for positive, red for negative
   def formatted_balance(balance)
-    color_class = balance >= 0 ? "text-success-300 dark:text-success-400" : "text-red-300 dark:text-red-400"
+    color_class = balance >= 0 ? "amount-positive" : "amount-negative"
     sign = balance >= 0 ? "" : "-"
 
-    content_tag :span, class: "text-3xl font-bold #{color_class} text-glow-md" do
+    content_tag :span, class: "text-3xl font-bold #{color_class}" do
       "#{sign}$#{number_to_currency(balance, unit: '').strip}"
     end
   end
@@ -97,7 +92,7 @@ module ApplicationHelper
       button_to transaction_path(transaction), method: :delete,
           id: "transaction-#{transaction.id}-remove-button",
           form: { class: "inline-block", data: { turbo_confirm: "Remove this hypothetical transaction?" } },
-          class: "inline-flex items-center px-3 py-1 bg-expense-100 dark:bg-expense-900/30 text-expense-700 dark:text-expense-300 rounded-lg hover:bg-expense-200 dark:hover:bg-expense-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-expense-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium",
+          class: "inline-flex items-center px-3 py-1 btn-destructive text-xs font-medium hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-expense-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900 active:scale-95 transition-all",
           "aria-label": "Remove hypothetical transaction: #{transaction.description}" do
         svg_icon = <<~HTML.html_safe
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -117,7 +112,7 @@ module ApplicationHelper
             amount: transaction.amount,
             transaction_date: transaction.transaction_date
           },
-          class: "inline-flex items-center px-3 py-1 bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-300 rounded-lg hover:bg-info-200 dark:hover:bg-info-800 hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-info-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800 active:scale-95 transition-all text-xs font-medium",
+          class: "inline-flex items-center px-3 py-1 btn-info-light text-xs font-medium hover:shadow-md hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-info-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900 active:scale-95 transition-all",
           "aria-label": "Make transaction recurring: #{transaction.description}" do
         svg_icon = <<~HTML.html_safe
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -130,7 +125,7 @@ module ApplicationHelper
       # Display Recurring badge for recurring transactions
       content_tag :span,
         id: "transaction-#{transaction.id}-recurring-action-badge",
-        class: "inline-flex items-center px-3 py-1 bg-info-100 dark:bg-info-900/30 text-info-700 dark:text-info-300 rounded-lg text-xs font-medium",
+        class: "inline-flex items-center px-3 py-1 badge-recurring rounded-lg text-xs font-medium",
         "aria-label": "Recurring transaction" do
         svg_icon = <<~HTML.html_safe
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -148,9 +143,9 @@ module ApplicationHelper
   def nav_link_to(text, path, icon:)
     active = current_page?(path) || (path == root_path && request.path == "/")
 
-    base_classes = "flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-all"
-    active_classes = "bg-primary/10 dark:bg-primary/20 text-primary-700 dark:text-primary-400 border-b-2 border-primary-700 dark:border-primary-400"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+    base_classes = "flex items-center gap-2 px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-all nav-link-focus"
+    active_classes = "nav-link-active border-b-2 border-primary-700 dark:border-primary-400"
+    inactive_classes = "nav-link-inactive"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -163,9 +158,9 @@ module ApplicationHelper
   def mobile_nav_link_to(path, icon:, label:)
     active = current_page?(path) || (path == root_path && request.path == "/")
 
-    base_classes = "flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg transition-all min-w-0 flex-1"
-    active_classes = "text-primary-700 dark:text-primary-400"
-    inactive_classes = "text-gray-500 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+    base_classes = "flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg transition-all min-w-0 flex-1 nav-link-focus"
+    active_classes = "nav-link-mobile-active"
+    inactive_classes = "nav-link-mobile-inactive"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -178,9 +173,9 @@ module ApplicationHelper
   def mobile_drawer_nav_link_to(text, path, icon:)
     active = current_page?(path) || (path == root_path && request.path == "/")
 
-    base_classes = "flex items-center gap-3 px-6 py-3 text-base font-medium transition-all"
-    active_classes = "text-primary-700 dark:text-primary-400 bg-primary/10 dark:bg-primary/20"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400"
+    base_classes = "flex items-center gap-3 px-6 py-3 text-base font-medium transition-all nav-link-focus"
+    active_classes = "nav-link-active"
+    inactive_classes = "nav-link-inactive"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -193,9 +188,9 @@ module ApplicationHelper
   def sidebar_nav_link_to(text, path, icon:)
     active = current_page?(path) || (path == root_path && request.path == "/")
 
-    base_classes = "relative flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all group sidebar-nav-link"
-    active_classes = "bg-primary/10 dark:bg-primary/20 text-primary-700 dark:text-primary-400"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400"
+    base_classes = "relative flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all group sidebar-nav-link nav-link-focus"
+    active_classes = "nav-link-active"
+    inactive_classes = "nav-link-inactive"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -211,9 +206,9 @@ module ApplicationHelper
   def navbar_nav_link_to(text, path, icon:)
     active = current_page?(path) || (path == root_path && request.path == "/")
 
-    base_classes = "relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0"
-    active_classes = "bg-primary-700 text-white dark:bg-primary/20 dark:text-primary-400 border-t-2 border-primary-800 dark:border-primary-400"
-    inactive_classes = "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-primary-700 dark:hover:text-primary-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+    base_classes = "relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 nav-link-focus"
+    active_classes = "nav-link-active"
+    inactive_classes = "nav-link-inactive"
 
     classes = "#{base_classes} #{active ? active_classes : inactive_classes}"
 
@@ -291,17 +286,17 @@ module ApplicationHelper
   # @param transaction [Transaction] Transaction to get background class for
   # @return [String] Tailwind CSS classes for card background
   def transaction_card_bg_class(transaction)
-    # Purple background for hypothetical transactions
-    return "bg-purple-50 dark:bg-purple-900/20" if transaction.is_hypothetical
+    # Planning/projection background for hypothetical transactions
+    return "projection-surface" if transaction.is_hypothetical
 
     # Color-coded based on amount
     amount = transaction.amount
     if amount > 0
-      "bg-green-50 dark:bg-green-900/15"
+      "amount-positive-bg"
     elsif amount < 0
-      "bg-red-50 dark:bg-red-900/15"
+      "amount-negative-bg"
     else
-      "bg-white dark:bg-gray-800"
+      "surface-card-base"
     end
   end
 
@@ -319,7 +314,7 @@ module ApplicationHelper
   # @param change_data [Hash] Result from calculate_change
   # @return [String] HTML-safe string with trend indicator
   def trend_indicator(change_data)
-    return content_tag(:span, "→", class: "text-gray-500 dark:text-gray-400") if change_data.nil?
+    return content_tag(:span, "→", class: "text-neutral-muted") if change_data.nil?
 
     content_tag(:span, change_data[:trend_icon], class: "font-bold #{change_data[:trend_color]}")
   end
@@ -329,7 +324,7 @@ module ApplicationHelper
   # @param context [String] Context for determining if increase is good ('expense', 'income', 'neutral')
   # @return [String] HTML-safe formatted percentage
   def format_trend_percentage(change_pct, context: "neutral")
-    return content_tag(:span, "N/A", class: "text-gray-500 dark:text-gray-400") if change_pct.nil?
+    return content_tag(:span, "N/A", class: "text-neutral-muted") if change_pct.nil?
 
     value = change_pct.is_a?(Numeric) ? change_pct.round(1) : 0.0
     sign = value >= 0 ? "+" : ""
@@ -345,11 +340,11 @@ module ApplicationHelper
     end
 
     color_class = if is_positive
-      "text-green-600 dark:text-green-400"
+      "amount-positive"
     elsif value.zero?
-      "text-gray-500 dark:text-gray-400"
+      "text-neutral-muted"
     else
-      "text-red-600 dark:text-red-400"
+      "amount-negative"
     end
 
     content_tag(:span, "#{sign}#{value}%", class: "font-semibold #{color_class}")

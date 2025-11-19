@@ -3,18 +3,18 @@
 <% show_date = local_assigns.fetch(:show_date, false) %>
 
 <tr id="transaction-<%= transaction.id %>-row"
-    class="<%= transaction.is_hypothetical ? 'bg-purple-50 dark:bg-purple-900/20' : '' %> hover:bg-gray-50 dark:hover:bg-gray-700"
+    class="<%= transaction.is_hypothetical ? 'projection-surface' : '' %> hover:bg-neutral-50 dark:hover:bg-neutral-700"
     <%= 'aria-label="Hypothetical transaction: ' + transaction.description + '"' if transaction.is_hypothetical %>>
   <% if show_date %>
-    <td id="transaction-<%= transaction.id %>-date" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+    <td id="transaction-<%= transaction.id %>-date" class="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-300">
       <%= transaction.transaction_date.strftime("%b %d, %Y") %>
     </td>
   <% end %>
 
-  <td id="transaction-<%= transaction.id %>-description" class="px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
+  <td id="transaction-<%= transaction.id %>-description" class="px-6 py-4 text-sm text-neutral-900 dark:text-neutral-300">
     <%= transaction.description %>
   </td>
-  <td id="transaction-<%= transaction.id %>-category" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+  <td id="transaction-<%= transaction.id %>-category" class="px-6 py-4 whitespace-nowrap text-sm text-neutral-muted">
     <%= transaction.category&.humanize || "Uncategorized" %>
   </td>
   <td id="transaction-<%= transaction.id %>-status" class="px-6 py-4 whitespace-nowrap">

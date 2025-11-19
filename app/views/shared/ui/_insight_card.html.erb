@@ -21,38 +21,38 @@
   case priority
   when "high"
     if is_warning
-      bg_gradient = "bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20"
-      icon_bg = "bg-red-200 dark:bg-red-900/40"
-      icon_text = "text-red-600 dark:text-red-400"
-      border_color = "border-red-300 dark:border-red-700"
+      bg_gradient = "surface-warning-gradient"
+      icon_bg = "icon-bg-expense-alt"
+      icon_text = "amount-negative"
+      border_color = "border-expense-300 dark:border-expense-700"
     elsif is_budget_coach
-      bg_gradient = "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20"
-      icon_bg = "bg-blue-200 dark:bg-blue-900/40"
-      icon_text = "text-blue-600 dark:text-blue-400"
-      border_color = "border-blue-300 dark:border-blue-700"
+      bg_gradient = "surface-info-primary-gradient"
+      icon_bg = "icon-bg-info"
+      icon_text = "icon-info"
+      border_color = "border-info-status"
     else
-      bg_gradient = "bg-gradient-to-br from-success-100 to-success-50 dark:from-success-900/30 dark:to-success-800/20"
-      icon_bg = "bg-success-200 dark:bg-success-900/40"
-      icon_text = "text-success-600 dark:text-success-400"
-      border_color = "border-success-300 dark:border-success-700"
+      bg_gradient = "surface-success-gradient"
+      icon_bg = "icon-bg-success"
+      icon_text = "status-success"
+      border_color = "border-success-status"
     end
   when "medium"
     if is_budget_coach
-      bg_gradient = "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20"
-      icon_bg = "bg-blue-200 dark:bg-blue-900/40"
-      icon_text = "text-blue-600 dark:text-blue-400"
-      border_color = "border-blue-300 dark:border-blue-700"
+      bg_gradient = "surface-info-primary-gradient"
+      icon_bg = "icon-bg-info"
+      icon_text = "icon-info"
+      border_color = "border-info-status"
     else
-      bg_gradient = "bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800"
-      icon_bg = "bg-blue-100 dark:bg-blue-900/30"
-      icon_text = "text-primary-700 dark:text-primary-500"
-      border_color = "border-blue-200 dark:border-blue-800"
+      bg_gradient = "surface-primary-gradient"
+      icon_bg = "surface-primary"
+      icon_text = "text-brand"
+      border_color = "surface-primary-border"
     end
   else # low
-    bg_gradient = "bg-gradient-to-br from-neutral-100 to-white dark:from-primary-700 dark:to-primary-900"
-    icon_bg = "bg-gray-100 dark:bg-gray-800"
-    icon_text = "text-gray-600 dark:text-gray-400"
-    border_color = "border-gray-200 dark:border-gray-700"
+    bg_gradient = "surface-empty-state"
+    icon_bg = "bg-neutral-100 dark:bg-neutral-800"
+    icon_text = "text-neutral-600 dark:text-neutral-400"
+    border_color = "border-neutral-200 dark:border-neutral-700"
   end
   
   # Icon based on insight type
@@ -89,8 +89,8 @@
       </div>
       
       <div class="flex-1 min-w-0">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1"><%= title %></h3>
-        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed"><%= message %></p>
+        <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-1"><%= title %></h3>
+        <p class="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed"><%= message %></p>
       </div>
     </div>
     
@@ -98,7 +98,7 @@
     <% if evidence.present? %>
       <div class="mt-4" data-insight-card-target="evidenceContainer">
         <button type="button"
-                class="flex items-center gap-2 text-sm font-medium text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 transition-colors"
+                class="flex items-center gap-2 text-sm font-medium link-primary"
                 data-action="click->insight-card#toggleEvidence"
                 data-insight-card-target="evidenceToggle">
           <span>Why?</span>
@@ -113,7 +113,7 @@
         
         <div class="hidden mt-3 pt-3 border-t <%= border_color %>" 
              data-insight-card-target="evidenceContent">
-          <%= render "shared/insight_evidence", evidence: evidence, insight_type: insight_type %>
+          <%= render "shared/ui/insight_evidence", evidence: evidence, insight_type: insight_type %>
         </div>
       </div>
     <% end %>
@@ -122,7 +122,7 @@
     <div class="mt-auto pt-4 border-t <%= border_color %> flex items-center gap-3">
       <% if suggested_action.present? && suggested_amount.present? %>
         <button type="button"
-                class="inline-flex items-center px-4 py-2 bg-primary-700 text-white text-sm font-medium rounded-lg hover:bg-primary-900 transition-colors"
+                class="btn-primary inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors"
                 data-action="click->modal#open"
                 data-insight-amount="<%= suggested_amount %>"
                 data-insight-date="<%= suggested_date&.strftime('%Y-%m-%d') %>"
@@ -132,13 +132,13 @@
         </button>
       <% elsif suggested_action.present? %>
         <%= link_to transactions_path,
-                    class: "inline-flex items-center px-4 py-2 bg-primary-700 text-white text-sm font-medium rounded-lg hover:bg-primary-900 transition-colors" do %>
+                    class: "btn-primary inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors" do %>
           <%= suggested_action %>
         <% end %>
       <% end %>
       
       <button type="button"
-              class="ml-auto text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              class="ml-auto text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
               data-action="click->insight-card#dismiss">
         Dismiss
       </button>

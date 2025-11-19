@@ -46,7 +46,7 @@
       id: 'total-projects-card',
       title: "Total Projects",
       value: @projects_data[:total_projects].to_s,
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@projects_data[:active_projects]}</span> active".html_safe,
+      subtitle: "<span class='font-semibold text-neutral-base'>#{@projects_data[:active_projects]}</span> active".html_safe,
       detail: "Across all projects",
       icon: 'chart',
       color: 'blue',
@@ -58,7 +58,7 @@
       id: 'total-expenses-card',
       title: "Total Expenses",
       value: format_cents(@projects_data[:total_expenses_cents]),
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@projects_data[:total_projects]}</span> projects".html_safe,
+      subtitle: "<span class='font-semibold text-neutral-base'>#{@projects_data[:total_projects]}</span> projects".html_safe,
       detail: "All time",
       icon: 'dollar',
       color: 'red',
@@ -70,7 +70,7 @@
       id: 'total-participants-card',
       title: "Total Participants",
       value: @projects_data[:total_participants].to_s,
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@projects_data[:total_projects]}</span> projects".html_safe,
+      subtitle: "<span class='font-semibold text-neutral-base'>#{@projects_data[:total_projects]}</span> projects".html_safe,
       detail: "Unique members",
       icon: 'chart',
       color: 'blue',
@@ -82,7 +82,7 @@
       id: 'active-projects-card',
       title: "Active Projects",
       value: @projects_data[:active_projects].to_s,
-      subtitle: "<span class='font-semibold text-gray-900 dark:text-white'>#{@projects_data[:total_projects] - @projects_data[:active_projects]}</span> inactive".html_safe,
+      subtitle: "<span class='font-semibold text-neutral-base'>#{@projects_data[:total_projects] - @projects_data[:active_projects]}</span> inactive".html_safe,
       detail: "With expenses",
       icon: 'arrow-up',
       color: 'green',
@@ -91,32 +91,32 @@
 
 <%# Update the table body %>
 <%= turbo_stream.replace "projects-table-body" do %>
-  <tbody id="projects-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+  <tbody id="projects-table-body" class="bg-white dark:bg-neutral-800 divide-y divide-table-divider">
     <% if @projects_data[:projects].any? %>
       <% @projects_data[:projects].each do |project| %>
         <tr>
           <td class="px-6 py-4 whitespace-nowrap">
-            <%= link_to project.name, project_path(project), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 font-medium" %>
+            <%= link_to project.name, project_path(project), class: "link-primary font-medium" %>
           </td>
           <td class="px-6 py-4">
-            <div class="text-sm text-gray-900 dark:text-gray-100">
+            <div class="text-sm text-neutral-900 dark:text-neutral-100">
               <%= (project.participants.map { |u| user_display_name(u) }).join(", ") %>
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <%= link_to "View", project_path(project), class: "text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300" %>
+            <%= link_to "View", project_path(project), class: "link-primary" %>
           </td>
         </tr>
       <% end %>
     <% else %>
       <tr>
         <td colspan="3" class="px-6 py-12 text-center">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No projects</h3>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating your first project.</p>
-          <%= link_to "New Project", new_project_path, class: "mt-4 inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-lg font-medium transition-colors" %>
+          <h3 class="mt-2 text-sm font-medium text-neutral-base">No projects</h3>
+          <p class="mt-1 text-sm text-neutral-muted">Get started by creating your first project.</p>
+          <%= link_to "New Project", new_project_path, class: "mt-4 btn-primary" %>
         </td>
       </tr>
     <% end %>
@@ -133,22 +133,22 @@
     <div class="p-4">
       <div class="flex items-start">
         <div class="flex-shrink-0">
-          <svg class="h-6 w-6 text-success-500 dark:text-success-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-6 w-6 icon-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div class="ml-3 w-0 flex-1 pt-0.5">
-          <p class="text-success-700 dark:text-success-300 text-sm font-medium">
+          <p class="status-success-text text-sm font-medium">
             Project created successfully!
           </p>
-          <p class="text-success-600 dark:text-success-400 text-xs mt-1">
+          <p class="status-success text-xs mt-1">
             <%= @project.name %>
           </p>
         </div>
         <div class="ml-4 flex-shrink-0 flex">
           <button type="button" 
                   data-action="click->notification#dismiss"
-                  class="text-success-500 dark:text-success-300 hover:text-success-700 dark:hover:text-success-500">
+                  class="icon-success hover-success">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
