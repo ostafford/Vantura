@@ -22,6 +22,7 @@ gem "jbuilder"
 gem "devise", "~> 4.9", ">= 4.9.4"
 # sidekiq for background jobs
 gem "sidekiq", "~> 8.0", ">= 8.0.9"
+gem "redis", "~> 5.4", ">= 5.4.1"
 # pundit for authorization
 gem "pundit", "~> 2.5", ">= 2.5.2"
 # rack-attack for rate limiting
@@ -48,6 +49,13 @@ gem "image_processing", "~> 1.14"
 gem "pry-rails", "~> 0.3.11"
 # administrate for admin panel
 gem "administrate", "~> 1.0"
+# attr_encrypted for encrypted attributes
+gem "attr_encrypted", "~> 4.2"
+# vcr for recording and playing back HTTP requests
+gem "vcr", "~> 6.3", ">= 6.3.1"
+# httparty for HTTP client
+gem "httparty", "~> 0.23.2"
+
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
@@ -57,7 +65,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 gem "solid_cache"
-gem "solid_queue"
+gem "solid_queue", "~> 1.2", ">= 1.2.4"
 gem "solid_cable"
 
 # Reduces boot times through caching; required in config/boot.rb
@@ -75,6 +83,9 @@ gem "thruster", require: false
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+
+  # webmock for HTTP request stubbing (required by VCR)
+  gem "webmock", "~> 3.26", ">= 3.26.1"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
