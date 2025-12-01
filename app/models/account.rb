@@ -1,5 +1,5 @@
 class Account < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, touch: true
   has_many :transactions, dependent: :destroy
 
   # Money Rails

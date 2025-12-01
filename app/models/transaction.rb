@@ -1,6 +1,6 @@
 class Transaction < ApplicationRecord
-  belongs_to :user
-  belongs_to :account
+  belongs_to :user, touch: true
+  belongs_to :account, touch: true
   # Note: Transactions do not have a direct category_id column in the database.
   # Categories are associated through tags or can be inferred from transaction data.
   # PlannedTransactions and ProjectExpenses have category_id for categorization.
@@ -34,9 +34,8 @@ class Transaction < ApplicationRecord
 
   # Class methods
   def self.find_or_create_from_up_data(up_data, user, account)
-    transaction = find_or_initialize_by(up_id: up_data["id"])
+    transaction = find_or_initialize_by(up_id: up_data["id"], user_id: user.id)
     transaction.assign_attributes(
-      user: user,
       account: account,
       status: up_data.dig("attributes", "status")&.downcase,
       raw_text: up_data.dig("attributes", "rawText"),

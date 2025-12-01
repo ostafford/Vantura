@@ -1,10 +1,20 @@
 class UpBankApiService
   BASE_URL = "https://api.up.com.au/api/v1".freeze
 
+  # Rate limit: 100 requests per minute per user
+  RATE_LIMIT = 100
+  RATE_PERIOD = 60.seconds
+
   def initialize(user)
     @user = user
     @token = user.up_bank_token
     raise ArgumentError, "User has no Up Bank token" unless @token
+
+    @rate_limiter = ApiRateLimiter.new(
+      limit: RATE_LIMIT,
+      period: RATE_PERIOD,
+      key_prefix: "up_bank_api"
+    )
   end
 
   # Fetch all accounts
@@ -69,15 +79,21 @@ class UpBankApiService
   private
 
   def get(endpoint)
+    # Check rate limit before making request
+    @rate_limiter.check!(@user.id)
+
     url = "#{BASE_URL}#{endpoint}"
     response = HTTParty.get(
       url,
-      headers: headers
+      headers: headers,
+      timeout: 30
     )
 
     raise UpBankApiError, "API Error: #{response.code}" unless response.success?
 
     JSON.parse(response.body)
+  rescue ApiRateLimiter::RateLimitExceeded => e
+    raise UpBankApiError, "Rate limit exceeded. Retry after #{e.retry_after} seconds"
   rescue JSON::ParserError => e
     raise UpBankApiError, "Failed to parse API response: #{e.message}"
   end

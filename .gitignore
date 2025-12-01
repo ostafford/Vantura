@@ -43,3 +43,6 @@
 
 # internal documents
 /internal-docs/*
+
+# Accidental shell output files
+1cd

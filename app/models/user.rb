@@ -12,7 +12,7 @@ class User < ApplicationRecord
 
   # Encrypted Up Bank token
   attr_encrypted :up_bank_token,
-    key: ENV.fetch("ENCRYPTION_KEY"),
+    key: ENV.fetch("ENCRYPTION_KEY") { Rails.env.development? ? "development_key_32_bytes_long!!" : nil },
     algorithm: "aes-256-gcm",
     mode: :per_attribute_iv_and_salt
 
@@ -26,11 +26,20 @@ class User < ApplicationRecord
   has_many :projects, through: :project_members
   has_many :expense_contributions
 
+  # Touch updated_at when related records change for cache invalidation
+  after_touch :touch_accounts
+
   # Validations
   validates :email_address, presence: true, uniqueness: true
 
   # Methods
   def has_up_bank_token?
     up_bank_token.present?
+  end
+
+  private
+
+  def touch_accounts
+    accounts.touch_all
   end
 end

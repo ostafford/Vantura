@@ -15,6 +15,10 @@ class SyncUpBankDataJob < ApplicationJob
     service = UpBankApiService.new(user)
     service.sync_all_data
 
+    # Invalidate cache after sync
+    Rails.cache.delete("user/#{user.id}/accounts")
+    Rails.cache.delete("user/#{user.id}/balance")
+
     # Broadcast updates
     broadcast_dashboard_update(user)
   rescue ActiveRecord::RecordNotFound => e
