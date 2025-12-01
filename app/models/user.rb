@@ -25,6 +25,8 @@ class User < ApplicationRecord
   has_many :project_members
   has_many :projects, through: :project_members
   has_many :expense_contributions
+  has_many :goals, dependent: :destroy
+  has_many :feedback_items, dependent: :destroy
 
   # Touch updated_at when related records change for cache invalidation
   after_touch :touch_accounts
@@ -35,6 +37,19 @@ class User < ApplicationRecord
   # Methods
   def has_up_bank_token?
     up_bank_token.present?
+  end
+
+  def needs_up_bank_setup?
+    up_bank_token.blank?
+  end
+
+  def calculate_stats
+    {
+      total_balance: accounts.sum(:balance_cents),
+      income_this_month: transactions.income.this_month.sum(:amount_cents),
+      expenses_this_month: transactions.expenses.this_month.sum(:amount_cents).abs,
+      net_this_month: transactions.this_month.sum(:amount_cents)
+    }
   end
 
   private

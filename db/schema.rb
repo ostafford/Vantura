@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_01_061159) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.string "balance_currency"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "ownership_type"
+    t.datetime "created_at_up"
     t.index ["up_id", "user_id"], name: "index_accounts_on_up_id_and_user_id", unique: true
     t.index ["user_id"], name: "index_accounts_on_user_id"
   end
@@ -33,6 +35,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.string "icon"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "up_id"
+    t.index ["up_id"], name: "index_categories_on_up_id", unique: true, where: "(up_id IS NOT NULL)"
   end
 
   create_table "expense_contributions", force: :cascade do |t|
@@ -44,9 +48,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.bigint "paid_via_transaction_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "status", default: "pending"
+    t.text "note"
     t.index ["paid_via_transaction_id"], name: "index_expense_contributions_on_paid_via_transaction_id"
     t.index ["project_expense_id"], name: "index_expense_contributions_on_project_expense_id"
     t.index ["user_id"], name: "index_expense_contributions_on_user_id"
+  end
+
+  create_table "feedback_items", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "feedback_type"
+    t.string "status", default: "new"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "status"], name: "index_feedback_items_on_user_id_and_status"
+    t.index ["user_id"], name: "index_feedback_items_on_user_id"
   end
 
   create_table "filters", force: :cascade do |t|
@@ -61,6 +78,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.index ["filter_types"], name: "index_filters_on_filter_types", using: :gin
     t.index ["user_id", "created_at"], name: "index_filters_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_filters_on_user_id"
+  end
+
+  create_table "goals", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name"
+    t.string "goal_type"
+    t.integer "target_amount_cents"
+    t.string "period"
+    t.date "start_date"
+    t.date "end_date"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "active"], name: "index_goals_on_user_id_and_active"
+    t.index ["user_id"], name: "index_goals_on_user_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -93,6 +125,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.text "recurrence_rule"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "name"
+    t.string "recurrence_pattern"
+    t.date "recurrence_end_date"
     t.index ["category_id"], name: "index_planned_transactions_on_category_id"
     t.index ["transaction_id"], name: "index_planned_transactions_on_transaction_id"
     t.index ["user_id", "planned_date"], name: "index_planned_transactions_on_user_id_and_planned_date"
@@ -109,7 +144,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.bigint "category_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "name"
+    t.bigint "paid_by_user_id"
     t.index ["category_id"], name: "index_project_expenses_on_category_id"
+    t.index ["paid_by_user_id"], name: "index_project_expenses_on_paid_by_user_id"
     t.index ["project_id", "expense_date"], name: "index_project_expenses_on_project_id_and_expense_date"
     t.index ["project_id"], name: "index_project_expenses_on_project_id"
     t.index ["transaction_id"], name: "index_project_expenses_on_transaction_id"
@@ -135,6 +173,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color"
     t.index ["owner_id"], name: "index_projects_on_owner_id"
   end
 
@@ -202,9 +241,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.string "card_purchase_method"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "category_id"
+    t.datetime "created_at_up"
+    t.boolean "is_categorizable", default: true
+    t.integer "round_up_cents"
+    t.integer "cashback_cents"
     t.index ["account_id"], name: "index_transactions_on_account_id"
+    t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["status"], name: "index_transactions_on_status"
-    t.index ["up_id"], name: "index_transactions_on_up_id", unique: true
+    t.index ["up_id", "user_id"], name: "index_transactions_on_up_id_and_user_id", unique: true
     t.index ["user_id", "created_at"], name: "index_transactions_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end
@@ -214,13 +259,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.string "encrypted_password", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.text "up_bank_token"
     t.text "up_bank_token_encrypted"
     t.text "up_bank_token_encrypted_iv"
     t.text "up_bank_token_encrypted_salt"
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
+    t.boolean "admin", default: false, null: false
+    t.string "name"
+    t.string "avatar_url"
+    t.boolean "dark_mode", default: false
+    t.string "currency", default: "AUD"
+    t.datetime "last_synced_at"
+    t.index ["admin"], name: "index_users_on_admin"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -233,6 +284,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
     t.text "error_message"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "up_event_id"
     t.index ["event_type"], name: "index_webhook_events_on_event_type"
     t.index ["user_id", "processed_at"], name: "index_webhook_events_on_user_id_and_processed_at"
     t.index ["user_id"], name: "index_webhook_events_on_user_id"
@@ -242,7 +294,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
   add_foreign_key "expense_contributions", "project_expenses"
   add_foreign_key "expense_contributions", "transactions", column: "paid_via_transaction_id"
   add_foreign_key "expense_contributions", "users"
+  add_foreign_key "feedback_items", "users"
   add_foreign_key "filters", "users"
+  add_foreign_key "goals", "users"
   add_foreign_key "notifications", "users"
   add_foreign_key "planned_transactions", "categories"
   add_foreign_key "planned_transactions", "transactions"
@@ -250,6 +304,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
   add_foreign_key "project_expenses", "categories"
   add_foreign_key "project_expenses", "projects"
   add_foreign_key "project_expenses", "transactions"
+  add_foreign_key "project_expenses", "users", column: "paid_by_user_id"
   add_foreign_key "project_members", "projects"
   add_foreign_key "project_members", "users"
   add_foreign_key "projects", "users", column: "owner_id"
@@ -257,6 +312,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
   add_foreign_key "transaction_tags", "tags"
   add_foreign_key "transaction_tags", "transactions"
   add_foreign_key "transactions", "accounts"
+  add_foreign_key "transactions", "categories"
   add_foreign_key "transactions", "users"
   add_foreign_key "webhook_events", "users"
 end

@@ -1,9 +1,7 @@
 class Transaction < ApplicationRecord
   belongs_to :user, touch: true
   belongs_to :account, touch: true
-  # Note: Transactions do not have a direct category_id column in the database.
-  # Categories are associated through tags or can be inferred from transaction data.
-  # PlannedTransactions and ProjectExpenses have category_id for categorization.
+  belongs_to :category, optional: true
   has_many :transaction_tags, dependent: :destroy, foreign_key: "transaction_id"
   has_many :tags, through: :transaction_tags
   has_one :planned_transaction, dependent: :nullify
@@ -31,6 +29,7 @@ class Transaction < ApplicationRecord
   }
   scope :expenses, -> { where("amount_cents < 0") }
   scope :income, -> { where("amount_cents > 0") }
+  scope :this_month, -> { where("created_at >= ?", Time.current.beginning_of_month) }
 
   # Class methods
   def self.find_or_create_from_up_data(up_data, user, account)

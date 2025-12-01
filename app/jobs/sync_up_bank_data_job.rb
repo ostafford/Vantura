@@ -15,6 +15,9 @@ class SyncUpBankDataJob < ApplicationJob
     service = UpBankApiService.new(user)
     service.sync_all_data
 
+    # Update sync timestamp
+    user.update!(last_synced_at: Time.current)
+
     # Invalidate cache after sync
     Rails.cache.delete("user/#{user.id}/accounts")
     Rails.cache.delete("user/#{user.id}/balance")

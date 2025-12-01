@@ -17,6 +17,25 @@ Rails.application.routes.draw do
   get "/dashboard", to: "dashboard#index"
   post "/sync", to: "dashboard#sync"
 
+  # Transactions
+  resources :transactions, only: [:index, :show]
+
+  # Calendar
+  get "/calendar", to: "calendar#index"
+
+  # Projects
+  resources :projects, only: [:index, :show]
+
+  # Settings
+  get "/settings", to: "settings#index"
+  patch "/settings", to: "settings#update"
+
+  # Goals
+  resources :goals, only: [:index, :create, :update, :destroy]
+
+  # Feedback
+  resources :feedback_items, only: [:create]
+
   # Health checks
   get "up" => "rails/health#show", as: :rails_health_check
   get "health/full" => "health#full", as: :full_health_check

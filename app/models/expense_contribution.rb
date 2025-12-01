@@ -6,11 +6,17 @@ class ExpenseContribution < ApplicationRecord
   # Money Rails
   monetize :amount_cents, with_currency: :aud
 
+  # Enums
+  enum :status, {
+    pending: "pending",
+    paid: "paid"
+  }
+
   validates :amount_cents, presence: true
 
   # Methods
   def paid?
-    paid_at.present?
+    paid_at.present? || status == "paid"
   end
 
   def mark_as_paid!(transaction = nil)

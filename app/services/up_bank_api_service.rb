@@ -45,9 +45,22 @@ class UpBankApiService
     response["data"]
   end
 
-  # Sync all data (accounts + transactions)
+  # Ping the Up Bank API to verify token
+  def ping
+    response = get("/util/ping")
+    response
+  end
+
+  # Fetch all categories
+  def fetch_categories
+    response = get("/categories")
+    response["data"] || []
+  end
+
+  # Sync all data (accounts + categories + transactions)
   def sync_all_data
     sync_accounts
+    sync_categories
     sync_transactions
   end
 
@@ -60,9 +73,31 @@ class UpBankApiService
         account_type: account_data.dig("attributes", "accountType"),
         display_name: account_data.dig("attributes", "displayName"),
         balance_cents: account_data.dig("attributes", "balance", "valueInBaseUnits"),
-        balance_currency: "AUD"
+        balance_currency: "AUD",
+        ownership_type: account_data.dig("attributes", "ownershipType"),
+        created_at_up: parse_up_datetime(account_data.dig("attributes", "createdAt"))
       )
       account.save!
+    end
+  end
+
+  # Sync categories from API
+  def sync_categories
+    categories_data = fetch_categories
+    categories_data.each do |category_data|
+      category = Category.find_or_initialize_by(up_id: category_data["id"])
+      category.assign_attributes(
+        name: category_data.dig("attributes", "name")
+      )
+
+      # Handle parent category relationship
+      if category_data.dig("relationships", "parent", "data")
+        parent_up_id = category_data.dig("relationships", "parent", "data", "id")
+        parent_category = Category.find_by(up_id: parent_up_id)
+        category.parent = parent_category if parent_category
+      end
+
+      category.save!
     end
   end
 
@@ -116,6 +151,13 @@ class UpBankApiService
     uri = URI.parse(next_link)
     params = URI.decode_www_form(uri.query || "").to_h
     params["page[after]"]
+  end
+
+  def parse_up_datetime(datetime_string)
+    return nil if datetime_string.blank?
+    Time.parse(datetime_string)
+  rescue ArgumentError
+    nil
   end
 end
 

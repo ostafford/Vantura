@@ -1,5 +1,6 @@
 class ProjectExpense < ApplicationRecord
   belongs_to :project
+  belongs_to :paid_by_user, class_name: "User", optional: true
   # Uses 'transaction_record' instead of 'transaction' to avoid conflict with
   # ActiveRecord's transaction method (used for database transactions)
   # Reference: https://guides.rubyonrails.org/active_record_basics.html
