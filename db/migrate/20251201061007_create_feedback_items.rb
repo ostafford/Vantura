@@ -8,6 +8,6 @@ class CreateFeedbackItems < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    add_index :feedback_items, [:user_id, :status], if_not_exists: true
+    add_index :feedback_items, [ :user_id, :status ], if_not_exists: true
   end
 end

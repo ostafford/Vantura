@@ -12,6 +12,6 @@ class CreateGoals < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    add_index :goals, [:user_id, :active], if_not_exists: true
+    add_index :goals, [ :user_id, :active ], if_not_exists: true
   end
 end

@@ -20,6 +20,6 @@ class FeedbackItem < ApplicationRecord
   validates :description, presence: true
 
   # Scopes
-  scope :unresolved, -> { where(status: ["new", "in_progress"]) }
-  scope :resolved, -> { where(status: ["completed", "rejected"]) }
+  scope :unresolved, -> { where(status: [ "new", "in_progress" ]) }
+  scope :resolved, -> { where(status: [ "completed", "rejected" ]) }
 end

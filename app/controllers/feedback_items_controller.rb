@@ -16,4 +16,3 @@ class FeedbackItemsController < ApplicationController
     params.require(:feedback_item).permit(:feedback_type, :description)
   end
 end
-

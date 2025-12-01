@@ -35,4 +35,3 @@ class GoalsController < ApplicationController
     params.require(:goal).permit(:name, :goal_type, :target_amount_cents, :period, :start_date, :end_date, :active)
   end
 end
-

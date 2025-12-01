@@ -19,4 +19,3 @@ class SettingsController < ApplicationController
     params.require(:user).permit(:name, :avatar_url, :dark_mode, :currency)
   end
 end
-

@@ -12,4 +12,3 @@ class TransactionsController < ApplicationController
     @transaction = current_user.transactions.find(params[:id])
   end
 end
-

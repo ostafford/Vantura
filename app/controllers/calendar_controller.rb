@@ -6,4 +6,3 @@ class CalendarController < ApplicationController
     @month = params[:month]&.to_i || Time.current.month
   end
 end
-
