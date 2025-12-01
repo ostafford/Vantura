@@ -1,6 +1,14 @@
 Rails.application.routes.draw do
 # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
+devise_for :users
+
+# webhooks
+post "webhooks/up" => "webhooks#up"
+
+# Health Check
+get "up" => "rails/health#show", as: :rails_health_check
+
 require "sidekiq/web"
 mount Sidekiq::Web => "/sidekiq" if Rails.env.development?
 
