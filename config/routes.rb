@@ -1,25 +1,20 @@
-Rails.application.routes.draw do
-# Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-devise_for :users
-
-# webhooks
-post "webhooks/up" => "webhooks#up"
-
-# Health Check
-get "up" => "rails/health#show", as: :rails_health_check
-
 require "sidekiq/web"
-mount Sidekiq::Web => "/sidekiq" if Rails.env.development?
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+Rails.application.routes.draw do
+  devise_for :users
+
+  # Sidekiq web UI (protect with authentication in production)
+  mount Sidekiq::Web => "/sidekiq" if Rails.env.development?
+
+  root "dashboard#index"
+
+  # Webhooks
+  post "/webhooks/up", to: "webhooks#up"
+
+  # Dashboard
+  get "/dashboard", to: "dashboard#index"
+  post "/sync", to: "dashboard#sync"
+
+  # Health check
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  # root "posts#index"
 end
