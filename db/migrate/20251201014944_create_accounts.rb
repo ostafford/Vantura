@@ -10,6 +10,8 @@ class CreateAccounts < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
+    # Note: Global unique index on up_id removed in later migration
+    # Replaced with composite unique index [:up_id, :user_id] to match model validation
     add_index :accounts, :up_id, unique: true, if_not_exists: true
     add_index :accounts, :user_id, if_not_exists: true
   end

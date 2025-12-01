@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_01_015011) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_01_022626) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,13 +23,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_015011) do
     t.string "balance_currency"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["up_id"], name: "index_accounts_on_up_id", unique: true
+    t.index ["up_id", "user_id"], name: "index_accounts_on_up_id_and_user_id", unique: true
     t.index ["user_id"], name: "index_accounts_on_user_id"
   end
 
   create_table "categories", force: :cascade do |t|
     t.string "name"
-    t.integer "parent_id"
+    t.bigint "parent_id"
     t.string "icon"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -51,7 +51,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_015011) do
 
   create_table "filters", force: :cascade do |t|
     t.string "name"
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "filter_params"
@@ -64,7 +64,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_015011) do
   end
 
   create_table "notifications", force: :cascade do |t|
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.string "notification_type", null: false
     t.string "title", null: false
     t.text "message", null: false
@@ -139,7 +139,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_015011) do
   end
 
   create_table "recurring_transactions", force: :cascade do |t|
-    t.integer "account_id", null: false
+    t.bigint "account_id", null: false
     t.string "description"
     t.decimal "amount", precision: 10, scale: 2
     t.string "frequency"
@@ -149,7 +149,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_015011) do
     t.string "category"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "template_transaction_id"
+    t.bigint "template_transaction_id"
     t.string "merchant_pattern"
     t.decimal "amount_tolerance", precision: 10, scale: 2, default: "1.0"
     t.string "projection_months", default: "indefinite"
@@ -159,7 +159,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_015011) do
   end
 
   create_table "sessions", force: :cascade do |t|
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.string "ip_address"
     t.string "user_agent"
     t.datetime "created_at", null: false
