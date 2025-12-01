@@ -1,10 +1,16 @@
 class SyncUpBankDataJob < ApplicationJob
   queue_as :default
 
-  retry_on ActiveRecord::RecordNotFound, wait: :exponentially_longer, attempts: 3
-  retry_on Net::TimeoutError, wait: :exponentially_longer, attempts: 3
-  retry_on Faraday::TimeoutError, wait: :exponentially_longer, attempts: 3
+  # Retry strategy: polynomially_longer provides a more gradual backoff than exponentially_longer
+  # This is better for API rate limits and reduces server load spikes
+  # Reference: https://guides.rubyonrails.org/active_job_basics.html
+  retry_on ActiveRecord::RecordNotFound, wait: :polynomially_longer, attempts: 3
+  retry_on Net::TimeoutError, wait: :polynomially_longer, attempts: 3
+  retry_on Faraday::TimeoutError, wait: :polynomially_longer, attempts: 3
 
+  # Uses GlobalID to automatically serialize/deserialize the user object
+  # If the user is deleted, ActiveJob::DeserializationError will be raised
+  # and handled by ApplicationJob's discard_on configuration
   def perform(user)
     service = UpBankApiService.new(user)
     service.sync_all_data

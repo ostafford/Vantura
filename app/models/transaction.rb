@@ -1,8 +1,10 @@
 class Transaction < ApplicationRecord
   belongs_to :user
   belongs_to :account
-  belongs_to :category, optional: true
-  has_many :transaction_tags, dependent: :destroy
+  # Note: Transactions do not have a direct category_id column in the database.
+  # Categories are associated through tags or can be inferred from transaction data.
+  # PlannedTransactions and ProjectExpenses have category_id for categorization.
+  has_many :transaction_tags, dependent: :destroy, foreign_key: "transaction_id"
   has_many :tags, through: :transaction_tags
   has_one :planned_transaction, dependent: :nullify
   has_many :project_expenses
@@ -12,7 +14,7 @@ class Transaction < ApplicationRecord
   monetize :foreign_amount_cents, with_currency: :aud, allow_nil: true
 
   # Enums
-  enum status: {
+  enum :status, {
     held: "HELD",
     settled: "SETTLED",
     pending: "PENDING"

@@ -1,6 +1,9 @@
 class ProjectExpense < ApplicationRecord
   belongs_to :project
-  belongs_to :transaction, optional: true
+  # Uses 'transaction_record' instead of 'transaction' to avoid conflict with
+  # ActiveRecord's transaction method (used for database transactions)
+  # Reference: https://guides.rubyonrails.org/active_record_basics.html
+  belongs_to :transaction_record, class_name: "Transaction", foreign_key: "transaction_id", optional: true
   belongs_to :category, optional: true
   has_many :expense_contributions, dependent: :destroy
 

@@ -18,6 +18,9 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Ensure Devise is loaded early
+require "devise"
+
 module Vantura
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -30,6 +33,10 @@ module Vantura
 
     # Use Sidekiq for background jobs
     config.active_job.queue_adapter = :sidekiq
+
+    # Rack Attack middleware is automatically added by the gem when
+    # config/initializers/rack_attack.rb is present
+    # Reference: https://guides.rubyonrails.org/rails_on_rack.html
 
     # Configuration for the application, engines, and railties goes here.
     #

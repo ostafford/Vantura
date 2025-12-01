@@ -1,6 +1,9 @@
 class PlannedTransaction < ApplicationRecord
   belongs_to :user
-  belongs_to :transaction, optional: true
+  # Uses 'transaction_record' instead of 'transaction' to avoid conflict with
+  # ActiveRecord's transaction method (used for database transactions)
+  # Reference: https://guides.rubyonrails.org/active_record_basics.html
+  belongs_to :transaction_record, class_name: "Transaction", foreign_key: "transaction_id", optional: true
   belongs_to :category, optional: true
 
   # Money Rails
@@ -26,6 +29,6 @@ class PlannedTransaction < ApplicationRecord
 
   # Methods
   def linked?
-    transaction.present?
+    transaction_record.present?
   end
 end

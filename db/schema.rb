@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_01_022626) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_01_033646) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -211,14 +211,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_022626) do
 
   create_table "users", force: :cascade do |t|
     t.string "email_address", null: false
-    t.string "password_digest", null: false
+    t.string "encrypted_password", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "up_bank_token"
     t.text "up_bank_token_encrypted"
     t.text "up_bank_token_encrypted_iv"
     t.text "up_bank_token_encrypted_salt"
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   create_table "webhook_events", force: :cascade do |t|

@@ -11,7 +11,7 @@ class DashboardController < ApplicationController
   def sync
     return head :unauthorized unless current_user.has_up_bank_token?
 
-    SyncUpBankDataJob.perform_later(current_user.id)
+    SyncUpBankDataJob.perform_later(current_user)
     redirect_to dashboard_path, notice: "Sync started"
   end
 
@@ -21,7 +21,7 @@ class DashboardController < ApplicationController
     return if session[:last_sync] && session[:last_sync] > 5.minutes.ago
     return unless current_user.has_up_bank_token?
 
-    SyncUpBankDataJob.perform_later(current_user.id)
+    SyncUpBankDataJob.perform_later(current_user)
     session[:last_sync] = Time.current
   end
 end

@@ -41,6 +41,8 @@ gem "rspec-rails", "~> 8.0", ">= 8.0.2"
 gem "faker", "~> 3.5", ">= 3.5.2"
 # factory_bot for testing
 gem "factory_bot", "~> 6.5", ">= 6.5.6"
+# shoulda-matchers for testing
+gem "shoulda-matchers", "~> 6.4"
 # blueprint for views
 gem "blueprinter", "~> 1.2", ">= 1.2.1"
 # image_processing for image processing

@@ -1,5 +1,12 @@
 class User < ApplicationRecord
+  # Database field: email_address (not 'email')
+  # Devise is configured to use email_address as the authentication key (see config/initializers/devise.rb)
+  # This alias allows Devise methods that expect 'email' to work correctly
+  # Reference: https://guides.rubyonrails.org/active_record_basics.html
+  alias_attribute :email, :email_address
+  
   # Devise modules
+  # Note: Using email_address as the authentication key (configured in devise.rb)
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
@@ -20,7 +27,7 @@ class User < ApplicationRecord
   has_many :expense_contributions
 
   # Validations
-  validates :email, presence: true, uniqueness: true
+  validates :email_address, presence: true, uniqueness: true
 
   # Methods
   def has_up_bank_token?
