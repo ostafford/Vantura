@@ -1,10 +1,11 @@
 class ProcessUpWebhookJob < ApplicationJob
   queue_as :default
 
-  retry_on StandardError, wait: :exponentially_longer, attempts: 3
+  retry_on ActiveRecord::RecordNotFound, wait: :exponentially_longer, attempts: 3
+  retry_on Net::TimeoutError, wait: :exponentially_longer, attempts: 3
+  retry_on Faraday::TimeoutError, wait: :exponentially_longer, attempts: 3
 
-  def perform(webhook_event_id)
-    webhook_event = WebhookEvent.find(webhook_event_id)
+  def perform(webhook_event)
     payload = webhook_event.payload
 
     event_type = payload.dig("data", "attributes", "eventType")
@@ -22,6 +23,10 @@ class ProcessUpWebhookJob < ApplicationJob
     end
 
     webhook_event.mark_as_processed!
+  rescue ActiveRecord::RecordNotFound => e
+    # Record was deleted, discard silently
+    Rails.logger.warn "Webhook event not found, discarding: #{e.message}"
+    raise
   rescue => e
     webhook_event.mark_as_failed!(e.message)
     Rails.logger.error "Webhook processing failed: #{e.message}"

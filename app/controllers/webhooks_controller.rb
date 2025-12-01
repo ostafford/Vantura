@@ -11,7 +11,7 @@ class WebhooksController < ApplicationController
     )
 
     # Process in background
-    ProcessUpWebhookJob.perform_async(webhook_event.id)
+    ProcessUpWebhookJob.perform_later(webhook_event)
 
     head :ok
   rescue => e
