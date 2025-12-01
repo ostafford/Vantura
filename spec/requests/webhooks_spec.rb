@@ -42,7 +42,7 @@ RSpec.describe "Webhooks", type: :request do
             "Content-Type" => "application/json",
             "X-Up-Authenticity-Signature" => signature
           }
-        
+
         expect(response).to have_http_status(:ok)
       end
 
@@ -53,7 +53,7 @@ RSpec.describe "Webhooks", type: :request do
             "Content-Type" => "application/json",
             "X-Up-Authenticity-Signature" => signature
           }
-        
+
         webhook_event = WebhookEvent.last
         expect(webhook_event.event_type).to eq("TRANSACTION_CREATED")
       end
@@ -94,7 +94,7 @@ RSpec.describe "Webhooks", type: :request do
             "Content-Type" => "application/json",
             "X-Up-Authenticity-Signature" => compute_signature("invalid json")
           }
-        
+
         expect(response).to have_http_status(:ok)
       end
     end
@@ -107,4 +107,3 @@ RSpec.describe "Webhooks", type: :request do
     end
   end
 end
-

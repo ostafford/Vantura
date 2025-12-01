@@ -56,7 +56,7 @@ VCR.configure do |config|
   # Default cassette options
   config.default_cassette_options = {
     record: :once,
-    match_requests_on: [:method, :uri, :body]
+    match_requests_on: [ :method, :uri, :body ]
   }
 end
 
@@ -108,7 +108,7 @@ RSpec.configure do |config|
 
   # Include ActiveJob test helpers
   config.include ActiveJob::TestHelper
-  
+
   # Configure ActiveJob to use test adapter for matchers
   ActiveJob::Base.queue_adapter = :test
 

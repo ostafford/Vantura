@@ -42,7 +42,6 @@ class Rack::Attack
       error: "Rate limit exceeded. Please try again later.",
       retry_after: match_data[:period] - (now % match_data[:period])
     }.to_json
-    [429, headers, [body]]
+    [ 429, headers, [ body ] ]
   end
 end
-

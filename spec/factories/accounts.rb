@@ -8,4 +8,3 @@ FactoryBot.define do
     balance_currency { "AUD" }
   end
 end
-

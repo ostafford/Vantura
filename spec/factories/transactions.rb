@@ -10,4 +10,3 @@ FactoryBot.define do
     settled_at { 1.day.ago }
   end
 end
-

@@ -4,7 +4,7 @@ class User < ApplicationRecord
   # This alias allows Devise methods that expect 'email' to work correctly
   # Reference: https://guides.rubyonrails.org/active_record_basics.html
   alias_attribute :email, :email_address
-  
+
   # Devise modules
   # Note: Using email_address as the authentication key (configured in devise.rb)
   devise :database_authenticatable, :registerable,

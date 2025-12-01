@@ -26,7 +26,7 @@ RSpec.describe UpBankApiService, :vcr do
           body: '{"data": [{"id": "test-account", "attributes": {"accountType": "SAVER", "displayName": "Test Account", "balance": {"valueInBaseUnits": 1000}}}]}'
         )
       )
-      
+
       accounts = service.fetch_accounts
       expect(accounts).to be_an(Array)
       expect(accounts.first).to have_key("id") if accounts.any?
@@ -58,7 +58,7 @@ RSpec.describe UpBankApiService, :vcr do
           body: '{"data": [{"id": "test-transaction", "attributes": {"status": "SETTLED"}}], "links": {}}'
         )
       )
-      
+
       transactions = service.fetch_all_transactions
       expect(transactions).to be_an(Array)
     end
@@ -76,9 +76,9 @@ RSpec.describe UpBankApiService, :vcr do
         code: 200,
         body: '{"data": [{"id": "tx2", "attributes": {"status": "SETTLED"}}], "links": {}}'
       )
-      
+
       allow(HTTParty).to receive(:get).and_return(first_page, second_page)
-      
+
       transactions = service.fetch_all_transactions
       expect(transactions).to be_an(Array)
       expect(transactions.length).to eq(2)
@@ -97,7 +97,7 @@ RSpec.describe UpBankApiService, :vcr do
           body: '{"data": {"id": "test-transaction-id", "attributes": {"status": "SETTLED", "description": "Test"}}}'
         )
       )
-      
+
       transaction = service.fetch_transaction(transaction_id)
       expect(transaction).to have_key("id") if transaction
       expect(transaction).to have_key("attributes") if transaction
@@ -129,9 +129,9 @@ RSpec.describe UpBankApiService, :vcr do
 
     it "updates existing accounts" do
       account = create(:account, user: user, up_id: "test-account-id", balance_cents: 1000)
-      
+
       service.sync_all_data
-      
+
       account.reload
       # Balance should be updated from API response
       expect(account).to be_persisted
@@ -159,9 +159,9 @@ RSpec.describe UpBankApiService, :vcr do
 
     it "updates account attributes" do
       account = create(:account, user: user, up_id: "test-account-id", display_name: "Old Name", balance_cents: 1000)
-      
+
       service.sync_accounts
-      
+
       account.reload
       expect(account).to be_persisted
       expect(account.display_name).to eq("Updated Account")
@@ -191,11 +191,10 @@ RSpec.describe UpBankApiService, :vcr do
 
     it "associates transactions with correct account" do
       service.sync_transactions
-      
+
       transaction = Transaction.last
       expect(transaction.account).to be_present
       expect(transaction.account).to eq(account)
     end
   end
 end
-
