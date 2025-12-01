@@ -21,7 +21,7 @@ class Transaction < ApplicationRecord
   }
 
   # Validations
-  validates :up_id, presence: true, uniqueness: true
+  validates :up_id, presence: true, uniqueness: { scope: :user_id }
   validates :status, presence: true
 
   # Scopes

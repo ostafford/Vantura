@@ -10,7 +10,7 @@ class PlannedTransaction < ApplicationRecord
   monetize :amount_cents, with_currency: :aud
 
   # Enums
-  enum transaction_type: {
+  enum :transaction_type, {
     expense: "expense",
     income: "income"
   }

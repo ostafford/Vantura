@@ -14,9 +14,20 @@ RSpec.describe Transaction, type: :model do
   end
 
   describe "validations" do
+    subject { build(:transaction, user: user, account: account) }
+    
     it { should validate_presence_of(:up_id) }
-    it { should validate_uniqueness_of(:up_id) }
+    it { should validate_uniqueness_of(:up_id).scoped_to(:user_id) }
     it { should validate_presence_of(:status) }
+    
+    it "allows same up_id for different users" do
+      user2 = create(:user)
+      account2 = create(:account, user: user2)
+      transaction1 = create(:transaction, user: user, account: account, up_id: "same-id")
+      transaction2 = build(:transaction, user: user2, account: account2, up_id: "same-id")
+      
+      expect(transaction2).to be_valid
+    end
   end
 
   describe "enums" do

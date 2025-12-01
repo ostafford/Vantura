@@ -30,6 +30,10 @@ class WebhooksController < ApplicationController
     received_signature = request.headers["X-Up-Authenticity-Signature"]
     secret_key = ENV.fetch("UP_BANK_WEBHOOK_SECRET_KEY")
 
+    unless received_signature.present?
+      raise SecurityError, "Invalid webhook signature"
+    end
+
     computed_signature = OpenSSL::HMAC.hexdigest(
       "SHA256",
       secret_key,

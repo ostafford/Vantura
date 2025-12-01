@@ -41,6 +41,31 @@ class UpBankApiService
     sync_transactions
   end
 
+  # Sync accounts from API
+  def sync_accounts
+    accounts_data = fetch_accounts
+    accounts_data.each do |account_data|
+      account = @user.accounts.find_or_initialize_by(up_id: account_data["id"])
+      account.assign_attributes(
+        account_type: account_data.dig("attributes", "accountType"),
+        display_name: account_data.dig("attributes", "displayName"),
+        balance_cents: account_data.dig("attributes", "balance", "valueInBaseUnits"),
+        balance_currency: "AUD"
+      )
+      account.save!
+    end
+  end
+
+  # Sync transactions from API
+  def sync_transactions
+    transactions_data = fetch_all_transactions
+    transactions_data.each do |transaction_data|
+      account_up_id = transaction_data.dig("relationships", "account", "data", "id")
+      account = @user.accounts.find_by!(up_id: account_up_id)
+      Transaction.find_or_create_from_up_data(transaction_data, @user, account)
+    end
+  end
+
   private
 
   def get(endpoint)
@@ -62,29 +87,6 @@ class UpBankApiService
       "Authorization" => "Bearer #{@token}",
       "Content-Type" => "application/json"
     }
-  end
-
-  def sync_accounts
-    accounts_data = fetch_accounts
-    accounts_data.each do |account_data|
-      account = @user.accounts.find_or_initialize_by(up_id: account_data["id"])
-      account.assign_attributes(
-        account_type: account_data.dig("attributes", "accountType"),
-        display_name: account_data.dig("attributes", "displayName"),
-        balance_cents: account_data.dig("attributes", "balance", "valueInBaseUnits"),
-        balance_currency: "AUD"
-      )
-      account.save!
-    end
-  end
-
-  def sync_transactions
-    transactions_data = fetch_all_transactions
-    transactions_data.each do |transaction_data|
-      account_up_id = transaction_data.dig("relationships", "account", "data", "id")
-      account = @user.accounts.find_by!(up_id: account_up_id)
-      Transaction.find_or_create_from_up_data(transaction_data, @user, account)
-    end
   end
 
   def fetch_transactions(page_token = nil)

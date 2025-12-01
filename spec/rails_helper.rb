@@ -108,6 +108,9 @@ RSpec.configure do |config|
 
   # Include ActiveJob test helpers
   config.include ActiveJob::TestHelper
+  
+  # Configure ActiveJob to use test adapter for matchers
+  ActiveJob::Base.queue_adapter = :test
 
   # Shoulda Matchers configuration
   Shoulda::Matchers.configure do |shoulda_config|

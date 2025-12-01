@@ -1,17 +1,20 @@
 class ProcessUpWebhookJob < ApplicationJob
   queue_as :default
 
+  # Discard job if webhook_event or user was deleted before job runs
+  # This happens when GlobalID can't deserialize the record
+  discard_on ActiveJob::DeserializationError
+
   # Retry strategy: polynomially_longer provides a more gradual backoff than exponentially_longer
   # This is better for API rate limits and reduces server load spikes
   # Reference: https://guides.rubyonrails.org/active_job_basics.html
-  retry_on ActiveRecord::RecordNotFound, wait: :polynomially_longer, attempts: 3
   retry_on Net::ReadTimeout, wait: :polynomially_longer, attempts: 3
   retry_on Net::OpenTimeout, wait: :polynomially_longer, attempts: 3
   retry_on Timeout::Error, wait: :polynomially_longer, attempts: 3
 
   # Uses GlobalID to automatically serialize/deserialize the webhook_event object
   # If the record is deleted, ActiveJob::DeserializationError will be raised
-  # and handled by ApplicationJob's discard_on configuration
+  # and handled by the discard_on configuration above
   def perform(webhook_event)
     payload = webhook_event.payload
 
@@ -30,10 +33,6 @@ class ProcessUpWebhookJob < ApplicationJob
     end
 
     webhook_event.mark_as_processed!
-  rescue ActiveRecord::RecordNotFound => e
-    # Record was deleted, discard silently
-    Rails.logger.warn "Webhook event not found, discarding: #{e.message}"
-    raise
   rescue => e
     # Reload webhook_event in case it was modified during processing
     webhook_event.reload if webhook_event.persisted?
