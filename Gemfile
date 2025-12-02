@@ -21,7 +21,7 @@ gem "jbuilder"
 # devise for authentication
 gem "devise", "~> 4.9", ">= 4.9.4"
 # sidekiq for background jobs
-gem "sidekiq", "~> 8.0", ">= 8.0.9"
+gem "sidekiq", "~> 8.0"
 gem "redis", "~> 5.4", ">= 5.4.1"
 # pundit for authorization
 gem "pundit", "~> 2.5", ">= 2.5.2"
