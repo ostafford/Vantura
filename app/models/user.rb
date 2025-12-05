@@ -27,6 +27,8 @@ class User < ApplicationRecord
   has_many :expense_contributions
   has_many :goals, dependent: :destroy
   has_many :feedback_items, dependent: :destroy
+  has_many :filters, dependent: :destroy
+  has_many :notifications, dependent: :destroy
 
   # Touch updated_at when related records change for cache invalidation
   after_touch :touch_accounts
