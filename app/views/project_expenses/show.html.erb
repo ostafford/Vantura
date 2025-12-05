@@ -1,0 +1,11 @@
+<h1>Project Expense</h1>
+
+<p><strong>Description:</strong> <%= @project_expense.description %></p>
+<p><strong>Amount:</strong> <%= number_to_currency(@project_expense.total_amount_cents / 100.0) %></p>
+<p><strong>Date:</strong> <%= @project_expense.expense_date %></p>
+<p><strong>Paid by:</strong> <%= @project_expense.paid_by_user&.email_address %></p>
+
+<%= link_to "Edit", edit_project_project_expense_path(@project, @project_expense) if @project.can_edit?(current_user) %>
+<%= link_to "Delete", [@project, @project_expense], method: :delete, data: { confirm: "Are you sure?" } if @project.can_edit?(current_user) %>
+<%= link_to "Back to Expenses", project_project_expenses_path(@project) %>
+

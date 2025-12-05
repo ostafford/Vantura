@@ -1,0 +1,14 @@
+<h1>Project Expenses</h1>
+
+<%= link_to "New Expense", new_project_project_expense_path(@project) %>
+<%= link_to "Back to Project", @project %>
+
+<ul>
+  <% @project_expenses.each do |expense| %>
+    <li>
+      <%= link_to expense.description || expense.name, [@project, expense] %>
+      - <%= number_to_currency(expense.total_amount_cents / 100.0) %>
+    </li>
+  <% end %>
+</ul>
+

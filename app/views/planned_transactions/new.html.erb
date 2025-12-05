@@ -1,0 +1,41 @@
+<h1>New Planned Transaction</h1>
+
+<%= form_with model: @planned_transaction, local: true do |form| %>
+  <% if @planned_transaction.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@planned_transaction.errors.count, "error") %> prohibited this planned transaction from being saved:</h2>
+      <ul>
+        <% @planned_transaction.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :description %>
+    <%= form.text_field :description %>
+  </div>
+
+  <div>
+    <%= form.label :amount_cents, "Amount (cents)" %>
+    <%= form.number_field :amount_cents %>
+  </div>
+
+  <div>
+    <%= form.label :planned_date %>
+    <%= form.date_field :planned_date %>
+  </div>
+
+  <div>
+    <%= form.label :transaction_type %>
+    <%= form.select :transaction_type, [["Expense", "expense"], ["Income", "income"]] %>
+  </div>
+
+  <div>
+    <%= form.submit "Create Planned Transaction" %>
+  </div>
+<% end %>
+
+<%= link_to "Back to Planned Transactions", planned_transactions_path %>
+

@@ -1,0 +1,14 @@
+<h1>Planned Transactions</h1>
+
+<%= link_to "New Planned Transaction", new_planned_transaction_path %>
+
+<ul>
+  <% @planned_transactions.each do |planned_transaction| %>
+    <li>
+      <%= link_to planned_transaction.description || planned_transaction.name, planned_transaction %>
+      - <%= number_to_currency(planned_transaction.amount_cents / 100.0) %>
+      - <%= planned_transaction.planned_date %>
+    </li>
+  <% end %>
+</ul>
+

@@ -24,7 +24,9 @@ Rails.application.routes.draw do
   get "/calendar", to: "calendar#index"
 
   # Projects
-  resources :projects
+  resources :projects do
+    resources :project_expenses
+  end
 
   # Settings
   get "/settings", to: "settings#index"
@@ -32,6 +34,9 @@ Rails.application.routes.draw do
 
   # Goals
   resources :goals, only: [ :index, :create, :update, :destroy ]
+
+  # Planned Transactions
+  resources :planned_transactions
 
   # Feedback
   resources :feedback_items, only: [ :create ]
