@@ -109,6 +109,14 @@ RSpec.configure do |config|
   # Include ActiveJob test helpers
   config.include ActiveJob::TestHelper
 
+  # Include Devise test helpers
+  config.include Devise::Test::IntegrationHelpers, type: :request
+
+  # Include rails-controller-testing for assigns/assert_template
+  config.include Rails::Controller::Testing::TestProcess, type: :request
+  config.include Rails::Controller::Testing::TemplateAssertions, type: :request
+  config.include Rails::Controller::Testing::Integration, type: :request
+
   # Configure ActiveJob to use test adapter for matchers
   ActiveJob::Base.queue_adapter = :test
 

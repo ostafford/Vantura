@@ -43,6 +43,8 @@ gem "faker", "~> 3.5", ">= 3.5.2"
 gem "factory_bot", "~> 6.5", ">= 6.5.6"
 # shoulda-matchers for testing
 gem "shoulda-matchers", "~> 6.4"
+# rails-controller-testing for controller tests
+gem "rails-controller-testing", "~> 1.0"
 # blueprint for views
 gem "blueprinter", "~> 1.2", ">= 1.2.1"
 # image_processing for image processing
