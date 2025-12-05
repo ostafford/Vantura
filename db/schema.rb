@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_01_061159) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_05_233300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -246,6 +246,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_01_061159) do
     t.boolean "is_categorizable", default: true
     t.integer "round_up_cents"
     t.integer "cashback_cents"
+    t.text "notes"
     t.index ["account_id"], name: "index_transactions_on_account_id"
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["status"], name: "index_transactions_on_status"

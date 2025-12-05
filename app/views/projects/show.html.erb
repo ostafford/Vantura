@@ -1,0 +1,22 @@
+<h1><%= @project.name %></h1>
+
+<% if @project.description.present? %>
+  <p><%= @project.description %></p>
+<% end %>
+
+<% if @project.color.present? %>
+  <p>Color: <%= @project.color %></p>
+<% end %>
+
+<p>Owner: <%= @project.owner.email_address %></p>
+
+<% if @project.can_edit?(current_user) %>
+  <%= link_to "Edit", edit_project_path(@project) %>
+<% end %>
+
+<% if @project.can_delete?(current_user) %>
+  <%= link_to "Delete", project_path(@project), method: :delete, data: { confirm: "Are you sure?" } %>
+<% end %>
+
+<%= link_to "Back to Projects", projects_path %>
+

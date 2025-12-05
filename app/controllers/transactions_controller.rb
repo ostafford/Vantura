@@ -10,7 +10,21 @@ class TransactionsController < ApplicationController
     @transaction = current_user.transactions.find(params[:id])
   end
 
+  def update
+    @transaction = current_user.transactions.find(params[:id])
+
+    if @transaction.update(transaction_params)
+      redirect_to @transaction, notice: "Transaction updated successfully."
+    else
+      redirect_to @transaction, alert: @transaction.errors.full_messages.join(", ")
+    end
+  end
+
   private
+
+  def transaction_params
+    params.require(:transaction).permit(:category_id, :notes, tag_ids: [])
+  end
 
   def apply_filters(scope)
     scope = scope.recent # Default ordering

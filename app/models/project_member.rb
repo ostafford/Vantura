@@ -2,7 +2,7 @@ class ProjectMember < ApplicationRecord
   belongs_to :project
   belongs_to :user
 
-  enum role: {
+  enum :role, {
     owner: "owner",
     admin: "admin",
     member: "member"

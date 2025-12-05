@@ -18,13 +18,13 @@ Rails.application.routes.draw do
   post "/sync", to: "dashboard#sync"
 
   # Transactions
-  resources :transactions, only: [ :index, :show ]
+  resources :transactions, only: [ :index, :show, :update ]
 
   # Calendar
   get "/calendar", to: "calendar#index"
 
   # Projects
-  resources :projects, only: [ :index, :show ]
+  resources :projects
 
   # Settings
   get "/settings", to: "settings#index"

@@ -212,4 +212,99 @@ RSpec.describe "Transactions", type: :request do
       expect(response).to have_http_status(:not_found)
     end
   end
+
+  describe "PATCH /transactions/:id" do
+    let(:transaction) { create(:transaction, user: user, account: account, category: nil, notes: nil) }
+    let(:new_category) { create(:category) }
+    let(:tag1) { create(:tag) }
+    let(:tag2) { create(:tag) }
+
+    it "updates transaction notes" do
+      patch "/transactions/#{transaction.id}",
+            params: {
+              transaction: {
+                notes: "This is a test note"
+              }
+            }
+
+      expect(response).to redirect_to(transaction_path(transaction))
+      transaction.reload
+      expect(transaction.notes).to eq("This is a test note")
+      expect(flash[:notice]).to include("Transaction updated successfully")
+    end
+
+    it "updates transaction category" do
+      patch "/transactions/#{transaction.id}",
+            params: {
+              transaction: {
+                category_id: new_category.id
+              }
+            }
+
+      expect(response).to redirect_to(transaction_path(transaction))
+      transaction.reload
+      expect(transaction.category).to eq(new_category)
+    end
+
+    it "updates transaction tags" do
+      patch "/transactions/#{transaction.id}",
+            params: {
+              transaction: {
+                tag_ids: [ tag1.id, tag2.id ]
+              }
+            }
+
+      expect(response).to redirect_to(transaction_path(transaction))
+      transaction.reload
+      expect(transaction.tags).to contain_exactly(tag1, tag2)
+    end
+
+    it "updates multiple fields at once" do
+      patch "/transactions/#{transaction.id}",
+            params: {
+              transaction: {
+                category_id: new_category.id,
+                notes: "Updated notes",
+                tag_ids: [ tag1.id ]
+              }
+            }
+
+      expect(response).to redirect_to(transaction_path(transaction))
+      transaction.reload
+      expect(transaction.category).to eq(new_category)
+      expect(transaction.notes).to eq("Updated notes")
+      expect(transaction.tags).to contain_exactly(tag1)
+    end
+
+    it "allows removing all tags" do
+      transaction.tag_ids = [ tag1.id, tag2.id ]
+      transaction.save!
+
+      patch "/transactions/#{transaction.id}",
+            params: {
+              transaction: {
+                tag_ids: [ "" ]
+              }
+            }
+
+      expect(response).to redirect_to(transaction_path(transaction))
+      transaction.reload
+      expect(transaction.tags).to be_empty
+    end
+
+    it "prevents updating other user's transaction" do
+      other_transaction = create(:transaction, user: other_user, account: other_account)
+
+      patch "/transactions/#{other_transaction.id}",
+            params: {
+              transaction: {
+                notes: "Hacked note"
+              }
+            }
+
+      expect(response).to have_http_status(:not_found)
+      other_transaction.reload
+      expect(other_transaction.notes).not_to eq("Hacked note")
+    end
+  end
 end
