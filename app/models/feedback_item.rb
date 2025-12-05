@@ -9,7 +9,7 @@ class FeedbackItem < ApplicationRecord
   }
 
   enum :status, {
-    new: "new",
+    pending: "new",
     in_progress: "in_progress",
     completed: "completed",
     rejected: "rejected"
@@ -22,4 +22,5 @@ class FeedbackItem < ApplicationRecord
   # Scopes
   scope :unresolved, -> { where(status: [ "new", "in_progress" ]) }
   scope :resolved, -> { where(status: [ "completed", "rejected" ]) }
+  scope :pending_status, -> { where(status: "new") }
 end

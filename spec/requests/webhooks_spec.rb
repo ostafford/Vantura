@@ -8,8 +8,9 @@ RSpec.describe "Webhooks", type: :request do
     let(:signature) { compute_signature(payload.to_json) }
 
     before do
-      allow(User).to receive(:first).and_return(user)
       ENV["UP_BANK_WEBHOOK_SECRET_KEY"] = secret_key
+      # Ensure we have a user for fallback
+      user
     end
 
     context "with valid signature" do
@@ -56,6 +57,81 @@ RSpec.describe "Webhooks", type: :request do
 
         webhook_event = WebhookEvent.last
         expect(webhook_event.event_type).to eq("TRANSACTION_CREATED")
+      end
+
+      context "when transaction exists in database" do
+        let(:account) { create(:account, user: user) }
+        let(:existing_transaction) { create(:transaction, user: user, account: account, up_id: "test-transaction-id") }
+
+        before do
+          # Update payload to reference existing transaction
+          payload["data"]["relationships"]["transaction"]["links"]["related"] = "https://api.up.com.au/api/v1/transactions/test-transaction-id"
+          existing_transaction
+        end
+
+        it "identifies user from existing transaction" do
+          post "/webhooks/up",
+            params: payload.to_json,
+            headers: {
+              "Content-Type" => "application/json",
+              "X-Up-Authenticity-Signature" => compute_signature(payload.to_json)
+            }
+
+          webhook_event = WebhookEvent.last
+          expect(webhook_event.user).to eq(user)
+        end
+      end
+
+      context "when multiple users exist" do
+        let(:user_with_token) { create(:user, :with_up_bank_token) }
+        let(:user_without_token) { create(:user) }
+
+        before do
+          # Clear the outer user to test multiple users scenario
+          User.destroy_all
+          user_with_token
+          user_without_token
+        end
+
+        it "prefers user with Up Bank token" do
+          post "/webhooks/up",
+            params: payload.to_json,
+            headers: {
+              "Content-Type" => "application/json",
+              "X-Up-Authenticity-Signature" => compute_signature(payload.to_json)
+            }
+
+          webhook_event = WebhookEvent.last
+          expect(webhook_event.user).to eq(user_with_token)
+        end
+      end
+
+      context "with PING event" do
+        let(:ping_payload) do
+          {
+            "data" => {
+              "type" => "webhookEvent",
+              "id" => "ping-id",
+              "attributes" => {
+                "eventType" => "PING",
+                "createdAt" => "2024-01-01T00:00:00Z"
+              }
+            }
+          }
+        end
+
+        it "uses fallback user identification" do
+          post "/webhooks/up",
+            params: ping_payload.to_json,
+            headers: {
+              "Content-Type" => "application/json",
+              "X-Up-Authenticity-Signature" => compute_signature(ping_payload.to_json)
+            }
+
+          webhook_event = WebhookEvent.last
+          expect(webhook_event.user).to eq(user)
+          expect(webhook_event.event_type).to eq("PING")
+        end
       end
     end
 
