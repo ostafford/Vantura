@@ -6,6 +6,7 @@ class Transaction < ApplicationRecord
   has_many :tags, through: :transaction_tags
   has_one :planned_transaction, dependent: :nullify
   has_many :project_expenses
+  has_many :recurring_transactions, foreign_key: "template_transaction_id", dependent: :nullify
 
   # Money Rails
   monetize :amount_cents, with_currency: :aud
@@ -154,6 +155,142 @@ class Transaction < ApplicationRecord
             date.to_s[0..6]
           end
         end
+  end
+
+  # Advanced Analytics Methods
+
+  # Spending trends analysis - compare two periods
+  def self.spending_trend(user, current_start, current_end, previous_start, previous_end, type: :expenses)
+    current_scope = where(user: user).by_settled_date_range(current_start, current_end)
+    previous_scope = where(user: user).by_settled_date_range(previous_start, previous_end)
+
+    case type
+    when :expenses
+      current_scope = current_scope.expenses
+      previous_scope = previous_scope.expenses
+    when :income
+      current_scope = current_scope.income
+      previous_scope = previous_scope.income
+    end
+
+    current_total = current_scope.sum(:amount_cents).abs
+    previous_total = previous_scope.sum(:amount_cents).abs
+
+    difference = current_total - previous_total
+    percent_change = previous_total > 0 ? ((difference.to_f / previous_total) * 100).round(2) : 0
+
+    {
+      current_period_cents: current_total,
+      previous_period_cents: previous_total,
+      difference_cents: difference,
+      percent_change: percent_change,
+      trend: difference > 0 ? :increasing : (difference < 0 ? :decreasing : :stable),
+      current_period: current_total / 100.0,
+      previous_period: previous_total / 100.0,
+      difference: difference / 100.0
+    }
+  end
+
+  # Category comparison over time - compare categories across periods
+  def self.category_comparison_over_time(user, period1_start, period1_end, period2_start, period2_end)
+    period1_data = total_by_category(user, period1_start, period1_end).map { |cat| [cat.name, cat.total_cents] }.to_h
+    period2_data = total_by_category(user, period2_start, period2_end).map { |cat| [cat.name, cat.total_cents] }.to_h
+
+    all_categories = (period1_data.keys + period2_data.keys).uniq
+
+    all_categories.map do |category_name|
+      period1_amount = period1_data[category_name] || 0
+      period2_amount = period2_data[category_name] || 0
+      difference = period2_amount - period1_amount
+      percent_change = period1_amount > 0 ? ((difference.to_f / period1_amount) * 100).round(2) : (period2_amount > 0 ? 100.0 : 0)
+
+      {
+        category_name: category_name,
+        period1_cents: period1_amount,
+        period2_cents: period2_amount,
+        difference_cents: difference,
+        percent_change: percent_change,
+        trend: difference > 0 ? :increasing : (difference < 0 ? :decreasing : :stable),
+        period1: period1_amount / 100.0,
+        period2: period2_amount / 100.0,
+        difference: difference / 100.0
+      }
+    end.sort_by { |cat| cat[:period2_cents] }.reverse
+  end
+
+  # Enhanced merchant analysis with trends
+  def self.merchant_trends(user, merchant_name, start_date, end_date)
+    scope = where(user: user).expenses
+                             .by_settled_date_range(start_date, end_date)
+                             .where("description ILIKE ? OR message ILIKE ?", "%#{merchant_name}%", "%#{merchant_name}%")
+
+    transactions = scope.order(:settled_at)
+
+    return nil if transactions.empty?
+
+    total_amount = transactions.sum(:amount_cents).abs
+    transaction_count = transactions.count
+    average_amount = transaction_count > 0 ? (total_amount / transaction_count) : 0
+
+    # Calculate frequency (average days between transactions)
+    dates = transactions.pluck(:settled_at).compact.sort
+    intervals = []
+    (1...dates.length).each do |i|
+      interval_days = ((dates[i] - dates[i - 1]) / 1.day).round
+      intervals << interval_days if interval_days > 0
+    end
+    avg_frequency_days = intervals.any? ? (intervals.sum.to_f / intervals.length).round : nil
+
+    {
+      merchant_name: merchant_name,
+      total_cents: total_amount,
+      transaction_count: transaction_count,
+      average_amount_cents: average_amount,
+      average_frequency_days: avg_frequency_days,
+      first_transaction_date: dates.first,
+      last_transaction_date: dates.last,
+      total: total_amount / 100.0,
+      average_amount: average_amount / 100.0
+    }
+  end
+
+  # Monthly spending trends - compare month over month
+  def self.monthly_spending_trends(user, months_back: 6)
+    end_date = Date.current.end_of_month
+    start_date = (months_back - 1).months.ago.beginning_of_month
+
+    monthly_data = time_series_by_month(user, start_date, end_date, type: :expenses)
+
+    trends = []
+    previous_amount = nil
+
+    monthly_data.sort_by { |date_str, _| date_str }.each do |date_str, amount_cents|
+      date = Date.strptime("#{date_str}-01", "%Y-%m-%d")
+      month_name = date.strftime("%B %Y")
+
+      trend_data = {
+        month: date_str,
+        month_name: month_name,
+        amount_cents: amount_cents,
+        amount: amount_cents / 100.0
+      }
+
+      if previous_amount
+        difference = amount_cents - previous_amount
+        percent_change = previous_amount > 0 ? ((difference.to_f / previous_amount) * 100).round(2) : 0
+        trend_data.merge!(
+          difference_cents: difference,
+          percent_change: percent_change,
+          trend: difference > 0 ? :increasing : (difference < 0 ? :decreasing : :stable),
+          difference: difference / 100.0
+        )
+      end
+
+      trends << trend_data
+      previous_amount = amount_cents
+    end
+
+    trends
   end
 
   # Class methods

@@ -75,6 +75,74 @@ RSpec.describe ProcessUpWebhookJob, type: :job do
 
         described_class.perform_now(webhook_event)
       end
+
+      context "with large transaction" do
+        before do
+          # Stub API calls with large transaction amount
+          transaction_data = {
+            "id" => "test-id",
+            "attributes" => {
+              "status" => "SETTLED",
+              "description" => "Large Purchase",
+              "amount" => { "valueInBaseUnits" => -150_000 } # $1500, exceeds threshold
+            },
+            "relationships" => {
+              "account" => {
+                "data" => { "id" => account.up_id }
+              }
+            }
+          }
+          allow_any_instance_of(UpBankApiService).to receive(:fetch_transaction).and_return(transaction_data)
+        end
+
+        it "creates large transaction notification" do
+          expect {
+            described_class.perform_now(webhook_event)
+          }.to change { Notification.where(notification_type: :large_transaction).count }.by(1)
+        end
+
+        it "notification is linked to correct user" do
+          described_class.perform_now(webhook_event)
+          
+          notification = Notification.where(notification_type: :large_transaction).last
+          expect(notification.user).to eq(user)
+        end
+
+        it "notification contains correct metadata" do
+          described_class.perform_now(webhook_event)
+          
+          notification = Notification.where(notification_type: :large_transaction).last
+          expect(notification.notification_type).to eq("large_transaction")
+          expect(notification.title).to eq("Large Transaction Alert")
+          expect(notification.message).to include("Large Purchase")
+        end
+      end
+
+      context "with transaction below threshold" do
+        before do
+          # Stub API calls with small transaction amount
+          transaction_data = {
+            "id" => "test-id",
+            "attributes" => {
+              "status" => "SETTLED",
+              "description" => "Small Purchase",
+              "amount" => { "valueInBaseUnits" => -50_000 } # $500, below threshold
+            },
+            "relationships" => {
+              "account" => {
+                "data" => { "id" => account.up_id }
+              }
+            }
+          }
+          allow_any_instance_of(UpBankApiService).to receive(:fetch_transaction).and_return(transaction_data)
+        end
+
+        it "does not create large transaction notification" do
+          expect {
+            described_class.perform_now(webhook_event)
+          }.not_to change { Notification.where(notification_type: :large_transaction).count }
+        end
+      end
     end
 
     context "with TRANSACTION_SETTLED event" do

@@ -1,6 +1,7 @@
 class Account < ApplicationRecord
   belongs_to :user, touch: true
   has_many :transactions, dependent: :destroy
+  has_many :recurring_transactions, dependent: :destroy
 
   # Money Rails
   monetize :balance_cents, with_currency: :aud

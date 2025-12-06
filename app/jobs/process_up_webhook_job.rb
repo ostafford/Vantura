@@ -1,6 +1,9 @@
 class ProcessUpWebhookJob < ApplicationJob
   queue_as :default
 
+  # Large transaction threshold in cents ($1000 = 100,000 cents)
+  LARGE_TRANSACTION_THRESHOLD_CENTS = 100_000
+
   # Discard job if webhook_event or user was deleted before job runs
   # This happens when GlobalID can't deserialize the record
   discard_on ActiveJob::DeserializationError
@@ -57,7 +60,16 @@ class ProcessUpWebhookJob < ApplicationJob
     account = user.accounts.find_by!(up_id: account_up_id)
 
     # Create or update transaction
-    Transaction.find_or_create_from_up_data(transaction_data, user, account)
+    transaction = Transaction.find_or_create_from_up_data(transaction_data, user, account)
+
+    # Check if transaction is large and create notification
+    if transaction.amount_cents.abs >= LARGE_TRANSACTION_THRESHOLD_CENTS
+      Notification.create_large_transaction_notification(
+        user,
+        transaction,
+        threshold_cents: LARGE_TRANSACTION_THRESHOLD_CENTS
+      )
+    end
 
     # Broadcast update via Turbo Streams
     broadcast_dashboard_update(user)

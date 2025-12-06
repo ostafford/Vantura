@@ -29,6 +29,7 @@ class User < ApplicationRecord
   has_many :feedback_items, dependent: :destroy
   has_many :filters, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :sessions, dependent: :destroy
 
   # Touch updated_at when related records change for cache invalidation
   after_touch :touch_accounts
