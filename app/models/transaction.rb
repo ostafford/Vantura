@@ -193,8 +193,8 @@ class Transaction < ApplicationRecord
 
   # Category comparison over time - compare categories across periods
   def self.category_comparison_over_time(user, period1_start, period1_end, period2_start, period2_end)
-    period1_data = total_by_category(user, period1_start, period1_end).map { |cat| [cat.name, cat.total_cents] }.to_h
-    period2_data = total_by_category(user, period2_start, period2_end).map { |cat| [cat.name, cat.total_cents] }.to_h
+    period1_data = total_by_category(user, period1_start, period1_end).map { |cat| [ cat.name, cat.total_cents ] }.to_h
+    period2_data = total_by_category(user, period2_start, period2_end).map { |cat| [ cat.name, cat.total_cents ] }.to_h
 
     all_categories = (period1_data.keys + period2_data.keys).uniq
 

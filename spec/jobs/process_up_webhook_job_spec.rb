@@ -103,14 +103,14 @@ RSpec.describe ProcessUpWebhookJob, type: :job do
 
         it "notification is linked to correct user" do
           described_class.perform_now(webhook_event)
-          
+
           notification = Notification.where(notification_type: :large_transaction).last
           expect(notification.user).to eq(user)
         end
 
         it "notification contains correct metadata" do
           described_class.perform_now(webhook_event)
-          
+
           notification = Notification.where(notification_type: :large_transaction).last
           expect(notification.notification_type).to eq("large_transaction")
           expect(notification.title).to eq("Large Transaction Alert")

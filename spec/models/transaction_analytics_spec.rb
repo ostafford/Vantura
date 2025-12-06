@@ -390,4 +390,3 @@ RSpec.describe "Transaction Analytics", type: :model do
     end
   end
 end
-

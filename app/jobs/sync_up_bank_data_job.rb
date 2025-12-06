@@ -45,14 +45,14 @@ class SyncUpBankDataJob < ApplicationJob
     raise
   rescue => e
     Rails.logger.error "Sync failed for user #{user.id}: #{e.message}"
-    
+
     # Create failure notification
     Notification.create_sync_notification(
       user,
       success: false,
       error_message: e.message
     )
-    
+
     raise
   end
 

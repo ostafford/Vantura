@@ -156,4 +156,3 @@ class Notification < ApplicationRecord
     where(user: user, read_at: nil).update_all(read_at: Time.current)
   end
 end
-

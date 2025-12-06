@@ -88,14 +88,14 @@ class DetectRecurringPatternsJob < ApplicationJob
     # Extract the core merchant name by removing common suffixes
     # Remove common transaction words like SUBSCRIPTION, PAYMENT, etc.
     normalized = normalized.gsub(/\s+(SUBSCRIPTION|PAYMENT|PAY|CHARGE|DEBIT|AUTHORISATION|AUTHORIZATION)$/i, "")
-    
+
     # Take first significant words (max 2 words for pattern matching to catch core merchant name)
     words = normalized.split(/\s+/).reject { |w| w.length < 2 }
-    
+
     # Get meaningful words (at least 3 chars) and take first 2 for core merchant name
     meaningful_words = words.select { |w| w.length >= 3 }
     result = meaningful_words.first(2).join(" ")
-    
+
     # Return the result, or the original normalized string if empty
     result.present? ? result : normalized.split(/\s+/).first(2).join(" ")
   end
@@ -269,10 +269,9 @@ class DetectRecurringPatternsJob < ApplicationJob
     else
       last_date + 1.month # Default fallback
     end
-    
+
     # Ensure next occurrence is at least tomorrow if it's today or in the past
     next_date = Date.current + 1.day if next_date <= Date.current
     next_date
   end
 end
-

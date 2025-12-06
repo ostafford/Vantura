@@ -72,9 +72,9 @@ RSpec.describe Session, type: :model do
     it "updates last_active_at to current time" do
       session = create(:session, last_active_at: 3.hours.ago)
       old_time = session.last_active_at
-      
+
       session.update_activity!
-      
+
       expect(session.last_active_at).to be > old_time
       expect(session.last_active_at).to be_within(5.seconds).of(Time.current)
     end
@@ -92,4 +92,3 @@ RSpec.describe Session, type: :model do
     end
   end
 end
-

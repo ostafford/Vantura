@@ -105,4 +105,3 @@ class Filter < ApplicationRecord
     parts.join(", ")
   end
 end
-

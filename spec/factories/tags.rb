@@ -3,4 +3,3 @@ FactoryBot.define do
     name { Faker::Lorem.word.capitalize }
   end
 end
-

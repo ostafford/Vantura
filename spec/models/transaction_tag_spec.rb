@@ -20,14 +20,14 @@ RSpec.describe TransactionTag, type: :model do
   describe "transaction_record association" do
     it "correctly links to Transaction model" do
       transaction_tag = create(:transaction_tag, transaction_record: transaction, tag: tag)
-      
+
       expect(transaction_tag.transaction_record).to eq(transaction)
       expect(transaction_tag.transaction_record).to be_a(Transaction)
     end
 
     it "allows accessing transaction through transaction_record" do
       transaction_tag = create(:transaction_tag, transaction_record: transaction, tag: tag)
-      
+
       expect(transaction_tag.transaction_record.user).to eq(user)
       expect(transaction_tag.transaction_record.account).to eq(account)
     end
@@ -45,7 +45,7 @@ RSpec.describe TransactionTag, type: :model do
     it "allows same tag for different transactions" do
       transaction2 = create(:transaction, user: user, account: account)
       tag1 = create(:tag)
-      
+
       create(:transaction_tag, transaction_record: transaction, tag: tag1)
       tag2 = create(:transaction_tag, transaction_record: transaction2, tag: tag1)
 
@@ -53,4 +53,3 @@ RSpec.describe TransactionTag, type: :model do
     end
   end
 end
-

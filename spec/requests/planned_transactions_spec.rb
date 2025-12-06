@@ -207,4 +207,3 @@ RSpec.describe "PlannedTransactions", type: :request do
     end
   end
 end
-

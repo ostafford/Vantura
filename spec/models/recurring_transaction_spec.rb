@@ -450,4 +450,3 @@ RSpec.describe RecurringTransaction, type: :model do
     end
   end
 end
-

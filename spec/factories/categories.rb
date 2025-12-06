@@ -3,4 +3,3 @@ FactoryBot.define do
     name { Faker::Commerce.department }
   end
 end
-

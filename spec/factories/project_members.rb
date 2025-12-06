@@ -8,4 +8,3 @@ FactoryBot.define do
     can_delete { false }
   end
 end
-

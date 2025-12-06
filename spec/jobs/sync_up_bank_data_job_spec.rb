@@ -6,7 +6,7 @@ RSpec.describe SyncUpBankDataJob, type: :job do
   before do
     # Ensure user has token
     allow_any_instance_of(User).to receive(:up_bank_token).and_return("test_token")
-    
+
     # Stub the UpBankApiService
     service = instance_double(UpBankApiService)
     allow(UpBankApiService).to receive(:new).with(user).and_return(service)
@@ -42,14 +42,14 @@ RSpec.describe SyncUpBankDataJob, type: :job do
 
       it "notification is linked to correct user" do
         described_class.perform_now(user)
-        
+
         notification = Notification.where(notification_type: :sync_completed).last
         expect(notification.user).to eq(user)
       end
 
       it "notification contains correct metadata" do
         described_class.perform_now(user)
-        
+
         notification = Notification.where(notification_type: :sync_completed).last
         expect(notification.notification_type).to eq("sync_completed")
         expect(notification.title).to eq("Sync Completed")
@@ -64,7 +64,7 @@ RSpec.describe SyncUpBankDataJob, type: :job do
 
         it "notification includes transaction count" do
           described_class.perform_now(user)
-          
+
           notification = Notification.where(notification_type: :sync_completed).last
           expect(notification.message).to be_present
         end
@@ -94,7 +94,7 @@ RSpec.describe SyncUpBankDataJob, type: :job do
         rescue StandardError
           # Expected to raise
         end
-        
+
         notification = Notification.where(notification_type: :sync_failed).last
         expect(notification.notification_type).to eq("sync_failed")
         expect(notification.title).to eq("Sync Failed")
@@ -108,7 +108,7 @@ RSpec.describe SyncUpBankDataJob, type: :job do
         rescue StandardError
           # Expected to raise
         end
-        
+
         notification = Notification.where(notification_type: :sync_failed).last
         expect(notification.user).to eq(user)
       end
@@ -141,4 +141,3 @@ RSpec.describe SyncUpBankDataJob, type: :job do
     end
   end
 end
-

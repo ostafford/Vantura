@@ -176,4 +176,3 @@ class RecurringTransaction < ApplicationRecord
     Category.find_by(name: category) || Category.find_by(up_id: category)
   end
 end
-

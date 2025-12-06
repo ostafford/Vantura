@@ -193,4 +193,3 @@ RSpec.describe Filter, type: :model do
     end
   end
 end
-

@@ -381,4 +381,3 @@ RSpec.describe DetectRecurringPatternsJob, type: :job do
     end
   end
 end
-

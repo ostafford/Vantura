@@ -24,4 +24,3 @@ class Session < ApplicationRecord
     !active?
   end
 end
-

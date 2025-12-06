@@ -86,4 +86,3 @@ class ProjectExpensesController < ApplicationController
     )
   end
 end
-
