@@ -63,6 +63,36 @@ end
 # Disable real HTTP requests in tests
 WebMock.disable_net_connect!(allow_localhost: true)
 
+# Capybara configuration for system tests
+require 'capybara/rspec'
+require 'capybara/cuprite'
+
+Capybara.register_driver :cuprite do |app|
+  Capybara::Cuprite::Driver.new(
+    app,
+    window_size: [ 1400, 1400 ],
+    browser_options: {
+      'no-sandbox' => nil,
+      'disable-dev-shm-usage' => nil
+    },
+    js_errors: true,
+    headless: true,
+    timeout: 10
+  )
+end
+
+Capybara.default_driver = :cuprite
+Capybara.javascript_driver = :cuprite
+Capybara.default_max_wait_time = 5
+Capybara.server_port = 3001
+
+# Configure Rails system tests to use Cuprite
+RSpec.configure do |config|
+  config.before(:each, type: :system) do
+    driven_by :cuprite
+  end
+end
+
 # Ensures that the test database schema matches the current schema file.
 # If there are pending migrations it will invoke `db:test:prepare` to
 # recreate the test database by loading the schema.
@@ -111,6 +141,7 @@ RSpec.configure do |config|
 
   # Include Devise test helpers
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Devise::Test::IntegrationHelpers, type: :system
 
   # Include rails-controller-testing for assigns/assert_template
   config.include Rails::Controller::Testing::TestProcess, type: :request

@@ -45,6 +45,10 @@ gem "factory_bot", "~> 6.5", ">= 6.5.6"
 gem "shoulda-matchers", "~> 6.4"
 # rails-controller-testing for controller tests
 gem "rails-controller-testing", "~> 1.0"
+# capybara for system tests
+gem "capybara", "~> 3.40"
+# cuprite for headless browser automation (faster than Selenium)
+gem "cuprite", "~> 0.17"
 # blueprint for views
 gem "blueprinter", "~> 1.2", ">= 1.2.1"
 # image_processing for image processing

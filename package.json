@@ -1,0 +1,27 @@
+{
+  "name": "vantura",
+  "version": "1.0.0",
+  "description": "A personal finance management application that integrates with Up Bank to track accounts, transactions, and expenses.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ostafford/Vantura.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ostafford/Vantura/issues"
+  },
+  "homepage": "https://github.com/ostafford/Vantura#readme",
+  "dependencies": {
+    "flowbite": "^4.0.1"
+  }
+}

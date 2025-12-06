@@ -1,0 +1,30 @@
+<% transaction ||= local_assigns[:transaction] %>
+<div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer" data-action="click->transaction-card#showDetails" data-transaction-id="<%= transaction.id %>">
+  <div class="flex-1">
+    <div class="flex items-center justify-between mb-1">
+      <h4 class="text-sm font-medium text-gray-900 dark:text-white">
+        <%= transaction.description || transaction.raw_text %>
+      </h4>
+      <span class="text-sm font-semibold <%= transaction.amount_cents < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>">
+        <%= transaction.amount_cents < 0 ? '-' : '+' %><%= number_to_currency(transaction.amount_cents.abs / 100.0, unit: "$") %>
+      </span>
+    </div>
+    <div class="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+      <span><%= transaction.created_at.strftime("%b %d, %Y") %></span>
+      <% if transaction.category.present? %>
+        <span>•</span>
+        <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
+          <%= transaction.category.name %>
+        </span>
+      <% end %>
+      <span class="px-2 py-1 rounded <%= 
+        transaction.status == 'settled' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+        transaction.status == 'held' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 
+        'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' 
+      %>">
+        <%= transaction.status.capitalize %>
+      </span>
+    </div>
+  </div>
+</div>
+
