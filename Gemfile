@@ -32,7 +32,7 @@ gem "money-rails", "~> 1.15"
 # ice-cube for scheduling
 gem "ice_cube", "~> 0.17.0"
 # dotenv for environment variables
-gem "dotenv-rails", "~> 3.1", ">= 3.1.8"
+gem "dotenv-rails", "~> 3.2"
 # pagy for pagination
 gem "pagy", "~> 43.1", ">= 43.1.8"
 # rspec for testing
