@@ -42,7 +42,7 @@ gem "faker", "~> 3.5", ">= 3.5.2"
 # factory_bot for testing
 gem "factory_bot", "~> 6.5", ">= 6.5.6"
 # shoulda-matchers for testing
-gem "shoulda-matchers", "~> 6.4"
+gem "shoulda-matchers", "~> 7.0"
 # rails-controller-testing for controller tests
 gem "rails-controller-testing", "~> 1.0"
 # blueprint for views
