@@ -45,12 +45,20 @@ class User < ApplicationRecord
     up_bank_token.blank?
   end
 
-  def calculate_stats
+  def calculate_stats(start_date: nil, end_date: nil)
+    start_date ||= Time.current.beginning_of_month
+    end_date ||= Time.current.end_of_month
+
+    income_vs_expenses = Transaction.income_vs_expenses(self, start_date, end_date)
+
     {
       total_balance: accounts.sum(:balance_cents),
-      income_this_month: transactions.income.this_month.sum(:amount_cents),
-      expenses_this_month: transactions.expenses.this_month.sum(:amount_cents).abs,
-      net_this_month: transactions.this_month.sum(:amount_cents)
+      income_this_month: income_vs_expenses[:income_cents],
+      expenses_this_month: income_vs_expenses[:expenses_cents],
+      net_this_month: income_vs_expenses[:net_cents],
+      income: income_vs_expenses[:income],
+      expenses: income_vs_expenses[:expenses],
+      net: income_vs_expenses[:net]
     }
   end
 

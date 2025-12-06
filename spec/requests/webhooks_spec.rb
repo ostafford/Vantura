@@ -120,6 +120,15 @@ RSpec.describe "Webhooks", type: :request do
           }
         end
 
+        let(:test_user) { create(:user) }
+
+        before do
+          # Clear all users to ensure test isolation
+          User.destroy_all
+          # Create a fresh user for this test (not using memoized 'user')
+          test_user
+        end
+
         it "uses fallback user identification" do
           post "/webhooks/up",
             params: ping_payload.to_json,
@@ -129,7 +138,7 @@ RSpec.describe "Webhooks", type: :request do
             }
 
           webhook_event = WebhookEvent.last
-          expect(webhook_event.user).to eq(user)
+          expect(webhook_event.user).to eq(test_user)
           expect(webhook_event.event_type).to eq("PING")
         end
       end
