@@ -35,6 +35,43 @@ class Transaction < ApplicationRecord
   scope :income, -> { where("amount_cents > 0") }
   scope :this_month, -> { where("created_at >= ?", Time.current.beginning_of_month) }
 
+  # Filter scopes (for reusable filtering)
+  scope :by_category, ->(category_id) {
+    category_id.present? ? where(category_id: category_id) : all
+  }
+  scope :by_account, ->(account_id) {
+    account_id.present? ? where(account_id: account_id) : all
+  }
+  scope :by_amount_range, ->(min = nil, max = nil) {
+    scope = all
+    if min.present?
+      min_cents = (min.to_f * 100).to_i
+      scope = scope.where("ABS(amount_cents) >= ?", min_cents)
+    end
+    if max.present?
+      max_cents = (max.to_f * 100).to_i
+      scope = scope.where("ABS(amount_cents) <= ?", max_cents)
+    end
+    scope
+  }
+  scope :by_tag, ->(tag_id) {
+    if tag_id.present?
+      joins(:transaction_tags)
+        .where(transaction_tags: { tag_id: tag_id })
+        .distinct
+    else
+      all
+    end
+  }
+  scope :by_description, ->(query) {
+    if query.present?
+      search_term = "%#{query}%"
+      where("description ILIKE ? OR message ILIKE ?", search_term, search_term)
+    else
+      all
+    end
+  }
+
   # Analytics Class Methods
   def self.total_by_category(user, start_date = nil, end_date = nil)
     scope = where(user: user)

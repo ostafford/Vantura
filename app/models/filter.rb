@@ -15,30 +15,32 @@ class Filter < ApplicationRecord
   attribute :filter_types, :jsonb, default: {}
   attribute :date_range, :jsonb, default: {}
 
-  # Apply filter to transactions
+  # Apply filter to transactions using Transaction model scopes (DRY principle)
   def apply_to_transactions(transaction_scope = nil)
     scope = transaction_scope || user.transactions
 
-    # Apply date range filter
+    # Apply date range filter using by_date_range scope
     if date_range.present?
       start_date = date_range["start_date"]
       end_date = date_range["end_date"]
 
-      if start_date.present?
+      if start_date.present? && end_date.present?
+        scope = scope.by_date_range(Date.parse(start_date), Date.parse(end_date).end_of_day)
+      elsif start_date.present?
         scope = scope.where("created_at >= ?", Date.parse(start_date))
-      end
-
-      if end_date.present?
+      elsif end_date.present?
         scope = scope.where("created_at <= ?", Date.parse(end_date).end_of_day)
       end
     end
 
-    # Apply filter_params
+    # Apply filter_params using Transaction model scopes
     if filter_params.present?
-      # Category filter
-      if filter_params["category_id"].present?
-        scope = scope.where(category_id: filter_params["category_id"])
-      end
+      # Use model scopes for reusable filtering
+      scope = scope.by_category(filter_params["category_id"])
+      scope = scope.by_account(filter_params["account_id"])
+      scope = scope.by_tag(filter_params["tag_id"])
+      scope = scope.by_description(filter_params["search"])
+      scope = scope.by_amount_range(filter_params["min_amount"], filter_params["max_amount"])
 
       # Transaction type filter
       if filter_params["transaction_type"].present?
@@ -48,42 +50,6 @@ class Filter < ApplicationRecord
         when "expense"
           scope = scope.expenses
         end
-      end
-
-      # Amount range filter (handles both positive and negative amounts)
-      if filter_params["min_amount"].present? || filter_params["max_amount"].present?
-        min_cents = filter_params["min_amount"].present? ? (filter_params["min_amount"].to_f * 100).to_i : nil
-        max_cents = filter_params["max_amount"].present? ? (filter_params["max_amount"].to_f * 100).to_i : nil
-
-        # For expenses (negative), we check absolute value
-        # For income (positive), we check actual value
-        if min_cents && max_cents
-          scope = scope.where(
-            "(amount_cents >= ? AND amount_cents <= ?) OR (amount_cents <= ? AND amount_cents >= ?)",
-            min_cents, max_cents, -min_cents, -max_cents
-          )
-        elsif min_cents
-          scope = scope.where("(amount_cents >= ?) OR (amount_cents <= ?)", min_cents, -min_cents)
-        elsif max_cents
-          scope = scope.where("(amount_cents <= ?) OR (amount_cents >= ?)", max_cents, -max_cents)
-        end
-      end
-
-      # Description/merchant search
-      if filter_params["search"].present?
-        search_term = "%#{filter_params["search"]}%"
-        scope = scope.where("description ILIKE ?", search_term)
-      end
-
-      # Account filter
-      if filter_params["account_id"].present?
-        scope = scope.where(account_id: filter_params["account_id"])
-      end
-
-      # Tag filter
-      if filter_params["tag_id"].present?
-        scope = scope.joins(:transaction_tags)
-                     .where(transaction_tags: { tag_id: filter_params["tag_id"] })
       end
     end
 

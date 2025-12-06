@@ -29,10 +29,12 @@ class TransactionsController < ApplicationController
   def apply_filters(scope)
     scope = scope.recent # Default ordering
 
-    # Category filter
-    if params[:category_id].present?
-      scope = scope.where(category_id: params[:category_id])
-    end
+    # Use model scopes for filtering (DRY principle)
+    scope = scope.by_category(params[:category_id])
+    scope = scope.by_account(params[:account_id])
+    scope = scope.by_tag(params[:tag_id])
+    scope = scope.by_description(params[:search])
+    scope = scope.by_amount_range(params[:min_amount], params[:max_amount])
 
     # Transaction type filter (income/expense)
     if params[:transaction_type].present?
@@ -44,45 +46,15 @@ class TransactionsController < ApplicationController
       end
     end
 
-    # Date range filter
-    if params[:start_date].present?
+    # Date range filter - use by_date_range scope if both dates present, otherwise handle separately
+    if params[:start_date].present? && params[:end_date].present?
+      start_date = Date.parse(params[:start_date])
+      end_date = Date.parse(params[:end_date]).end_of_day
+      scope = scope.by_date_range(start_date, end_date)
+    elsif params[:start_date].present?
       scope = scope.where("created_at >= ?", Date.parse(params[:start_date]))
-    end
-
-    if params[:end_date].present?
+    elsif params[:end_date].present?
       scope = scope.where("created_at <= ?", Date.parse(params[:end_date]).end_of_day)
-    end
-
-    # Amount range filter
-    if params[:min_amount].present?
-      min_cents = (params[:min_amount].to_f * 100).to_i
-      scope = scope.where("ABS(amount_cents) >= ?", min_cents)
-    end
-
-    if params[:max_amount].present?
-      max_cents = (params[:max_amount].to_f * 100).to_i
-      scope = scope.where("ABS(amount_cents) <= ?", max_cents)
-    end
-
-    # Search filter (description or message)
-    if params[:search].present?
-      search_term = "%#{params[:search]}%"
-      scope = scope.where(
-        "description ILIKE ? OR message ILIKE ?",
-        search_term, search_term
-      )
-    end
-
-    # Account filter
-    if params[:account_id].present?
-      scope = scope.where(account_id: params[:account_id])
-    end
-
-    # Tag filter
-    if params[:tag_id].present?
-      scope = scope.joins(:transaction_tags)
-                   .where(transaction_tags: { tag_id: params[:tag_id] })
-                   .distinct
     end
 
     scope

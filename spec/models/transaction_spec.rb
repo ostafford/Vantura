@@ -76,6 +76,255 @@ RSpec.describe Transaction, type: :model do
         expect(Transaction.income).not_to include(expense)
       end
     end
+
+    describe ".by_category" do
+      let(:category1) { create(:category) }
+      let(:category2) { create(:category) }
+
+      it "returns transactions with matching category_id" do
+        transaction1 = create(:transaction, user: user, account: account, category: category1)
+        transaction2 = create(:transaction, user: user, account: account, category: category2)
+        transaction3 = create(:transaction, user: user, account: account, category: nil)
+
+        results = Transaction.by_category(category1.id)
+
+        expect(results).to include(transaction1)
+        expect(results).not_to include(transaction2)
+        expect(results).not_to include(transaction3)
+      end
+
+      it "returns all transactions when category_id is nil" do
+        transaction1 = create(:transaction, user: user, account: account, category: category1)
+        transaction2 = create(:transaction, user: user, account: account, category: category2)
+
+        results = Transaction.by_category(nil)
+
+        expect(results).to include(transaction1, transaction2)
+      end
+
+      it "returns all transactions when category_id is empty string" do
+        transaction1 = create(:transaction, user: user, account: account, category: category1)
+        transaction2 = create(:transaction, user: user, account: account, category: category2)
+
+        results = Transaction.by_category("")
+
+        expect(results).to include(transaction1, transaction2)
+      end
+    end
+
+    describe ".by_account" do
+      let(:account2) { create(:account, user: user) }
+
+      it "returns transactions with matching account_id" do
+        transaction1 = create(:transaction, user: user, account: account)
+        transaction2 = create(:transaction, user: user, account: account2)
+
+        results = Transaction.by_account(account.id)
+
+        expect(results).to include(transaction1)
+        expect(results).not_to include(transaction2)
+      end
+
+      it "returns all transactions when account_id is nil" do
+        transaction1 = create(:transaction, user: user, account: account)
+        transaction2 = create(:transaction, user: user, account: account2)
+
+        results = Transaction.by_account(nil)
+
+        expect(results).to include(transaction1, transaction2)
+      end
+
+      it "returns all transactions when account_id is empty string" do
+        transaction1 = create(:transaction, user: user, account: account)
+        transaction2 = create(:transaction, user: user, account: account2)
+
+        results = Transaction.by_account("")
+
+        expect(results).to include(transaction1, transaction2)
+      end
+    end
+
+    describe ".by_amount_range" do
+      it "filters by min_amount only" do
+        transaction1 = create(:transaction, user: user, account: account, amount_cents: -5000)  # 50.00 AUD
+        transaction2 = create(:transaction, user: user, account: account, amount_cents: -1000)  # 10.00 AUD
+        transaction3 = create(:transaction, user: user, account: account, amount_cents: 5000)   # 50.00 AUD
+
+        results = Transaction.by_amount_range(20.0, nil)
+
+        expect(results).to include(transaction1, transaction3)
+        expect(results).not_to include(transaction2)
+      end
+
+      it "filters by max_amount only" do
+        transaction1 = create(:transaction, user: user, account: account, amount_cents: -5000)  # 50.00 AUD
+        transaction2 = create(:transaction, user: user, account: account, amount_cents: -10000) # 100.00 AUD
+        transaction3 = create(:transaction, user: user, account: account, amount_cents: 5000)   # 50.00 AUD
+
+        results = Transaction.by_amount_range(nil, 60.0)
+
+        expect(results).to include(transaction1, transaction3)
+        expect(results).not_to include(transaction2)
+      end
+
+      it "filters by both min_amount and max_amount" do
+        transaction1 = create(:transaction, user: user, account: account, amount_cents: -5000)  # 50.00 AUD
+        transaction2 = create(:transaction, user: user, account: account, amount_cents: -1000)  # 10.00 AUD
+        transaction3 = create(:transaction, user: user, account: account, amount_cents: -10000) # 100.00 AUD
+
+        results = Transaction.by_amount_range(20.0, 60.0)
+
+        expect(results).to include(transaction1)
+        expect(results).not_to include(transaction2, transaction3)
+      end
+
+      it "returns all transactions when both min and max are nil" do
+        transaction1 = create(:transaction, user: user, account: account, amount_cents: -5000)
+        transaction2 = create(:transaction, user: user, account: account, amount_cents: -1000)
+
+        results = Transaction.by_amount_range(nil, nil)
+
+        expect(results).to include(transaction1, transaction2)
+      end
+
+      it "uses absolute value for amount comparison" do
+        expense = create(:transaction, user: user, account: account, amount_cents: -5000)  # 50.00 AUD
+        income = create(:transaction, user: user, account: account, amount_cents: 5000)    # 50.00 AUD
+
+        results = Transaction.by_amount_range(40.0, 60.0)
+
+        expect(results).to include(expense, income)
+      end
+    end
+
+    describe ".by_tag" do
+      let(:tag1) { create(:tag) }
+      let(:tag2) { create(:tag) }
+
+      it "returns transactions with matching tag_id" do
+        transaction1 = create(:transaction, user: user, account: account)
+        transaction2 = create(:transaction, user: user, account: account)
+        create(:transaction_tag, transaction_record: transaction1, tag: tag1)
+        create(:transaction_tag, transaction_record: transaction2, tag: tag2)
+
+        results = Transaction.by_tag(tag1.id)
+
+        expect(results).to include(transaction1)
+        expect(results).not_to include(transaction2)
+      end
+
+      it "returns distinct transactions when multiple tags match" do
+        transaction1 = create(:transaction, user: user, account: account)
+        create(:transaction_tag, transaction_record: transaction1, tag: tag1)
+        create(:transaction_tag, transaction_record: transaction1, tag: tag2)
+
+        results = Transaction.by_tag(tag1.id)
+
+        expect(results.count).to eq(1)
+        expect(results).to include(transaction1)
+      end
+
+      it "returns all transactions when tag_id is nil" do
+        transaction1 = create(:transaction, user: user, account: account)
+        transaction2 = create(:transaction, user: user, account: account)
+        create(:transaction_tag, transaction_record: transaction1, tag: tag1)
+
+        results = Transaction.by_tag(nil)
+
+        expect(results).to include(transaction1, transaction2)
+      end
+
+      it "returns all transactions when tag_id is empty string" do
+        transaction1 = create(:transaction, user: user, account: account)
+        transaction2 = create(:transaction, user: user, account: account)
+        create(:transaction_tag, transaction_record: transaction1, tag: tag1)
+
+        results = Transaction.by_tag("")
+
+        expect(results).to include(transaction1, transaction2)
+      end
+
+      it "excludes transactions without the tag" do
+        transaction_with_tag = create(:transaction, user: user, account: account)
+        transaction_without_tag = create(:transaction, user: user, account: account)
+        create(:transaction_tag, transaction_record: transaction_with_tag, tag: tag1)
+
+        results = Transaction.by_tag(tag1.id)
+
+        expect(results).to include(transaction_with_tag)
+        expect(results).not_to include(transaction_without_tag)
+      end
+    end
+
+    describe ".by_description" do
+      it "returns transactions matching description" do
+        transaction1 = create(:transaction, user: user, account: account, description: "Coffee Shop Purchase")
+        transaction2 = create(:transaction, user: user, account: account, description: "Grocery Store")
+
+        results = Transaction.by_description("Coffee")
+
+        expect(results).to include(transaction1)
+        expect(results).not_to include(transaction2)
+      end
+
+      it "returns transactions matching message" do
+        transaction1 = create(:transaction, user: user, account: account, message: "Payment to Coffee Shop")
+        transaction2 = create(:transaction, user: user, account: account, message: "Payment to Grocery Store")
+
+        results = Transaction.by_description("Coffee")
+
+        expect(results).to include(transaction1)
+        expect(results).not_to include(transaction2)
+      end
+
+      it "returns transactions matching either description or message" do
+        transaction1 = create(:transaction, user: user, account: account, description: "Coffee Shop", message: nil)
+        transaction2 = create(:transaction, user: user, account: account, description: nil, message: "Coffee Shop")
+        transaction3 = create(:transaction, user: user, account: account, description: "Grocery Store", message: nil)
+
+        results = Transaction.by_description("Coffee")
+
+        expect(results).to include(transaction1, transaction2)
+        expect(results).not_to include(transaction3)
+      end
+
+      it "performs case-insensitive search" do
+        transaction1 = create(:transaction, user: user, account: account, description: "Coffee Shop")
+        transaction2 = create(:transaction, user: user, account: account, description: "COFFEE SHOP")
+        transaction3 = create(:transaction, user: user, account: account, description: "coffee shop")
+
+        results = Transaction.by_description("coffee")
+
+        expect(results).to include(transaction1, transaction2, transaction3)
+      end
+
+      it "performs partial match search" do
+        transaction1 = create(:transaction, user: user, account: account, description: "Coffee Shop Purchase")
+        transaction2 = create(:transaction, user: user, account: account, description: "Coffee")
+
+        results = Transaction.by_description("Coffee")
+
+        expect(results).to include(transaction1, transaction2)
+      end
+
+      it "returns all transactions when query is nil" do
+        transaction1 = create(:transaction, user: user, account: account, description: "Coffee Shop")
+        transaction2 = create(:transaction, user: user, account: account, description: "Grocery Store")
+
+        results = Transaction.by_description(nil)
+
+        expect(results).to include(transaction1, transaction2)
+      end
+
+      it "returns all transactions when query is empty string" do
+        transaction1 = create(:transaction, user: user, account: account, description: "Coffee Shop")
+        transaction2 = create(:transaction, user: user, account: account, description: "Grocery Store")
+
+        results = Transaction.by_description("")
+
+        expect(results).to include(transaction1, transaction2)
+      end
+    end
   end
 
   describe ".find_or_create_from_up_data" do
