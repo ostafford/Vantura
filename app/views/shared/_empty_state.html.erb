@@ -1,10 +1,10 @@
 <div class="text-center py-12">
   <div class="mx-auto w-24 h-24 text-gray-400 dark:text-gray-500 mb-4">
-    <%= icon.html_safe if icon.present? %>
+    <%= icon.html_safe if local_assigns[:icon].present? %>
   </div>
-  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2"><%= title %></h3>
-  <p class="text-gray-500 dark:text-gray-400 mb-6"><%= description %></p>
-  <% if action.present? %>
+  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2"><%= local_assigns[:title] || "No items" %></h3>
+  <p class="text-gray-500 dark:text-gray-400 mb-6"><%= local_assigns[:message] || local_assigns[:description] || "" %></p>
+  <% if local_assigns[:action].present? %>
     <%= link_to action[:url], class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" do %>
       <%= action[:label] %>
     <% end %>
