@@ -1,0 +1,25 @@
+<%# 
+  Reusable error messages component for displaying model validation errors
+  Usage:
+    <%= render 'shared/error_messages', object: @project %>
+    <%= render 'shared/error_messages', object: @transaction, title: 'Transaction errors' %>
+%>
+<% object ||= local_assigns[:object] %>
+<% title ||= local_assigns[:title] || "#{pluralize(object.errors.count, 'error')} prohibited this #{object.class.model_name.human.downcase} from being saved:" %>
+
+<% if object.errors.any? %>
+  <div id="error_explanation" class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+    <div class="flex items-center mb-2">
+      <svg class="shrink-0 inline w-4 h-4 me-3" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+      </svg>
+      <h3 class="font-medium"><%= title %></h3>
+    </div>
+    <ul class="mt-2 list-disc list-inside space-y-1">
+      <% object.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+

@@ -1,0 +1,92 @@
+<%# 
+  Reusable toast notification component with Flowbite styling
+  Usage:
+    <%= render 'shared/toast', type: 'success', message: 'Operation completed!' %>
+    <%= render 'shared/toast', type: 'error', message: 'Something went wrong', id: 'custom-toast-id' %>
+    <%= render 'shared/toast', type: 'info', message: 'Information message' %>
+    <%= render 'shared/toast', type: 'warning', message: 'Warning message' %>
+%>
+<% type ||= local_assigns[:type] || 'info' %>
+<% message ||= local_assigns[:message] %>
+<% toast_id ||= local_assigns[:id] || "toast-#{Time.now.to_f.to_s.gsub('.', '')}" %>
+
+<% 
+  # Define type-specific styling and icons
+  type_config = {
+    'success' => {
+      text_class: 'text-green-800',
+      bg_class: 'bg-green-50',
+      dark_text_class: 'dark:text-green-400',
+      dark_bg_class: 'dark:bg-gray-800',
+      button_bg_class: 'bg-green-50',
+      button_text_class: 'text-green-500',
+      button_focus_class: 'focus:ring-green-400',
+      button_dark_bg_class: 'dark:bg-gray-800',
+      button_dark_text_class: 'dark:text-green-400',
+      button_dark_hover_class: 'dark:hover:bg-gray-700',
+      icon_path: 'M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z',
+      sr_text: 'Info'
+    },
+    'error' => {
+      text_class: 'text-red-800',
+      bg_class: 'bg-red-50',
+      dark_text_class: 'dark:text-red-400',
+      dark_bg_class: 'dark:bg-gray-800',
+      button_bg_class: 'bg-red-50',
+      button_text_class: 'text-red-500',
+      button_focus_class: 'focus:ring-red-400',
+      button_dark_bg_class: 'dark:bg-gray-800',
+      button_dark_text_class: 'dark:text-red-400',
+      button_dark_hover_class: 'dark:hover:bg-gray-700',
+      icon_path: 'M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z',
+      sr_text: 'Error'
+    },
+    'info' => {
+      text_class: 'text-blue-800',
+      bg_class: 'bg-blue-50',
+      dark_text_class: 'dark:text-blue-400',
+      dark_bg_class: 'dark:bg-gray-800',
+      button_bg_class: 'bg-blue-50',
+      button_text_class: 'text-blue-500',
+      button_focus_class: 'focus:ring-blue-400',
+      button_dark_bg_class: 'dark:bg-gray-800',
+      button_dark_text_class: 'dark:text-blue-400',
+      button_dark_hover_class: 'dark:hover:bg-gray-700',
+      icon_path: 'M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z',
+      sr_text: 'Info'
+    },
+    'warning' => {
+      text_class: 'text-yellow-800',
+      bg_class: 'bg-yellow-50',
+      dark_text_class: 'dark:text-yellow-400',
+      dark_bg_class: 'dark:bg-gray-800',
+      button_bg_class: 'bg-yellow-50',
+      button_text_class: 'text-yellow-500',
+      button_focus_class: 'focus:ring-yellow-400',
+      button_dark_bg_class: 'dark:bg-gray-800',
+      button_dark_text_class: 'dark:text-yellow-400',
+      button_dark_hover_class: 'dark:hover:bg-gray-700',
+      icon_path: 'M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z',
+      sr_text: 'Warning'
+    }
+  }
+  
+  config = type_config[type] || type_config['info']
+%>
+
+<div id="<%= toast_id %>" class="flex items-center p-4 mb-4 text-sm rounded-lg <%= config[:text_class] %> <%= config[:bg_class] %> <%= config[:dark_text_class] %> <%= config[:dark_bg_class] %>" role="alert" data-controller="toast" data-action="click->toast#dismiss">
+  <svg class="shrink-0 inline w-4 h-4 me-3" fill="currentColor" viewBox="0 0 20 20">
+    <path fill-rule="evenodd" d="<%= config[:icon_path] %>" clip-rule="evenodd"></path>
+  </svg>
+  <span class="sr-only"><%= config[:sr_text] %></span>
+  <div>
+    <span class="font-medium"><%= message %></span>
+  </div>
+  <button type="button" class="ms-auto -mx-1.5 -my-1.5 <%= config[:button_bg_class] %> <%= config[:button_text_class] %> rounded-lg <%= config[:button_focus_class] %> focus:ring-2 p-1.5 inline-flex h-8 w-8 <%= config[:button_dark_bg_class] %> <%= config[:button_dark_text_class] %> <%= config[:button_dark_hover_class] %>" data-action="click->toast#dismiss">
+    <span class="sr-only">Close</span>
+    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    </svg>
+  </button>
+</div>
+

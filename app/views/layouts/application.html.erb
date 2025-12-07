@@ -8,6 +8,35 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <%# Initialize dark mode before page render to avoid FOUC (Flash of Unstyled Content) %>
+    <script>
+      (function() {
+        const userPreference = <%= user_signed_in? && current_user.dark_mode ? 'true' : 'null' %>;
+        // Migrate old 'theme' key to 'color-theme' for Flowbite consistency
+        const oldTheme = localStorage.getItem('theme');
+        if (oldTheme && !localStorage.getItem('color-theme')) {
+          localStorage.setItem('color-theme', oldTheme);
+          localStorage.removeItem('theme');
+        }
+        const savedTheme = localStorage.getItem('color-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // Priority: user database preference > localStorage > system preference
+        if (userPreference === true || (userPreference === null && (savedTheme === 'dark' || (!savedTheme && prefersDark)))) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+
+    <%# Set current user ID for JavaScript controllers (e.g., dark mode database sync) %>
+    <% if user_signed_in? %>
+      <script>
+        window.currentUserId = <%= current_user.id %>;
+      </script>
+    <% end %>
+
     <%= yield :head %>
 
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
