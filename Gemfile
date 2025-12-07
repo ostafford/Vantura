@@ -38,7 +38,7 @@ gem "pagy", "~> 43.1", ">= 43.1.8"
 # rspec for testing
 gem "rspec-rails", "~> 8.0", ">= 8.0.2"
 # faker for testing
-gem "faker", "~> 3.5", ">= 3.5.2"
+gem "faker", "~> 3.5"
 # factory_bot for testing
 gem "factory_bot", "~> 6.5", ">= 6.5.6"
 # shoulda-matchers for testing
