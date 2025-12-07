@@ -1,0 +1,66 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8"
+     data-controller="sync-progress"
+     data-sync-progress-user-id-value="<%= current_user.id %>">
+  
+  <%= turbo_stream_from "user_#{current_user.id}_onboarding" %>
+
+  <div class="max-w-2xl w-full space-y-8">
+    <!-- Step Indicator -->
+    <div class="text-center">
+      <p class="text-sm text-gray-600 dark:text-gray-400">Step 3 of 3</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
+      <div class="text-center mb-8">
+        <div class="text-6xl mb-4">🔄</div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          Setting Up Your Account
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400">
+          We're syncing your Up Bank data...
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-500 mt-1">
+          This usually takes 10-30 seconds.
+        </p>
+      </div>
+
+      <!-- Progress Bar -->
+      <div id="progress-bar" data-sync-progress-target="progressBar">
+        <%= render "onboarding/progress_bar", percentage: 0, message: "Initializing..." %>
+      </div>
+
+      <!-- Sync Steps -->
+      <div id="sync-steps" data-sync-progress-target="steps" class="mt-6 space-y-3">
+        <!-- Steps will be appended here via Turbo Stream -->
+      </div>
+
+      <!-- Completion Redirect (hidden initially) -->
+      <div id="completion-redirect" data-sync-progress-target="redirect" class="hidden mt-8">
+        <!-- Completion content will be replaced here via Turbo Stream -->
+      </div>
+
+      <!-- Tip Box -->
+      <div class="mt-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="ml-3 flex-1">
+            <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-1">
+              💡 Did you know?
+            </h3>
+            <p class="text-sm text-yellow-700 dark:text-yellow-300">
+              You can set spending goals and track them in real-time!
+            </p>
+            <%= link_to "Learn more about Goals →", goals_path, 
+                class: "text-sm text-yellow-800 dark:text-yellow-200 hover:underline mt-1 inline-block" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

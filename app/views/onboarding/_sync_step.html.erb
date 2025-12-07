@@ -1,0 +1,13 @@
+<div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+  <% if completed %>
+    <svg class="h-5 w-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>
+  <% else %>
+    <div class="h-5 w-5 border-2 border-gray-300 dark:border-gray-600 rounded-full flex-shrink-0 animate-spin">
+      <div class="h-full w-full border-t-2 border-blue-600 rounded-full"></div>
+    </div>
+  <% end %>
+  <span class="text-sm text-gray-700 dark:text-gray-300"><%= message %></span>
+</div>
+

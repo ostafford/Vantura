@@ -8,14 +8,31 @@ class DashboardController < ApplicationController
       current_user.accounts.to_a
     end
 
-    # Paginate transactions instead of loading all
-    # Pagy 4.3: Use :offset for standard pagination
-    @pagy, @recent_transactions = pagy(:offset, current_user.transactions.recent, items: 20)
-
     # Calculate balance efficiently with caching
     @balance = Rails.cache.fetch("user/#{current_user.id}/balance", expires_in: 5.minutes) do
       current_user.accounts.sum(:balance_cents)
     end
+
+    # Calculate stats for current month
+    @stats = current_user.calculate_stats
+
+    # Paginate transactions instead of loading all
+    # Pagy 4.3: Use :offset for standard pagination
+    @pagy, @recent_transactions = pagy(:offset, current_user.transactions.recent, items: 20)
+
+    # Get upcoming planned transactions (next 7 days)
+    @upcoming_planned = current_user.planned_transactions
+      .where("planned_date >= ? AND planned_date <= ?", Date.current, 7.days.from_now)
+      .order(:planned_date)
+      .limit(5)
+
+    # Get active projects with outstanding expenses
+    @active_projects = current_user.projects
+      .includes(:project_expenses, :expense_contributions)
+      .limit(3)
+
+    # Check if user needs to see insights banner (dismissible via localStorage)
+    @show_insights = true # Can be enhanced to check localStorage or user preference
   end
 
   def sync

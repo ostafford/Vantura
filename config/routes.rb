@@ -10,6 +10,12 @@ Rails.application.routes.draw do
 
   root "dashboard#index"
 
+  # Onboarding
+  get "/onboarding/connect_up_bank", to: "onboarding#connect_up_bank", as: :onboarding_connect_up_bank
+  post "/onboarding/connect_up_bank", to: "onboarding#create_connection", as: :onboarding_create_connection
+  get "/onboarding/sync_progress", to: "onboarding#sync_progress", as: :onboarding_sync_progress
+  post "/onboarding/skip_connection", to: "onboarding#skip_connection", as: :onboarding_skip_connection
+
   # Webhooks
   post "/webhooks/up", to: "webhooks#up"
 

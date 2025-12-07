@@ -1,0 +1,23 @@
+<div id="insights-banner" 
+     data-controller="dashboard"
+     data-dashboard-target="insightBanner"
+     class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+  <div class="flex items-start justify-between">
+    <div class="flex items-start space-x-3">
+      <span class="text-2xl">💡</span>
+      <div>
+        <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+          <%= insight_message %>
+        </p>
+      </div>
+    </div>
+    <button type="button"
+            data-action="click->dashboard#dismissInsight"
+            class="text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-200">
+      <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+  </div>
+</div>
+

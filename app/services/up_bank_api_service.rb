@@ -5,9 +5,9 @@ class UpBankApiService
   RATE_LIMIT = 100
   RATE_PERIOD = 60.seconds
 
-  def initialize(user)
+  def initialize(user, token: nil)
     @user = user
-    @token = user.up_bank_token
+    @token = token || user.up_bank_token
     raise ArgumentError, "User has no Up Bank token" unless @token
 
     @rate_limiter = ApiRateLimiter.new(
@@ -15,6 +15,28 @@ class UpBankApiService
       period: RATE_PERIOD,
       key_prefix: "up_bank_api"
     )
+  end
+
+  # Class method to validate a token without creating a full service instance
+  def self.validate_token(token)
+    return false if token.blank?
+    return false unless token.start_with?("up:") && token.length > 20
+
+    # Make a simple ping request to validate
+    url = "#{BASE_URL}/util/ping"
+    response = HTTParty.get(
+      url,
+      headers: {
+        "Authorization" => "Bearer #{token}",
+        "Content-Type" => "application/json"
+      },
+      timeout: 10
+    )
+
+    response.success?
+  rescue => e
+    Rails.logger.error "Token validation failed: #{e.message}"
+    false
   end
 
   # Fetch all accounts
@@ -79,6 +101,7 @@ class UpBankApiService
       )
       account.save!
     end
+    @user.accounts.reload
   end
 
   # Sync categories from API

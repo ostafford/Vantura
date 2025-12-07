@@ -1,0 +1,38 @@
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Upcoming</h2>
+    <%= link_to "Manage in Calendar →", calendar_path,
+        class: "text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" %>
+  </div>
+
+  <% if upcoming_planned.any? %>
+    <div class="space-y-3">
+      <% upcoming_planned.each do |planned| %>
+        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl">
+              <%= planned.expense? ? "📱" : "💰" %>
+            </span>
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">
+                <%= planned.description %>
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                <%= planned.planned_date.strftime("%b %d") %>
+              </p>
+            </div>
+          </div>
+          <p class="text-sm font-semibold <%= planned.expense? ? 'text-red-600' : 'text-green-600' %>">
+            <%= planned.expense? ? '-' : '+' %><%= number_to_currency(planned.amount_cents / 100.0, unit: "$") %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render "shared/empty_state",
+        title: "No upcoming transactions",
+        message: "Add planned expenses or income in the Calendar.",
+        icon: "📅" %>
+  <% end %>
+</div>
+

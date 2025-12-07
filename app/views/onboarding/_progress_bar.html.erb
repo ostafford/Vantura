@@ -1,0 +1,12 @@
+<div class="w-full">
+  <div class="flex justify-between items-center mb-2">
+    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
+    <span class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= percentage %>%</span>
+  </div>
+  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+    <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+         style="width: <%= percentage %>%"></div>
+  </div>
+  <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center"><%= message %></p>
+</div>
+

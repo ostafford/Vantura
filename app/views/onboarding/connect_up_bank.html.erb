@@ -1,0 +1,108 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl w-full space-y-8">
+    <!-- Step Indicator -->
+    <div class="text-center">
+      <p class="text-sm text-gray-600 dark:text-gray-400">Step 2 of 3</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
+      <div class="text-center mb-8">
+        <div class="text-6xl mb-4">🏦</div>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          Connect Your Up Bank Account
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400">
+          Automatically sync your transactions and get real-time insights.
+        </p>
+      </div>
+
+      <!-- Info Box -->
+      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="ml-3 flex-1">
+            <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+              Why do I need this?
+            </h3>
+            <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+              <li>• Auto-sync transactions</li>
+              <li>• Real-time balance updates</li>
+              <li>• Spending analytics</li>
+              <li>• Category insights</li>
+            </ul>
+            <p class="text-sm text-blue-700 dark:text-blue-300 mt-2">
+              Don't have Up Bank? You can still use Projects!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 mb-6">
+        <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-3">
+          📱 How to get your token:
+        </h3>
+        <ol class="text-sm text-gray-700 dark:text-gray-300 space-y-2 list-decimal list-inside">
+          <li>Open the Up app on your phone</li>
+          <li>Tap your profile → Settings</li>
+          <li>Navigate to Data Sharing</li>
+          <li>Tap Personal Access Token</li>
+          <li>Generate a new token</li>
+          <li>Copy and paste it below</li>
+        </ol>
+      </div>
+
+      <!-- Flash Messages -->
+      <%= render "shared/flash_messages" %>
+
+      <!-- Form -->
+      <%= form_with url: onboarding_create_connection_path, method: :post, 
+          data: { controller: "token-validator" },
+          class: "space-y-6" do |f| %>
+        
+        <div>
+          <%= label_tag :token, "Personal Access Token", 
+              class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+          <div class="relative">
+            <%= password_field_tag :token, nil,
+                id: "token",
+                data: { 
+                  token_validator_target: "input",
+                  action: "input->token-validator#validate"
+                },
+                class: "block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm pr-10",
+                placeholder: "up:yeah:xxxxxxxxxxxxxxxxxxx",
+                required: true %>
+            <button type="button" 
+                    data-token-validator-target="toggle"
+                    data-action="click->token-validator#toggleVisibility"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
+              <span data-token-validator-target="icon" class="text-gray-400 hover:text-gray-600">👁</span>
+            </button>
+          </div>
+          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            🔒 Encrypted and stored securely
+          </p>
+          <div data-token-validator-target="feedback" class="mt-2 text-sm"></div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4">
+          <%= f.submit "✓ Validate & Connect",
+              data: { token_validator_target: "button" },
+              class: "flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" %>
+          
+          <%= link_to "I'll do this later",
+              onboarding_skip_connection_path,
+              method: :post,
+              class: "flex-1 text-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium py-3 px-4 rounded-md transition-colors" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+

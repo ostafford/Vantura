@@ -1,0 +1,23 @@
+<%= turbo_frame_tag "recent-transactions" do %>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Recent Transactions</h2>
+      <%= link_to "View All", transactions_path, 
+          class: "text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" %>
+    </div>
+
+    <% if recent_transactions.any? %>
+      <div class="space-y-3">
+        <% recent_transactions.each do |transaction| %>
+          <%= render "shared/transaction_card", transaction: transaction %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= render "shared/empty_state",
+          title: "No transactions yet",
+          message: "Click 'Sync' to fetch your transactions from Up Bank.",
+          icon: "💳" %>
+    <% end %>
+  </div>
+<% end %>
+

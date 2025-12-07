@@ -53,15 +53,21 @@
 
   <body class="bg-gray-50 dark:bg-gray-900">
     <% if user_signed_in? %>
-      <%= render 'layouts/sidebar' %>
-      <%= render 'layouts/topbar' %>
+      <%# Hide sidebar/topbar for onboarding pages %>
+      <% unless request.path.start_with?('/onboarding') %>
+        <%= render 'layouts/sidebar' %>
+        <%= render 'layouts/topbar' %>
 
-      <div class="p-4 sm:ml-64 sm:mt-16">
-        <div class="p-4">
-          <%= render 'shared/flash_messages' %>
-          <%= yield %>
+        <div class="p-4 sm:ml-64 sm:mt-16">
+          <div class="p-4">
+            <%= render 'shared/flash_messages' %>
+            <%= yield %>
+          </div>
         </div>
-      </div>
+      <% else %>
+        <%= render 'shared/flash_messages' %>
+        <%= yield %>
+      <% end %>
     <% else %>
       <main class="container mx-auto mt-28 px-5 flex">
         <%= render 'shared/flash_messages' %>
