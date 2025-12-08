@@ -8,7 +8,7 @@ class HealthController < ApplicationController
     checks = {
       database: check_database,
       redis: check_redis,
-      sidekiq: check_sidekiq,
+      solid_queue: check_solid_queue,
       up_bank_api: check_up_bank_api
     }
 
@@ -58,30 +58,30 @@ class HealthController < ApplicationController
     }
   end
 
-  def check_sidekiq
+  def check_solid_queue
     start_time = Time.current
-    if defined?(Sidekiq)
-      stats = Sidekiq::Stats.new
+    begin
+      # Query Solid Queue job statistics
+      # Jobs are pending if they haven't finished yet
+      pending_count = SolidQueue::Job.where(finished_at: nil).count
+      failed_count = SolidQueue::FailedExecution.count
+      finished_count = SolidQueue::Job.where.not(finished_at: nil).count
+      
       response_time = ((Time.current - start_time) * 1000).round(2)
 
       {
         status: "ok",
         response_time_ms: response_time,
-        processed: stats.processed,
-        failed: stats.failed,
-        enqueued: stats.enqueued
+        pending: pending_count,
+        failed: failed_count,
+        finished: finished_count
       }
-    else
+    rescue StandardError => e
       {
-        status: "warning",
-        error: "Sidekiq not loaded"
+        status: "error",
+        error: e.message
       }
     end
-  rescue StandardError => e
-    {
-      status: "error",
-      error: e.message
-    }
   end
 
   def check_up_bank_api

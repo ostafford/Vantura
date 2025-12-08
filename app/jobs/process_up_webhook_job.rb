@@ -82,11 +82,14 @@ class ProcessUpWebhookJob < ApplicationJob
   end
 
   def broadcast_dashboard_update(user)
-    Turbo::StreamsChannel.broadcast_update_to(
+    # Get recent transactions (matching dashboard controller logic)
+    recent_transactions = user.transactions.recent.limit(20)
+    
+    Turbo::StreamsChannel.broadcast_replace_to(
       "user_#{user.id}_dashboard",
-      target: "recent_transactions",
+      target: "recent-transactions",
       partial: "dashboard/recent_transactions",
-      locals: { user: user }
+      locals: { recent_transactions: recent_transactions }
     )
   rescue => e
     Rails.logger.error "Failed to broadcast update: #{e.message}"

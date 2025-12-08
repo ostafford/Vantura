@@ -8,6 +8,7 @@ RSpec.describe 'Dashboard Page', type: :system do
 
   before do
     sign_in user, scope: :user
+    # Mark onboarding as complete (has accounts and last_synced_at)
     user.update!(last_synced_at: Time.current)
     # Reload to ensure token encryption is persisted
     user.reload
@@ -124,12 +125,12 @@ RSpec.describe 'Dashboard Page', type: :system do
   describe 'Manual Sync Button' do
     it 'shows sync button in topbar when user has Up Bank token' do
       # Set encrypted token directly to simulate having a token
-      # has_up_bank_token? checks for up_bank_token_encrypted being present
-      user.update_columns(up_bank_token_encrypted: "encrypted_value_#{SecureRandom.hex(8)}")
+      # has_up_bank_token? checks for up_bank_token_ciphertext being present (Rails encryption)
+      user.update!(up_bank_token: "test_token_#{SecureRandom.hex(8)}")
       user.reload
       
-      # Verify has_up_bank_token? returns true (checks encrypted attribute)
-      expect(user.read_attribute(:up_bank_token_encrypted)).to be_present
+      # Verify has_up_bank_token? returns true (checks ciphertext attribute)
+      expect(user.read_attribute(:up_bank_token_ciphertext)).to be_present
       expect(user.has_up_bank_token?).to be true
       
       # Re-sign in to refresh session with updated user
@@ -145,7 +146,14 @@ RSpec.describe 'Dashboard Page', type: :system do
     end
 
     it 'does not show sync button when user has no Up Bank token' do
+      # Clear token and ensure ciphertext is also cleared
       user.update!(up_bank_token: nil)
+      user.update_columns(up_bank_token_ciphertext: nil) # Ensure ciphertext is cleared
+      user.reload
+      
+      # Verify token is actually cleared
+      expect(user.has_up_bank_token?).to be false
+      
       visit dashboard_path
 
       expect(page).not_to have_button('Sync with Up Bank', visible: false)
@@ -153,8 +161,8 @@ RSpec.describe 'Dashboard Page', type: :system do
 
     it 'triggers sync when clicked' do
       # Set encrypted token directly to simulate having a token
-      # has_up_bank_token? checks for up_bank_token_encrypted being present
-      user.update_columns(up_bank_token_encrypted: "encrypted_value_#{SecureRandom.hex(8)}")
+      # has_up_bank_token? checks for up_bank_token_ciphertext being present (Rails encryption)
+      user.update!(up_bank_token: "test_token_#{SecureRandom.hex(8)}")
       user.reload
       
       # Verify has_up_bank_token? returns true
@@ -202,6 +210,49 @@ RSpec.describe 'Dashboard Page', type: :system do
       # The actual stream names are encoded, but the elements exist
       expect(stream_sources[0]).to be_present
       expect(stream_sources[1]).to be_present
+    end
+  end
+
+  describe 'Turbo Stream Updates' do
+    it 'has correct Turbo Stream targets for stats updates' do
+      visit dashboard_path
+
+      # Verify the stats target exists (may appear multiple times in DOM but should be unique)
+      stats_containers = page.all('#dashboard-stats')
+      expect(stats_containers.length).to be >= 1
+      
+      # Verify stats partial accepts locals parameter
+      expect(File.exist?(Rails.root.join('app/views/dashboard/_stats.html.erb'))).to be true
+      
+      # Verify stats are displayed (use first match)
+      expect(stats_containers.first).to have_text('Balance')
+      expect(stats_containers.first).to have_text('Income')
+      expect(stats_containers.first).to have_text('Expenses')
+      expect(stats_containers.first).to have_text('Net')
+    end
+
+    it 'has correct Turbo Stream target for transaction updates' do
+      visit dashboard_path
+
+      # Verify the recent-transactions turbo frame exists
+      expect(page).to have_css('turbo-frame#recent-transactions')
+      
+      # Verify recent_transactions partial exists
+      expect(File.exist?(Rails.root.join('app/views/dashboard/_recent_transactions.html.erb'))).to be true
+      
+      # Verify transactions are displayed
+      expect(find('turbo-frame#recent-transactions')).to have_text('Recent Transactions')
+    end
+
+    it 'handles empty transactions list correctly' do
+      # Clear all transactions
+      Transaction.destroy_all
+      
+      visit dashboard_path
+
+      # Verify empty state is shown
+      expect(find('turbo-frame#recent-transactions')).to have_text('No transactions yet')
+      expect(find('turbo-frame#recent-transactions')).to have_text('Click \'Sync\' to fetch your transactions from Up Bank')
     end
   end
 

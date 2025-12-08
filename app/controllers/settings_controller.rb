@@ -7,9 +7,15 @@ class SettingsController < ApplicationController
 
   def update
     if current_user.update(user_params)
-      redirect_to settings_path, notice: "Settings updated successfully"
+      respond_to do |format|
+        format.html { redirect_to settings_path, notice: "Settings updated successfully" }
+        format.json { head :ok }
+      end
     else
-      render :index, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :index, status: :unprocessable_entity }
+        format.json { render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 

@@ -1,26 +1,27 @@
+<% stats ||= @stats %>
 <div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
   <%= render "shared/stats_card",
       title: "Balance",
-      value: number_to_currency(@stats[:total_balance] / 100.0, unit: "$"),
+      value: number_to_currency(stats[:total_balance] / 100.0, unit: "$"),
       icon: "💰",
       change: nil %>
 
   <%= render "shared/stats_card",
       title: "Income",
-      value: number_to_currency(@stats[:income_this_month] / 100.0, unit: "$"),
+      value: number_to_currency(stats[:income_this_month] / 100.0, unit: "$"),
       icon: "📈",
       change: nil %>
 
   <%= render "shared/stats_card",
       title: "Expenses",
-      value: number_to_currency(@stats[:expenses_this_month] / 100.0, unit: "$"),
+      value: number_to_currency(stats[:expenses_this_month] / 100.0, unit: "$"),
       icon: "📉",
       change: nil %>
 
   <%= render "shared/stats_card",
       title: "Net",
-      value: number_to_currency(@stats[:net_this_month] / 100.0, unit: "$"),
+      value: number_to_currency(stats[:net_this_month] / 100.0, unit: "$"),
       icon: "📊",
-      change: @stats[:net_this_month] >= 0 ? { positive: true, value: "+#{number_to_currency(@stats[:net_this_month] / 100.0, unit: "$")}" } : { positive: false, value: number_to_currency(@stats[:net_this_month] / 100.0, unit: "$") } %>
+      change: stats[:net_this_month] >= 0 ? { positive: true, value: "+#{number_to_currency(stats[:net_this_month] / 100.0, unit: "$")}" } : { positive: false, value: number_to_currency(stats[:net_this_month] / 100.0, unit: "$") } %>
 </div>
 

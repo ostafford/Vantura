@@ -6,9 +6,7 @@
 
   <div class="max-w-2xl w-full space-y-8">
     <!-- Step Indicator -->
-    <div class="text-center">
-      <p class="text-sm text-gray-600 dark:text-gray-400">Step 3 of 3</p>
-    </div>
+    <%= render "onboarding/step_indicator", current_step: 3, total_steps: 3 %>
 
     <!-- Main Card -->
     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">

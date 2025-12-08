@@ -20,9 +20,9 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 # devise for authentication
 gem "devise", "~> 4.9", ">= 4.9.4"
-# sidekiq for background jobs
-gem "sidekiq", "~> 8.0", ">= 8.0.9"
-gem "redis", "~> 5.4", ">= 5.4.1"
+# Solid Queue is used for background jobs (Rails 8 built-in)
+# gem "sidekiq", "~> 8.0", ">= 8.0.9" # Removed - using Solid Queue
+gem "redis", "~> 5.4", ">= 5.4.1" # Still needed for Rack::Attack and ApiRateLimiter
 # pundit for authorization
 gem "pundit", "~> 2.5", ">= 2.5.2"
 # rack-attack for rate limiting
@@ -57,8 +57,8 @@ gem "image_processing", "~> 1.14"
 gem "pry-rails", "~> 0.3.11"
 # administrate for admin panel
 gem "administrate", "~> 1.0"
-# attr_encrypted for encrypted attributes
-gem "attr_encrypted", "~> 4.2"
+# Rails built-in encryption is used instead of attr_encrypted
+# gem "attr_encrypted", "~> 4.2" # Removed - using Rails 8 built-in encryption
 # vcr for recording and playing back HTTP requests
 gem "vcr", "~> 6.3", ">= 6.3.1"
 # httparty for HTTP client

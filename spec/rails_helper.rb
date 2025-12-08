@@ -29,7 +29,7 @@ require "webmock/rspec"
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
 #
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Auto-load factories
 Rails.root.glob('spec/factories/**/*.rb').sort_by(&:to_s).each { |f| require f }
@@ -50,7 +50,7 @@ VCR.configure do |config|
     interaction.request.headers["X-Up-Authenticity-Signature"]&.first
   end
 
-  # Allow localhost connections (for Sidekiq, Redis, etc.)
+  # Allow localhost connections (for Redis, etc.)
   config.ignore_localhost = true
 
   # Default cassette options

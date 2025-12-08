@@ -16,7 +16,7 @@ A personal finance management application that integrates with Up Bank to track 
 
 - **Framework**: Ruby on Rails 8.0
 - **Database**: PostgreSQL
-- **Background Jobs**: Sidekiq with Redis
+- **Background Jobs**: Solid Queue (Rails 8 built-in)
 - **Authentication**: Devise
 - **Frontend**: Tailwind CSS, Hotwire (Turbo + Stimulus)
 - **Deployment**: Kamal
@@ -56,7 +56,7 @@ bin/rails db:migrate
 bin/rails db:seed
 ```
 
-5. Start Redis (required for Sidekiq):
+5. Start Redis (required for rate limiting):
 ```bash
 redis-server
 ```
@@ -79,7 +79,7 @@ bin/dev
 
 This starts:
 - Rails server (port 3000)
-- Sidekiq (background jobs)
+- Solid Queue (background jobs)
 - Tailwind CSS watcher
 
 ### Individual Services
@@ -89,9 +89,10 @@ Start Rails server:
 bin/rails server
 ```
 
-Start Sidekiq:
+Start Solid Queue supervisor:
 ```bash
-bundle exec sidekiq
+bin/rails solid_queue:start
+# Or run in Puma: SOLID_QUEUE_IN_PUMA=1 bin/rails server
 ```
 
 Run migrations:
@@ -164,7 +165,7 @@ The application integrates with Up Bank API:
 ### Redis
 
 Required for:
-- Sidekiq background jobs
+- Solid Queue background jobs (if using separate queue database)
 - Rack::Attack rate limiting
 - API rate limiting
 
@@ -190,7 +191,7 @@ Basic health check:
 curl http://localhost:3000/up
 ```
 
-Full health check (checks database, Redis, Sidekiq, Up Bank API):
+Full health check (checks database, Redis, Solid Queue, Up Bank API):
 ```bash
 curl http://localhost:3000/health/full
 ```
@@ -222,11 +223,12 @@ redis-cli ping
 
 Should return `PONG`.
 
-### Sidekiq Not Processing Jobs
+### Solid Queue Not Processing Jobs
 
-1. Check Redis connection
-2. Verify Sidekiq is running: `bundle exec sidekiq`
-3. Check Sidekiq web UI: `http://localhost:3000/sidekiq` (admin only)
+1. Check database connection (Solid Queue uses PostgreSQL)
+2. Verify Solid Queue supervisor is running: `bin/rails solid_queue:start`
+3. Check job status in database: `bin/rails runner "puts SolidQueue::Job.count"`
+4. Monitor logs for job processing errors
 
 ### Migration Issues
 

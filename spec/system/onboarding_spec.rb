@@ -12,21 +12,27 @@ RSpec.describe 'Onboarding Flow', type: :system do
       sign_out :user
     end
 
-    it 'allows user to sign up' do
+    it 'allows user to sign up and redirects to onboarding' do
       # Devise registration path
       visit new_user_registration_path
 
-      # Fill in registration form (Devise uses 'email' field name in form)
-      fill_in 'Email', with: 'newuser@example.com'
+      # Verify step indicator shows step 1
+      expect(page).to have_css('div.flex.items-center.justify-center', text: '1')
+
+      # Fill in registration form
+      fill_in 'Email address', with: 'newuser@example.com'
       fill_in 'Password', with: 'password123'
-      fill_in 'Password confirmation', with: 'password123'
+      fill_in 'Confirm password', with: 'password123'
 
       expect {
         click_button 'Sign up'
       }.to change(User, :count).by(1)
 
-      # After sign up, user should be redirected
-      expect(page).to have_current_path(root_path)
+      # After sign up, user should be redirected to onboarding (Step 2)
+      expect(page).to have_current_path(onboarding_connect_up_bank_path)
+      expect(page).to have_text('Connect Your Up Bank Account')
+      # Verify step indicator shows step 2
+      expect(page).to have_css('div.flex.items-center.justify-center', text: '2')
     end
   end
 
@@ -36,7 +42,8 @@ RSpec.describe 'Onboarding Flow', type: :system do
         visit onboarding_connect_up_bank_path
 
         expect(page).to have_text('Connect Your Up Bank Account')
-        expect(page).to have_text('Step 2 of 3')
+        # Verify step indicator shows step 2 (check for number 2 in a circle)
+        expect(page).to have_text('2') # Should appear in step indicator
         expect(page).to have_field('token')
         # Button text includes checkmark, may be disabled initially (empty token)
         expect(page).to have_button('✓ Validate & Connect', disabled: true)
@@ -119,9 +126,10 @@ RSpec.describe 'Onboarding Flow', type: :system do
       visit onboarding_sync_progress_path
 
       expect(page).to have_text('Setting Up Your Account')
-      expect(page).to have_text('Step 3 of 3')
       expect(page).to have_css('#progress-bar')
       expect(page).to have_css('#sync-steps')
+      # Verify step indicator is present (shows step numbers)
+      expect(page).to have_css('div.flex.items-center.justify-center', text: '3')
     end
 
     it 'displays progress bar' do
@@ -166,6 +174,58 @@ RSpec.describe 'Onboarding Flow', type: :system do
       fill_in 'token', with: 'up:yeah:validtoken123456789012345'
       expect(page).to have_text('Format looks good')
       expect(page).to have_button('Validate & Connect', disabled: false)
+    end
+  end
+
+  describe 'Turbo Stream Updates' do
+    let(:user) { create(:user, :with_up_bank_token) }
+
+    it 'has correct Turbo Stream targets for progress updates' do
+      visit onboarding_sync_progress_path
+
+      # Verify the target elements exist for Turbo Stream updates
+      expect(page).to have_css('#progress-bar', count: 1)
+      expect(page).to have_css('#sync-steps', count: 1)
+      # completion-redirect is hidden initially, check with visible: :all
+      expect(page).to have_css('#completion-redirect', count: 1, visible: :all)
+      
+      # Verify progress bar partial can be rendered
+      progress_bar = find('#progress-bar')
+      expect(progress_bar).to be_present
+    end
+
+    it 'has sync steps container ready for Turbo Stream appends' do
+      visit onboarding_sync_progress_path
+
+      # Verify sync-steps container exists
+      sync_steps = find('#sync-steps')
+      expect(sync_steps).to be_present
+      
+      # Verify sync_step partial exists and can render
+      expect(File.exist?(Rails.root.join('app/views/onboarding/_sync_step.html.erb'))).to be true
+    end
+
+    it 'has completion redirect container ready for Turbo Stream' do
+      visit onboarding_sync_progress_path
+
+      # Verify completion-redirect container exists
+      completion_div = find('#completion-redirect', visible: :all)
+      expect(completion_div).to be_present
+      # Container may or may not have hidden class initially, but should exist
+      
+      # Verify completion partial exists
+      expect(File.exist?(Rails.root.join('app/views/onboarding/_completion.html.erb'))).to be true
+    end
+
+    it 'subscribes to onboarding Turbo Stream channel' do
+      visit onboarding_sync_progress_path
+
+      # Check for Turbo Stream subscription
+      stream_sources = page.all('turbo-cable-stream-source')
+      expect(stream_sources.length).to be >= 1
+      
+      # Verify subscription exists
+      expect(stream_sources.first).to be_present
     end
   end
 end

@@ -1,0 +1,46 @@
+<% 
+  # Step indicator component
+  # Usage: render "onboarding/step_indicator", current_step: 2, total_steps: 3
+  current_step ||= local_assigns[:current_step] || 1
+  total_steps ||= local_assigns[:total_steps] || 3
+%>
+
+<div class="flex items-center justify-center space-x-4 mb-8">
+  <% (1..total_steps).each do |step| %>
+    <div class="flex items-center">
+      <!-- Step Circle -->
+      <div class="flex flex-col items-center">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300
+          <%= step < current_step ? 'bg-green-500 border-green-500 text-white' : 
+              step == current_step ? 'bg-blue-600 border-blue-600 text-white' : 
+              'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500' %>">
+          <% if step < current_step %>
+            <!-- Completed step - checkmark -->
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          <% else %>
+            <!-- Current or future step - number -->
+            <span class="text-sm font-semibold"><%= step %></span>
+          <% end %>
+        </div>
+        <!-- Step Label (optional, can be customized) -->
+        <% if step == 1 %>
+          <span class="mt-2 text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Sign Up</span>
+        <% elsif step == 2 %>
+          <span class="mt-2 text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Connect</span>
+        <% elsif step == 3 %>
+          <span class="mt-2 text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Sync</span>
+        <% end %>
+      </div>
+      
+      <!-- Connector Line (not shown after last step) -->
+      <% if step < total_steps %>
+        <div class="w-16 sm:w-24 h-0.5 mx-2 transition-all duration-300
+          <%= step < current_step ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' %>">
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+

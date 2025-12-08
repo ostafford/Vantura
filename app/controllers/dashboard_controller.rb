@@ -1,5 +1,6 @@
 class DashboardController < ApplicationController
   before_action :authenticate_user!
+  before_action :redirect_to_onboarding_if_needed, only: [:index]
   after_action :trigger_sync_if_needed, only: [ :index ]
 
   def index
@@ -47,6 +48,12 @@ class DashboardController < ApplicationController
   end
 
   private
+
+  def redirect_to_onboarding_if_needed
+    if current_user.needs_onboarding?
+      redirect_to onboarding_connect_up_bank_path
+    end
+  end
 
   def trigger_sync_if_needed
     # Use database-backed throttling instead of session

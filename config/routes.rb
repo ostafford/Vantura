@@ -1,12 +1,8 @@
-require "sidekiq/web"
-
 Rails.application.routes.draw do
   devise_for :users, controllers: { registrations: "registrations" }
 
-  # Secure Sidekiq Web UI - only accessible to admin users
-  authenticate :user, ->(user) { user.admin? } do
-    mount Sidekiq::Web => "/sidekiq"
-  end
+  # Sidekiq Web UI removed - using Solid Queue (no web UI needed)
+  # Solid Queue jobs can be monitored via database queries or custom admin panel
 
   root "dashboard#index"
 

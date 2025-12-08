@@ -1,0 +1,73 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.up.com.au/api/v1/accounts
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Authorization:
+      - Bearer <UP_BANK_TOKEN>
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      X-Ratelimit-Remaining:
+      - '999'
+      Content-Type:
+      - application/json; charset=utf-8
+      Vary:
+      - Accept, Origin
+      Etag:
+      - W/"ead029257fb5b923f62d7edc1745618f"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Security-Policy:
+      - 'connect-src ''self'' wss: https://sessions.bugsnag.com https://notify.bugsnag.com;
+        default-src ''self''; font-src ''self'' data: https://production.upassets.net
+        https://production.upassets.net; img-src ''self'' data: https://production.upassets.net
+        https://production.upassets.net; media-src ''self'' data: https://production.upassets.net
+        https://production.upassets.net; object-src ''none''; script-src ''self''
+        https://production.upassets.net https://production.upassets.net ''nonce-uSVjf2mhftimTvNq1ZsYhw=='';
+        style-src ''self'' blob: ''unsafe-inline'' https://production.upassets.net
+        https://production.upassets.net; base-uri ''self''; report-uri /content-security-violation'
+      X-Request-Id:
+      - cef8232c-14c4-4c9a-be1e-6ae81e09c606
+      X-Runtime:
+      - '0.081013'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains
+      Content-Length:
+      - '3633'
+      Via:
+      - 1.1 google
+      Date:
+      - Mon, 08 Dec 2025 05:23:25 GMT
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJkYXRhIjpbeyJ0eXBlIjoiYWNjb3VudHMiLCJpZCI6ImFkYWFjZDkwLWUyYWMtNGI1OC1hZDJhLTcwMzExZDE2NDBmMiIsImF0dHJpYnV0ZXMiOnsiZGlzcGxheU5hbWUiOiJTcGVuZGluZyIsImFjY291bnRUeXBlIjoiVFJBTlNBQ1RJT05BTCIsIm93bmVyc2hpcFR5cGUiOiJJTkRJVklEVUFMIiwiYmFsYW5jZSI6eyJjdXJyZW5jeUNvZGUiOiJBVUQiLCJ2YWx1ZSI6IjQxMTQuODciLCJ2YWx1ZUluQmFzZVVuaXRzIjo0MTE0ODd9LCJjcmVhdGVkQXQiOiIyMDIzLTEwLTMwVDE1OjUyOjMwKzExOjAwIn0sInJlbGF0aW9uc2hpcHMiOnsidHJhbnNhY3Rpb25zIjp7ImxpbmtzIjp7InJlbGF0ZWQiOiJodHRwczovL2FwaS51cC5jb20uYXUvYXBpL3YxL2FjY291bnRzL2FkYWFjZDkwLWUyYWMtNGI1OC1hZDJhLTcwMzExZDE2NDBmMi90cmFuc2FjdGlvbnMifX19LCJsaW5rcyI6eyJzZWxmIjoiaHR0cHM6Ly9hcGkudXAuY29tLmF1L2FwaS92MS9hY2NvdW50cy9hZGFhY2Q5MC1lMmFjLTRiNTgtYWQyYS03MDMxMWQxNjQwZjIifX0seyJ0eXBlIjoiYWNjb3VudHMiLCJpZCI6IjNjYjk5NjMxLTU1ZGQtNDdhMy05ZDQwLWJiYzRhNDU0NTNhOSIsImF0dHJpYnV0ZXMiOnsiZGlzcGxheU5hbWUiOiLwn5qoIEVtZXJnZW5jeSIsImFjY291bnRUeXBlIjoiU0FWRVIiLCJvd25lcnNoaXBUeXBlIjoiSU5ESVZJRFVBTCIsImJhbGFuY2UiOnsiY3VycmVuY3lDb2RlIjoiQVVEIiwidmFsdWUiOiI1MC4wMCIsInZhbHVlSW5CYXNlVW5pdHMiOjUwMDB9LCJjcmVhdGVkQXQiOiIyMDIzLTExLTA3VDIwOjUxOjU0KzExOjAwIn0sInJlbGF0aW9uc2hpcHMiOnsidHJhbnNhY3Rpb25zIjp7ImxpbmtzIjp7InJlbGF0ZWQiOiJodHRwczovL2FwaS51cC5jb20uYXUvYXBpL3YxL2FjY291bnRzLzNjYjk5NjMxLTU1ZGQtNDdhMy05ZDQwLWJiYzRhNDU0NTNhOS90cmFuc2FjdGlvbnMifX19LCJsaW5rcyI6eyJzZWxmIjoiaHR0cHM6Ly9hcGkudXAuY29tLmF1L2FwaS92MS9hY2NvdW50cy8zY2I5OTYzMS01NWRkLTQ3YTMtOWQ0MC1iYmM0YTQ1NDUzYTkifX0seyJ0eXBlIjoiYWNjb3VudHMiLCJpZCI6ImZiMDcyZDEwLWVmZGItNDM5YS04N2U1LWFiOWFkYWMyMzNhZSIsImF0dHJpYnV0ZXMiOnsiZGlzcGxheU5hbWUiOiLwn5OIIEludmVzdGluZyIsImFjY291bnRUeXBlIjoiU0FWRVIiLCJvd25lcnNoaXBUeXBlIjoiSU5ESVZJRFVBTCIsImJhbGFuY2UiOnsiY3VycmVuY3lDb2RlIjoiQVVEIiwidmFsdWUiOiI1MC4wMCIsInZhbHVlSW5CYXNlVW5pdHMiOjUwMDB9LCJjcmVhdGVkQXQiOiIyMDI1LTExLTE5VDE2OjQxOjU5KzExOjAwIn0sInJlbGF0aW9uc2hpcHMiOnsidHJhbnNhY3Rpb25zIjp7ImxpbmtzIjp7InJlbGF0ZWQiOiJodHRwczovL2FwaS51cC5jb20uYXUvYXBpL3YxL2FjY291bnRzL2ZiMDcyZDEwLWVmZGItNDM5YS04N2U1LWFiOWFkYWMyMzNhZS90cmFuc2FjdGlvbnMifX19LCJsaW5rcyI6eyJzZWxmIjoiaHR0cHM6Ly9hcGkudXAuY29tLmF1L2FwaS92MS9hY2NvdW50cy9mYjA3MmQxMC1lZmRiLTQzOWEtODdlNS1hYjlhZGFjMjMzYWUifX0seyJ0eXBlIjoiYWNjb3VudHMiLCJpZCI6IjljZjg0YzZiLWYyYjQtNGYyYy1hZWU0LTM1OGMzNTEwNTE3NiIsImF0dHJpYnV0ZXMiOnsiZGlzcGxheU5hbWUiOiLwn5GbIExvb3NlIENoYW5nZSIsImFjY291bnRUeXBlIjoiU0FWRVIiLCJvd25lcnNoaXBUeXBlIjoiSU5ESVZJRFVBTCIsImJhbGFuY2UiOnsiY3VycmVuY3lDb2RlIjoiQVVEIiwidmFsdWUiOiIzNy40MSIsInZhbHVlSW5CYXNlVW5pdHMiOjM3NDF9LCJjcmVhdGVkQXQiOiIyMDI1LTExLTE5VDE2OjU1OjUxKzExOjAwIn0sInJlbGF0aW9uc2hpcHMiOnsidHJhbnNhY3Rpb25zIjp7ImxpbmtzIjp7InJlbGF0ZWQiOiJodHRwczovL2FwaS51cC5jb20uYXUvYXBpL3YxL2FjY291bnRzLzljZjg0YzZiLWYyYjQtNGYyYy1hZWU0LTM1OGMzNTEwNTE3Ni90cmFuc2FjdGlvbnMifX19LCJsaW5rcyI6eyJzZWxmIjoiaHR0cHM6Ly9hcGkudXAuY29tLmF1L2FwaS92MS9hY2NvdW50cy85Y2Y4NGM2Yi1mMmI0LTRmMmMtYWVlNC0zNThjMzUxMDUxNzYifX0seyJ0eXBlIjoiYWNjb3VudHMiLCJpZCI6IjMwMDRmYzU0LWUwOWYtNGQzOC1iZjA1LTQ2MDRhMTkxNTZlOSIsImF0dHJpYnV0ZXMiOnsiZGlzcGxheU5hbWUiOiLwn6qqIFJlZ28iLCJhY2NvdW50VHlwZSI6IlNBVkVSIiwib3duZXJzaGlwVHlwZSI6IklORElWSURVQUwiLCJiYWxhbmNlIjp7ImN1cnJlbmN5Q29kZSI6IkFVRCIsInZhbHVlIjoiMTU1LjgzIiwidmFsdWVJbkJhc2VVbml0cyI6MTU1ODN9LCJjcmVhdGVkQXQiOiIyMDI1LTExLTI4VDEzOjU5OjMyKzExOjAwIn0sInJlbGF0aW9uc2hpcHMiOnsidHJhbnNhY3Rpb25zIjp7ImxpbmtzIjp7InJlbGF0ZWQiOiJodHRwczovL2FwaS51cC5jb20uYXUvYXBpL3YxL2FjY291bnRzLzMwMDRmYzU0LWUwOWYtNGQzOC1iZjA1LTQ2MDRhMTkxNTZlOS90cmFuc2FjdGlvbnMifX19LCJsaW5rcyI6eyJzZWxmIjoiaHR0cHM6Ly9hcGkudXAuY29tLmF1L2FwaS92MS9hY2NvdW50cy8zMDA0ZmM1NC1lMDlmLTRkMzgtYmYwNS00NjA0YTE5MTU2ZTkifX0seyJ0eXBlIjoiYWNjb3VudHMiLCJpZCI6ImQxNzlkNzQ4LTU4NTQtNDE5OC1hZjRhLTE5ZWNkMDkxNjY4OSIsImF0dHJpYnV0ZXMiOnsiZGlzcGxheU5hbWUiOiLwn6m6IEJ1cGEiLCJhY2NvdW50VHlwZSI6IlNBVkVSIiwib3duZXJzaGlwVHlwZSI6IklORElWSURVQUwiLCJiYWxhbmNlIjp7ImN1cnJlbmN5Q29kZSI6IkFVRCIsInZhbHVlIjoiMTY0LjAwIiwidmFsdWVJbkJhc2VVbml0cyI6MTY0MDB9LCJjcmVhdGVkQXQiOiIyMDI1LTExLTI4VDE0OjAwOjU0KzExOjAwIn0sInJlbGF0aW9uc2hpcHMiOnsidHJhbnNhY3Rpb25zIjp7ImxpbmtzIjp7InJlbGF0ZWQiOiJodHRwczovL2FwaS51cC5jb20uYXUvYXBpL3YxL2FjY291bnRzL2QxNzlkNzQ4LTU4NTQtNDE5OC1hZjRhLTE5ZWNkMDkxNjY4OS90cmFuc2FjdGlvbnMifX19LCJsaW5rcyI6eyJzZWxmIjoiaHR0cHM6Ly9hcGkudXAuY29tLmF1L2FwaS92MS9hY2NvdW50cy9kMTc5ZDc0OC01ODU0LTQxOTgtYWY0YS0xOWVjZDA5MTY2ODkifX0seyJ0eXBlIjoiYWNjb3VudHMiLCJpZCI6IjA4NDMwMjIzLTBkYTItNDY0YS05YzNjLTZlYTVhOWNmZGNlZiIsImF0dHJpYnV0ZXMiOnsiZGlzcGxheU5hbWUiOiLwn5qYIEJ1cGEiLCJhY2NvdW50VHlwZSI6IlNBVkVSIiwib3duZXJzaGlwVHlwZSI6IklORElWSURVQUwiLCJiYWxhbmNlIjp7ImN1cnJlbmN5Q29kZSI6IkFVRCIsInZhbHVlIjoiNDcuOTEiLCJ2YWx1ZUluQmFzZVVuaXRzIjo0NzkxfSwiY3JlYXRlZEF0IjoiMjAyNS0xMS0yOFQxNDowMjo0NCsxMTowMCJ9LCJyZWxhdGlvbnNoaXBzIjp7InRyYW5zYWN0aW9ucyI6eyJsaW5rcyI6eyJyZWxhdGVkIjoiaHR0cHM6Ly9hcGkudXAuY29tLmF1L2FwaS92MS9hY2NvdW50cy8wODQzMDIyMy0wZGEyLTQ2NGEtOWMzYy02ZWE1YTljZmRjZWYvdHJhbnNhY3Rpb25zIn19fSwibGlua3MiOnsic2VsZiI6Imh0dHBzOi8vYXBpLnVwLmNvbS5hdS9hcGkvdjEvYWNjb3VudHMvMDg0MzAyMjMtMGRhMi00NjRhLTljM2MtNmVhNWE5Y2ZkY2VmIn19XSwibGlua3MiOnsicHJldiI6bnVsbCwibmV4dCI6bnVsbH19
+  recorded_at: Mon, 08 Dec 2025 05:23:25 GMT
+recorded_with: VCR 6.3.1

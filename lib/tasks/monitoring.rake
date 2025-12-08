@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 namespace :monitoring do
-  desc "Check system health (database, Redis, Sidekiq, Up Bank API)"
+  desc "Check system health (database, Redis, Solid Queue, Up Bank API)"
   task check: :environment do
     puts "=== System Health Check ==="
     puts "Timestamp: #{Time.current.iso8601}"
@@ -30,18 +30,13 @@ namespace :monitoring do
       puts "✗ ERROR: #{e.message}"
     end
 
-    # Sidekiq check
-    print "Sidekiq: "
+    # Solid Queue check
+    print "Solid Queue: "
     begin
-      require "sidekiq/api" unless defined?(Sidekiq::Stats)
-      if defined?(Sidekiq::Stats)
-        stats = Sidekiq::Stats.new
-        puts "✓ OK (Processed: #{stats.processed}, Failed: #{stats.failed}, Enqueued: #{stats.enqueued})"
-      else
-        puts "⚠ WARNING: Sidekiq::Stats not available"
-      end
-    rescue LoadError => e
-      puts "⚠ WARNING: Sidekiq gem not available (#{e.message})"
+      pending_count = SolidQueue::Job.where(finished_at: nil).count
+      failed_count = SolidQueue::FailedExecution.count
+      finished_count = SolidQueue::Job.where.not(finished_at: nil).count
+      puts "✓ OK (Pending: #{pending_count}, Failed: #{failed_count}, Finished: #{finished_count})"
     rescue StandardError => e
       puts "✗ ERROR: #{e.message}"
     end

@@ -11,6 +11,13 @@ class RegistrationsController < Devise::RegistrationsController
   # This controller overrides the parameter methods to permit 'email_address'
   # instead of 'email', allowing registration to work correctly.
 
+  protected
+
+  def after_sign_up_path_for(resource)
+    # Redirect new users to onboarding flow
+    onboarding_connect_up_bank_path
+  end
+
   private
 
   def sign_up_params

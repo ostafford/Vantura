@@ -80,8 +80,6 @@ GEM
       activerecord (>= 6.0, < 9.0)
       kaminari (~> 1.2.2)
     ast (2.4.3)
-    attr_encrypted (4.2.0)
-      encryptor (~> 3.0.0)
     base64 (0.3.0)
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
@@ -131,7 +129,6 @@ GEM
       railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
-    encryptor (3.0.0)
     erb (6.0.0)
     erubi (1.13.1)
     et-orbi (1.4.0)
@@ -419,12 +416,6 @@ GEM
     securerandom (0.4.1)
     shoulda-matchers (6.5.0)
       activesupport (>= 5.2.0)
-    sidekiq (8.0.9)
-      connection_pool (>= 2.5.0)
-      json (>= 2.9.0)
-      logger (>= 1.6.2)
-      rack (>= 3.1.0)
-      redis-client (>= 0.23.2)
     solid_cable (3.0.12)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -513,7 +504,6 @@ PLATFORMS
 
 DEPENDENCIES
   administrate (~> 1.0)
-  attr_encrypted (~> 4.2)
   blueprinter (~> 1.2, >= 1.2.1)
   bootsnap
   brakeman
@@ -548,7 +538,6 @@ DEPENDENCIES
   rubocop-rails-omakase
   rubocop-rspec (~> 3.8, >= 3.8.0)
   shoulda-matchers (~> 6.4)
-  sidekiq (~> 8.0, >= 8.0.9)
   solid_cable
   solid_cache
   solid_queue (~> 1.2, >= 1.2.4)

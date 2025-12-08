@@ -98,7 +98,9 @@ class WebhooksController < ApplicationController
     end
 
     # Try to find a user with Up Bank token (most likely to receive webhooks)
-    user_with_token = User.where.not(up_bank_token_encrypted: nil).first
+    # Rails encryption stores in up_bank_token_ciphertext column
+    # Note: We can't query encrypted attributes directly, so we check all users
+    user_with_token = User.all.find { |u| u.has_up_bank_token? }
     if user_with_token
       Rails.logger.info "Webhook: Using user with token (ID: #{user_with_token.id})"
       return user_with_token

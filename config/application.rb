@@ -31,8 +31,8 @@ module Vantura
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
-    # Use Sidekiq for background jobs
-    config.active_job.queue_adapter = :sidekiq
+    # Use Solid Queue for background jobs (Rails 8 built-in)
+    config.active_job.queue_adapter = :solid_queue
 
     # Rack Attack middleware is automatically added by the gem when
     # config/initializers/rack_attack.rb is present
