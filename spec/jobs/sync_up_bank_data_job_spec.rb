@@ -129,15 +129,51 @@ RSpec.describe SyncUpBankDataJob, type: :job do
       end
     end
 
-    it "broadcasts dashboard update via Turbo Streams" do
+    it "broadcasts dashboard stats update via Turbo Streams" do
       # Calculate stats that will be passed to the partial
       stats = user.calculate_stats
       
+      # Expect stats broadcast (transaction list broadcast also happens, so use allow for that)
       expect(Turbo::StreamsChannel).to receive(:broadcast_replace_to).with(
         "user_#{user.id}_dashboard",
         target: "dashboard-stats",
         partial: "dashboard/stats",
         locals: { stats: stats }
+      )
+      
+      # Allow transaction list broadcast (empty list in this case)
+      allow(Turbo::StreamsChannel).to receive(:broadcast_replace_to).with(
+        "user_#{user.id}_dashboard",
+        target: "recent-transactions",
+        partial: "dashboard/recent_transactions",
+        locals: { recent_transactions: anything }
+      )
+
+      described_class.perform_now(user)
+    end
+
+    it "broadcasts recent transactions list update via Turbo Streams (Flow A: REPLACE)" do
+      # Create some transactions for the user
+      create_list(:transaction, 5, user: user)
+      
+      # Get recent transactions that will be passed to the partial
+      recent_transactions = user.transactions.recent.limit(20)
+      
+      # Expect both broadcasts: stats and transaction list
+      # Allow stats broadcast
+      allow(Turbo::StreamsChannel).to receive(:broadcast_replace_to).with(
+        "user_#{user.id}_dashboard",
+        target: "dashboard-stats",
+        partial: "dashboard/stats",
+        locals: anything
+      )
+      
+      # Specifically check for transaction list broadcast
+      expect(Turbo::StreamsChannel).to receive(:broadcast_replace_to).with(
+        "user_#{user.id}_dashboard",
+        target: "recent-transactions",
+        partial: "dashboard/recent_transactions",
+        locals: { recent_transactions: recent_transactions }
       )
 
       described_class.perform_now(user)

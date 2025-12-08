@@ -1,10 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe 'Flowbite Integration', type: :system do
-  let(:user) { create(:user) }
+  let(:user) { create(:user, :with_up_bank_token) }
+  let!(:account) { create(:account, user: user) }
 
   before do
     sign_in user, scope: :user
+    # Mark onboarding as complete (has accounts and last_synced_at)
+    user.update!(last_synced_at: Time.current)
+    user.reload
   end
 
   describe 'Flowbite components load correctly' do

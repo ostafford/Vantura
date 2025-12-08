@@ -133,11 +133,22 @@ class SyncUpBankDataJob < ApplicationJob
     # Recalculate stats for the user
     stats = user.calculate_stats
     
+    # Update stats cards
     Turbo::StreamsChannel.broadcast_replace_to(
       "user_#{user.id}_dashboard",
       target: "dashboard-stats",
       partial: "dashboard/stats",
       locals: { stats: stats }
+    )
+    
+    # Update recent transactions list (Flow A: REPLACE entire list)
+    # This ensures the list is always up-to-date with fresh data from the database
+    recent_transactions = user.transactions.recent.limit(20)
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "recent-transactions",
+      partial: "dashboard/recent_transactions",
+      locals: { recent_transactions: recent_transactions }
     )
   rescue => e
     Rails.logger.error "Failed to broadcast update: #{e.message}"
