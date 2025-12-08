@@ -28,7 +28,7 @@ class DashboardController < ApplicationController
 
     # Get active projects with outstanding expenses
     @active_projects = current_user.projects
-      .includes(:project_expenses, :expense_contributions)
+      .includes(:project_expenses)
       .limit(3)
 
     # Check if user needs to see insights banner (dismissible via localStorage)

@@ -39,11 +39,11 @@ class User < ApplicationRecord
 
   # Methods
   def has_up_bank_token?
-    up_bank_token.present?
+    read_attribute(:up_bank_token_encrypted).present?
   end
 
   def needs_up_bank_setup?
-    up_bank_token.blank?
+    read_attribute(:up_bank_token_encrypted).blank?
   end
 
   def calculate_stats(start_date: nil, end_date: nil)

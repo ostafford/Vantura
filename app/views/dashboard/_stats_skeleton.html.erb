@@ -1,0 +1,14 @@
+<div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" role="status" aria-label="Loading stats">
+  <% 4.times do %>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 animate-pulse">
+      <div class="flex items-center justify-between mb-2">
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+        <div class="h-6 w-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      </div>
+      <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded-full w-32 mb-2"></div>
+      <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded-full w-24"></div>
+      <span class="sr-only">Loading...</span>
+    </div>
+  <% end %>
+</div>
+

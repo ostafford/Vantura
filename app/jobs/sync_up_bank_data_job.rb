@@ -130,11 +130,14 @@ class SyncUpBankDataJob < ApplicationJob
   end
 
   def broadcast_dashboard_update(user)
-    Turbo::StreamsChannel.broadcast_update_to(
+    # Recalculate stats for the user
+    stats = user.calculate_stats
+    
+    Turbo::StreamsChannel.broadcast_replace_to(
       "user_#{user.id}_dashboard",
-      target: "balance_cards",
-      partial: "dashboard/balance_cards",
-      locals: { user: user }
+      target: "dashboard-stats",
+      partial: "dashboard/stats",
+      locals: { stats: stats }
     )
   rescue => e
     Rails.logger.error "Failed to broadcast update: #{e.message}"

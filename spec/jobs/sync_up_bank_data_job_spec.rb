@@ -130,11 +130,14 @@ RSpec.describe SyncUpBankDataJob, type: :job do
     end
 
     it "broadcasts dashboard update via Turbo Streams" do
-      expect(Turbo::StreamsChannel).to receive(:broadcast_update_to).with(
+      # Calculate stats that will be passed to the partial
+      stats = user.calculate_stats
+      
+      expect(Turbo::StreamsChannel).to receive(:broadcast_replace_to).with(
         "user_#{user.id}_dashboard",
-        target: "balance_cards",
-        partial: "dashboard/balance_cards",
-        locals: { user: user }
+        target: "dashboard-stats",
+        partial: "dashboard/stats",
+        locals: { stats: stats }
       )
 
       described_class.perform_now(user)

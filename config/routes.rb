@@ -1,7 +1,7 @@
 require "sidekiq/web"
 
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: { registrations: "registrations" }
 
   # Secure Sidekiq Web UI - only accessible to admin users
   authenticate :user, ->(user) { user.admin? } do
