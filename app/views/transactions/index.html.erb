@@ -1,2 +1,59 @@
-<h1>Transactions</h1>
-<%= @transactions.count %> transactions
+<div class="transactions-page" data-controller="transaction-filter">
+  <%= turbo_stream_from "user_#{current_user.id}_transactions" %>
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Transactions</h1>
+    <div class="flex gap-2">
+      <%= link_to transactions_path(format: :csv, params: request.query_parameters),
+          class: "inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700",
+          data: { turbo: false } do %>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Export CSV
+      <% end %>
+      <button type="button"
+          class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+          data-action="click->transaction-filter#toggleFilters">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+        <span data-transaction-filter-target="filterToggleText">Show Filters</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Bar (collapsible, sticky) -->
+  <div class="sticky top-0 z-10 mb-6"
+       data-transaction-filter-target="filterBar"
+       data-transaction-filter-hidden-class="hidden">
+    <%= turbo_frame_tag "transaction-filters", data: { turbo_action: "advance" } do %>
+      <%= render "transactions/filters", 
+          categories: Category.all.order(:name),
+          accounts: current_user.accounts.order(:display_name),
+          tags: Tag.all.order(:name),
+          current_filters: params.permit(:search, :category_id, :account_id, :tag_id, :transaction_type, :min_amount, :max_amount, :start_date, :end_date) %>
+    <% end %>
+  </div>
+
+  <!-- Summary Bar -->
+  <%= turbo_frame_tag "transaction-summary", data: { turbo_action: "advance" } do %>
+    <%= render "transactions/summary", stats: @summary_stats %>
+  <% end %>
+
+  <!-- Analytics Section (toggleable, placeholder for Phase 3) -->
+  <div class="mb-6" data-transaction-filter-target="analyticsSection">
+    <%= turbo_frame_tag "transaction-analytics" do %>
+      <%= render "transactions/analytics" %>
+    <% end %>
+  </div>
+
+  <!-- Transaction List -->
+  <%= turbo_frame_tag "transaction-list", data: { turbo_action: "advance" } do %>
+    <%= render "transactions/list", transactions: @transactions, pagy: @pagy %>
+  <% end %>
+
+  <!-- Transaction Detail Modal -->
+  <%= render "transactions/detail_modal" %>
+</div>

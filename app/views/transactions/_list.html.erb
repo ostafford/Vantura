@@ -1,0 +1,48 @@
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+  <% if transactions.any? %>
+    <div class="divide-y divide-gray-200 dark:divide-gray-700">
+      <% transactions.each do |transaction| %>
+        <%= render "transactions/transaction_item", transaction: transaction %>
+      <% end %>
+    </div>
+
+    <!-- Pagination -->
+    <% if pagy %>
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-gray-700 dark:text-gray-300">
+            <% if pagy_info(pagy).present? %>
+              <%= pagy_info(pagy) %>
+            <% else %>
+              Showing <%= pagy.from %>-<%= pagy.to %> of <%= pagy.count %> transactions
+            <% end %>
+          </div>
+          <div class="flex gap-2">
+            <% if pagy.page > 1 %>
+              <% 
+                prev_params = request.query_parameters.merge(page: pagy.page - 1)
+              %>
+              <%= link_to "← Previous", transactions_path(prev_params),
+                  class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700",
+                  data: { turbo_frame: "transaction-list", turbo_action: "advance" } %>
+            <% end %>
+            <% if pagy.page < pagy.last %>
+              <% 
+                next_params = request.query_parameters.merge(page: pagy.page + 1)
+              %>
+              <%= link_to "Next →", transactions_path(next_params),
+                  class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700",
+                  data: { turbo_frame: "transaction-list", turbo_action: "advance" } %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <%= render "shared/empty_state",
+        title: "No transactions found",
+        message: "Try adjusting your filters to see more results.",
+        icon: "🔍" %>
+  <% end %>
+</div>
+

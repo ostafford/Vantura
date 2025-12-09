@@ -1,0 +1,26 @@
+<!-- Modal backdrop -->
+<div id="transaction-modal"
+     class="hidden fixed inset-0 z-50 overflow-y-auto"
+     data-controller="modal transaction-modal"
+     data-transaction-modal-target="modal"
+     aria-labelledby="modal-title"
+     aria-modal="true"
+     role="dialog">
+  <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+         data-action="click->modal#close"
+         aria-hidden="true"></div>
+
+    <!-- Modal panel -->
+    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+      <%= turbo_frame_tag "transaction-detail", src: nil, loading: :lazy do %>
+        <div class="p-8 text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="mt-4 text-gray-600 dark:text-gray-400">Loading transaction details...</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+

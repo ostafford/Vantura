@@ -1,0 +1,22 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- Tags -->
+  <div>
+    <%= f.label :tag_id, "Tag", class: "block mb-2 text-sm font-medium text-gray-900 dark:text-white" %>
+    <%= f.select :tag_id,
+        options_from_collection_for_select(tags, :id, :name, current_filters[:tag_id]),
+        { include_blank: "All Tags" },
+        { 
+          class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+          data: { action: "change->auto-submit#submit" }
+        } %>
+  </div>
+
+  <!-- Status Filter (placeholder for future expansion) -->
+  <div>
+    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
+    <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" disabled>
+      <option>All (Future: Settled, Held, Pending)</option>
+    </select>
+  </div>
+</div>
+
