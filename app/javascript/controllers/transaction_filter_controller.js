@@ -5,9 +5,23 @@ export default class extends Controller {
   static classes = ["hidden"]
 
   connect() {
-    // Filter bar hidden by default
+    // Filter bar hidden by default, unless there are active filters
     if (this.hasFilterBarTarget) {
-      this.filterBarTarget.classList.add(this.hiddenClass)
+      // Check if there are active filters in the URL
+      const urlParams = new URLSearchParams(window.location.search)
+      const hasActiveFilters = Array.from(urlParams.keys()).some(key => 
+        key !== 'page' && urlParams.get(key) && urlParams.get(key).trim() !== ''
+      )
+      
+      if (!hasActiveFilters) {
+        this.filterBarTarget.classList.add(this.hiddenClass)
+      }
+      
+      // Update toggle text based on current state
+      if (this.hasFilterToggleTextTarget) {
+        const isHidden = this.filterBarTarget.classList.contains(this.hiddenClass)
+        this.filterToggleTextTarget.textContent = isHidden ? "Show Filters" : "Hide Filters"
+      }
     }
   }
 

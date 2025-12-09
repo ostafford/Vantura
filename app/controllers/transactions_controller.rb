@@ -2,9 +2,10 @@ class TransactionsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @transactions = apply_filters(policy_scope(Transaction).includes(:account, :category, :tags))
-    @pagy, @transactions = pagy(:offset, @transactions, items: 20)
-    @summary_stats = calculate_summary_stats(@transactions)
+    filtered_scope = apply_filters(policy_scope(Transaction).includes(:account, :category, :tags))
+    # Calculate summary stats on all matching transactions before pagination
+    @summary_stats = calculate_summary_stats(filtered_scope)
+    @pagy, @transactions = pagy(:offset, filtered_scope, items: 20)
   end
 
   def show
@@ -50,7 +51,7 @@ class TransactionsController < ApplicationController
   end
 
   def apply_filters(scope)
-    scope = scope.recent # Default ordering
+    # Don't apply ordering here - apply it at the end after all joins to avoid ambiguous columns
 
     # Use model scopes for filtering (DRY principle)
     scope = scope.by_category(params[:category_id])
@@ -75,15 +76,27 @@ class TransactionsController < ApplicationController
       end_date = Date.parse(params[:end_date]).end_of_day
       scope = scope.by_date_range(start_date, end_date)
     elsif params[:start_date].present?
-      scope = scope.where("created_at >= ?", Date.parse(params[:start_date]))
+      scope = scope.where("transactions.created_at >= ?", Date.parse(params[:start_date]))
     elsif params[:end_date].present?
-      scope = scope.where("created_at <= ?", Date.parse(params[:end_date]).end_of_day)
+      scope = scope.where("transactions.created_at <= ?", Date.parse(params[:end_date]).end_of_day)
+    end
+
+    # Apply recent ordering after all filters to avoid ambiguous column issues
+    # If scope has distinct (from tag joins), we need to include the ordering expression in SELECT
+    if scope.to_sql.include?("DISTINCT")
+      # For queries with DISTINCT, wrap in subquery to avoid ORDER BY issues
+      scope = Transaction.from("(#{scope.to_sql}) AS transactions")
+                          .order(Arel.sql("COALESCE(transactions.created_at_up, transactions.settled_at, transactions.created_at) DESC"))
+    else
+      scope = scope.reorder(Arel.sql("COALESCE(transactions.created_at_up, transactions.settled_at, transactions.created_at) DESC"))
     end
 
     scope
   end
 
-  def calculate_summary_stats(transactions)
+  def calculate_summary_stats(transactions_scope)
+    # transactions_scope is an ActiveRecord::Relation, so we need to evaluate it
+    transactions = transactions_scope.to_a
     return default_stats if transactions.empty?
 
     income = transactions.select { |t| t.amount_cents > 0 }

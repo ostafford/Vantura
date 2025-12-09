@@ -1,7 +1,7 @@
 <%= form_with url: transactions_path, method: :get, 
     data: { 
       controller: "auto-submit",
-      turbo_frame: "transaction-list,transaction-summary",
+      turbo_frame: "_top",
       turbo_action: "advance"
     },
     class: "bg-white dark:bg-gray-800 rounded-lg shadow p-6" do |f| %>
@@ -132,7 +132,7 @@
       <% end %>
       <%= link_to "Clear All", transactions_path,
           class: "inline-flex items-center px-3 py-1 text-sm font-medium text-gray-800 bg-gray-100 rounded-full hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600",
-          data: { turbo_frame: "transaction-list,transaction-summary", turbo_action: "advance" } %>
+          data: { turbo_frame: "_top", turbo_action: "advance" } %>
     </div>
   <% end %>
 
