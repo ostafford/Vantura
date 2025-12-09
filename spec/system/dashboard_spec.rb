@@ -185,6 +185,22 @@ RSpec.describe 'Dashboard Page', type: :system do
       expect(sync_button).to be_present
       expect(sync_button['data-action']).to include('dashboard#manualSync')
 
+      # Inject CSRF token meta tag (required by the JavaScript code)
+      # Generate a fake token for testing purposes
+      page.execute_script(<<~JS)
+        // Remove existing CSRF token if any
+        const existingToken = document.querySelector('meta[name="csrf-token"]');
+        if (existingToken) {
+          existingToken.remove();
+        }
+
+        // Create and inject CSRF token meta tag
+        const csrfMeta = document.createElement('meta');
+        csrfMeta.name = 'csrf-token';
+        csrfMeta.content = 'test-csrf-token-for-specs';
+        document.head.appendChild(csrfMeta);
+      JS
+
       # Stub the fetch request to return success
       # Store original fetch first, then override
       page.execute_script(<<~JS)

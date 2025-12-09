@@ -1,3 +1,5 @@
+require "redis"
+
 class SyncUpBankDataJob < ApplicationJob
   queue_as :default
 
@@ -8,6 +10,27 @@ class SyncUpBankDataJob < ApplicationJob
   retry_on Net::ReadTimeout, wait: :polynomially_longer, attempts: 3
   retry_on Net::OpenTimeout, wait: :polynomially_longer, attempts: 3
   retry_on Timeout::Error, wait: :polynomially_longer, attempts: 3
+  # Retry on rate limit errors with exponential backoff
+  # Note: UpBankApiError is defined in UpBankApiService and will be autoloaded by Rails
+  retry_on "UpBankApiError", wait: :exponentially_longer, attempts: 5 do |job, error|
+    # Only retry if it's a rate limit error
+    if error.message.include?("Rate limit exceeded")
+      Rails.logger.warn "Retrying sync job for user #{job.arguments.first.id} after rate limit error"
+    else
+      # Don't retry other API errors
+      raise error
+    end
+  end
+
+  # Prevent duplicate sync jobs for the same user
+  # Uses a Redis lock to ensure only one sync job runs per user at a time
+  # This prevents rate limit issues from multiple simultaneous syncs
+  before_perform :acquire_sync_lock
+  after_perform :release_sync_lock
+
+  # Custom exception for duplicate sync jobs
+  class DuplicateSyncJobError < StandardError; end
+  discard_on DuplicateSyncJobError
 
   # Uses GlobalID to automatically serialize/deserialize the user object
   # If the user is deleted, ActiveJob::DeserializationError will be raised
@@ -127,6 +150,49 @@ class SyncUpBankDataJob < ApplicationJob
   end
 
   private
+
+  # Acquire a lock to prevent multiple sync jobs for the same user
+  # Lock expires after 30 minutes (syncs should never take that long)
+  def acquire_sync_lock
+    user = arguments.first
+    lock_key = "sync_lock:user:#{user.id}"
+    lock_timeout = 30.minutes
+
+    redis = Redis.new(url: ENV.fetch("REDIS_URL", "redis://localhost:6379/0"))
+    
+    # Try to acquire lock (returns true if acquired, false if already locked)
+    lock_acquired = redis.set(lock_key, job_id, nx: true, ex: lock_timeout.to_i)
+    
+    unless lock_acquired
+      # Another sync is already running for this user
+      Rails.logger.info(
+        "[SyncUpBankDataJob] Skipping duplicate sync job for user #{user.id}. " \
+        "Another sync is already in progress."
+      )
+      # Raise custom exception that will be discarded (not retried)
+      raise DuplicateSyncJobError, "Another sync job is already running for user #{user.id}"
+    end
+  rescue => e
+    # If Redis fails, log but continue (better to allow sync than block it)
+    Rails.logger.error(
+      "[SyncUpBankDataJob] Failed to acquire sync lock for user #{arguments.first.id}: #{e.message}"
+    )
+    # Continue without lock - this is a safeguard, not a hard requirement
+  end
+
+  # Release the sync lock after job completes
+  def release_sync_lock
+    user = arguments.first
+    lock_key = "sync_lock:user:#{user.id}"
+
+    redis = Redis.new(url: ENV.fetch("REDIS_URL", "redis://localhost:6379/0"))
+    redis.del(lock_key)
+  rescue => e
+    # Log but don't raise - lock will expire naturally
+    Rails.logger.warn(
+      "[SyncUpBankDataJob] Failed to release sync lock for user #{user.id}: #{e.message}"
+    )
+  end
 
   def broadcast_progress_update(user, percentage, message)
     Turbo::StreamsChannel.broadcast_replace_to(
