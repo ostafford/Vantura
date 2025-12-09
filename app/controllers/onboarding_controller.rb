@@ -46,22 +46,26 @@ class OnboardingController < ApplicationController
 
   def sync_progress
     @user = current_user
-    # Check if sync is already complete
-    if @user.last_synced_at.present? && @user.accounts.any?
-      # Sync already completed, redirect to dashboard
+    # Check if onboarding is already complete
+    if @user.last_synced_at.present?
+      # Onboarding already completed (either via sync or skip), redirect to dashboard
       redirect_to dashboard_path
     end
   end
 
   def skip_connection
+    # Mark onboarding as complete by setting last_synced_at
+    # This allows the user to access the dashboard even without Up Bank connection
+    current_user.update!(last_synced_at: Time.current)
     redirect_to dashboard_path, notice: I18n.t("flash.onboarding.skip_connection")
   end
 
   private
 
   def redirect_if_completed
-    # If user already has accounts synced, skip onboarding
-    if current_user.accounts.any? && current_user.last_synced_at.present?
+    # If user has completed onboarding (either via sync or skip), redirect to dashboard
+    # last_synced_at is set when onboarding completes
+    if current_user.last_synced_at.present?
       redirect_to dashboard_path
     end
   end

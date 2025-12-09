@@ -73,9 +73,10 @@ class User < ApplicationRecord
   end
 
   def needs_onboarding?
-    # User needs onboarding if they haven't completed sync
-    # (either no accounts or no sync timestamp)
-    accounts.empty? || last_synced_at.blank?
+    # User needs onboarding if they haven't explicitly completed it
+    # last_synced_at is set when onboarding completes (either via sync or skip)
+    # If it's blank, the user hasn't completed onboarding yet
+    last_synced_at.blank?
   end
 
   def calculate_stats(start_date: nil, end_date: nil)

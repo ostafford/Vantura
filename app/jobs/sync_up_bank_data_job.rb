@@ -159,10 +159,10 @@ class SyncUpBankDataJob < ApplicationJob
     lock_timeout = 30.minutes
 
     redis = Redis.new(url: ENV.fetch("REDIS_URL", "redis://localhost:6379/0"))
-    
+
     # Try to acquire lock (returns true if acquired, false if already locked)
     lock_acquired = redis.set(lock_key, job_id, nx: true, ex: lock_timeout.to_i)
-    
+
     unless lock_acquired
       # Another sync is already running for this user
       Rails.logger.info(
