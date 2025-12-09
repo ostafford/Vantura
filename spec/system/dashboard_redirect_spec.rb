@@ -28,7 +28,7 @@ RSpec.describe 'Dashboard Redirect to Onboarding', type: :system do
       # User has accounts and sync timestamp
       create(:account, user: user)
       user.update!(last_synced_at: Time.current)
-      
+
       visit dashboard_path
 
       expect(page).to have_current_path(dashboard_path)
@@ -36,4 +36,3 @@ RSpec.describe 'Dashboard Redirect to Onboarding', type: :system do
     end
   end
 end
-

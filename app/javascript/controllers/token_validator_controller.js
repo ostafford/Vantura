@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "button", "feedback", "toggle", "icon"]
+  static targets = ["input", "button", "feedback", "toggle", "eyeIcon", "eyeSlashIcon"]
 
   connect() {
     this.validate()
@@ -18,24 +18,25 @@ export default class extends Controller {
     }
 
     if (token.startsWith("up:") && token.length > 20) {
-      this.setFeedback("✓ Format looks good", "text-green-600 dark:text-green-400")
+      this.setFeedback("Format looks good", "text-green-600 dark:text-green-400")
       this.buttonTarget.disabled = false
     } else {
-      this.setFeedback("⚠️ Token format invalid. Should start with 'up:' and be at least 20 characters.", "text-red-600 dark:text-red-400")
+      this.setFeedback("Token format invalid. Should start with 'up:' and be at least 20 characters.", "text-red-600 dark:text-red-400")
       this.buttonTarget.disabled = true
     }
   }
 
   toggleVisibility() {
     const input = this.inputTarget
-    const icon = this.iconTarget
     
     if (input.type === "password") {
       input.type = "text"
-      icon.textContent = "🙈"
+      this.eyeIconTarget.classList.add('hidden')
+      this.eyeSlashIconTarget.classList.remove('hidden')
     } else {
       input.type = "password"
-      icon.textContent = "👁"
+      this.eyeIconTarget.classList.remove('hidden')
+      this.eyeSlashIconTarget.classList.add('hidden')
     }
   }
 

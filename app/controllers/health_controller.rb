@@ -66,7 +66,7 @@ class HealthController < ApplicationController
       pending_count = SolidQueue::Job.where(finished_at: nil).count
       failed_count = SolidQueue::FailedExecution.count
       finished_count = SolidQueue::Job.where.not(finished_at: nil).count
-      
+
       response_time = ((Time.current - start_time) * 1000).round(2)
 
       {

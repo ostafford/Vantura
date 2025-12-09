@@ -30,4 +30,3 @@ class ProjectPolicy < ApplicationPolicy
     end
   end
 end
-

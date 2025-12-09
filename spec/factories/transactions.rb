@@ -7,6 +7,7 @@ FactoryBot.define do
     raw_text { Faker::Lorem.sentence }
     description { Faker::Commerce.product_name }
     amount_cents { -rand(1000..100000) }
+    created_at_up { 1.day.ago }
     settled_at { 1.day.ago }
   end
 end

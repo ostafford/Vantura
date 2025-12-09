@@ -16,22 +16,22 @@ class ApplicationController < ActionController::Base
 
   def user_not_authorized
     flash[:alert] = I18n.t("flash.not_authorized")
-    
+
     # Try to redirect to the resource's index page if available
     # This provides better UX than always going to root
     fallback = case controller_name
-               when "projects", "project_expenses"
+    when "projects", "project_expenses"
                  projects_path
-               when "transactions"
+    when "transactions"
                  transactions_path
-               when "goals"
+    when "goals"
                  goals_path
-               when "planned_transactions"
+    when "planned_transactions"
                  planned_transactions_path
-               else
+    else
                  root_path
-               end
-    
+    end
+
     redirect_back(fallback_location: fallback)
   end
 end

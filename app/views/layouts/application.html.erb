@@ -69,10 +69,16 @@
         <%= yield %>
       <% end %>
     <% else %>
-      <main class="container mx-auto mt-28 px-5 flex">
+      <%# Don't wrap sign up/sign in pages - they handle their own centering %>
+      <% if request.path.start_with?('/users/sign_up') || request.path.start_with?('/users/sign_in') %>
         <%= render 'shared/flash_messages' %>
         <%= yield %>
-      </main>
+      <% else %>
+        <main class="container mx-auto mt-28 px-5 flex">
+          <%= render 'shared/flash_messages' %>
+          <%= yield %>
+        </main>
+      <% end %>
     <% end %>
   </body>
 </html>

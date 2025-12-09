@@ -84,7 +84,7 @@ class ProcessUpWebhookJob < ApplicationJob
   def broadcast_dashboard_update(user)
     # Get recent transactions (matching dashboard controller logic)
     recent_transactions = user.transactions.recent.limit(20)
-    
+
     Turbo::StreamsChannel.broadcast_replace_to(
       "user_#{user.id}_dashboard",
       target: "recent-transactions",

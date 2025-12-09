@@ -7,8 +7,7 @@ RSpec.describe Transaction, type: :model do
   describe "associations" do
     it { should belong_to(:user) }
     it { should belong_to(:account) }
-    # Category association removed - transactions table doesn't have category_id
-    # it { should belong_to(:category).optional }
+    it { should belong_to(:category).optional }
     it { should have_many(:transaction_tags).dependent(:destroy) }
     it { should have_many(:tags).through(:transaction_tags) }
   end
@@ -36,14 +35,23 @@ RSpec.describe Transaction, type: :model do
 
   describe "scopes" do
     describe ".recent" do
-      it "returns transactions ordered by created_at desc" do
-        old_transaction = create(:transaction, user: user, account: account, created_at: 2.days.ago)
-        new_transaction = create(:transaction, user: user, account: account, created_at: 1.day.ago)
+      it "returns transactions ordered by transaction date (created_at_up or settled_at) desc" do
+        old_transaction = create(:transaction, user: user, account: account, created_at_up: 2.days.ago, settled_at: 2.days.ago)
+        new_transaction = create(:transaction, user: user, account: account, created_at_up: 1.day.ago, settled_at: 1.day.ago)
 
         # Scope to user to avoid interference from other test data
         results = Transaction.where(user: user).recent.to_a
         expect(results.first).to eq(new_transaction)
         expect(results.last).to eq(old_transaction)
+      end
+
+      it "uses created_at_up when settled_at is nil (HELD transactions)" do
+        held_transaction = create(:transaction, user: user, account: account, created_at_up: 1.day.ago, settled_at: nil)
+        settled_transaction = create(:transaction, user: user, account: account, created_at_up: 2.days.ago, settled_at: 2.days.ago)
+
+        results = Transaction.where(user: user).recent.to_a
+        expect(results.first).to eq(held_transaction)
+        expect(results.last).to eq(settled_transaction)
       end
     end
 
@@ -330,6 +338,8 @@ RSpec.describe Transaction, type: :model do
   end
 
   describe ".find_or_create_from_up_data" do
+    let!(:category) { create(:category, up_id: "test-category-id", name: "Groceries") }
+
     let(:up_data) do
       {
         "id" => "test-transaction-id",
@@ -341,12 +351,29 @@ RSpec.describe Transaction, type: :model do
           "amount" => {
             "valueInBaseUnits" => -1000
           },
-          "settledAt" => "2024-01-01T00:00:00Z"
+          "createdAt" => "2024-01-01T10:00:00Z",
+          "settledAt" => "2024-01-01T12:00:00Z",
+          "roundUp" => {
+            "amount" => {
+              "valueInBaseUnits" => 50
+            }
+          },
+          "cashback" => {
+            "amount" => {
+              "valueInBaseUnits" => 25
+            }
+          }
         },
         "relationships" => {
           "account" => {
             "data" => {
               "id" => account.up_id
+            }
+          },
+          "category" => {
+            "data" => {
+              "id" => "test-category-id",
+              "type" => "categories"
             }
           }
         }
@@ -376,6 +403,47 @@ RSpec.describe Transaction, type: :model do
       expect(transaction.raw_text).to eq("Test transaction")
       expect(transaction.description).to eq("Test Description")
       expect(transaction.amount_cents).to eq(-1000)
+      expect(transaction.created_at_up).to be_present
+      expect(transaction.settled_at).to be_present
+    end
+
+    it "assigns category from relationships" do
+      transaction = Transaction.find_or_create_from_up_data(up_data, user, account)
+
+      expect(transaction.category).to eq(category)
+    end
+
+    it "stores roundUp amount" do
+      transaction = Transaction.find_or_create_from_up_data(up_data, user, account)
+
+      expect(transaction.round_up_cents).to eq(50)
+    end
+
+    it "stores cashback amount" do
+      transaction = Transaction.find_or_create_from_up_data(up_data, user, account)
+
+      expect(transaction.cashback_cents).to eq(25)
+    end
+
+    it "handles transactions without category" do
+      up_data_no_category = up_data.deep_dup
+      up_data_no_category["relationships"].delete("category")
+
+      transaction = Transaction.find_or_create_from_up_data(up_data_no_category, user, account)
+
+      expect(transaction.category).to be_nil
+    end
+
+    it "handles HELD transactions without settledAt" do
+      held_data = up_data.deep_dup
+      held_data["attributes"]["status"] = "HELD"
+      held_data["attributes"].delete("settledAt")
+
+      transaction = Transaction.find_or_create_from_up_data(held_data, user, account)
+
+      expect(transaction.status).to eq("held")
+      expect(transaction.settled_at).to be_nil
+      expect(transaction.created_at_up).to be_present
     end
   end
 end

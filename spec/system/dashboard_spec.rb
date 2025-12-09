@@ -31,7 +31,7 @@ RSpec.describe 'Dashboard Page', type: :system do
 
       # Stats should be calculated and displayed
       expect(page).to have_css('.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4')
-      
+
       # Should show currency formatted values
       expect(page).to have_text('$')
     end
@@ -64,8 +64,8 @@ RSpec.describe 'Dashboard Page', type: :system do
 
   describe 'Upcoming Planned Expenses' do
     let!(:planned_transaction) do
-      create(:planned_transaction, 
-             user: user, 
+      create(:planned_transaction,
+             user: user,
              planned_date: 3.days.from_now,
              amount_cents: -10000,
              description: 'Upcoming Expense')
@@ -128,14 +128,14 @@ RSpec.describe 'Dashboard Page', type: :system do
       # has_up_bank_token? checks for up_bank_token_ciphertext being present (Rails encryption)
       user.update!(up_bank_token: "test_token_#{SecureRandom.hex(8)}")
       user.reload
-      
+
       # Verify has_up_bank_token? returns true (checks ciphertext attribute)
       expect(user.read_attribute(:up_bank_token_ciphertext)).to be_present
       expect(user.has_up_bank_token?).to be true
-      
+
       # Re-sign in to refresh session with updated user
       sign_in user, scope: :user
-      
+
       visit dashboard_path
 
       # Check for sync button by its data attributes (it's in the topbar)
@@ -150,10 +150,10 @@ RSpec.describe 'Dashboard Page', type: :system do
       user.update!(up_bank_token: nil)
       user.update_columns(up_bank_token_ciphertext: nil) # Ensure ciphertext is cleared
       user.reload
-      
+
       # Verify token is actually cleared
       expect(user.has_up_bank_token?).to be false
-      
+
       visit dashboard_path
 
       expect(page).not_to have_button('Sync with Up Bank', visible: false)
@@ -164,33 +164,33 @@ RSpec.describe 'Dashboard Page', type: :system do
       # has_up_bank_token? checks for up_bank_token_ciphertext being present (Rails encryption)
       user.update!(up_bank_token: "test_token_#{SecureRandom.hex(8)}")
       user.reload
-      
+
       # Verify has_up_bank_token? returns true
       expect(user.has_up_bank_token?).to be true
-      
+
       # Re-sign in to refresh session with updated user
       sign_in user, scope: :user
-      
+
       visit dashboard_path
 
       # Verify sync button exists (user has token)
       expect(page).to have_css('button[data-dashboard-target="syncButton"]')
       sync_button = find('button[data-dashboard-target="syncButton"]', visible: false)
-      
+
       # The sync button triggers a JavaScript fetch request to /sync endpoint
       # In system tests, JavaScript execution can be flaky
       # We'll verify the button exists and is clickable
       # The actual job enqueueing is tested in request specs
       expect(sync_button).to be_present
       expect(sync_button['data-action']).to include('dashboard#manualSync')
-      
+
       # Click the button - the JavaScript should trigger the fetch
       # We'll verify the button is functional rather than testing the full async flow
       sync_button.click
-      
+
       # Wait a moment for any JavaScript to execute
       sleep 1
-      
+
       # The button should be present and functional
       # The actual job enqueueing is verified in request specs
       expect(page).to have_css('button[data-dashboard-target="syncButton"]')
@@ -204,7 +204,7 @@ RSpec.describe 'Dashboard Page', type: :system do
       # Check for Turbo Stream subscriptions (they render as turbo-cable-stream-source elements)
       stream_sources = page.all('turbo-cable-stream-source')
       expect(stream_sources.length).to be >= 2
-      
+
       # Verify the subscriptions exist - the signed stream name is base64 encoded
       # We can verify by checking that turbo_stream_from was called in the view
       # The actual stream names are encoded, but the elements exist
@@ -220,10 +220,10 @@ RSpec.describe 'Dashboard Page', type: :system do
       # Verify the stats target exists (may appear multiple times in DOM but should be unique)
       stats_containers = page.all('#dashboard-stats')
       expect(stats_containers.length).to be >= 1
-      
+
       # Verify stats partial accepts locals parameter
       expect(File.exist?(Rails.root.join('app/views/dashboard/_stats.html.erb'))).to be true
-      
+
       # Verify stats are displayed (use first match)
       expect(stats_containers.first).to have_text('Balance')
       expect(stats_containers.first).to have_text('Income')
@@ -236,10 +236,10 @@ RSpec.describe 'Dashboard Page', type: :system do
 
       # Verify the recent-transactions turbo frame exists
       expect(page).to have_css('turbo-frame#recent-transactions')
-      
+
       # Verify recent_transactions partial exists
       expect(File.exist?(Rails.root.join('app/views/dashboard/_recent_transactions.html.erb'))).to be true
-      
+
       # Verify transactions are displayed
       expect(find('turbo-frame#recent-transactions')).to have_text('Recent Transactions')
     end
@@ -247,7 +247,7 @@ RSpec.describe 'Dashboard Page', type: :system do
     it 'handles empty transactions list correctly' do
       # Clear all transactions
       Transaction.destroy_all
-      
+
       visit dashboard_path
 
       # Verify empty state is shown
@@ -287,4 +287,3 @@ RSpec.describe 'Dashboard Page', type: :system do
     end
   end
 end
-

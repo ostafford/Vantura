@@ -1,6 +1,6 @@
 class OnboardingController < ApplicationController
   before_action :authenticate_user!
-  before_action :redirect_if_completed, only: [:connect_up_bank, :sync_progress]
+  before_action :redirect_if_completed, only: [ :connect_up_bank, :sync_progress ]
 
   def connect_up_bank
     @user = current_user
@@ -66,4 +66,3 @@ class OnboardingController < ApplicationController
     end
   end
 end
-

@@ -6,7 +6,7 @@
 
 Sentry.init do |config|
   config.dsn = ENV.fetch("SENTRY_DSN", nil)
-  config.breadcrumbs_logger = [:active_support_logger, :http_logger]
+  config.breadcrumbs_logger = [ :active_support_logger, :http_logger ]
 
   # Set environment
   config.environment = Rails.env
@@ -36,15 +36,15 @@ def filter_sensitive_data(data)
   return data unless data.is_a?(Hash)
 
   sensitive_keys = %w[password password_confirmation token secret key api_key access_token refresh_token]
-  
+
   data.each_with_object({}) do |(key, value), filtered|
     key_str = key.to_s.downcase
-    
+
     # Check if this key is sensitive (exact match or contains sensitive term)
     is_sensitive = sensitive_keys.any? do |sensitive|
       key_str == sensitive.downcase || key_str.include?(sensitive.downcase)
     end
-    
+
     if is_sensitive
       filtered[key] = "[FILTERED]"
     elsif value.is_a?(Hash)
@@ -54,4 +54,3 @@ def filter_sensitive_data(data)
     end
   end
 end
-

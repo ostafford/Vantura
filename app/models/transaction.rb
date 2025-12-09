@@ -24,7 +24,11 @@ class Transaction < ApplicationRecord
   validates :status, presence: true
 
   # Scopes
-  scope :recent, -> { order(created_at: :desc) }
+  scope :recent, -> {
+    order(
+      Arel.sql("COALESCE(created_at_up, settled_at, created_at) DESC")
+    )
+  }
   scope :by_date_range, ->(start_date, end_date) {
     where(created_at: start_date..end_date)
   }
@@ -75,7 +79,13 @@ class Transaction < ApplicationRecord
   # Analytics Class Methods
   def self.total_by_category(user, start_date = nil, end_date = nil)
     scope = where(user: user)
-    scope = scope.by_settled_date_range(start_date, end_date) if start_date && end_date
+    # Use transaction date (settled_at or created_at_up) for date filtering
+    if start_date && end_date
+      scope = scope.where(
+        "(settled_at >= ? AND settled_at <= ?) OR (settled_at IS NULL AND created_at_up >= ? AND created_at_up <= ?)",
+        start_date, end_date, start_date, end_date
+      )
+    end
 
     category_totals = scope.where.not(category_id: nil)
         .joins(:category)
@@ -102,7 +112,13 @@ class Transaction < ApplicationRecord
 
   def self.total_by_merchant(user, start_date = nil, end_date = nil)
     scope = where(user: user).expenses
-    scope = scope.by_settled_date_range(start_date, end_date) if start_date && end_date
+    # Use transaction date (settled_at or created_at_up) for date filtering
+    if start_date && end_date
+      scope = scope.where(
+        "(settled_at >= ? AND settled_at <= ?) OR (settled_at IS NULL AND created_at_up >= ? AND created_at_up <= ?)",
+        start_date, end_date, start_date, end_date
+      )
+    end
 
     merchant_totals = scope.where.not(description: nil)
         .group("description")
@@ -125,7 +141,16 @@ class Transaction < ApplicationRecord
 
   def self.income_vs_expenses(user, start_date = nil, end_date = nil)
     scope = where(user: user)
-    scope = scope.by_settled_date_range(start_date, end_date) if start_date && end_date
+
+    # Include transactions within date range based on transaction date
+    # Use settled_at if available, otherwise use created_at_up (createdAt from Up Bank)
+    # This ensures HELD transactions are included
+    if start_date && end_date
+      scope = scope.where(
+        "(settled_at >= ? AND settled_at <= ?) OR (settled_at IS NULL AND created_at_up >= ? AND created_at_up <= ?)",
+        start_date, end_date, start_date, end_date
+      )
+    end
 
     income = scope.income.sum(:amount_cents)
     expenses = scope.expenses.sum(:amount_cents).abs
@@ -144,7 +169,13 @@ class Transaction < ApplicationRecord
   def self.time_series_by_day(user, start_date, end_date, type: :all)
     # Ensure end_date includes the full day
     end_date = end_date.end_of_day if end_date.respond_to?(:end_of_day)
-    scope = where(user: user).by_settled_date_range(start_date, end_date)
+
+    # Use transaction date (settled_at or created_at_up) instead of just settled_at
+    # This ensures HELD transactions are included
+    scope = where(user: user).where(
+      "(settled_at >= ? AND settled_at <= ?) OR (settled_at IS NULL AND created_at_up >= ? AND created_at_up <= ?)",
+      start_date, end_date, start_date, end_date
+    )
 
     case type
     when :expenses
@@ -153,10 +184,13 @@ class Transaction < ApplicationRecord
       scope = scope.income
     end
 
-    result = scope.where.not(settled_at: nil)
-        .group(Arel.sql("DATE(settled_at)"))
-        .order(Arel.sql("DATE(settled_at) ASC"))
-        .sum(Arel.sql("ABS(amount_cents)"))
+    # Group by transaction date (settled_at or created_at_up)
+    result = scope.select(
+      Arel.sql("COALESCE(DATE(settled_at), DATE(created_at_up)) as transaction_date"),
+      Arel.sql("ABS(amount_cents) as amount")
+    ).group(Arel.sql("COALESCE(DATE(settled_at), DATE(created_at_up))"))
+     .order(Arel.sql("COALESCE(DATE(settled_at), DATE(created_at_up)) ASC"))
+     .sum(Arel.sql("ABS(amount_cents)"))
 
     # Transform keys to strings consistently
     result.transform_keys do |date|
@@ -172,7 +206,12 @@ class Transaction < ApplicationRecord
   end
 
   def self.time_series_by_month(user, start_date, end_date, type: :all)
-    scope = where(user: user).by_settled_date_range(start_date, end_date)
+    # Use transaction date (settled_at or created_at_up) instead of just settled_at
+    # This ensures HELD transactions are included
+    scope = where(user: user).where(
+      "(settled_at >= ? AND settled_at <= ?) OR (settled_at IS NULL AND created_at_up >= ? AND created_at_up <= ?)",
+      start_date, end_date, start_date, end_date
+    )
 
     case type
     when :expenses
@@ -181,9 +220,8 @@ class Transaction < ApplicationRecord
       scope = scope.income
     end
 
-    scope.where.not(settled_at: nil)
-        .group(Arel.sql("DATE_TRUNC('month', settled_at)"))
-        .order(Arel.sql("DATE_TRUNC('month', settled_at) ASC"))
+    scope.group(Arel.sql("DATE_TRUNC('month', COALESCE(settled_at, created_at_up))"))
+        .order(Arel.sql("DATE_TRUNC('month', COALESCE(settled_at, created_at_up)) ASC"))
         .sum(Arel.sql("ABS(amount_cents)"))
         .transform_keys do |date|
           if date.is_a?(Date) || date.is_a?(Time) || date.is_a?(DateTime)
@@ -198,8 +236,15 @@ class Transaction < ApplicationRecord
 
   # Spending trends analysis - compare two periods
   def self.spending_trend(user, current_start, current_end, previous_start, previous_end, type: :expenses)
-    current_scope = where(user: user).by_settled_date_range(current_start, current_end)
-    previous_scope = where(user: user).by_settled_date_range(previous_start, previous_end)
+    # Use transaction date (settled_at or created_at_up) for date filtering
+    current_scope = where(user: user).where(
+      "(settled_at >= ? AND settled_at <= ?) OR (settled_at IS NULL AND created_at_up >= ? AND created_at_up <= ?)",
+      current_start, current_end, current_start, current_end
+    )
+    previous_scope = where(user: user).where(
+      "(settled_at >= ? AND settled_at <= ?) OR (settled_at IS NULL AND created_at_up >= ? AND created_at_up <= ?)",
+      previous_start, previous_end, previous_start, previous_end
+    )
 
     case type
     when :expenses
@@ -258,10 +303,13 @@ class Transaction < ApplicationRecord
   # Enhanced merchant analysis with trends
   def self.merchant_trends(user, merchant_name, start_date, end_date)
     scope = where(user: user).expenses
-                             .by_settled_date_range(start_date, end_date)
+                             .where(
+                               "(settled_at >= ? AND settled_at <= ?) OR (settled_at IS NULL AND created_at_up >= ? AND created_at_up <= ?)",
+                               start_date, end_date, start_date, end_date
+                             )
                              .where("description ILIKE ? OR message ILIKE ?", "%#{merchant_name}%", "%#{merchant_name}%")
 
-    transactions = scope.order(:settled_at)
+    transactions = scope.order(Arel.sql("COALESCE(settled_at, created_at_up) ASC"))
 
     return nil if transactions.empty?
 
@@ -333,16 +381,38 @@ class Transaction < ApplicationRecord
   # Class methods
   def self.find_or_create_from_up_data(up_data, user, account)
     transaction = find_or_initialize_by(up_id: up_data["id"], user_id: user.id)
+
+    # Extract category if present
+    category_up_id = up_data.dig("relationships", "category", "data", "id")
+    category = Category.find_by(up_id: category_up_id) if category_up_id
+
+    # Extract roundUp amount if present
+    round_up_amount = up_data.dig("attributes", "roundUp", "amount", "valueInBaseUnits")
+
+    # Extract cashback amount if present
+    cashback_amount = up_data.dig("attributes", "cashback", "amount", "valueInBaseUnits")
+
+    # Extract foreign amount if present
+    foreign_amount_data = up_data.dig("attributes", "foreignAmount")
+    foreign_amount_cents = foreign_amount_data&.dig("amount", "valueInBaseUnits")
+    foreign_amount_currency = foreign_amount_data&.dig("currencyCode")
+
     transaction.assign_attributes(
       account: account,
+      category: category,
       status: up_data.dig("attributes", "status")&.downcase,
       raw_text: up_data.dig("attributes", "rawText"),
       description: up_data.dig("attributes", "description"),
       message: up_data.dig("attributes", "message"),
       amount_cents: up_data.dig("attributes", "amount", "valueInBaseUnits"),
+      created_at_up: parse_up_datetime(up_data.dig("attributes", "createdAt")),
       settled_at: parse_up_datetime(up_data.dig("attributes", "settledAt")),
       hold_info: up_data.dig("attributes", "holdInfo"),
-      card_purchase_method: up_data.dig("attributes", "cardPurchaseMethod", "method")
+      card_purchase_method: up_data.dig("attributes", "cardPurchaseMethod", "method"),
+      round_up_cents: round_up_amount,
+      cashback_cents: cashback_amount,
+      foreign_amount_cents: foreign_amount_cents,
+      foreign_amount_currency: foreign_amount_currency
     )
     transaction.save!
     transaction

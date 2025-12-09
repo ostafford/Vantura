@@ -27,4 +27,3 @@ class PlannedTransactionPolicy < ApplicationPolicy
     end
   end
 end
-

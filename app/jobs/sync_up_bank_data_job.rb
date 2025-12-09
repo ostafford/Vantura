@@ -27,17 +27,47 @@ class SyncUpBankDataJob < ApplicationJob
       accounts = service.sync_accounts
       broadcast_step_complete(user, "Fetched #{accounts.count} accounts")
 
-      # Step 3: Sync transactions
-      broadcast_progress_update(user, 50, "Retrieving transactions...")
-      service.sync_transactions
-      transaction_count_after_sync = user.transactions.count
-      new_transactions_count = transaction_count_after_sync - transaction_count_before
-      broadcast_step_complete(user, "Retrieved #{new_transactions_count} transactions")
-
-      # Step 4: Sync categories
-      broadcast_progress_update(user, 75, "Processing categories...")
+      # Step 3: Sync categories BEFORE transactions (required for category assignment)
+      broadcast_progress_update(user, 40, "Fetching categories...")
       service.sync_categories
       broadcast_step_complete(user, "Categories processed")
+
+      # Step 4: Sync transactions (with heartbeat updates)
+      broadcast_progress_update(user, 50, "Retrieving transactions...")
+
+      # Start heartbeat timer for long-running transaction sync
+      # This ensures users see continuous activity during potentially long API calls
+      # Uses "processing" state (nil percentage) to show animation without percentage changes
+      @heartbeat_running = true
+      heartbeat_thread = Thread.new do
+        heartbeat_count = 0
+        while @heartbeat_running
+          sleep 3 # Send heartbeat every 3 seconds
+          next unless @heartbeat_running # Check again after sleep
+
+          heartbeat_count += 1
+          elapsed_seconds = heartbeat_count * 3
+          # Send nil percentage to indicate "processing" state with animation
+          broadcast_progress_update(user, nil, "Processing transactions... (#{elapsed_seconds}s)")
+        end
+      rescue => e
+        Rails.logger.error "Heartbeat thread error: #{e.message}"
+      end
+
+      begin
+        service.sync_transactions
+        transaction_count_after_sync = user.transactions.count
+        new_transactions_count = transaction_count_after_sync - transaction_count_before
+      ensure
+        # Stop heartbeat when transaction sync completes
+        @heartbeat_running = false
+        if heartbeat_thread&.alive?
+          heartbeat_thread.join(0.5) # Wait briefly for thread to finish
+          heartbeat_thread.kill if heartbeat_thread.alive?
+        end
+      end
+
+      broadcast_step_complete(user, "Retrieved #{new_transactions_count} transactions")
 
       # Step 5: Finalize
       broadcast_progress_update(user, 100, "Calculating analytics...")

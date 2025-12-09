@@ -171,6 +171,7 @@ RSpec.describe UpBankApiService, :vcr do
 
   describe "#sync_transactions" do
     let!(:account) { create(:account, user: user, up_id: "test-account-id") }
+    let!(:category) { create(:category, up_id: "test-category-id", name: "Groceries") }
 
     before do
       # Stub API response to bypass VCR cassette with 401
@@ -178,7 +179,7 @@ RSpec.describe UpBankApiService, :vcr do
         double(
           success?: true,
           code: 200,
-          body: '{"data": [{"id": "test-transaction-id", "attributes": {"status": "SETTLED", "description": "Test Transaction", "amount": {"valueInBaseUnits": -1000}}, "relationships": {"account": {"data": {"id": "test-account-id"}}}}], "links": {}}'
+          body: '{"data": [{"id": "test-transaction-id", "attributes": {"status": "SETTLED", "description": "Test Transaction", "amount": {"valueInBaseUnits": -1000}, "createdAt": "2024-01-01T10:00:00Z", "settledAt": "2024-01-01T12:00:00Z", "roundUp": {"amount": {"valueInBaseUnits": 50}}, "cashback": {"amount": {"valueInBaseUnits": 25}}}, "relationships": {"account": {"data": {"id": "test-account-id"}}, "category": {"data": {"id": "test-category-id", "type": "categories"}}}}], "links": {}}'
         )
       )
     end
@@ -195,6 +196,28 @@ RSpec.describe UpBankApiService, :vcr do
       transaction = Transaction.last
       expect(transaction.account).to be_present
       expect(transaction.account).to eq(account)
+    end
+
+    it "assigns category from API response" do
+      service.sync_transactions
+
+      transaction = Transaction.last
+      expect(transaction.category).to eq(category)
+    end
+
+    it "stores transaction createdAt" do
+      service.sync_transactions
+
+      transaction = Transaction.last
+      expect(transaction.created_at_up).to be_present
+    end
+
+    it "stores roundUp and cashback amounts" do
+      service.sync_transactions
+
+      transaction = Transaction.last
+      expect(transaction.round_up_cents).to eq(50)
+      expect(transaction.cashback_cents).to eq(25)
     end
   end
 end

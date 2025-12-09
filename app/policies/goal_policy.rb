@@ -27,4 +27,3 @@ class GoalPolicy < ApplicationPolicy
     end
   end
 end
-

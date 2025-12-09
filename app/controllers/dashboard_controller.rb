@@ -1,6 +1,6 @@
 class DashboardController < ApplicationController
   before_action :authenticate_user!
-  before_action :redirect_to_onboarding_if_needed, only: [:index]
+  before_action :redirect_to_onboarding_if_needed, only: [ :index ]
   after_action :trigger_sync_if_needed, only: [ :index ]
 
   def index
@@ -9,9 +9,9 @@ class DashboardController < ApplicationController
       current_user.accounts.to_a
     end
 
-    # Calculate balance efficiently with caching
+    # Calculate balance efficiently with caching (only TRANSACTIONAL accounts)
     @balance = Rails.cache.fetch("user/#{current_user.id}/balance", expires_in: 5.minutes) do
-      current_user.accounts.sum(:balance_cents)
+      current_user.accounts.transactional.sum(:balance_cents)
     end
 
     # Calculate stats for current month

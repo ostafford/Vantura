@@ -24,10 +24,10 @@ if ENV["COVERAGE"]
     add_filter "/db/"
     add_filter "/config/"
     add_filter "/vendor/"
-    
+
     # Track coverage for app directory
     track_files "app/**/*.rb"
-    
+
     # Minimum coverage threshold (optional - adjust as needed)
     minimum_coverage 80
   end

@@ -68,7 +68,7 @@ RSpec.describe ProcessUpWebhookJob, type: :job do
       it "broadcasts dashboard update via Turbo Streams" do
         # Get recent transactions that will be passed to the partial
         recent_transactions = user.transactions.recent.limit(20)
-        
+
         expect(Turbo::StreamsChannel).to receive(:broadcast_replace_to).with(
           "user_#{user.id}_dashboard",
           target: "recent-transactions",

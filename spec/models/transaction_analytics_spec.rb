@@ -9,10 +9,10 @@ RSpec.describe "Transaction Analytics", type: :model do
 
   before do
     # Create transactions for the user
-    create(:transaction, user: user, account: account, amount_cents: -5000, category: category1, settled_at: 5.days.ago)
-    create(:transaction, user: user, account: account, amount_cents: -3000, category: category1, settled_at: 3.days.ago)
-    create(:transaction, user: user, account: account, amount_cents: -2000, category: category2, settled_at: 2.days.ago)
-    create(:transaction, user: user, account: account, amount_cents: 10000, category: nil, settled_at: 1.day.ago) # Income
+    create(:transaction, user: user, account: account, amount_cents: -5000, category: category1, created_at_up: 5.days.ago, settled_at: 5.days.ago)
+    create(:transaction, user: user, account: account, amount_cents: -3000, category: category1, created_at_up: 3.days.ago, settled_at: 3.days.ago)
+    create(:transaction, user: user, account: account, amount_cents: -2000, category: category2, created_at_up: 2.days.ago, settled_at: 2.days.ago)
+    create(:transaction, user: user, account: account, amount_cents: 10000, category: nil, created_at_up: 1.day.ago, settled_at: 1.day.ago) # Income
 
     # Create transaction for other user (should be excluded)
     other_account = create(:account, user: other_user)
@@ -40,6 +40,24 @@ RSpec.describe "Transaction Analytics", type: :model do
         total = results.sum(&:total_cents)
         expect(total).to eq(10000) # Only user's transactions
       end
+
+      it "includes HELD transactions using created_at_up" do
+        # Create a HELD transaction (no settled_at)
+        held_transaction = create(:transaction,
+          user: user,
+          account: account,
+          amount_cents: -4000,
+          category: category1,
+          settled_at: nil,
+          created_at_up: 1.day.ago
+        )
+
+        results = Transaction.total_by_category(user)
+
+        groceries_result = results.find { |r| r.name == "Groceries" }
+        expect(groceries_result.total_cents).to eq(12000) # 5000 + 3000 + 4000
+        expect(groceries_result.transaction_count).to eq(3)
+      end
     end
 
     context "with date range" do
@@ -53,6 +71,27 @@ RSpec.describe "Transaction Analytics", type: :model do
         expect(groceries_result.total_cents).to eq(3000) # Only the 3 days ago transaction
         expect(groceries_result.transaction_count).to eq(1)
       end
+
+      it "includes HELD transactions within date range using created_at_up" do
+        # Create a HELD transaction within the date range
+        held_transaction = create(:transaction,
+          user: user,
+          account: account,
+          amount_cents: -6000,
+          category: category1,
+          settled_at: nil,
+          created_at_up: 2.days.ago
+        )
+
+        start_date = 4.days.ago.beginning_of_day
+        end_date = 1.day.ago.end_of_day
+
+        results = Transaction.total_by_category(user, start_date, end_date)
+
+        groceries_result = results.find { |r| r.name == "Groceries" }
+        expect(groceries_result.total_cents).to eq(9000) # 3000 (settled) + 6000 (held)
+        expect(groceries_result.transaction_count).to eq(2)
+      end
     end
 
     it "orders by total descending" do
@@ -64,9 +103,9 @@ RSpec.describe "Transaction Analytics", type: :model do
 
   describe ".total_by_merchant" do
     before do
-      create(:transaction, user: user, account: account, description: "STARBUCKS", amount_cents: -1500, settled_at: 2.days.ago)
-      create(:transaction, user: user, account: account, description: "STARBUCKS", amount_cents: -2000, settled_at: 1.day.ago)
-      create(:transaction, user: user, account: account, description: "COLES SUPERMARKET", amount_cents: -5000, settled_at: 3.days.ago)
+      create(:transaction, user: user, account: account, description: "STARBUCKS", amount_cents: -1500, created_at_up: 2.days.ago, settled_at: 2.days.ago)
+      create(:transaction, user: user, account: account, description: "STARBUCKS", amount_cents: -2000, created_at_up: 1.day.ago, settled_at: 1.day.ago)
+      create(:transaction, user: user, account: account, description: "COLES SUPERMARKET", amount_cents: -5000, created_at_up: 3.days.ago, settled_at: 3.days.ago)
     end
 
     context "without date range" do
@@ -128,6 +167,22 @@ RSpec.describe "Transaction Analytics", type: :model do
         expect(result[:net]).to eq(0.0)
       end
 
+      it "includes HELD transactions using created_at_up" do
+        # Create HELD transaction (no settled_at)
+        create(:transaction,
+          user: user,
+          account: account,
+          amount_cents: -7000,
+          settled_at: nil,
+          created_at_up: 1.day.ago
+        )
+
+        result = Transaction.income_vs_expenses(user)
+
+        expect(result[:expenses_cents]).to eq(17000) # 10000 + 7000 (held)
+        expect(result[:net_cents]).to eq(-7000) # 10000 - 17000
+      end
+
       it "excludes other users' transactions" do
         result = Transaction.income_vs_expenses(user)
         # Other user's -10000 should not be included
@@ -153,9 +208,9 @@ RSpec.describe "Transaction Analytics", type: :model do
 
   describe ".time_series_by_day" do
     before do
-      create(:transaction, user: user, account: account, amount_cents: -1000, settled_at: Time.zone.parse("2024-01-01 10:00"))
-      create(:transaction, user: user, account: account, amount_cents: -2000, settled_at: Time.zone.parse("2024-01-01 14:00"))
-      create(:transaction, user: user, account: account, amount_cents: -3000, settled_at: Time.zone.parse("2024-01-02 12:00"))
+      create(:transaction, user: user, account: account, amount_cents: -1000, created_at_up: Time.zone.parse("2024-01-01 10:00"), settled_at: Time.zone.parse("2024-01-01 10:00"))
+      create(:transaction, user: user, account: account, amount_cents: -2000, created_at_up: Time.zone.parse("2024-01-01 14:00"), settled_at: Time.zone.parse("2024-01-01 14:00"))
+      create(:transaction, user: user, account: account, amount_cents: -3000, created_at_up: Time.zone.parse("2024-01-02 12:00"), settled_at: Time.zone.parse("2024-01-02 12:00"))
     end
 
     it "groups transactions by day" do
@@ -169,7 +224,7 @@ RSpec.describe "Transaction Analytics", type: :model do
     end
 
     it "filters by type when specified" do
-      create(:transaction, user: user, account: account, amount_cents: 5000, settled_at: Time.zone.parse("2024-01-01 15:00"))
+      create(:transaction, user: user, account: account, amount_cents: 5000, created_at_up: Time.zone.parse("2024-01-01 15:00"), settled_at: Time.zone.parse("2024-01-01 15:00"))
 
       start_date = Time.zone.parse("2024-01-01")
       end_date = Time.zone.parse("2024-01-01")
@@ -181,23 +236,31 @@ RSpec.describe "Transaction Analytics", type: :model do
       expect(result["2024-01-01"]).to eq(5000) # Only income
     end
 
-    it "only includes transactions with settled_at" do
-      create(:transaction, user: user, account: account, amount_cents: -1000, settled_at: nil)
+    it "includes HELD transactions using created_at_up when settled_at is nil" do
+      # Create HELD transaction (no settled_at, but has created_at_up)
+      # Factory sets created_at_up: 1.day.ago by default
+      held_transaction = create(:transaction,
+        user: user,
+        account: account,
+        amount_cents: -1000,
+        settled_at: nil,
+        created_at_up: 1.day.ago
+      )
 
       start_date = 1.week.ago
       end_date = Time.current
 
       result = Transaction.time_series_by_day(user, start_date, end_date, type: :expenses)
-      # Should not include the transaction without settled_at
-      expect(result.values.sum).to be <= 10000 # Only transactions with settled_at
+      # Should include the HELD transaction using created_at_up (10000 from before + 1000 HELD)
+      expect(result.values.sum).to eq(11000)
     end
   end
 
   describe ".time_series_by_month" do
     before do
-      create(:transaction, user: user, account: account, amount_cents: -5000, settled_at: Time.zone.parse("2024-01-15"))
-      create(:transaction, user: user, account: account, amount_cents: -3000, settled_at: Time.zone.parse("2024-01-20"))
-      create(:transaction, user: user, account: account, amount_cents: -2000, settled_at: Time.zone.parse("2024-02-10"))
+      create(:transaction, user: user, account: account, amount_cents: -5000, created_at_up: Time.zone.parse("2024-01-15"), settled_at: Time.zone.parse("2024-01-15"))
+      create(:transaction, user: user, account: account, amount_cents: -3000, created_at_up: Time.zone.parse("2024-01-20"), settled_at: Time.zone.parse("2024-01-20"))
+      create(:transaction, user: user, account: account, amount_cents: -2000, created_at_up: Time.zone.parse("2024-02-10"), settled_at: Time.zone.parse("2024-02-10"))
     end
 
     it "groups transactions by month" do
@@ -210,15 +273,23 @@ RSpec.describe "Transaction Analytics", type: :model do
       expect(result["2024-02"]).to eq(2000)
     end
 
-    it "only includes transactions with settled_at" do
-      create(:transaction, user: user, account: account, amount_cents: -1000, settled_at: nil)
+    it "includes HELD transactions using created_at_up when settled_at is nil" do
+      # Create HELD transaction (no settled_at, but has created_at_up)
+      # Factory sets created_at_up: 1.day.ago by default
+      held_transaction = create(:transaction,
+        user: user,
+        account: account,
+        amount_cents: -1000,
+        settled_at: nil,
+        created_at_up: 1.day.ago
+      )
 
       start_date = 6.months.ago
       end_date = Time.current
 
       result = Transaction.time_series_by_month(user, start_date, end_date, type: :expenses)
-      # Should not include the transaction without settled_at
-      expect(result.values.sum).to be <= 10000 # Only transactions with settled_at
+      # Should include the HELD transaction using created_at_up (10000 from before + 1000 HELD)
+      expect(result.values.sum).to eq(11000)
     end
   end
 
@@ -228,12 +299,12 @@ RSpec.describe "Transaction Analytics", type: :model do
       user.transactions.destroy_all
 
       # Current period transactions
-      create(:transaction, user: user, account: account, amount_cents: -5000, settled_at: 5.days.ago)
-      create(:transaction, user: user, account: account, amount_cents: -3000, settled_at: 3.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: -5000, created_at_up: 5.days.ago, settled_at: 5.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: -3000, created_at_up: 3.days.ago, settled_at: 3.days.ago)
 
       # Previous period transactions
-      create(:transaction, user: user, account: account, amount_cents: -2000, settled_at: 35.days.ago)
-      create(:transaction, user: user, account: account, amount_cents: -1000, settled_at: 32.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: -2000, created_at_up: 35.days.ago, settled_at: 35.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: -1000, created_at_up: 32.days.ago, settled_at: 32.days.ago)
     end
 
     it "compares spending between two periods" do
@@ -265,8 +336,8 @@ RSpec.describe "Transaction Analytics", type: :model do
 
     it "works with income transactions" do
       user.transactions.destroy_all
-      create(:transaction, user: user, account: account, amount_cents: 10000, settled_at: 5.days.ago)
-      create(:transaction, user: user, account: account, amount_cents: 5000, settled_at: 35.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: 10000, created_at_up: 5.days.ago, settled_at: 5.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: 5000, created_at_up: 35.days.ago, settled_at: 35.days.ago)
 
       current_start = 7.days.ago.beginning_of_day
       current_end = Time.current.end_of_day
@@ -287,12 +358,12 @@ RSpec.describe "Transaction Analytics", type: :model do
       user.transactions.destroy_all
 
       # Period 1 transactions
-      create(:transaction, user: user, account: account, amount_cents: -5000, category: category1, settled_at: 35.days.ago)
-      create(:transaction, user: user, account: account, amount_cents: -2000, category: category2, settled_at: 32.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: -5000, category: category1, created_at_up: 35.days.ago, settled_at: 35.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: -2000, category: category2, created_at_up: 32.days.ago, settled_at: 32.days.ago)
 
       # Period 2 transactions
-      create(:transaction, user: user, account: account, amount_cents: -3000, category: category1, settled_at: 5.days.ago)
-      create(:transaction, user: user, account: account, amount_cents: -4000, category: category2, settled_at: 3.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: -3000, category: category1, created_at_up: 5.days.ago, settled_at: 5.days.ago)
+      create(:transaction, user: user, account: account, amount_cents: -4000, category: category2, created_at_up: 3.days.ago, settled_at: 3.days.ago)
     end
 
     it "compares categories across two periods" do
@@ -319,9 +390,9 @@ RSpec.describe "Transaction Analytics", type: :model do
 
   describe ".merchant_trends" do
     before do
-      create(:transaction, user: user, account: account, description: "NETFLIX SUBSCRIPTION", amount_cents: -1599, settled_at: 60.days.ago)
-      create(:transaction, user: user, account: account, description: "NETFLIX PAYMENT", amount_cents: -1599, settled_at: 30.days.ago)
-      create(:transaction, user: user, account: account, description: "NETFLIX.COM", amount_cents: -1599, settled_at: 5.days.ago)
+      create(:transaction, user: user, account: account, description: "NETFLIX SUBSCRIPTION", amount_cents: -1599, created_at_up: 60.days.ago, settled_at: 60.days.ago)
+      create(:transaction, user: user, account: account, description: "NETFLIX PAYMENT", amount_cents: -1599, created_at_up: 30.days.ago, settled_at: 30.days.ago)
+      create(:transaction, user: user, account: account, description: "NETFLIX.COM", amount_cents: -1599, created_at_up: 5.days.ago, settled_at: 5.days.ago)
     end
 
     it "analyzes merchant transaction trends" do
@@ -358,10 +429,10 @@ RSpec.describe "Transaction Analytics", type: :model do
   describe ".monthly_spending_trends" do
     before do
       # Create transactions across multiple months
-      create(:transaction, user: user, account: account, amount_cents: -5000, settled_at: 3.months.ago)
-      create(:transaction, user: user, account: account, amount_cents: -3000, settled_at: 2.months.ago)
-      create(:transaction, user: user, account: account, amount_cents: -4000, settled_at: 1.month.ago)
-      create(:transaction, user: user, account: account, amount_cents: -6000, settled_at: 1.week.ago)
+      create(:transaction, user: user, account: account, amount_cents: -5000, created_at_up: 3.months.ago, settled_at: 3.months.ago)
+      create(:transaction, user: user, account: account, amount_cents: -3000, created_at_up: 2.months.ago, settled_at: 2.months.ago)
+      create(:transaction, user: user, account: account, amount_cents: -4000, created_at_up: 1.month.ago, settled_at: 1.month.ago)
+      create(:transaction, user: user, account: account, amount_cents: -6000, created_at_up: 1.week.ago, settled_at: 1.week.ago)
     end
 
     it "returns monthly spending trends with comparisons" do

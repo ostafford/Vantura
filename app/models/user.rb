@@ -85,7 +85,7 @@ class User < ApplicationRecord
     income_vs_expenses = Transaction.income_vs_expenses(self, start_date, end_date)
 
     {
-      total_balance: accounts.sum(:balance_cents),
+      total_balance: accounts.transactional.sum(:balance_cents),
       income_this_month: income_vs_expenses[:income_cents],
       expenses_this_month: income_vs_expenses[:expenses_cents],
       net_this_month: income_vs_expenses[:net_cents],

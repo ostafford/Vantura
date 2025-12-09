@@ -95,7 +95,7 @@ RSpec.describe "Settings", type: :request do
         # Adjust based on actual User model validations
         allow_any_instance_of(User).to receive(:update).and_return(false)
         allow_any_instance_of(User).to receive(:errors).and_return(
-          double(full_messages: ["Name can't be blank"])
+          double(full_messages: [ "Name can't be blank" ])
         )
 
         patch "/settings",
@@ -158,4 +158,3 @@ RSpec.describe "Settings", type: :request do
     end
   end
 end
-

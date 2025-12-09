@@ -19,4 +19,3 @@ class TransactionPolicy < ApplicationPolicy
     end
   end
 end
-

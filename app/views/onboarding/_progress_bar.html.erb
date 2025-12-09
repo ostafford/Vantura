@@ -1,11 +1,39 @@
 <div id="progress-bar" class="w-full">
   <div class="flex justify-between items-center mb-2">
     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Progress</span>
-    <span class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= percentage %>%</span>
+    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <% if percentage.nil? %>
+        Processing...
+      <% elsif percentage > 0 && percentage < 100 %>
+        <%= "#{percentage}%" %>
+      <% elsif percentage == 100 %>
+        100%
+      <% else %>
+        Processing...
+      <% end %>
+    </span>
   </div>
-  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-    <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
-         style="width: <%= percentage %>%"></div>
+  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden relative">
+    <% if percentage.nil? || percentage == 0 %>
+      <!-- Processing state: Indeterminate animated bar (no percentage shown) -->
+      <div class="bg-blue-600 h-2.5 rounded-full relative overflow-hidden" style="width: 100%">
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/50 to-transparent animate-shimmer"></div>
+        <div class="absolute inset-0 bg-blue-400 rounded-full animate-pulse-slow opacity-30"></div>
+      </div>
+    <% elsif percentage > 0 && percentage < 100 %>
+      <!-- Animated progress bar with shimmer effect -->
+      <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-500 relative overflow-hidden"
+           style="width: <%= percentage %>%">
+        <!-- Shimmer animation overlay -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/50 to-transparent animate-shimmer"></div>
+        <!-- Subtle pulse effect -->
+        <div class="absolute inset-0 bg-blue-400 rounded-full animate-pulse-slow opacity-30"></div>
+      </div>
+    <% elsif percentage == 100 %>
+      <!-- Static bar at 100% -->
+      <div class="bg-green-600 h-2.5 rounded-full transition-all duration-500" 
+           style="width: 100%"></div>
+    <% end %>
   </div>
   <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center"><%= message %></p>
 </div>

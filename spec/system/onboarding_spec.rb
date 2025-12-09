@@ -72,11 +72,11 @@ RSpec.describe 'Onboarding Flow', type: :system do
         # We can test the endpoint directly to verify it works
         # But for system test, let's verify the link exists and test the redirect via request spec
         expect(page).to have_link('I\'ll do this later', href: onboarding_skip_connection_path)
-        
+
         # For system test, we'll verify the link exists and can be clicked
         # The actual redirect behavior is tested in request specs
         click_link 'I\'ll do this later'
-        
+
         # The controller should redirect, but if it doesn't in test, that's okay
         # The important thing is the link exists and the endpoint works
         # We'll verify the redirect happens (may need to wait)
@@ -86,7 +86,7 @@ RSpec.describe 'Onboarding Flow', type: :system do
         rescue RSpec::Expectations::ExpectationNotMetError
           # If redirect doesn't happen in test, that's a test environment issue
           # The implementation is correct - the controller redirects
-          expect(page.current_path).to be_in([dashboard_path, onboarding_skip_connection_path])
+          expect(page.current_path).to be_in([ dashboard_path, onboarding_skip_connection_path ])
         end
       end
 
@@ -140,6 +140,20 @@ RSpec.describe 'Onboarding Flow', type: :system do
       expect(progress_bar).to have_text('Progress')
     end
 
+    it 'displays loading spinner and animations' do
+      visit onboarding_sync_progress_path
+
+      # Verify Flowbite spinner is present
+      expect(page).to have_css('svg.animate-spin', visible: :all)
+
+      # Verify progress bar has animation classes when at 0%
+      progress_bar = find('#progress-bar')
+      expect(progress_bar).to be_present
+
+      # Verify initial state shows "Processing..." or percentage
+      expect(progress_bar).to have_text(/Processing|Progress|0%/)
+    end
+
     context 'when sync is already complete' do
       let!(:account) { create(:account, user: user) }
 
@@ -160,7 +174,7 @@ RSpec.describe 'Onboarding Flow', type: :system do
       visit onboarding_connect_up_bank_path
 
       token_input = find_field('token')
-      
+
       # Empty token
       fill_in 'token', with: ''
       expect(page).to have_button('Validate & Connect', disabled: true)
@@ -188,7 +202,7 @@ RSpec.describe 'Onboarding Flow', type: :system do
       expect(page).to have_css('#sync-steps', count: 1)
       # completion-redirect is hidden initially, check with visible: :all
       expect(page).to have_css('#completion-redirect', count: 1, visible: :all)
-      
+
       # Verify progress bar partial can be rendered
       progress_bar = find('#progress-bar')
       expect(progress_bar).to be_present
@@ -200,7 +214,7 @@ RSpec.describe 'Onboarding Flow', type: :system do
       # Verify sync-steps container exists
       sync_steps = find('#sync-steps')
       expect(sync_steps).to be_present
-      
+
       # Verify sync_step partial exists and can render
       expect(File.exist?(Rails.root.join('app/views/onboarding/_sync_step.html.erb'))).to be true
     end
@@ -212,7 +226,7 @@ RSpec.describe 'Onboarding Flow', type: :system do
       completion_div = find('#completion-redirect', visible: :all)
       expect(completion_div).to be_present
       # Container may or may not have hidden class initially, but should exist
-      
+
       # Verify completion partial exists
       expect(File.exist?(Rails.root.join('app/views/onboarding/_completion.html.erb'))).to be true
     end
@@ -223,10 +237,9 @@ RSpec.describe 'Onboarding Flow', type: :system do
       # Check for Turbo Stream subscription
       stream_sources = page.all('turbo-cable-stream-source')
       expect(stream_sources.length).to be >= 1
-      
+
       # Verify subscription exists
       expect(stream_sources.first).to be_present
     end
   end
 end
-

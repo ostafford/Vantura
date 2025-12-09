@@ -1,10 +1,10 @@
 Rails.application.routes.draw do
-  devise_for :users, controllers: { registrations: "registrations" }
-
   # Sidekiq Web UI removed - using Solid Queue (no web UI needed)
   # Solid Queue jobs can be monitored via database queries or custom admin panel
 
   root "dashboard#index"
+
+  devise_for :users
 
   # Onboarding
   get "/onboarding/connect_up_bank", to: "onboarding#connect_up_bank", as: :onboarding_connect_up_bank

@@ -30,4 +30,3 @@ class ProjectExpensePolicy < ApplicationPolicy
     end
   end
 end
-

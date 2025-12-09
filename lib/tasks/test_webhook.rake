@@ -8,7 +8,7 @@ namespace :webhook do
 
     # Find user with token
     user = User.all.find { |u| u.has_up_bank_token? }
-    
+
     unless user
       puts "ERROR: No user with Up Bank token found"
       puts "Create a user and set up_bank_token first"
@@ -67,7 +67,7 @@ namespace :webhook do
     begin
       ProcessUpWebhookJob.perform_now(webhook_event)
       webhook_event.reload
-      
+
       if webhook_event.processed?
         puts "✓ Webhook processed successfully"
         puts "  Processed at: #{webhook_event.processed_at}"
@@ -125,7 +125,7 @@ namespace :webhook do
     puts "1. Testing encryption..."
     user.update!(up_bank_token: test_token)
     ciphertext = user.read_attribute(:up_bank_token_ciphertext)
-    
+
     if ciphertext.present?
       puts "   ✓ Token encrypted"
       puts "   Ciphertext: #{ciphertext[0..50]}..."
@@ -139,7 +139,7 @@ namespace :webhook do
     puts "2. Testing decryption..."
     user.reload
     decrypted = user.up_bank_token
-    
+
     if decrypted == test_token
       puts "   ✓ Token decrypted correctly"
       puts "   Decrypted: #{decrypted[0..20]}..."
@@ -171,4 +171,3 @@ namespace :webhook do
     puts "=== All Token Tests Passed ==="
   end
 end
-

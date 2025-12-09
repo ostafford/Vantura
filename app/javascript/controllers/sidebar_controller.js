@@ -17,6 +17,12 @@ export default class extends Controller {
                        sidebar.getAttribute('aria-hidden') === 'true'
       if (isHidden) {
         backdrop.classList.add('hidden')
+        // When sidebar is hidden, blur any focused elements inside to fix accessibility warning
+        // Check if currently focused element is inside the sidebar
+        const activeElement = document.activeElement
+        if (activeElement && sidebar.contains(activeElement)) {
+          activeElement.blur()
+        }
       } else {
         backdrop.classList.remove('hidden')
       }
@@ -32,6 +38,11 @@ export default class extends Controller {
                      sidebar.getAttribute('aria-hidden') === 'true'
     if (isHidden) {
       backdrop.classList.add('hidden')
+      // Blur any focused elements on initial load if sidebar is hidden
+      const activeElement = document.activeElement
+      if (activeElement && sidebar.contains(activeElement)) {
+        activeElement.blur()
+      }
     }
   }
 
