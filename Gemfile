@@ -1,11 +1,11 @@
 source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.0.4"
+gem "rails", "~> 8.1", ">= 8.1.1"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.1"
+gem "pg", "~> 1.6"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
@@ -63,6 +63,7 @@ gem "administrate", "~> 1.0"
 gem "vcr", "~> 6.3", ">= 6.3.1"
 # httparty for HTTP client
 gem "httparty", "~> 0.23.2"
+gem "connection_pool", "~> 2.4.1"
 
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
@@ -85,6 +86,10 @@ gem "kamal", require: false
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
 
+# Error tracking and monitoring [https://sentry.io/]
+gem "sentry-ruby"
+gem "sentry-rails"
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
@@ -95,15 +100,18 @@ group :development, :test do
   # webmock for HTTP request stubbing (required by VCR)
   gem "webmock", "~> 3.26", ">= 3.26.1"
 
+  # Test coverage metrics
+  gem "simplecov", require: false
+
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
-  gem "rubocop-performance", "~> 1.26", ">= 1.26.1"
-  gem "rubocop-rspec", "~> 3.8", ">= 3.8.0"
-  gem "rubocop-rails", "~> 2.34", ">= 2.34.2"
-  gem "rubocop", "~> 1.81", ">= 1.81.7"
+  gem "rubocop-performance", "~> 1.26", ">= 1.26.1", require: false
+  gem "rubocop-rspec", "~> 3.8", ">= 3.8.0", require: false
+  gem "rubocop-rails", "~> 2.34", ">= 2.34.2", require: false
+  gem "rubocop", "~> 1.81", ">= 1.81.7", require: false
 end
 
 group :development do

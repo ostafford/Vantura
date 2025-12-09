@@ -21,27 +21,27 @@ class SyncUpBankDataJob < ApplicationJob
     if broadcast_progress
       # Step 1: Connect to Up Bank
       broadcast_progress_update(user, 10, "Connecting to Up Bank...")
-      
+
       # Step 2: Sync accounts
       broadcast_progress_update(user, 25, "Fetching accounts...")
       accounts = service.sync_accounts
       broadcast_step_complete(user, "Fetched #{accounts.count} accounts")
-      
+
       # Step 3: Sync transactions
       broadcast_progress_update(user, 50, "Retrieving transactions...")
       service.sync_transactions
       transaction_count_after_sync = user.transactions.count
       new_transactions_count = transaction_count_after_sync - transaction_count_before
       broadcast_step_complete(user, "Retrieved #{new_transactions_count} transactions")
-      
+
       # Step 4: Sync categories
       broadcast_progress_update(user, 75, "Processing categories...")
       service.sync_categories
       broadcast_step_complete(user, "Categories processed")
-      
+
       # Step 5: Finalize
       broadcast_progress_update(user, 100, "Calculating analytics...")
-      
+
       # Set final transaction count for completion broadcast
       transaction_count_after = transaction_count_after_sync
     else
@@ -115,6 +115,7 @@ class SyncUpBankDataJob < ApplicationJob
   end
 
   def broadcast_completion(user, accounts_count, transactions_count)
+    # First, replace the completion-redirect content
     Turbo::StreamsChannel.broadcast_replace_to(
       "user_#{user.id}_onboarding",
       target: "completion-redirect",
@@ -125,6 +126,14 @@ class SyncUpBankDataJob < ApplicationJob
         categories_count: Category.count
       }
     )
+
+    # Then, remove the hidden class to reveal it
+    Turbo::StreamsChannel.broadcast_action_to(
+      "user_#{user.id}_onboarding",
+      action: "remove_class",
+      target: "completion-redirect",
+      classes: "hidden"
+    )
   rescue => e
     Rails.logger.error "Failed to broadcast completion: #{e.message}"
   end
@@ -132,7 +141,7 @@ class SyncUpBankDataJob < ApplicationJob
   def broadcast_dashboard_update(user)
     # Recalculate stats for the user
     stats = user.calculate_stats
-    
+
     # Update stats cards
     Turbo::StreamsChannel.broadcast_replace_to(
       "user_#{user.id}_dashboard",
@@ -140,7 +149,7 @@ class SyncUpBankDataJob < ApplicationJob
       partial: "dashboard/stats",
       locals: { stats: stats }
     )
-    
+
     # Update recent transactions list (Flow A: REPLACE entire list)
     # This ensures the list is always up-to-date with fresh data from the database
     recent_transactions = user.transactions.recent.limit(20)

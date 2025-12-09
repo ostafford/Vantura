@@ -127,7 +127,33 @@ bin/kamal deploy
 
 ### Environment Variables
 
-See `.env.example` for all required environment variables.
+#### Required for Production
+
+- **SENTRY_DSN**: Sentry error tracking DSN (optional but recommended)
+  - Get from: https://sentry.io/
+  - Format: `https://<key>@<org>.ingest.sentry.io/<project>`
+
+- **ALLOWED_HOSTS**: Comma-separated list of allowed hostnames for production
+  - Example: `example.com,www.example.com`
+  - Prevents DNS rebinding attacks
+  - Reference: [Rails Host Authorization Guide](https://guides.rubyonrails.org/configuring.html#actiondispatch-hostauthorization)
+
+- **Active Record Encryption Keys**: Must be configured in Rails credentials
+  - Run: `bin/rails credentials:edit`
+  - Add structure:
+    ```yaml
+    active_record_encryption:
+      primary_key: <32-byte hex string>
+      deterministic_key: <32-byte hex string>
+      key_derivation_salt: <32-byte hex string>
+    ```
+  - Generate keys: `openssl rand -hex 32` (run 3 times)
+  - Reference: [Rails Security Guide](https://guides.rubyonrails.org/security.html#custom-credentials)
+
+#### Development/Test
+
+- Test environment uses default test encryption keys if credentials are not configured
+- See `.env.example` for all other required environment variables
 
 ## Architecture
 
@@ -154,11 +180,13 @@ The application integrates with Up Bank API:
 
 ## Security Features
 
-- **Encrypted Tokens**: Up Bank tokens encrypted with AES-256-GCM
+- **Encrypted Tokens**: Up Bank tokens encrypted with Rails Active Record Encryption (AES-256-GCM)
 - **Rate Limiting**: Rack::Attack for request throttling
 - **Authentication**: Devise for user authentication
-- **Authorization**: Pundit for resource authorization
-- **Secure Headers**: Content Security Policy configured
+- **Authorization**: Pundit for resource authorization (following Rails best practices)
+- **Secure Headers**: Content Security Policy (CSP) configured per [Rails Security Guide](https://guides.rubyonrails.org/security.html#content-security-policy-header)
+- **Host Authorization**: DNS rebinding protection configured per [Rails Configuring Guide](https://guides.rubyonrails.org/configuring.html#actiondispatch-hostauthorization)
+- **Error Reporting**: Sentry integration for production error tracking per [Rails Error Reporting Guide](https://guides.rubyonrails.org/error_reporting.html)
 
 ## Configuration
 

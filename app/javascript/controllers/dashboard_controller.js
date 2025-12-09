@@ -27,9 +27,9 @@ export default class extends Controller {
         method: 'POST',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-          'Content-Type': 'application/json',
-          'Accept': 'text/vnd.turbo-stream.html'
-        }
+          'Accept': 'text/html'
+        },
+        redirect: 'follow'
       })
       
       if (response.ok) {

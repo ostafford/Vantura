@@ -2,19 +2,21 @@ class TransactionsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @transactions = apply_filters(current_user.transactions.includes(:account, :category))
+    @transactions = apply_filters(policy_scope(Transaction).includes(:account, :category))
     @pagy, @transactions = pagy(:offset, @transactions, items: 20)
   end
 
   def show
     @transaction = current_user.transactions.find(params[:id])
+    authorize @transaction
   end
 
   def update
     @transaction = current_user.transactions.find(params[:id])
+    authorize @transaction
 
     if @transaction.update(transaction_params)
-      redirect_to @transaction, notice: "Transaction updated successfully."
+      redirect_to @transaction, notice: I18n.t("flash.transactions.updated")
     else
       redirect_to @transaction, alert: @transaction.errors.full_messages.join(", ")
     end

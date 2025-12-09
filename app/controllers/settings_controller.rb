@@ -8,7 +8,7 @@ class SettingsController < ApplicationController
   def update
     if current_user.update(user_params)
       respond_to do |format|
-        format.html { redirect_to settings_path, notice: "Settings updated successfully" }
+        format.html { redirect_to settings_path, notice: I18n.t("flash.settings.updated") }
         format.json { head :ok }
       end
     else

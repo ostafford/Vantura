@@ -4,9 +4,13 @@
 # See: https://github.com/rack/rack-attack
 class Rack::Attack
   # Use Redis for distributed rate limiting across multiple servers
-  Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(
+  # Using lookup_store is more compatible with recent Rails/Redis versions
+  Rack::Attack.cache.store = ActiveSupport::Cache.lookup_store(
+    :redis_cache_store,
     url: ENV.fetch("REDIS_URL", "redis://localhost:6379/1"),
-    namespace: "rack_attack"
+    namespace: "rack_attack",
+    pool_size: 5,
+    pool_timeout: 5
   )
 
   # Allow requests from localhost (useful for health checks)

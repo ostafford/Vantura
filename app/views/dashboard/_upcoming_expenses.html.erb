@@ -1,3 +1,13 @@
+<%# Fragment caching for upcoming expenses - Reference: https://guides.rubyonrails.org/caching_with_rails.html#fragment-caching %>
+<%# Use relation's maximum for cache key, or fallback to current time if collection is empty %>
+<% cache_key = if upcoming_planned.respond_to?(:maximum)
+                 upcoming_planned.maximum(:updated_at) || Time.current
+               elsif upcoming_planned.any?
+                 upcoming_planned.map(&:updated_at).max || Time.current
+               else
+                 Time.current
+               end %>
+<% cache [ "upcoming-expenses", current_user, cache_key ] do %>
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
   <div class="flex justify-between items-center mb-4">
     <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Upcoming</h2>
@@ -35,4 +45,5 @@
         icon: "📅" %>
   <% end %>
 </div>
+<% end %>
 

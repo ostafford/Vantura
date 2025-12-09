@@ -1,4 +1,8 @@
 <% stats ||= @stats %>
+<%# Fragment caching for dashboard stats - Reference: https://guides.rubyonrails.org/caching_with_rails.html#fragment-caching %>
+<%# Use last_synced_at for cache key, or fallback to user's updated_at if never synced %>
+<% cache_key = current_user.last_synced_at || current_user.updated_at %>
+<% cache [ "dashboard-stats", current_user, cache_key ] do %>
 <div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
   <%= render "shared/stats_card",
       title: "Balance",
@@ -24,4 +28,5 @@
       icon: "📊",
       change: stats[:net_this_month] >= 0 ? { positive: true, value: "+#{number_to_currency(stats[:net_this_month] / 100.0, unit: "$")}" } : { positive: false, value: number_to_currency(stats[:net_this_month] / 100.0, unit: "$") } %>
 </div>
+<% end %>
 

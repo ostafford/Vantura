@@ -13,6 +13,26 @@
 # it.
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+
+# SimpleCov must be required and started before any application code is loaded
+# Reference: https://guides.rubyonrails.org/testing.html
+if ENV["COVERAGE"]
+  require "simplecov"
+  SimpleCov.start "rails" do
+    # Exclude test files, migrations, and initializers from coverage
+    add_filter "/spec/"
+    add_filter "/db/"
+    add_filter "/config/"
+    add_filter "/vendor/"
+    
+    # Track coverage for app directory
+    track_files "app/**/*.rb"
+    
+    # Minimum coverage threshold (optional - adjust as needed)
+    minimum_coverage 80
+  end
+end
+
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest

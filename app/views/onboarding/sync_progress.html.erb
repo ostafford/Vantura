@@ -1,6 +1,4 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8"
-     data-controller="sync-progress"
-     data-sync-progress-user-id-value="<%= current_user.id %>">
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
   
   <%= turbo_stream_from "user_#{current_user.id}_onboarding" %>
 
@@ -24,17 +22,15 @@
       </div>
 
       <!-- Progress Bar -->
-      <div id="progress-bar" data-sync-progress-target="progressBar">
-        <%= render "onboarding/progress_bar", percentage: 0, message: "Initializing..." %>
-      </div>
+      <%= render "onboarding/progress_bar", percentage: 0, message: "Initializing..." %>
 
       <!-- Sync Steps -->
-      <div id="sync-steps" data-sync-progress-target="steps" class="mt-6 space-y-3">
+      <div id="sync-steps" class="mt-6 space-y-3">
         <!-- Steps will be appended here via Turbo Stream -->
       </div>
 
       <!-- Completion Redirect (hidden initially) -->
-      <div id="completion-redirect" data-sync-progress-target="redirect" class="hidden mt-8">
+      <div id="completion-redirect" class="hidden mt-8">
         <!-- Completion content will be replaced here via Turbo Stream -->
       </div>
 
@@ -61,4 +57,3 @@
     </div>
   </div>
 </div>
-

@@ -32,7 +32,7 @@ RSpec.describe "ProjectExpenses", type: :request do
       it "prevents access" do
         get "/projects/#{other_project.id}/project_expenses"
         expect(response).to redirect_to(projects_path)
-        expect(flash[:alert]).to include("don't have access")
+        expect(flash[:alert]).to eq(I18n.t("flash.not_authorized"))
       end
     end
   end
@@ -136,8 +136,8 @@ RSpec.describe "ProjectExpenses", type: :request do
 
       it "prevents access" do
         get "/projects/#{project.id}/project_expenses/#{expense.id}/edit"
-        expect(response).to redirect_to([ project, expense ])
-        expect(flash[:alert]).to include("don't have permission to edit")
+        expect(response).to redirect_to(projects_path)
+        expect(flash[:alert]).to eq(I18n.t("flash.not_authorized"))
       end
     end
   end
@@ -194,8 +194,8 @@ RSpec.describe "ProjectExpenses", type: :request do
 
         expense.reload
         expect(expense.description).to eq("Old Description")
-        expect(response).to redirect_to([ project, expense ])
-        expect(flash[:alert]).to include("don't have permission to edit")
+        expect(response).to redirect_to(projects_path)
+        expect(flash[:alert]).to eq(I18n.t("flash.not_authorized"))
       end
     end
   end
@@ -224,8 +224,8 @@ RSpec.describe "ProjectExpenses", type: :request do
           delete "/projects/#{project.id}/project_expenses/#{expense.id}"
         }.not_to change(ProjectExpense, :count)
 
-        expect(response).to redirect_to([ project, expense ])
-        expect(flash[:alert]).to include("don't have permission to edit")
+        expect(response).to redirect_to(projects_path)
+        expect(flash[:alert]).to eq(I18n.t("flash.not_authorized"))
       end
     end
   end

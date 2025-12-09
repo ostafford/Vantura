@@ -10,14 +10,14 @@ class OnboardingController < ApplicationController
     token = params[:token]&.strip
 
     if token.blank?
-      flash[:error] = "Token cannot be blank"
+      flash[:error] = I18n.t("flash.onboarding.token_blank")
       redirect_to onboarding_connect_up_bank_path
       return
     end
 
     # Validate token format (basic check)
     unless token.start_with?("up:") && token.length > 20
-      flash[:error] = "Invalid token format. Please check and try again."
+      flash[:error] = I18n.t("flash.onboarding.token_invalid_format")
       redirect_to onboarding_connect_up_bank_path
       return
     end
@@ -25,7 +25,7 @@ class OnboardingController < ApplicationController
     begin
       # Validate token with Up Bank API
       unless UpBankApiService.validate_token(token)
-        flash[:error] = "Invalid token. Please check and try again."
+        flash[:error] = I18n.t("flash.onboarding.token_invalid")
         redirect_to onboarding_connect_up_bank_path
         return
       end
@@ -39,7 +39,7 @@ class OnboardingController < ApplicationController
       redirect_to onboarding_sync_progress_path
     rescue => e
       Rails.logger.error "Token validation failed: #{e.message}"
-      flash[:error] = "Unable to connect. Please try again later."
+      flash[:error] = I18n.t("flash.onboarding.connection_failed")
       redirect_to onboarding_connect_up_bank_path
     end
   end
@@ -54,7 +54,7 @@ class OnboardingController < ApplicationController
   end
 
   def skip_connection
-    redirect_to dashboard_path, notice: "You can connect your Up Bank account later in Settings."
+    redirect_to dashboard_path, notice: I18n.t("flash.onboarding.skip_connection")
   end
 
   private

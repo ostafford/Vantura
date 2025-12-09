@@ -68,8 +68,10 @@ RSpec.describe Notification, type: :model do
         old_notification = create(:notification, user: user, created_at: 2.days.ago)
         new_notification = create(:notification, user: user, created_at: 1.day.ago)
 
-        expect(Notification.recent.first).to eq(new_notification)
-        expect(Notification.recent.last).to eq(old_notification)
+        # Scope to user to avoid interference from other test data
+        results = Notification.where(user: user).recent.to_a
+        expect(results.first).to eq(new_notification)
+        expect(results.last).to eq(old_notification)
       end
     end
 

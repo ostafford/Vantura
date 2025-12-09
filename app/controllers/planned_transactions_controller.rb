@@ -3,44 +3,50 @@ class PlannedTransactionsController < ApplicationController
   before_action :set_planned_transaction, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @planned_transactions = current_user.planned_transactions
+    @planned_transactions = policy_scope(PlannedTransaction)
                                        .includes(:category, :transaction_record)
                                        .order(planned_date: :asc, created_at: :desc)
   end
 
   def show
+    authorize @planned_transaction
   end
 
   def new
     @planned_transaction = current_user.planned_transactions.build
     @planned_transaction.planned_date = Date.current
     @planned_transaction.transaction_type = "expense"
+    authorize @planned_transaction
   end
 
   def create
     @planned_transaction = current_user.planned_transactions.build(planned_transaction_params)
+    authorize @planned_transaction
 
     if @planned_transaction.save
-      redirect_to @planned_transaction, notice: "Planned transaction created successfully."
+      redirect_to @planned_transaction, notice: I18n.t("flash.planned_transactions.created")
     else
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
+    authorize @planned_transaction
   end
 
   def update
+    authorize @planned_transaction
     if @planned_transaction.update(planned_transaction_params)
-      redirect_to @planned_transaction, notice: "Planned transaction updated successfully."
+      redirect_to @planned_transaction, notice: I18n.t("flash.planned_transactions.updated")
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
+    authorize @planned_transaction
     @planned_transaction.destroy
-    redirect_to planned_transactions_path, notice: "Planned transaction deleted successfully."
+    redirect_to planned_transactions_path, notice: I18n.t("flash.planned_transactions.deleted")
   end
 
   private

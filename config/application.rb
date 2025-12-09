@@ -18,25 +18,15 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-# Ensure Devise is loaded early
-require "devise"
-
 module Vantura
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 8.0
+    config.load_defaults 8.1
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
-
-    # Use Solid Queue for background jobs (Rails 8 built-in)
-    config.active_job.queue_adapter = :solid_queue
-
-    # Rack Attack middleware is automatically added by the gem when
-    # config/initializers/rack_attack.rb is present
-    # Reference: https://guides.rubyonrails.org/rails_on_rack.html
 
     # Configuration for the application, engines, and railties goes here.
     #

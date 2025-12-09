@@ -46,3 +46,6 @@
 
 # Accidental shell output files
 1cd
+
+# Test coverage reports
+/coverage/

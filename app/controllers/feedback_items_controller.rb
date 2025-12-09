@@ -4,9 +4,9 @@ class FeedbackItemsController < ApplicationController
   def create
     @feedback_item = current_user.feedback_items.build(feedback_item_params)
     if @feedback_item.save
-      redirect_to request.referer || root_path, notice: "Thank you for your feedback!"
+      redirect_to request.referer || root_path, notice: I18n.t("flash.feedback.submitted")
     else
-      redirect_to request.referer || root_path, alert: "Failed to submit feedback"
+      redirect_to request.referer || root_path, alert: I18n.t("flash.feedback.failed")
     end
   end
 

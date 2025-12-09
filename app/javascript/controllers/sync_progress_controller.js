@@ -1,16 +1,16 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["redirect", "progressBar", "steps"]
+  static targets = ["redirect"]
   static values = { userId: Number }
 
   connect() {
-    // Use MutationObserver to watch for completion element changes
+    // Watch for completion element changes
     const completionEl = document.getElementById("completion-redirect")
     if (completionEl) {
       this.observer = new MutationObserver(() => {
         if (!completionEl.classList.contains("hidden") && completionEl.children.length > 0) {
-          this.showRedirect()
+          this.showCompletion()
         }
       })
       
@@ -25,7 +25,7 @@ export default class extends Controller {
     // Also check periodically as fallback
     this.checkInterval = setInterval(() => {
       this.checkCompletion()
-    }, 1000)
+    }, 500)  // Check every 500ms
   }
 
   disconnect() {
@@ -40,38 +40,21 @@ export default class extends Controller {
   checkCompletion() {
     const completionEl = document.getElementById("completion-redirect")
     if (completionEl && !completionEl.classList.contains("hidden") && completionEl.children.length > 0) {
-      this.showRedirect()
+      this.showCompletion()
+      // Stop checking once we find it
       if (this.checkInterval) {
         clearInterval(this.checkInterval)
       }
     }
   }
 
-  showRedirect() {
+  showCompletion() {
     const completionEl = document.getElementById("completion-redirect")
     if (!completionEl) return
-
-    // Countdown from 3
-    let seconds = 3
-    const countdownEl = document.getElementById("countdown")
     
-    const updateCountdown = () => {
-      if (countdownEl) {
-        countdownEl.textContent = `Redirecting in ${seconds} second${seconds !== 1 ? 's' : ''}...`
-      }
-    }
+    // Remove hidden class to reveal the completion message
+    completionEl.classList.remove("hidden")
     
-    updateCountdown()
-    
-    const interval = setInterval(() => {
-      seconds--
-      updateCountdown()
-      
-      if (seconds === 0) {
-        clearInterval(interval)
-        window.location.href = "/dashboard"
-      }
-    }, 1000)
+    // The countdown controller (from _completion.html.erb) will handle the redirect
   }
 }
-

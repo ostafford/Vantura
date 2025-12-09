@@ -28,4 +28,56 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  # Flash messages
+  flash:
+    # Authorization
+    not_authorized: "You are not authorized to perform this action."
+    
+    # Projects
+    projects:
+      created: "Project created successfully."
+      updated: "Project updated successfully."
+      deleted: "Project deleted successfully."
+    
+    # Project Expenses
+    project_expenses:
+      created: "Project expense created successfully."
+      updated: "Project expense updated successfully."
+      deleted: "Project expense deleted successfully."
+    
+    # Transactions
+    transactions:
+      updated: "Transaction updated successfully."
+    
+    # Goals
+    goals:
+      created: "Goal created successfully"
+      updated: "Goal updated successfully"
+      deleted: "Goal deleted successfully"
+    
+    # Planned Transactions
+    planned_transactions:
+      created: "Planned transaction created successfully."
+      updated: "Planned transaction updated successfully."
+      deleted: "Planned transaction deleted successfully."
+    
+    # Settings
+    settings:
+      updated: "Settings updated successfully"
+    
+    # Onboarding
+    onboarding:
+      token_blank: "Token cannot be blank"
+      token_invalid_format: "Invalid token format. Please check and try again."
+      token_invalid: "Invalid token. Please check and try again."
+      connection_failed: "Unable to connect. Please try again later."
+      skip_connection: "You can connect your Up Bank account later in Settings."
+    
+    # Dashboard
+    dashboard:
+      sync_started: "Sync started"
+    
+    # Feedback
+    feedback:
+      submitted: "Thank you for your feedback!"
+      failed: "Failed to submit feedback"
