@@ -5,6 +5,8 @@ export default class extends Controller {
 
   connect() {
     this.checkSyncStatus()
+    // Check if insight was previously dismissed
+    this.checkInsightDismissal()
     // Poll for sync status every 30 seconds
     this.syncInterval = setInterval(() => this.checkSyncStatus(), 30000)
   }
@@ -67,6 +69,15 @@ export default class extends Controller {
     this.insightBannerTarget.style.display = 'none'
     // Store dismissal in localStorage
     localStorage.setItem('insight_dismissed', Date.now().toString())
+  }
+
+  checkInsightDismissal() {
+    if (!this.hasInsightBannerTarget) return
+    
+    const dismissed = localStorage.getItem('insight_dismissed')
+    if (dismissed) {
+      this.insightBannerTarget.style.display = 'none'
+    }
   }
 
   checkSyncStatus() {

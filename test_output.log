@@ -1,0 +1,13 @@
+Run options: include {locations: {"./spec/system/onboarding_spec.rb" => [15]}}
+
+Onboarding Flow
+  Sign Up
+DEPRECATION WARNING: resource received a hash argument only. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <main> at /Users/okkystafford/Documents/repositories/vantura/config/routes.rb:7)
+DEPRECATION WARNING: resource received a hash argument path. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <main> at /Users/okkystafford/Documents/repositories/vantura/config/routes.rb:7)
+DEPRECATION WARNING: resource received a hash argument path_names. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <main> at /Users/okkystafford/Documents/repositories/vantura/config/routes.rb:7)
+DEPRECATION WARNING: resource received a hash argument controller. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <main> at /Users/okkystafford/Documents/repositories/vantura/config/routes.rb:7)
+    allows user to sign up and redirects to onboarding
+
+Finished in 1.2 seconds (files took 1.04 seconds to load)
+1 example, 0 failures
+

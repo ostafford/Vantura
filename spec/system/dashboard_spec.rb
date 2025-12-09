@@ -99,26 +99,66 @@ RSpec.describe 'Dashboard Page', type: :system do
   end
 
   describe 'Insights Banner' do
-    it 'displays insights banner' do
-      visit dashboard_path
+    let(:user_without_token) { create(:user) }
+    let!(:account_without_token) { create(:account, user: user_without_token, balance_cents: 0) }
 
-      expect(page).to have_css('#insights-banner')
-      expect(page).to have_text('Welcome to Vantura!')
+    before do
+      # Mark onboarding as complete for user without token
+      user_without_token.update!(last_synced_at: Time.current)
     end
 
-    it 'can be dismissed' do
-      visit dashboard_path
+    context 'when user has no Up Bank token' do
+      before do
+        sign_out :user
+        sign_in user_without_token, scope: :user
+      end
 
-      expect(page).to have_css('#insights-banner')
+      it 'displays insights banner' do
+        visit dashboard_path
 
-      # Find and click dismiss button
-      dismiss_button = find('#insights-banner button[data-action*="dismissInsight"]')
-      dismiss_button.click
+        expect(page).to have_css('#insights-banner')
+        expect(page).to have_text('Welcome to Vantura!')
+        expect(page).to have_text('Connect your Up Bank account')
+      end
 
-      sleep 0.5 # Wait for JavaScript
+      it 'can be dismissed' do
+        visit dashboard_path
 
-      # Banner should be hidden
-      expect(page).not_to have_css('#insights-banner', visible: true)
+        expect(page).to have_css('#insights-banner')
+
+        # Find and click dismiss button
+        dismiss_button = find('#insights-banner button[data-action*="dismissInsight"]')
+        dismiss_button.click
+
+        sleep 0.5 # Wait for JavaScript
+
+        # Banner should be hidden
+        expect(page).not_to have_css('#insights-banner', visible: true)
+      end
+
+      it 'persists dismissal across page reloads' do
+        visit dashboard_path
+        expect(page).to have_css('#insights-banner')
+
+        # Dismiss the banner
+        dismiss_button = find('#insights-banner button[data-action*="dismissInsight"]')
+        dismiss_button.click
+        sleep 0.5
+
+        # Reload the page
+        visit dashboard_path
+
+        # Banner should still be hidden (client-side check)
+        expect(page).not_to have_css('#insights-banner', visible: true)
+      end
+    end
+
+    context 'when user has Up Bank token connected' do
+      it 'does not display insights banner' do
+        visit dashboard_path
+
+        expect(page).not_to have_css('#insights-banner')
+      end
     end
   end
 

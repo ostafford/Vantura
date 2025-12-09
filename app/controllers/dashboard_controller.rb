@@ -32,8 +32,9 @@ class DashboardController < ApplicationController
       .includes(:project_expenses)
       .limit(3)
 
-    # Check if user needs to see insights banner (dismissible via localStorage)
-    @show_insights = true # Can be enhanced to check localStorage or user preference
+    # Check if user needs to see insights banner (only show if they haven't connected Up Bank)
+    # Dismissal is handled client-side via localStorage
+    @show_insights = !current_user.has_up_bank_token?
   end
 
   def sync
