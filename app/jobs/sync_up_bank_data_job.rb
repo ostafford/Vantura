@@ -103,6 +103,9 @@ class SyncUpBankDataJob < ApplicationJob
 
     # Broadcast updates
     broadcast_dashboard_update(user)
+
+    # Broadcast completion toast
+    broadcast_sync_completion_toast(user, success: true, transaction_count: new_transactions_count)
   rescue ActiveRecord::RecordNotFound => e
     # User was deleted, discard silently
     Rails.logger.warn "User not found, discarding sync job: #{e.message}"
@@ -116,6 +119,9 @@ class SyncUpBankDataJob < ApplicationJob
       success: false,
       error_message: e.message
     )
+
+    # Broadcast failure toast
+    broadcast_sync_completion_toast(user, success: false, error_message: e.message)
 
     raise
   end
@@ -191,5 +197,30 @@ class SyncUpBankDataJob < ApplicationJob
     )
   rescue => e
     Rails.logger.error "Failed to broadcast update: #{e.message}"
+  end
+
+  def broadcast_sync_completion_toast(user, success:, transaction_count: 0, error_message: nil)
+    if success
+      message = if transaction_count > 0
+        "Sync completed! #{transaction_count} new transaction#{transaction_count != 1 ? 's' : ''} synced."
+      else
+        "Sync completed! No new transactions found."
+      end
+      toast_type = "success"
+    else
+      message = "Sync failed: #{error_message || 'Unknown error'}"
+      toast_type = "error"
+    end
+
+    # Use Turbo Streams to append a script tag that dispatches the toast event
+    # Script tags execute immediately when added to the DOM via Turbo Streams
+    Turbo::StreamsChannel.broadcast_append_to(
+      "user_#{user.id}_dashboard",
+      target: "toast-container",
+      partial: "shared/sync_completion_toast_script",
+      locals: { message: message, toast_type: toast_type }
+    )
+  rescue => e
+    Rails.logger.error "Failed to broadcast sync completion toast: #{e.message}"
   end
 end

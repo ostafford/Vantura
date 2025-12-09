@@ -44,7 +44,11 @@ class DashboardController < ApplicationController
     Rails.cache.delete("user/#{current_user.id}/balance")
 
     SyncUpBankDataJob.perform_later(current_user)
-    redirect_to dashboard_path, notice: I18n.t("flash.dashboard.sync_started")
+
+    respond_to do |format|
+      format.html { redirect_to dashboard_path, notice: I18n.t("flash.dashboard.sync_started") }
+      format.json { render json: { status: "success", message: I18n.t("flash.dashboard.sync_started") }, status: :ok }
+    end
   end
 
   private

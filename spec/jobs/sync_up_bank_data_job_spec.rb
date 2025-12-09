@@ -112,6 +112,28 @@ RSpec.describe SyncUpBankDataJob, type: :job do
         notification = Notification.where(notification_type: :sync_failed).last
         expect(notification.user).to eq(user)
       end
+
+      it "broadcasts failure toast on sync failure" do
+        # Allow other broadcasts
+        allow(Turbo::StreamsChannel).to receive(:broadcast_replace_to)
+
+        # Expect failure toast broadcast
+        expect(Turbo::StreamsChannel).to receive(:broadcast_append_to).with(
+          "user_#{user.id}_dashboard",
+          target: "toast-container",
+          partial: "shared/sync_completion_toast_script",
+          locals: hash_including(
+            message: match(/Sync failed/),
+            toast_type: "error"
+          )
+        )
+
+        begin
+          described_class.perform_now(user)
+        rescue StandardError
+          # Expected to raise
+        end
+      end
     end
 
     context "when user is deleted" do
@@ -179,6 +201,45 @@ RSpec.describe SyncUpBankDataJob, type: :job do
       described_class.perform_now(user)
     end
 
+    it "broadcasts completion toast on successful sync" do
+      # Allow other broadcasts
+      allow(Turbo::StreamsChannel).to receive(:broadcast_replace_to)
+
+      # Expect completion toast broadcast
+      expect(Turbo::StreamsChannel).to receive(:broadcast_append_to).with(
+        "user_#{user.id}_dashboard",
+        target: "toast-container",
+        partial: "shared/sync_completion_toast_script",
+        locals: hash_including(
+          message: match(/Sync completed!/),
+          toast_type: "success"
+        )
+      )
+
+      described_class.perform_now(user)
+    end
+
+    it "broadcasts completion toast with transaction count when new transactions are synced" do
+      # Create transactions before sync
+      create_list(:transaction, 2, user: user)
+
+      # Allow other broadcasts
+      allow(Turbo::StreamsChannel).to receive(:broadcast_replace_to)
+
+      # Expect completion toast with transaction count
+      expect(Turbo::StreamsChannel).to receive(:broadcast_append_to).with(
+        "user_#{user.id}_dashboard",
+        target: "toast-container",
+        partial: "shared/sync_completion_toast_script",
+        locals: hash_including(
+          message: match(/new transaction/),
+          toast_type: "success"
+        )
+      )
+
+      described_class.perform_now(user)
+    end
+
     context "with broadcast_progress: true" do
       let(:service) { instance_double(UpBankApiService) }
 
@@ -217,6 +278,14 @@ RSpec.describe SyncUpBankDataJob, type: :job do
           "user_#{user.id}_onboarding",
           target: "sync-steps",
           partial: "onboarding/sync_step",
+          locals: anything
+        )
+
+        # Also allow completion toast broadcast (happens after sync completes)
+        allow(Turbo::StreamsChannel).to receive(:broadcast_append_to).with(
+          "user_#{user.id}_dashboard",
+          target: "toast-container",
+          partial: "shared/sync_completion_toast_script",
           locals: anything
         )
 

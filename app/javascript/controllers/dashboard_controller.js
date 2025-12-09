@@ -18,6 +18,14 @@ export default class extends Controller {
   async manualSync() {
     if (!this.hasSyncButtonTarget) return
 
+    // Get CSRF token
+    const csrfTokenElement = document.querySelector('[name="csrf-token"]')
+    if (!csrfTokenElement || !csrfTokenElement.content) {
+      console.error('CSRF token not found')
+      this.showToast('Security token missing. Please refresh the page.', 'error')
+      return
+    }
+
     this.syncButtonTarget.disabled = true
     const originalText = this.syncButtonTarget.innerHTML
     this.syncButtonTarget.innerHTML = '<span class="animate-spin">🔄</span> Syncing...'
@@ -26,14 +34,17 @@ export default class extends Controller {
       const response = await fetch('/sync', {
         method: 'POST',
         headers: {
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-          'Accept': 'text/html'
-        },
-        redirect: 'follow'
+          'X-CSRF-Token': csrfTokenElement.content,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
       })
       
       if (response.ok) {
-        this.showToast('Sync started! Updates will appear shortly.', 'success')
+        const data = await response.json()
+        this.showToast(data.message || 'Sync started! Updates will appear shortly.', 'success')
+      } else if (response.status === 401) {
+        this.showToast('You are not authorized to sync. Please check your Up Bank connection.', 'error')
       } else {
         this.showToast('Sync failed. Please try again.', 'error')
       }

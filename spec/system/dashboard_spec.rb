@@ -159,7 +159,7 @@ RSpec.describe 'Dashboard Page', type: :system do
       expect(page).not_to have_button('Sync with Up Bank', visible: false)
     end
 
-    it 'triggers sync when clicked' do
+    it 'triggers sync when clicked and shows toast notification' do
       # Set encrypted token directly to simulate having a token
       # has_up_bank_token? checks for up_bank_token_ciphertext being present (Rails encryption)
       user.update!(up_bank_token: "test_token_#{SecureRandom.hex(8)}")
@@ -173,26 +173,47 @@ RSpec.describe 'Dashboard Page', type: :system do
 
       visit dashboard_path
 
+      # Verify toast container exists
+      expect(page).to have_css('#toast-container')
+
       # Verify sync button exists (user has token)
       expect(page).to have_css('button[data-dashboard-target="syncButton"]')
       sync_button = find('button[data-dashboard-target="syncButton"]', visible: false)
 
       # The sync button triggers a JavaScript fetch request to /sync endpoint
-      # In system tests, JavaScript execution can be flaky
-      # We'll verify the button exists and is clickable
       # The actual job enqueueing is tested in request specs
       expect(sync_button).to be_present
       expect(sync_button['data-action']).to include('dashboard#manualSync')
 
+      # Stub the fetch request to return success
+      # Store original fetch first, then override
+      page.execute_script(<<~JS)
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+          if (url === '/sync' && options && options.method === 'POST') {
+            return Promise.resolve({
+              ok: true,
+              status: 200,
+              json: () => Promise.resolve({
+                status: 'success',
+                message: 'Sync started! Updates will appear shortly.'
+              })
+            });
+          }
+          return originalFetch.apply(this, arguments);
+        };
+      JS
+
       # Click the button - the JavaScript should trigger the fetch
-      # We'll verify the button is functional rather than testing the full async flow
       sync_button.click
 
-      # Wait a moment for any JavaScript to execute
-      sleep 1
+      # Wait for JavaScript to execute and toast to appear
+      sleep 2
 
-      # The button should be present and functional
-      # The actual job enqueueing is verified in request specs
+      # Verify toast notification appears with success message
+      expect(page).to have_css('#toast-container [role="alert"]', text: /Sync started/i, wait: 3)
+
+      # The button should still be present
       expect(page).to have_css('button[data-dashboard-target="syncButton"]')
     end
   end

@@ -1,0 +1,12 @@
+<script>
+  (function() {
+    const event = new CustomEvent('toast:show', {
+      detail: { 
+        message: <%= message.to_json.html_safe %>, 
+        type: <%= toast_type.to_json.html_safe %> 
+      }
+    });
+    window.dispatchEvent(event);
+  })();
+</script>
+
