@@ -24,8 +24,8 @@
     </div>
   </div>
 
-  <!-- Filter Bar (collapsible, sticky) -->
-  <div class="sticky top-0 z-10 mb-6"
+  <!-- Filter Bar - Desktop: Normal Bar (NOT sticky, hidden on mobile) -->
+  <div class="hidden mb-6 bg-white dark:bg-gray-800 shadow-sm"
        data-transaction-filter-target="filterBar"
        data-transaction-filter-hidden-class="hidden">
     <%= turbo_frame_tag "transaction-filters", data: { turbo_action: "advance" } do %>
@@ -35,6 +35,40 @@
           tags: Tag.all.order(:name),
           current_filters: params.permit(:search, :category_id, :account_id, :tag_id, :transaction_type, :min_amount, :max_amount, :start_date, :end_date) %>
     <% end %>
+  </div>
+
+  <!-- Mobile Filter Drawer Overlay -->
+  <div id="mobile-filter-overlay"
+       class="md:hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-40 transition-opacity duration-300 hidden"
+       data-transaction-filter-target="mobileFilterOverlay"
+       data-action="click->transaction-filter#closeMobileDrawer"></div>
+
+  <!-- Mobile Filter Drawer (slides in from right) -->
+  <div id="mobile-filter-drawer"
+       class="md:hidden fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-white dark:bg-gray-800 shadow-xl transform translate-x-full transition-transform duration-300 ease-in-out overflow-y-auto"
+       data-transaction-filter-target="mobileFilterDrawer">
+    <div class="p-4">
+      <!-- Drawer Header with Close Button -->
+      <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Filters</h2>
+        <button type="button"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            data-action="click->transaction-filter#closeMobileDrawer">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Filter Content -->
+      <%= turbo_frame_tag "transaction-filters-mobile", data: { turbo_action: "advance" } do %>
+        <%= render "transactions/filters", 
+            categories: Category.all.order(:name),
+            accounts: current_user.accounts.order(:display_name),
+            tags: Tag.all.order(:name),
+            current_filters: params.permit(:search, :category_id, :account_id, :tag_id, :transaction_type, :min_amount, :max_amount, :start_date, :end_date) %>
+      <% end %>
+    </div>
   </div>
 
   <!-- Summary Bar -->

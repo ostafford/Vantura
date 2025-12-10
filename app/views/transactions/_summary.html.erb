@@ -1,4 +1,15 @@
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6 sticky top-16 z-30"
+     data-transaction-filter-target="summaryBar">
+  <!-- Active Filter Pills (shown when scrolled or filter bar hidden) -->
+  <div class="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700 hidden"
+       data-transaction-filter-target="stickyFilterPills">
+    <%= render "transactions/active_filter_pills", 
+        current_filters: params.permit(:search, :category_id, :account_id, :tag_id, :transaction_type, :min_amount, :max_amount, :start_date, :end_date),
+        categories: Category.all.order(:name),
+        accounts: current_user.accounts.order(:display_name) %>
+  </div>
+
+  <!-- Summary Stats -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <div>
       <p class="text-sm text-gray-500 dark:text-gray-400">Showing</p>

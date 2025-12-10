@@ -73,6 +73,7 @@ class ProcessUpWebhookJob < ApplicationJob
 
     # Broadcast update via Turbo Streams
     broadcast_dashboard_update(user)
+    broadcast_transaction_prepend(user, transaction)
   end
 
   def process_transaction_deleted(payload, user)
@@ -93,5 +94,22 @@ class ProcessUpWebhookJob < ApplicationJob
     )
   rescue => e
     Rails.logger.error "Failed to broadcast update: #{e.message}"
+  end
+
+  def broadcast_transaction_prepend(user, transaction)
+    # Prepend new transaction to transactions page list when created via webhook
+    # This allows real-time updates on the transactions page when new transactions arrive
+    Turbo::StreamsChannel.broadcast_prepend_to(
+      "user_#{user.id}_transactions",
+      target: "transactions-container",
+      partial: "transactions/transaction_item",
+      locals: { transaction: transaction }
+    )
+
+    # Note: Summary stats will update on next page refresh or filter change
+    # For real-time summary updates, would need to broadcast to transaction-summary frame
+    # This is deferred as it requires recalculating stats based on current filters
+  rescue => e
+    Rails.logger.error "Failed to broadcast transaction prepend: #{e.message}"
   end
 end

@@ -26,9 +26,26 @@ class TransactionsController < ApplicationController
       # Broadcast update via Turbo Stream
       broadcast_transaction_update(@transaction)
 
-      redirect_to @transaction, notice: I18n.t("flash.transactions.updated")
+      # If request is from modal (Turbo Frame), stay in modal instead of redirecting
+      if request.headers["Turbo-Frame"] == "transaction-detail"
+        # Reload transaction to get updated data
+        @transaction.reload
+        # Set flash message for modal display
+        flash.now[:notice] = I18n.t("flash.transactions.updated") rescue "Transaction updated successfully"
+        # Return 200 with updated content to keep modal open
+        render :show, status: :ok
+      else
+        redirect_to @transaction, notice: I18n.t("flash.transactions.updated")
+      end
     else
-      redirect_to @transaction, alert: @transaction.errors.full_messages.join(", ")
+      if request.headers["Turbo-Frame"] == "transaction-detail"
+        # Set flash error message for modal display
+        flash.now[:alert] = @transaction.errors.full_messages.join(", ")
+        # Return error status but stay in modal
+        render :show, status: :unprocessable_entity
+      else
+        redirect_to @transaction, alert: @transaction.errors.full_messages.join(", ")
+      end
     end
   end
 

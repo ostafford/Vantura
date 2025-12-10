@@ -2,13 +2,20 @@
   <!-- Tags -->
   <div>
     <%= f.label :tag_id, "Tag", class: "block mb-2 text-sm font-medium text-gray-900 dark:text-white" %>
-    <%= f.select :tag_id,
-        options_from_collection_for_select(tags, :id, :name, current_filters[:tag_id]),
-        { include_blank: "All Tags" },
-        { 
-          class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
-          data: { action: "change->auto-submit#submit" }
-        } %>
+    <% if tags.any? %>
+      <%= f.select :tag_id,
+          options_from_collection_for_select(tags, :id, :name, current_filters[:tag_id]),
+          { include_blank: "All Tags" },
+          { 
+            class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+              data: { action: "change->auto-submit#submit" }
+          } %>
+    <% else %>
+      <select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white cursor-not-allowed" disabled>
+        <option>No tags available</option>
+      </select>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tags are created and managed manually in Vantura. Up Bank tags are not automatically synced.</p>
+    <% end %>
   </div>
 
   <!-- Status Filter (placeholder for future expansion) -->
