@@ -28,7 +28,7 @@ gem "pundit", "~> 2.5", ">= 2.5.2"
 # rack-attack for rate limiting
 gem "rack-attack", "~> 6.8"
 # money-rails for currency handling
-gem "money-rails", "~> 1.15"
+gem "money-rails", "~> 2.0"
 # ice-cube for scheduling
 gem "ice_cube", "~> 0.17.0"
 # dotenv for environment variables
