@@ -1,0 +1,175 @@
+<% expense ||= local_assigns[:expense] %>
+<% project ||= local_assigns[:project] || expense.project %>
+<% current_user ||= local_assigns[:current_user] %>
+
+<!-- Modal backdrop -->
+<div id="expense-detail-modal-<%= expense.id %>"
+     class="hidden fixed inset-0 z-50 overflow-y-auto"
+     data-project-expense-target="detailModal"
+     data-controller="modal project-expense"
+     data-expense-id="<%= expense.id %>"
+     aria-labelledby="expense-detail-modal-title"
+     aria-modal="true"
+     role="dialog">
+  <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+         data-action="click->project-expense#closeDetailModal"
+         aria-hidden="true"></div>
+
+    <!-- Modal panel -->
+    <div class="relative z-10 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-4 md:p-5 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white" id="expense-detail-modal-title">
+          Expense Details: <%= expense.name || expense.description %>
+        </h3>
+        <button type="button"
+            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            data-action="click->project-expense#closeDetailModal">
+          <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+          </svg>
+          <span class="sr-only">Close modal</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4 md:p-5 space-y-4">
+        <!-- Expense Info -->
+        <div>
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <%= expense.name || expense.description %>
+          </h4>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Amount:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">
+                <%= number_to_currency(expense.total_amount_cents / 100.0, unit: "$") %>
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Date:</span>
+              <span class="text-gray-900 dark:text-white">
+                <%= expense.expense_date.strftime("%B %d, %Y") %>
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Paid by:</span>
+              <span class="text-gray-900 dark:text-white">
+                <%= expense.paid_by_user&.name || expense.paid_by_user&.email_address || "Unknown" %>
+              </span>
+            </div>
+            <% if expense.category.present? %>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Category:</span>
+                <span class="text-gray-900 dark:text-white">
+                  <%= expense.category.name %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Linked Transaction -->
+        <% if expense.transaction_record.present? %>
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <p class="text-sm font-medium text-gray-900 dark:text-white mb-2">Linked Transaction:</p>
+            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <p class="text-sm text-gray-900 dark:text-white">
+                <%= expense.transaction_record.description || expense.transaction_record.raw_text %>
+              </p>
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                <%= number_to_currency(expense.transaction_record.amount_cents.abs / 100.0, unit: "$") %>
+                • <%= expense.transaction_record.created_at.strftime("%b %d, %Y") %>
+              </p>
+              <%= link_to "View in Transactions", transaction_path(expense.transaction_record),
+                  class: "text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mt-2 inline-block" %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Split Details -->
+        <% if expense.expense_contributions.any? %>
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <p class="text-sm font-medium text-gray-900 dark:text-white mb-3">Split Details:</p>
+            <div class="space-y-2">
+              <% expense.expense_contributions.each do |contribution| %>
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div class="flex items-center gap-3">
+                    <span class="text-sm text-gray-900 dark:text-white">
+                      <%= contribution.user == current_user ? "You" : (contribution.user.name || contribution.user.email_address) %>:
+                    </span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                      <%= number_to_currency(contribution.amount_cents / 100.0, unit: "$") %>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <% if contribution.status == "paid" %>
+                      <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded dark:bg-green-900 dark:text-green-200">
+                        ✓ Paid
+                      </span>
+                    <% else %>
+                      <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded dark:bg-yellow-900 dark:text-yellow-200">
+                        ⏳ Pending
+                      </span>
+                      <% if project.can_edit?(current_user) || contribution.user == current_user %>
+                        <%= button_to mark_paid_project_project_expense_expense_contribution_path(project, expense, contribution),
+                            method: :patch,
+                            class: "px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800",
+                            data: {
+                              turbo_frame: "_top"
+                            } do %>
+                          Mark as Paid
+                        <% end %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Notes -->
+        <% if expense.expense_contributions.any? { |c| c.note.present? } %>
+          <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <p class="text-sm font-medium text-gray-900 dark:text-white mb-2">Notes:</p>
+            <% expense.expense_contributions.select { |c| c.note.present? }.each do |contribution| %>
+              <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-2">
+                <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                  <%= contribution.user == current_user ? "You" : (contribution.user.name || contribution.user.email_address) %>:
+                </p>
+                <p class="text-sm text-gray-900 dark:text-white">
+                  <%= contribution.note %>
+                </p>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-end p-4 md:p-5 border-t border-gray-200 dark:border-gray-700 gap-3">
+        <% if project.can_edit?(current_user) %>
+          <%= link_to edit_project_project_expense_path(project, expense),
+              class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700" do %>
+            Edit
+          <% end %>
+          <%= button_to project_project_expense_path(project, expense),
+              method: :delete,
+              data: { confirm: "Are you sure you want to delete this expense?" },
+              class: "px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800" do %>
+            Delete
+          <% end %>
+        <% end %>
+        <button type="button"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+            data-action="click->project-expense#closeDetailModal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

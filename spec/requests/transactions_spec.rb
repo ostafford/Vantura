@@ -19,7 +19,9 @@ RSpec.describe "Transactions", type: :request do
              category: category,
              description: "Coffee purchase",
              amount_cents: -500,
-             created_at: 5.days.ago)
+             created_at: 5.days.ago,
+             settled_at: 5.days.ago,
+             created_at_up: 5.days.ago)
     end
 
     let!(:transaction2) do
@@ -28,7 +30,9 @@ RSpec.describe "Transactions", type: :request do
              account: account,
              description: "Salary deposit",
              amount_cents: 5000,
-             created_at: 3.days.ago)
+             created_at: 3.days.ago,
+             settled_at: 3.days.ago,
+             created_at_up: 3.days.ago)
     end
 
     let!(:transaction3) do
@@ -38,7 +42,9 @@ RSpec.describe "Transactions", type: :request do
              category: category,
              description: "Lunch",
              amount_cents: -1500,
-             created_at: 1.day.ago)
+             created_at: 1.day.ago,
+             settled_at: 1.day.ago,
+             created_at_up: 1.day.ago)
     end
 
     let!(:other_user_transaction) do

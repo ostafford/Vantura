@@ -1,9 +1,9 @@
 <%# 
   Reusable form input component with Flowbite styling
   Usage:
-    <%= render 'shared/form_input', form: form, field: :name, label: 'Name', type: 'text', placeholder: 'Enter name', required: true %>
-    <%= render 'shared/form_input', form: form, field: :email, label: 'Email', type: 'email', help_text: 'We will never share your email' %>
-    <%= render 'shared/form_input', form: form, field: :password, label: 'Password', type: 'password', required: true %>
+    render 'shared/form_input', form: form, field: :name, label: 'Name', type: 'text', placeholder: 'Enter name', required: true
+    render 'shared/form_input', form: form, field: :email, label: 'Email', type: 'email', help_text: 'We will never share your email'
+    render 'shared/form_input', form: form, field: :password, label: 'Password', type: 'password', required: true
 %>
 <% field_name = local_assigns[:field] %>
 <% label_text = local_assigns[:label] || field_name.to_s.humanize %>
@@ -20,38 +20,48 @@
   
   <% case input_type %>
   <% when 'textarea' %>
-    <%= form.text_area field_name, 
+    <% textarea_options = {
         placeholder: placeholder_text,
         required: required,
         disabled: disabled,
-        value: value,
         class: "block w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 #{css_class}",
-        rows: local_assigns[:rows] || 4 %>
+        rows: local_assigns[:rows] || 4
+      } %>
+    <% textarea_options[:value] = value if value.present? %>
+    <%= form.text_area field_name, textarea_options %>
   <% when 'select' %>
-    <%= form.select field_name, 
-        local_assigns[:options] || [],
-        { prompt: local_assigns[:prompt] },
-        { 
+    <% select_options = { 
           required: required,
           disabled: disabled,
           class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 #{css_class}"
         } %>
+    <% if local_assigns[:data] %>
+      <% select_options[:data] = local_assigns[:data] %>
+    <% end %>
+    <%= form.select field_name, 
+        local_assigns[:options] || [],
+        { prompt: local_assigns[:prompt] },
+        select_options %>
   <% when 'number' %>
-    <%= form.number_field field_name,
+    <% number_field_options = {
         placeholder: placeholder_text,
         required: required,
         disabled: disabled,
-        value: value,
         step: local_assigns[:step] || 1,
         min: local_assigns[:min],
         max: local_assigns[:max],
-        class: "block w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 #{css_class}" %>
+        class: "block w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 #{css_class}"
+      } %>
+    <% number_field_options[:value] = value if value.present? %>
+    <%= form.number_field field_name, number_field_options %>
   <% when 'date' %>
-    <%= form.date_field field_name,
+    <% date_field_options = {
         required: required,
         disabled: disabled,
-        value: value,
-        class: "block w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 #{css_class}" %>
+        class: "block w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 #{css_class}"
+      } %>
+    <% date_field_options[:value] = value if value.present? %>
+    <%= form.date_field field_name, date_field_options %>
   <% when 'datetime-local' %>
     <%= form.datetime_local_field field_name,
         required: required,
@@ -81,13 +91,15 @@
       </button>
     </div>
   <% else %>
-    <%= form.text_field field_name,
+    <% text_field_options = {
         placeholder: placeholder_text,
         required: required,
         disabled: disabled,
-        value: value,
         type: input_type,
-        class: "block w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 #{css_class}" %>
+        class: "block w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 #{css_class}"
+      } %>
+    <% text_field_options[:value] = value if value.present? %>
+    <%= form.text_field field_name, text_field_options %>
   <% end %>
   
   <% if form.object.errors[field_name].any? %>

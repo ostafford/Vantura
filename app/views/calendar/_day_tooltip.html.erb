@@ -1,0 +1,43 @@
+<div class="space-y-2">
+  <h4 class="font-semibold text-gray-900 dark:text-white">
+    <%= date.strftime("%B %d, %Y") %>
+  </h4>
+
+  <!-- Projected Balance -->
+  <div>
+    <p class="text-xs text-gray-500 dark:text-gray-400">Projected Balance</p>
+    <% balance_cents = projection[:balance_cents] || 0 %>
+    <p class="text-sm font-bold <%= balance_cents >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %>">
+      <%= number_to_currency(balance_cents / 100.0, unit: "$") %>
+    </p>
+  </div>
+
+  <!-- Planned Transactions -->
+  <% if projection[:planned_count] > 0 %>
+    <div>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Planned Transactions</p>
+      <div class="space-y-1">
+        <% projection[:planned_transactions].first(3).each do |pt| %>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-gray-700 dark:text-gray-300 truncate"><%= pt[:description] %></span>
+            <span class="font-semibold <%= pt[:transaction_type] == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %> ml-2">
+              <%= pt[:transaction_type] == 'income' ? '+' : '-' %><%= number_to_currency(pt[:amount_cents].abs / 100.0, unit: "$") %>
+            </span>
+          </div>
+        <% end %>
+        <% if projection[:planned_count] > 3 %>
+          <p class="text-xs text-gray-500 dark:text-gray-400">+<%= projection[:planned_count] - 3 %> more</p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Actual Transactions -->
+  <% if projection[:actual_count] > 0 %>
+    <div>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Actual Transactions</p>
+      <p class="text-xs text-gray-700 dark:text-gray-300"><%= projection[:actual_count] %> transaction(s)</p>
+    </div>
+  <% end %>
+</div>
+

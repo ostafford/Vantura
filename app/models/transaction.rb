@@ -35,7 +35,9 @@ class Transaction < ApplicationRecord
     where(created_at: start_date..end_date)
   }
   scope :by_settled_date_range, ->(start_date, end_date) {
-    where(settled_at: start_date..end_date)
+    # Use COALESCE to match calendar's grouping logic: settled_at -> created_at_up -> created_at
+    # This ensures transactions without settled_at are still included based on their transaction date
+    where("COALESCE(transactions.settled_at, transactions.created_at_up, transactions.created_at) >= ? AND COALESCE(transactions.settled_at, transactions.created_at_up, transactions.created_at) <= ?", start_date, end_date.end_of_day)
   }
   scope :expenses, -> { where("amount_cents < 0") }
   scope :income, -> { where("amount_cents > 0") }

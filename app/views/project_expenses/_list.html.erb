@@ -1,0 +1,84 @@
+<% project ||= local_assigns[:project] %>
+<% project_expenses ||= local_assigns[:project_expenses] || @project_expenses %>
+<% current_user ||= local_assigns[:current_user] %>
+
+<%# Filter state %>
+<% filter_status = params[:status] || "all" %>
+<% filter_category = params[:category_id] %>
+<% filter_month = params[:month] %>
+
+<div id="project-<%= project.id %>-expenses">
+  <%# Filters %>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-4">
+    <div class="flex flex-wrap items-center gap-3">
+      <%= turbo_frame_tag "expense-filters" do %>
+        <%= form_with url: project_project_expenses_path(project),
+            method: :get,
+            local: true,
+            data: { controller: "auto-submit" },
+            class: "flex flex-wrap items-center gap-3" do |f| %>
+          
+          <%# Status filter %>
+          <div>
+            <%= f.select :status,
+                options_for_select([
+                  ["All", "all"],
+                  ["Pending", "pending"],
+                  ["Paid", "paid"]
+                ], filter_status),
+                {},
+                { class: "text-sm rounded-lg border border-gray-300 bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+                  data: { action: "change->auto-submit#submit" } } %>
+          </div>
+
+          <%# Category filter %>
+          <div>
+            <%= f.select :category_id,
+                options_from_collection_for_select(Category.all, :id, :name, filter_category),
+                { include_blank: "All Categories" },
+                { class: "text-sm rounded-lg border border-gray-300 bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+                  data: { action: "change->auto-submit#submit" } } %>
+          </div>
+
+          <%# Month filter %>
+          <div>
+            <%= f.select :month,
+                options_for_select([
+                  ["All Months", ""],
+                  ["This Month", Date.current.strftime("%Y-%m")],
+                  ["Last Month", 1.month.ago.strftime("%Y-%m")]
+                ], filter_month),
+                {},
+                { class: "text-sm rounded-lg border border-gray-300 bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+                  data: { action: "change->auto-submit#submit" } } %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Expense list %>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+    <% if project_expenses.any? %>
+      <div class="divide-y divide-gray-200 dark:divide-gray-700">
+        <% project_expenses.each do |expense| %>
+          <%= render "project_expenses/expense_item", expense: expense, project: project, current_user: current_user %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="p-8 text-center">
+        <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <p class="text-gray-500 dark:text-gray-400">No expenses found.</p>
+        <% if project.can_create?(current_user) %>
+          <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">
+            <%= link_to "Add your first expense", new_project_project_expense_path(project),
+                class: "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300" %>
+          </p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

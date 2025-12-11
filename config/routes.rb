@@ -28,10 +28,17 @@ Rails.application.routes.draw do
 
   # Calendar
   get "/calendar", to: "calendar#index"
+  get "/calendar/export", to: "calendar#export", as: :calendar_export
 
   # Projects
   resources :projects do
-    resources :project_expenses
+    resources :project_expenses do
+      resources :expense_contributions, only: [] do
+        member do
+          patch :mark_paid
+        end
+      end
+    end
   end
 
   # Settings

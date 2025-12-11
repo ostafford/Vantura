@@ -1,0 +1,144 @@
+<% project ||= local_assigns[:project] || @project %>
+<% project_expense ||= local_assigns[:project_expense] || @project_expense %>
+
+<%= form_with model: [project, project_expense],
+    data: {
+      turbo_frame: "project-expense-form",
+      controller: "split-calculator",
+      split_calculator_target: "form"
+    } do |form| %>
+
+  <% if project_expense.errors.any? %>
+    <%= render "shared/error_messages", errors: project_expense.errors %>
+  <% end %>
+
+  <div class="space-y-4">
+    <!-- Name -->
+    <%= render "shared/form_input",
+        form: form,
+        field: :name,
+        label: "Name",
+        type: "text",
+        placeholder: "Enter expense name (optional)",
+        required: false %>
+
+    <!-- Description -->
+    <%= render "shared/form_input",
+        form: form,
+        field: :description,
+        label: "Description",
+        type: "textarea",
+        placeholder: "Enter expense description",
+        required: true,
+        rows: 3 %>
+
+    <!-- Total Amount -->
+    <div class="mb-4">
+      <%= form.label :total_amount_cents, "Total Amount (AUD)", class: "block mb-2 text-sm font-medium text-gray-900 dark:text-white after:content-['*'] after:ml-0.5 after:text-red-500" %>
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
+        <%= number_field_tag "total_amount_dollars",
+            project_expense.total_amount_cents ? (project_expense.total_amount_cents / 100.0) : nil,
+            step: 0.01,
+            min: 0,
+            placeholder: "0.00",
+            required: true,
+            pattern: "[0-9]+(\.[0-9]{1,2})?",
+            class: "block w-full pl-8 pr-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+            data: {
+              split_calculator_target: "totalAmount",
+              action: "input->split-calculator#updateSplit"
+            } %>
+        <%= form.hidden_field :total_amount_cents, data: { split_calculator_target: "totalAmountCents" } %>
+      </div>
+      <% if form.object.errors[:total_amount_cents].any? %>
+        <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+          <%= form.object.errors[:total_amount_cents].first %>
+        </p>
+      <% end %>
+    </div>
+
+    <!-- Expense Date -->
+    <%= render "shared/form_input",
+        form: form,
+        field: :expense_date,
+        label: "Date",
+        type: "date",
+        required: true,
+        value: project_expense.expense_date || Date.current %>
+
+    <!-- Paid By -->
+    <div class="mb-4">
+      <%= form.label :paid_by_user_id, "Paid By", class: "block mb-2 text-sm font-medium text-gray-900 dark:text-white" %>
+      <% all_members = (project.members + [project.owner]).uniq %>
+      <%= form.select :paid_by_user_id,
+          options_from_collection_for_select(all_members, :id, ->(u) { u.name || u.email_address }, project_expense.paid_by_user_id),
+          { include_blank: "Select who paid" },
+          { class: "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" } %>
+    </div>
+
+    <!-- Category -->
+    <%= render "shared/form_input",
+        form: form,
+        field: :category_id,
+        label: "Category",
+        type: "select",
+        options: options_from_collection_for_select(Category.all.order(:name), :id, :name, project_expense.category_id),
+        prompt: "Select category (optional)" %>
+
+    <!-- Split Method -->
+    <div class="mb-4">
+      <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Split Method</label>
+      <div class="space-y-2">
+        <label class="flex items-center">
+          <%= radio_button_tag :split_method, "even", true,
+              class: "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
+              data: {
+                split_calculator_target: "splitMethod",
+                action: "change->split-calculator#updateSplitMethod"
+              } %>
+          <span class="ml-2 text-sm text-gray-900 dark:text-gray-300">Equal split</span>
+        </label>
+        <label class="flex items-center">
+          <%= radio_button_tag :split_method, "custom", false,
+              class: "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
+              data: {
+                split_calculator_target: "splitMethod",
+                action: "change->split-calculator#updateSplitMethod"
+              } %>
+          <span class="ml-2 text-sm text-gray-900 dark:text-gray-300">Custom amounts</span>
+        </label>
+        <label class="flex items-center">
+          <%= radio_button_tag :split_method, "percentage", false,
+              class: "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
+              data: {
+                split_calculator_target: "splitMethod",
+                action: "change->split-calculator#updateSplitMethod"
+              } %>
+          <span class="ml-2 text-sm text-gray-900 dark:text-gray-300">Percentage split</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Split Calculator -->
+    <%= render "project_expenses/split_calculator", project: project, project_expense: project_expense, form: form %>
+
+    <!-- Hidden field for split_evenly (updated by split calculator) -->
+    <%= hidden_field_tag :split_evenly, "true", data: { split_calculator_target: "splitEvenly" } %>
+
+    <!-- Hidden field for currency -->
+    <%= form.hidden_field :total_amount_currency, value: "AUD" %>
+  </div>
+
+  <!-- Form Footer -->
+  <div class="flex items-center justify-end p-4 md:p-5 border-t border-gray-200 dark:border-gray-700 gap-3 mt-4">
+    <button type="button"
+        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+        data-action="click->project-modal#close">
+      Cancel
+    </button>
+    <%= form.submit (project_expense.new_record? ? "Save Expense" : "Update Expense"),
+        class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" %>
+  </div>
+<% end %>
+

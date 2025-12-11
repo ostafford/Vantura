@@ -1,0 +1,59 @@
+<% project ||= local_assigns[:project] %>
+<% current_user ||= local_assigns[:current_user] %>
+
+<%# Calculate summary stats %>
+<% total_this_month = project.project_expenses
+    .where("expense_date >= ? AND expense_date <= ?", Date.current.beginning_of_month, Date.current.end_of_month)
+    .sum(:total_amount_cents) %>
+<% user_share = project.project_expenses.joins(:expense_contributions)
+    .where(expense_contributions: { user: current_user })
+    .sum("expense_contributions.amount_cents") %>
+<% outstanding_contributions = project.project_expenses.joins(:expense_contributions)
+    .where(expense_contributions: { status: "pending" })
+    .includes(:expense_contributions) %>
+
+<div id="project-<%= project.id %>-summary" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Summary</h3>
+
+  <div class="space-y-4">
+    <div class="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
+      <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Total This Month:</span>
+      <span class="text-lg font-bold text-gray-900 dark:text-white">
+        <%= number_to_currency(total_this_month / 100.0, unit: "$") %>
+      </span>
+    </div>
+
+    <div class="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-700">
+      <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Your Share:</span>
+      <span class="text-lg font-bold text-gray-900 dark:text-white">
+        <%= number_to_currency(user_share / 100.0, unit: "$") %>
+      </span>
+    </div>
+
+    <% if outstanding_contributions.any? %>
+      <div class="pt-3">
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Outstanding Contributions:</p>
+        <div class="space-y-2">
+          <% outstanding_contributions.group_by { |exp| exp.expense_contributions.find_by(status: "pending")&.user }.compact.each do |user, expenses| %>
+            <% user_outstanding = expenses.sum { |exp| exp.expense_contributions.find_by(user: user, status: "pending")&.amount_cents || 0 } %>
+            <% if user_outstanding > 0 %>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-gray-700 dark:text-gray-300">
+                  <%= user == current_user ? "You" : (user.name || user.email_address) %> owes:
+                </span>
+                <span class="font-semibold text-orange-600 dark:text-orange-400">
+                  <%= number_to_currency(user_outstanding / 100.0, unit: "$") %>
+                </span>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="pt-3">
+        <p class="text-sm text-gray-500 dark:text-gray-400">All contributions are paid.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+

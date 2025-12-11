@@ -1,0 +1,49 @@
+<% project ||= local_assigns[:project] %>
+<% current_user ||= local_assigns[:current_user] %>
+
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+  <div class="flex items-start justify-between mb-4">
+    <div class="flex-1">
+      <div class="flex items-center gap-3 mb-2">
+        <% if project.color.present? %>
+          <div class="w-6 h-6 rounded-full" style="background-color: <%= project.color %>"></div>
+        <% end %>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+          <%= project.name %>
+        </h2>
+      </div>
+      <% if project.description.present? %>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">
+          <%= project.description %>
+        </p>
+      <% end %>
+    </div>
+    <% if project.can_edit?(current_user) %>
+      <%= link_to edit_project_path(project),
+          class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700" do %>
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Edit Project
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Owner:</span>
+        <p class="text-sm text-gray-900 dark:text-white mt-1">
+          <%= project.owner.name || project.owner.email_address %>
+        </p>
+      </div>
+      <div>
+        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Created:</span>
+        <p class="text-sm text-gray-900 dark:text-white mt-1">
+          <%= project.created_at.strftime("%B %d, %Y") %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+

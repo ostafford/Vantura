@@ -87,15 +87,20 @@ class TransactionsController < ApplicationController
       end
     end
 
-    # Date range filter - use by_date_range scope if both dates present, otherwise handle separately
+    # Date range filter - use by_settled_date_range scope to match calendar behavior
+    # Calendar filters by settled_at (transaction date), not created_at (record creation date)
     if params[:start_date].present? && params[:end_date].present?
       start_date = Date.parse(params[:start_date])
       end_date = Date.parse(params[:end_date]).end_of_day
-      scope = scope.by_date_range(start_date, end_date)
+      scope = scope.by_settled_date_range(start_date, end_date)
     elsif params[:start_date].present?
-      scope = scope.where("transactions.created_at >= ?", Date.parse(params[:start_date]))
+      parsed_start = Date.parse(params[:start_date])
+      # Use COALESCE to match calendar's grouping logic: settled_at -> created_at_up -> created_at
+      scope = scope.where("COALESCE(transactions.settled_at, transactions.created_at_up, transactions.created_at) >= ?", parsed_start)
     elsif params[:end_date].present?
-      scope = scope.where("transactions.created_at <= ?", Date.parse(params[:end_date]).end_of_day)
+      parsed_end = Date.parse(params[:end_date]).end_of_day
+      # Use COALESCE to match calendar's grouping logic: settled_at -> created_at_up -> created_at
+      scope = scope.where("COALESCE(transactions.settled_at, transactions.created_at_up, transactions.created_at) <= ?", parsed_end)
     end
 
     # Apply recent ordering after all filters to avoid ambiguous column issues

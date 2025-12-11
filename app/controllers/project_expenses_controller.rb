@@ -29,11 +29,29 @@ class ProjectExpensesController < ApplicationController
     if @project_expense.save
       # Split evenly if requested, otherwise contributions come from nested attributes
       if params[:split_evenly] == "true"
+        # Clear any existing contributions from nested attributes before splitting evenly
+        @project_expense.expense_contributions.destroy_all
         @project_expense.split_evenly_among_members
       end
-      redirect_to [ @project, @project_expense ], notice: I18n.t("flash.project_expenses.created")
+
+      # Broadcast Turbo Stream updates
+      broadcast_project_updates(@project)
+
+      # If request is from modal (Turbo Frame), return Turbo Stream response
+      if request.headers["Turbo-Frame"] == "project-expense-form"
+        respond_to do |format|
+          format.turbo_stream
+        end
+      else
+        redirect_to [ @project, @project_expense ], notice: I18n.t("flash.project_expenses.created")
+      end
     else
-      render :new, status: :unprocessable_entity
+      # Render form with errors within Turbo Frame for inline validation
+      if request.headers["Turbo-Frame"] == "project-expense-form"
+        render :new, status: :unprocessable_entity
+      else
+        render :new, status: :unprocessable_entity
+      end
     end
   end
 
@@ -44,16 +62,38 @@ class ProjectExpensesController < ApplicationController
   def update
     authorize @project_expense
     if @project_expense.update(project_expense_params)
-      redirect_to [ @project, @project_expense ], notice: I18n.t("flash.project_expenses.updated")
+      # Broadcast Turbo Stream updates
+      broadcast_project_updates(@project)
+
+      # If request is from modal (Turbo Frame), return Turbo Stream response
+      if request.headers["Turbo-Frame"] == "project-expense-form"
+        respond_to do |format|
+          format.turbo_stream
+        end
+      else
+        redirect_to [ @project, @project_expense ], notice: I18n.t("flash.project_expenses.updated")
+      end
     else
-      render :edit, status: :unprocessable_entity
+      # Render form with errors within Turbo Frame for inline validation
+      if request.headers["Turbo-Frame"] == "project-expense-form"
+        render :edit, status: :unprocessable_entity
+      else
+        render :edit, status: :unprocessable_entity
+      end
     end
   end
 
   def destroy
     authorize @project_expense
     @project_expense.destroy
-    redirect_to project_project_expenses_path(@project), notice: I18n.t("flash.project_expenses.deleted")
+
+    # Broadcast Turbo Stream updates
+    broadcast_project_updates(@project)
+
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to project_project_expenses_path(@project), notice: I18n.t("flash.project_expenses.deleted") }
+    end
   end
 
   private
@@ -78,5 +118,35 @@ class ProjectExpensesController < ApplicationController
       :transaction_id,
       expense_contributions_attributes: [ :id, :user_id, :amount_cents, :amount_currency, :note, :_destroy ]
     )
+  end
+
+  def broadcast_project_updates(project)
+    # Reload project to get updated expenses
+    project.reload
+
+    # Get all project members (for broadcasting to all)
+    all_members = (project.members + [project.owner]).uniq
+
+    # Broadcast update to expense list
+    project_expenses = project.project_expenses
+                              .includes(:category, :paid_by_user, :expense_contributions)
+                              .order(expense_date: :desc, created_at: :desc)
+
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "project_#{project.id}",
+      target: "project-#{project.id}-expenses",
+      partial: "project_expenses/list",
+      locals: { project: project, project_expenses: project_expenses, current_user: current_user }
+    )
+
+    # Broadcast update to summary stats
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "project_#{project.id}",
+      target: "project-#{project.id}-summary",
+      partial: "projects/summary",
+      locals: { project: project, current_user: current_user }
+    )
+  rescue => e
+    Rails.logger.error "Failed to broadcast project updates: #{e.message}"
   end
 end

@@ -45,6 +45,11 @@ en:
       updated: "Project expense updated successfully."
       deleted: "Project expense deleted successfully."
     
+    # Expense Contributions
+    expense_contributions:
+      marked_paid: "Contribution marked as paid."
+      mark_paid_failed: "Failed to mark contribution as paid."
+    
     # Transactions
     transactions:
       updated: "Transaction updated successfully."

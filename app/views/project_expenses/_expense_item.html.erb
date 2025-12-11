@@ -1,0 +1,77 @@
+<% expense ||= local_assigns[:expense] %>
+<% project ||= local_assigns[:project] %>
+<% current_user ||= local_assigns[:current_user] %>
+
+<div id="expense-<%= expense.id %>"
+     class="p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+     data-controller="project-expense">
+  <div class="flex items-start justify-between">
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <% if expense.category.present? %>
+            <span class="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded">
+              <%= expense.category.name %>
+            </span>
+          <% end %>
+          <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
+            <%= expense.name || expense.description %>
+          </h4>
+        </div>
+        <span class="ml-4 text-sm font-bold text-gray-900 dark:text-white flex-shrink-0">
+          <%= number_to_currency(expense.total_amount_cents / 100.0, unit: "$") %>
+        </span>
+      </div>
+
+      <div class="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400 mb-2">
+        <span><%= expense.expense_date.strftime("%b %d, %Y") %></span>
+        <span>•</span>
+        <span>Paid by: <%= expense.paid_by_user&.name || expense.paid_by_user&.email_address || "Unknown" %></span>
+      </div>
+
+      <% if expense.expense_contributions.any? %>
+        <div class="mt-2">
+          <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Split:</p>
+          <div class="flex flex-wrap gap-2">
+            <% expense.expense_contributions.each do |contribution| %>
+              <span class="text-xs px-2 py-1 rounded <%= 
+                contribution.user == current_user ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
+                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' 
+              %>">
+                <%= contribution.user == current_user ? "You" : (contribution.user.name || contribution.user.email_address) %> 
+                (<%= number_to_currency(contribution.amount_cents / 100.0, unit: "$") %>)
+              </span>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="mt-2">
+          <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Status:</p>
+          <div class="flex flex-wrap gap-2">
+            <% expense.expense_contributions.each do |contribution| %>
+              <% if contribution.status == "paid" %>
+                <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded dark:bg-green-900 dark:text-green-200">
+                  <%= contribution.user == current_user ? "You" : (contribution.user.name || contribution.user.email_address) %> ✓ Paid
+                </span>
+              <% else %>
+                <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded dark:bg-yellow-900 dark:text-yellow-200">
+                  <%= contribution.user == current_user ? "You" : (contribution.user.name || contribution.user.email_address) %> ⏳ Pending
+                </span>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="ml-4 flex-shrink-0">
+      <button type="button"
+          class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+          data-action="click->project-expense#openDetailModal"
+          data-expense-id="<%= expense.id %>">
+        Details
+      </button>
+    </div>
+  </div>
+</div>
+

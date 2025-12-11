@@ -1,0 +1,58 @@
+<% project ||= local_assigns[:project] || @project %>
+
+<%= form_with model: project, data: { turbo_frame: local_assigns[:turbo_frame] } do |form| %>
+
+  <% if project.errors.any? %>
+    <%= render "shared/error_messages", object: project %>
+  <% end %>
+
+  <div class="space-y-4">
+    <!-- Name -->
+    <%= render "shared/form_input",
+        form: form,
+        field: :name,
+        label: "Project Name",
+        type: "text",
+        placeholder: "Enter project name",
+        required: true %>
+
+    <!-- Description -->
+    <%= render "shared/form_input",
+        form: form,
+        field: :description,
+        label: "Description",
+        type: "textarea",
+        placeholder: "Enter project description (optional)",
+        required: false,
+        rows: 4 %>
+
+    <!-- Color -->
+    <div class="mb-4">
+      <%= form.label :color, "Project Color", class: "block mb-2 text-sm font-medium text-gray-900 dark:text-white" %>
+      <div class="flex items-center gap-3">
+        <%= form.color_field :color,
+            value: project.color.presence || "#3b82f6",
+            class: "h-10 w-20 rounded-lg border border-gray-300 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500" %>
+        <div class="flex-1">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Choose a color to help identify this project. This will appear as a colored dot on project cards.
+          </p>
+        </div>
+      </div>
+      <% if form.object.errors[:color].any? %>
+        <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+          <%= form.object.errors[:color].first %>
+        </p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Form Footer -->
+  <div class="flex items-center justify-end p-4 md:p-5 border-t border-gray-200 dark:border-gray-700 gap-3 mt-6">
+    <%= link_to "Cancel", projects_path,
+        class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700" %>
+    <%= form.submit (project.new_record? ? "Create Project" : "Update Project"),
+        class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" %>
+  </div>
+<% end %>
+

@@ -1,0 +1,109 @@
+<div class="calendar-page" data-controller="calendar">
+  <%= turbo_stream_from "user_#{current_user.id}_calendar" %>
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Calendar</h1>
+  </div>
+
+  <!-- Projection Bar -->
+  <%= turbo_frame_tag "projection-bar" do %>
+    <%= render "calendar/projection",
+        current_balance: @current_balance,
+        weekly_projection: @weekly_projection,
+        monthly_projection: @monthly_projection %>
+  <% end %>
+
+  <!-- Main Calendar Grid and Day Details -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+    <!-- Calendar Grid (3/4 width on desktop) -->
+    <div class="lg:col-span-3">
+      <%= turbo_frame_tag "calendar-grid", data: { turbo_action: "advance" } do %>
+        <% case @view
+           when "week" %>
+          <%= render "calendar/week_view",
+              week_start: @week_start,
+              week_end: @week_end,
+              projection_data: @projection_data,
+              selected_date: @selected_date,
+              year: @year,
+              month: @month,
+              view: @view,
+              start_date: @start_date,
+              end_date: @end_date %>
+        <% when "day" %>
+          <%= render "calendar/day_view",
+              date: @start_date,
+              projection_data: @projection_data,
+              selected_date: @selected_date,
+              year: @year,
+              month: @month,
+              view: @view,
+              start_date: @start_date,
+              end_date: @end_date,
+              week_start: @week_start,
+              week_end: @week_end %>
+        <% else %>
+          <%= render "calendar/grid",
+              year: @year,
+              month: @month,
+              projection_data: @projection_data,
+              selected_date: @selected_date,
+              view: @view,
+              start_date: @start_date,
+              end_date: @end_date,
+              week_start: @week_start,
+              week_end: @week_end,
+              start_of_month: Date.new(@year, @month, 1),
+              end_of_month: Date.new(@year, @month, 1).end_of_month %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- Day Details Panel (1/4 width on desktop, hidden on mobile) -->
+    <div class="lg:col-span-1 hidden lg:block">
+      <% day_details_src = @selected_date ? calendar_path(selected_date: @selected_date, year: @year, month: @month) : nil %>
+      <%= turbo_frame_tag "day-details", src: day_details_src do %>
+        <% if @selected_date && @projection_data[@selected_date] %>
+          <%= render "calendar/selected_day",
+              date: @selected_date,
+              projection: @projection_data[@selected_date] %>
+        <% else %>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <p class="text-gray-500 dark:text-gray-400 text-center">Select a day to view details</p>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Day Details Modal (Mobile only) -->
+  <div id="day-details-modal"
+       class="hidden fixed inset-0 z-50 overflow-y-auto lg:hidden"
+       data-controller="modal"
+       aria-labelledby="day-details-modal-title"
+       aria-modal="true"
+       role="dialog">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+           data-action="click->modal#close"
+           aria-hidden="true"></div>
+
+      <!-- Modal panel -->
+      <div class="relative z-10 inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <!-- Modal content will be loaded here via Turbo Frame -->
+        <%= turbo_frame_tag "day-details-mobile", src: (@selected_date ? calendar_path(selected_date: @selected_date, year: @year, month: @month) : nil) do %>
+          <div class="text-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p class="mt-4 text-gray-600 dark:text-gray-400">Loading day details...</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Planned Transaction Modal (Mobile and Desktop) -->
+  <%= render "calendar/planned_transaction_modal" %>
+</div>
+

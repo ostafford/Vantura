@@ -1,0 +1,24 @@
+<%# Update day details frame - use stored planned_date since we know it was deleted from this day %>
+<% if @planned_date %>
+  <%# Recalculate projection for the day that had the transaction deleted %>
+  <% result = CalendarProjectionService.calculate(
+        user: @user,
+        start_date: @planned_date,
+        end_date: @planned_date
+      ) %>
+  <% projection = result[:projection_data][@planned_date] || {
+        balance_cents: 0,
+        planned_transactions: [],
+        actual_transactions: [],
+        actual_count: 0
+      } %>
+  <%= turbo_stream.replace "day-details" do %>
+    <%= render "calendar/selected_day_frame",
+        date: @planned_date,
+        projection: projection,
+        frame_id: "day-details" %>
+  <% end %>
+<% end %>
+
+<%# Broadcast calendar updates are handled in the controller's broadcast_calendar_updates_after_destroy method %>
+

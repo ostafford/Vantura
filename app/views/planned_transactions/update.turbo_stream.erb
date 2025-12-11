@@ -1,0 +1,49 @@
+<%= turbo_stream.remove "planned-transaction-form" %>
+<%= turbo_stream.append "body" do %>
+  <script>
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(function() {
+      const modal = document.getElementById('planned-transaction-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      document.body.classList.remove('overflow-hidden');
+      // Dispatch custom event for testing
+      document.dispatchEvent(new CustomEvent('planned-transaction-modal-closed'));
+    });
+  </script>
+<% end %>
+
+<%# Update day details frame if the affected day is currently selected %>
+<%# Check if there's a selected_date in the URL or if the planned_date matches current selection %>
+<% selected_date_param = request.referer&.match(/selected_date=([^&]+)/)&.captures&.first %>
+<% if selected_date_param %>
+  <% selected_date = Date.parse(selected_date_param) rescue nil %>
+  <% if selected_date && selected_date == @planned_transaction.planned_date %>
+    <%# Recalculate projection for the selected day %>
+    <% result = CalendarProjectionService.calculate(
+          user: @planned_transaction.user,
+          start_date: selected_date,
+          end_date: selected_date
+        ) %>
+    <% projection = result[:projection_data][selected_date] || {
+          balance_cents: 0,
+          planned_transactions: [],
+          actual_transactions: [],
+          actual_count: 0
+        } %>
+    <% year = selected_date.year %>
+    <% month = selected_date.month %>
+    <%= turbo_stream.replace "day-details" do %>
+      <%= render "calendar/selected_day_frame",
+          date: selected_date,
+          projection: projection,
+          frame_id: "day-details" %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Broadcast calendar updates (also done in controller, but include here for immediate response) %>
+<%# The controller's broadcast_calendar_updates will handle the async updates %>
+

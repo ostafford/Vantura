@@ -1,14 +1,30 @@
-<h1>Project Expenses</h1>
+<%# Turbo Stream subscription for real-time updates %>
+<%= turbo_stream_from "project_#{@project.id}" %>
 
-<%= link_to "New Expense", new_project_project_expense_path(@project) %>
-<%= link_to "Back to Project", @project %>
+<div class="container mx-auto px-4 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-4">
+      <%= link_to project_path(@project),
+          class: "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      <% end %>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Project Expenses</h1>
+    </div>
+    <% if @project.can_create?(current_user) %>
+      <%= link_to new_project_project_expense_path(@project),
+          class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800" do %>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        New Expense
+      <% end %>
+    <% end %>
+  </div>
 
-<ul>
-  <% @project_expenses.each do |expense| %>
-    <li>
-      <%= link_to expense.description || expense.name, [@project, expense] %>
-      - <%= number_to_currency(expense.total_amount_cents / 100.0) %>
-    </li>
+  <%# Expenses List (Turbo Frame for updates) %>
+  <%= turbo_frame_tag "project-#{@project.id}-expenses" do %>
+    <%= render "project_expenses/list", project: @project, project_expenses: @project_expenses, current_user: current_user %>
   <% end %>
-</ul>
-
+</div>

@@ -1,0 +1,37 @@
+<%= turbo_stream.remove "project-expense-form" %>
+
+<%# Append new expense detail modal %>
+<%= turbo_stream.append "body" do %>
+  <%= render "project_expenses/detail_modal", expense: @project_expense, project: @project, current_user: current_user %>
+<% end %>
+
+<%# Close add expense modal after form removal %>
+<%= turbo_stream.append "body" do %>
+  <script>
+    setTimeout(function() {
+      const modal = document.getElementById('add-expense-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('overflow-hidden');
+        
+        // Try Stimulus controller close method
+        if (window.Stimulus) {
+          const modalElement = document.getElementById('add-expense-modal');
+          if (modalElement) {
+            const controller = window.Stimulus.getControllerForElementAndIdentifier(modalElement, 'project-modal');
+            if (controller && typeof controller.close === 'function') {
+              controller.close();
+            }
+          }
+        }
+        
+        // Dispatch custom event for other listeners
+        document.dispatchEvent(new CustomEvent('project-expense-modal-closed'));
+      }
+    }, 100);
+  </script>
+<% end %>
+
+<%# Update expense list and summary via broadcasts (handled in controller) %>
+

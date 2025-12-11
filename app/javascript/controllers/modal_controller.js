@@ -17,5 +17,12 @@ export default class extends Controller {
     this.element.setAttribute('aria-hidden', 'true')
     document.body.style.overflow = ''
   }
+
+  closeBackground(event) {
+    // Only close if clicking the background overlay, not the modal content
+    if (event.target === this.element || event.target.classList.contains('bg-gray-500')) {
+      this.close()
+    }
+  }
 }
 

@@ -1,0 +1,52 @@
+<!-- Calendar Controls -->
+<%= render "calendar/controls", 
+    year: defined?(year) ? year : @year,
+    month: defined?(month) ? month : @month,
+    selected_date: defined?(selected_date) ? selected_date : @selected_date,
+    view: defined?(view) ? view : (@view || "month"),
+    start_date: defined?(start_date) ? start_date : @start_date,
+    end_date: defined?(end_date) ? end_date : @end_date,
+    week_start: defined?(week_start) ? week_start : @week_start,
+    week_end: defined?(week_end) ? week_end : @week_end %>
+
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+  <!-- Calendar Header (Day Names) -->
+  <div class="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700">
+    <% %w[Sun Mon Tue Wed Thu Fri Sat].each do |day_name| %>
+      <div class="p-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300 <%= 'text-red-600 dark:text-red-400' if day_name.in?(%w[Sat Sun]) %>">
+        <%= day_name %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Calendar Body -->
+  <div class="grid grid-cols-7">
+    <% 
+      first_day = start_of_month.beginning_of_week
+      last_day = end_of_month.end_of_week
+      current_date = first_day
+      # Use local variables with fallback to instance variables for compatibility
+      local_month = defined?(month) ? month : @month
+      local_year = defined?(year) ? year : @year
+      local_selected_date = defined?(selected_date) ? selected_date : @selected_date
+    %>
+    <% while current_date <= last_day %>
+      <% 
+        is_current_month = current_date.month == local_month && current_date.year == local_year
+        is_today = current_date == Date.current
+        is_selected = local_selected_date == current_date
+        day_projection = is_current_month ? projection_data[current_date] : nil
+      %>
+      
+      <%= render "calendar/day_cell",
+          date: current_date,
+          projection: day_projection,
+          is_current_month: is_current_month,
+          is_today: is_today,
+          is_selected: is_selected %>
+      
+      <% current_date += 1.day %>
+    <% end %>
+  </div>
+</div>
+

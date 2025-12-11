@@ -1,0 +1,8 @@
+<%# Redirect to the new project show page %>
+<%= turbo_stream.append "body" do %>
+  <script>
+    // Redirect to project page (flash message is set in controller)
+    Turbo.visit('<%= project_path(@project) %>');
+  </script>
+<% end %>
+

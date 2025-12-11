@@ -218,13 +218,13 @@ RSpec.describe 'Transactions Page', type: :system do
       end
 
       expect(page).to have_css("#transaction-modal:not(.hidden)", wait: 5)
-      
+
       # Wait for modal content to load
       expect(page).to have_text("Coffee purchase", wait: 5)
 
       # Close modal - trigger the close action directly via JavaScript since overlay might block
       page.execute_script("document.getElementById('transaction-modal').classList.add('hidden'); document.body.style.overflow = '';")
-      
+
       # Wait a moment for DOM to update
       sleep 0.1
 
@@ -261,11 +261,11 @@ RSpec.describe 'Transactions Page', type: :system do
       # For CSV downloads, Capybara may treat as download
       # Instead, visit the page and click the export link to verify it works
       visit transactions_path
-      
+
       # Check that the export link exists with correct href
       export_link = find_link("Export CSV")
       expect(export_link[:href]).to include("/transactions/export.csv")
-      
+
       # Verify the link includes query params capability
       expect(export_link[:href]).to be_present
     end

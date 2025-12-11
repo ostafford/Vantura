@@ -1,15 +1,37 @@
-<h1>Projects</h1>
+<div class="container mx-auto px-4 py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Shared Expense Projects</h1>
+    <%= link_to new_project_path,
+        class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800" do %>
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      New Project
+    <% end %>
+  </div>
 
-<%= link_to "New Project", new_project_path %>
-
-<ul>
-  <% @projects.each do |project| %>
-    <li>
-      <%= link_to project.name, project %>
-      <% if project.owner == current_user %>
-        <span>(Owner)</span>
+  <% if @projects.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @projects.each do |project| %>
+        <%= render "projects/project_card", project: project, current_user: current_user %>
       <% end %>
-    </li>
+    </div>
+  <% else %>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
+      <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No projects yet</h3>
+      <p class="text-gray-500 dark:text-gray-400 mb-4">
+        Create a project to start tracking shared expenses with others.
+      </p>
+      <%= link_to new_project_path,
+          class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800" do %>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Create Your First Project
+      <% end %>
+    </div>
   <% end %>
-</ul>
-
+</div>

@@ -1,11 +1,84 @@
-<h1>Project Expense</h1>
+<%# If request is from modal (Turbo Frame), render detail modal partial %>
+<% if request.headers["Turbo-Frame"] == "expense-detail" %>
+  <%= render "project_expenses/detail_modal", expense: @project_expense, project: @project, current_user: current_user %>
+<% else %>
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-4">
+        <%= link_to project_project_expenses_path(@project),
+            class: "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        <% end %>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Project Expense</h1>
+      </div>
+      <% if @project.can_edit?(current_user) %>
+        <%= link_to edit_project_project_expense_path(@project, @project_expense),
+            class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700" do %>
+          Edit
+        <% end %>
+      <% end %>
+    </div>
 
-<p><strong>Description:</strong> <%= @project_expense.description %></p>
-<p><strong>Amount:</strong> <%= number_to_currency(@project_expense.total_amount_cents / 100.0) %></p>
-<p><strong>Date:</strong> <%= @project_expense.expense_date %></p>
-<p><strong>Paid by:</strong> <%= @project_expense.paid_by_user&.email_address %></p>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+        <%= @project_expense.name || @project_expense.description %>
+      </h2>
 
-<%= link_to "Edit", edit_project_project_expense_path(@project, @project_expense) if @project.can_edit?(current_user) %>
-<%= link_to "Delete", [@project, @project_expense], method: :delete, data: { confirm: "Are you sure?" } if @project.can_edit?(current_user) %>
-<%= link_to "Back to Expenses", project_project_expenses_path(@project) %>
+      <div class="space-y-3">
+        <div class="flex justify-between">
+          <span class="text-gray-600 dark:text-gray-400">Amount:</span>
+          <span class="font-semibold text-gray-900 dark:text-white">
+            <%= number_to_currency(@project_expense.total_amount_cents / 100.0, unit: "$") %>
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 dark:text-gray-400">Date:</span>
+          <span class="text-gray-900 dark:text-white">
+            <%= @project_expense.expense_date.strftime("%B %d, %Y") %>
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 dark:text-gray-400">Paid by:</span>
+          <span class="text-gray-900 dark:text-white">
+            <%= @project_expense.paid_by_user&.name || @project_expense.paid_by_user&.email_address || "Unknown" %>
+          </span>
+        </div>
+        <% if @project_expense.category.present? %>
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Category:</span>
+            <span class="text-gray-900 dark:text-white">
+              <%= @project_expense.category.name %>
+            </span>
+          </div>
+        <% end %>
+      </div>
 
+      <% if @project_expense.expense_contributions.any? %>
+        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Split Details:</h3>
+          <div class="space-y-2">
+            <% @project_expense.expense_contributions.each do |contribution| %>
+              <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span class="text-sm text-gray-900 dark:text-white">
+                  <%= contribution.user == current_user ? "You" : (contribution.user.name || contribution.user.email_address) %>:
+                  <%= number_to_currency(contribution.amount_cents / 100.0, unit: "$") %>
+                </span>
+                <% if contribution.status == "paid" %>
+                  <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded dark:bg-green-900 dark:text-green-200">
+                    ✓ Paid
+                  </span>
+                <% else %>
+                  <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded dark:bg-yellow-900 dark:text-yellow-200">
+                    ⏳ Pending
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

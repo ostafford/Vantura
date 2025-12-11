@@ -22,9 +22,16 @@ class ProjectsController < ApplicationController
     authorize @project
 
     if @project.save
-      redirect_to @project, notice: I18n.t("flash.projects.created")
+      flash[:notice] = I18n.t("flash.projects.created")
+      respond_to do |format|
+        format.turbo_stream { redirect_to @project, status: :see_other }
+        format.html { redirect_to @project, notice: I18n.t("flash.projects.created") }
+      end
     else
-      render :new, status: :unprocessable_entity
+      respond_to do |format|
+        format.turbo_stream { render :new, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -35,9 +42,16 @@ class ProjectsController < ApplicationController
   def update
     authorize @project
     if @project.update(project_params)
-      redirect_to @project, notice: I18n.t("flash.projects.updated")
+      flash[:notice] = I18n.t("flash.projects.updated")
+      respond_to do |format|
+        format.turbo_stream { redirect_to @project, status: :see_other }
+        format.html { redirect_to @project, notice: I18n.t("flash.projects.updated") }
+      end
     else
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_entity }
+      end
     end
   end
 

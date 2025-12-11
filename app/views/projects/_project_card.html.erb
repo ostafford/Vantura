@@ -1,0 +1,93 @@
+<% project ||= local_assigns[:project] %>
+<% current_user ||= local_assigns[:current_user] %>
+
+<%# Calculate project stats %>
+<% total_spent = project.project_expenses.sum(:total_amount_cents) %>
+<% outstanding = project.project_expenses.joins(:expense_contributions)
+    .where(expense_contributions: { status: "pending" })
+    .sum("expense_contributions.amount_cents") %>
+<% user_outstanding = project.project_expenses.joins(:expense_contributions)
+    .where(expense_contributions: { user: current_user, status: "pending" })
+    .sum("expense_contributions.amount_cents") %>
+
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
+  <div class="flex items-start justify-between mb-4">
+    <div class="flex-1">
+      <div class="flex items-center gap-3 mb-2">
+        <% if project.color.present? %>
+          <div class="w-4 h-4 rounded-full" style="background-color: <%= project.color %>"></div>
+        <% end %>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          <%= project.name %>
+        </h3>
+        <% if project.owner == current_user %>
+          <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded dark:bg-blue-900 dark:text-blue-200">
+            Owner
+          </span>
+        <% end %>
+      </div>
+      <% if project.description.present? %>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+          <%= project.description %>
+        </p>
+      <% end %>
+    </div>
+    <% if project.can_edit?(current_user) %>
+      <%= link_to edit_project_path(project),
+          class: "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300",
+          title: "Edit project" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="space-y-3 mb-4">
+    <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+      <span class="font-medium mr-2">Owner:</span>
+      <span><%= project.owner.name || project.owner.email_address %></span>
+    </div>
+    <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+      <span class="font-medium mr-2">Members:</span>
+      <span>
+        <% all_members = (project.members + [project.owner]).uniq %>
+        <%= all_members.map { |m| m.name || m.email_address }.join(", ") %>
+      </span>
+    </div>
+  </div>
+
+  <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
+    <div class="flex justify-between items-center">
+      <span class="text-sm text-gray-600 dark:text-gray-400">Total This Month:</span>
+      <span class="text-sm font-semibold text-gray-900 dark:text-white">
+        <%= number_to_currency(total_spent / 100.0, unit: "$") %>
+      </span>
+    </div>
+    <div class="flex justify-between items-center">
+      <span class="text-sm text-gray-600 dark:text-gray-400">Outstanding:</span>
+      <span class="text-sm font-semibold <%= outstanding > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-white' %>">
+        <%= number_to_currency(outstanding / 100.0, unit: "$") %>
+      </span>
+    </div>
+    <% if user_outstanding > 0 %>
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-600 dark:text-gray-400">You Owe:</span>
+        <span class="text-sm font-semibold text-red-600 dark:text-red-400">
+          <%= number_to_currency(user_outstanding / 100.0, unit: "$") %>
+        </span>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-4">
+    <%= link_to project_path(project),
+        class: "w-full inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800 transition-colors" do %>
+      View Details
+      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    <% end %>
+  </div>
+</div>
+

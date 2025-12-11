@@ -1,0 +1,114 @@
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+  <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
+    <% 
+      # Use local variables with fallback to instance variables for compatibility
+      local_month = defined?(month) ? month : @month
+      local_year = defined?(year) ? year : @year
+      local_view = defined?(view) ? view : (@view || "month")
+      local_selected_date = defined?(selected_date) ? selected_date : @selected_date
+      local_start_date = defined?(start_date) ? start_date : @start_date
+      local_end_date = defined?(end_date) ? end_date : @end_date
+      local_week_start = defined?(week_start) ? week_start : @week_start
+      local_week_end = defined?(week_end) ? week_end : @week_end
+    %>
+    <!-- Previous Month -->
+    <% prev_month = local_month == 1 ? 12 : local_month - 1 %>
+    <% prev_year = local_month == 1 ? local_year - 1 : local_year %>
+    <% prev_selected_date = if local_selected_date
+        # Try to preserve selected day if it exists in previous month
+        begin
+          Date.new(prev_year, prev_month, local_selected_date.day)
+        rescue Date::Error
+          nil
+        end
+      else
+        nil
+      end %>
+    <%= link_to calendar_path(year: prev_year, month: prev_month, selected_date: prev_selected_date, view: local_view),
+        class: "inline-flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700",
+        data: { turbo_frame: "calendar-grid", turbo_action: "advance" } do %>
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Previous
+    <% end %>
+
+    <!-- Current Period Display -->
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+      <% case local_view
+         when "week" %>
+        <%= local_week_start ? local_week_start.strftime("%B %d") : "" %> - <%= local_week_end ? local_week_end.strftime("%B %d, %Y") : "" %>
+      <% when "day" %>
+        <%= local_start_date ? local_start_date.strftime("%B %d, %Y") : "" %>
+      <% else %>
+        <%= Date.new(local_year, local_month, 1).strftime("%B %Y") %>
+      <% end %>
+    </h2>
+
+    <!-- Next Month -->
+    <% next_month = local_month == 12 ? 1 : local_month + 1 %>
+    <% next_year = local_month == 12 ? local_year + 1 : local_year %>
+    <% next_selected_date = if local_selected_date
+        # Try to preserve selected day if it exists in next month
+        begin
+          Date.new(next_year, next_month, local_selected_date.day)
+        rescue Date::Error
+          nil
+        end
+      else
+        nil
+      end %>
+    <%= link_to calendar_path(year: next_year, month: next_month, selected_date: next_selected_date, view: local_view),
+        class: "inline-flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700",
+        data: { turbo_frame: "calendar-grid", turbo_action: "advance" } do %>
+      Next
+      <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    <% end %>
+  </div>
+
+  <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+    <!-- View Toggle -->
+    <div class="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800" role="group">
+      <%= link_to calendar_path(year: local_year, month: local_month, selected_date: local_selected_date, view: "month"),
+          class: "px-3 py-2 text-sm font-medium #{local_view == 'month' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'} rounded-l-lg border-r border-gray-300 dark:border-gray-600",
+          data: { turbo_frame: "calendar-grid", turbo_action: "advance", calendar_view_value: "month" } do %>
+        Month
+      <% end %>
+      <%= link_to calendar_path(year: local_year, month: local_month, selected_date: local_selected_date, view: "week"),
+          class: "px-3 py-2 text-sm font-medium #{local_view == 'week' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'} border-r border-gray-300 dark:border-gray-600",
+          data: { turbo_frame: "calendar-grid", turbo_action: "advance", calendar_view_value: "week" } do %>
+        Week
+      <% end %>
+      <%= link_to calendar_path(year: local_year, month: local_month, selected_date: local_selected_date, view: "day"),
+          class: "px-3 py-2 text-sm font-medium #{local_view == 'day' ? 'bg-blue-600 text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'} rounded-r-lg",
+          data: { turbo_frame: "calendar-grid", turbo_action: "advance", calendar_view_value: "day" } do %>
+        Day
+      <% end %>
+    </div>
+
+    <!-- Today Button -->
+    <%= link_to calendar_path(year: Time.current.year, month: Time.current.month, selected_date: Date.current, view: local_view),
+        class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800",
+        data: { turbo_frame: "calendar-grid", turbo_action: "advance" } do %>
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      Today
+    <% end %>
+
+    <!-- Export Button -->
+    <% export_start_date = local_start_date || Date.new(local_year, local_month, 1) %>
+    <% export_end_date = local_end_date || Date.new(local_year, local_month, 1).end_of_month %>
+    <%= link_to calendar_export_path(start_date: export_start_date, end_date: export_end_date),
+        class: "inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700",
+        target: "_blank" do %>
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      Export
+    <% end %>
+  </div>
+</div>
+
