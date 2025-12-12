@@ -65,7 +65,7 @@ gem "administrate", "~> 1.0"
 gem "vcr", "~> 6.3", ">= 6.3.1"
 # httparty for HTTP client
 gem "httparty", "~> 0.23.2"
-gem "connection_pool", "~> 2.4.1"
+gem "connection_pool", "~> 3.0.2"
 
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
