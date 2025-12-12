@@ -8,7 +8,8 @@
                  else
                    Time.current
                  end %>
-  <% cache [ "recent-transactions", current_user, cache_key ] do %>
+  <% user_for_cache = local_assigns[:user] || current_user %>
+  <% cache [ "recent-transactions", user_for_cache, cache_key ] do %>
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Recent Transactions</h2>

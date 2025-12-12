@@ -1,0 +1,108 @@
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Analytics</h3>
+
+  <% if @category_breakdown_data.present? || @spending_trend_data.present? || @payment_history_data.present? || @member_contributions_data.present? %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <!-- Category Breakdown -->
+      <% if @category_breakdown_data.present? && @category_breakdown_data.any? %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Spending by Category</h4>
+          <div id="project-category-chart" data-controller="chart-update">
+            <%= pie_chart @category_breakdown_data,
+                id: "project-category-chart",
+                donut: true,
+                prefix: "$",
+                height: "250px",
+                empty: "No category data available",
+                library: {
+                  plugins: {
+                    legend: {
+                      display: true,
+                      position: "bottom"
+                    }
+                  }
+                } %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Payment History -->
+      <% if @payment_history_data.present? && @payment_history_data.any? %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Payment History</h4>
+          <div id="project-payment-chart" data-controller="chart-update">
+            <%= bar_chart @payment_history_data,
+                id: "project-payment-chart",
+                prefix: "$",
+                colors: ["#8b5cf6"],
+                height: "250px",
+                empty: "No payment data available",
+                library: {
+                  plugins: {
+                    legend: {
+                      display: false
+                    }
+                  },
+                  indexAxis: "y"
+                } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Spending Trend -->
+    <% if @spending_trend_data.present? && @spending_trend_data.any? %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-4">
+        <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Spending Over Time</h4>
+        <div id="project-spending-trend-chart" data-controller="chart-update">
+          <%= line_chart @spending_trend_data,
+              id: "project-spending-trend-chart",
+              prefix: "$",
+              colors: ["#3b82f6"],
+              height: "250px",
+              curve: false,
+              empty: "No spending data available",
+              library: {
+                plugins: {
+                  legend: {
+                    display: false
+                  }
+                }
+              } %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Member Contributions -->
+    <% if @member_contributions_data.present? && @member_contributions_data.any? %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <h4 class="text-md font-semibold text-gray-900 dark:text-white mb-4">Member Contributions</h4>
+        <div id="project-contributions-chart" data-controller="chart-update">
+          <%= bar_chart @member_contributions_data,
+              id: "project-contributions-chart",
+              prefix: "$",
+              colors: ["#10b981"],
+              height: "250px",
+              empty: "No contribution data available",
+              library: {
+                plugins: {
+                  legend: {
+                    display: false
+                  }
+                },
+                indexAxis: "y"
+              } %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+      <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      <p class="text-lg font-medium mb-2">No Analytics Data</p>
+      <p class="text-sm">Add expenses to see spending breakdown and payment history</p>
+    </div>
+  <% end %>
+</div>
+

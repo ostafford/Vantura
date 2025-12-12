@@ -1,0 +1,17 @@
+<div id="merchant-analytics-chart" data-controller="chart-update">
+  <%= bar_chart merchant_analytics_data,
+      id: "merchant-analytics-chart",
+      prefix: "$",
+      colors: ["#8b5cf6"],
+      height: "300px",
+      empty: "No merchant data available",
+      library: {
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        indexAxis: "y"
+      } %>
+</div>
+

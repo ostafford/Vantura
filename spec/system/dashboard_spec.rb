@@ -89,12 +89,13 @@ RSpec.describe 'Dashboard Page', type: :system do
   end
 
   describe 'Charts Section' do
-    it 'displays charts placeholder' do
+    it 'displays charts' do
       visit dashboard_path
 
-      expect(page).to have_text('Income vs Expenses')
-      expect(page).to have_text('Category Breakdown')
-      expect(page).to have_text('Chart will be implemented in Phase 3 with Chart.js')
+      expect(page).to have_text('Income vs Expenses (Last 30 Days)')
+      expect(page).to have_text('Category Breakdown (This Month)')
+      expect(page).to have_css('#income-vs-expenses-chart')
+      expect(page).to have_css('#category-breakdown-chart')
     end
   end
 

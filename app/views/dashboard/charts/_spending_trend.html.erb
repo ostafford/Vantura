@@ -1,0 +1,17 @@
+<div id="spending-trend-chart" data-controller="chart-update">
+  <%= line_chart spending_trend_data,
+      id: "spending-trend-chart",
+      prefix: "$",
+      colors: ["#3b82f6"],
+      height: "300px",
+      curve: false,
+      empty: "No spending data available",
+      library: {
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      } %>
+</div>
+

@@ -1,7 +1,7 @@
 <%# Turbo Stream subscription for real-time updates %>
 <%= turbo_stream_from "project_#{@project.id}" %>
 
-<div class="container mx-auto px-4 py-6">
+<div class="container mx-auto px-4 py-6" data-controller="project-modal" data-project-id="<%= @project.id %>">
   <div class="flex items-center justify-between mb-6">
     <div class="flex items-center gap-4">
       <%= link_to projects_path,
@@ -15,9 +15,7 @@
     <% if @project.can_create?(current_user) %>
       <button type="button"
           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
-          data-action="click->project-modal#openAddExpenseModal"
-          data-controller="project-modal"
-          data-project-id="<%= @project.id %>">
+          data-action="click->project-modal#openAddExpenseModal">
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
@@ -37,14 +35,8 @@
     <%= render "projects/summary", project: @project, current_user: current_user %>
   <% end %>
 
-  <%# Analytics Section (Placeholder for Phase 3) %>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Analytics</h3>
-    <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-      <p>Analytics charts coming in Phase 3</p>
-      <p class="text-sm mt-2">Spending breakdown and payment history visualizations</p>
-    </div>
-  </div>
+  <%# Analytics Section %>
+  <%= render "projects/analytics" %>
 
   <%# Expenses List (Turbo Frame for updates) %>
   <%= turbo_frame_tag "project-#{@project.id}-expenses" do %>

@@ -9,7 +9,7 @@
     } do |form| %>
 
   <% if project_expense.errors.any? %>
-    <%= render "shared/error_messages", errors: project_expense.errors %>
+    <%= render "shared/error_messages", object: project_expense %>
   <% end %>
 
   <div class="space-y-4">
@@ -34,7 +34,7 @@
 
     <!-- Total Amount -->
     <div class="mb-4">
-      <%= form.label :total_amount_cents, "Total Amount (AUD)", class: "block mb-2 text-sm font-medium text-gray-900 dark:text-white after:content-['*'] after:ml-0.5 after:text-red-500" %>
+      <%= label_tag "total_amount_dollars", "Total Amount (AUD)", class: "block mb-2 text-sm font-medium text-gray-900 dark:text-white after:content-['*'] after:ml-0.5 after:text-red-500" %>
       <div class="relative">
         <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
         <%= number_field_tag "total_amount_dollars",
@@ -44,6 +44,7 @@
             placeholder: "0.00",
             required: true,
             pattern: "[0-9]+(\.[0-9]{1,2})?",
+            id: "total_amount_dollars",
             class: "block w-full pl-8 pr-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
             data: {
               split_calculator_target: "totalAmount",

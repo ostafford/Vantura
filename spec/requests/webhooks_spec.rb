@@ -88,6 +88,20 @@ RSpec.describe "Webhooks", type: :request do
 
         before do
           # Clear the outer user to test multiple users scenario
+          # Clean up dependent records first to avoid foreign key violations
+          ExpenseContribution.destroy_all
+          ProjectExpense.destroy_all
+          ProjectMember.destroy_all
+          Project.destroy_all
+          Goal.destroy_all
+          FeedbackItem.destroy_all
+          Notification.destroy_all
+          Session.destroy_all
+          Filter.destroy_all
+          PlannedTransaction.destroy_all
+          Transaction.destroy_all
+          Account.destroy_all
+          WebhookEvent.destroy_all
           User.destroy_all
           user_with_token
           user_without_token
@@ -124,6 +138,20 @@ RSpec.describe "Webhooks", type: :request do
 
         before do
           # Clear all users to ensure test isolation
+          # Clean up dependent records first to avoid foreign key violations
+          ExpenseContribution.destroy_all
+          ProjectExpense.destroy_all
+          ProjectMember.destroy_all
+          Project.destroy_all
+          Goal.destroy_all
+          FeedbackItem.destroy_all
+          Notification.destroy_all
+          Session.destroy_all
+          Filter.destroy_all
+          PlannedTransaction.destroy_all
+          Transaction.destroy_all
+          Account.destroy_all
+          WebhookEvent.destroy_all
           User.destroy_all
           # Create a fresh user for this test (not using memoized 'user')
           test_user

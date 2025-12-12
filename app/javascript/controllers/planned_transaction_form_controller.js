@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["amountInput", "amountCents", "recurrenceToggle", "recurrenceFields", "recurrencePattern", "recurrenceEndDate", "recurrencePreview", "form"]
+  static targets = ["amountInput", "amountCents", "recurrenceToggle", "recurrenceFields", "recurrencePattern", "recurrenceEndDate", "recurrencePreview"]
 
   connect() {
     // Initialize recurrence fields visibility
@@ -21,7 +21,11 @@ export default class extends Controller {
         this.updatePreview()
       }
     }
-    this.formTarget.addEventListener('change', this.boundHandleRecurrencePatternChange)
+    // Find the form element (it's inside the controller element)
+    const formElement = this.element.querySelector('form')
+    if (formElement) {
+      formElement.addEventListener('change', this.boundHandleRecurrencePatternChange)
+    }
     
     // Also trigger updatePreview if pattern is already selected
     setTimeout(() => {
@@ -34,7 +38,10 @@ export default class extends Controller {
   disconnect() {
     // Clean up event listener
     if (this.boundHandleRecurrencePatternChange) {
-      this.formTarget.removeEventListener('change', this.boundHandleRecurrencePatternChange)
+      const formElement = this.element.querySelector('form')
+      if (formElement) {
+        formElement.removeEventListener('change', this.boundHandleRecurrencePatternChange)
+      }
     }
   }
 

@@ -1,8 +1,7 @@
+<div data-controller="planned-transaction-form" data-planned-transaction-form-target="form">
 <%= form_with model: @planned_transaction,
     data: {
-      turbo_frame: "planned-transaction-form",
-      controller: "planned-transaction-form",
-      planned_transaction_form_target: "form"
+      turbo_frame: "planned-transaction-form"
     } do |form| %>
 
   <% if @planned_transaction.errors.any? %>
@@ -158,4 +157,5 @@
         class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" %>
   </div>
 <% end %>
+</div>
 

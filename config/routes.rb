@@ -42,8 +42,13 @@ Rails.application.routes.draw do
   end
 
   # Settings
-  get "/settings", to: "settings#index"
+  get "/settings", to: "settings#index", as: :settings
   patch "/settings", to: "settings#update"
+  patch "/settings/password", to: "settings#update_password", as: :settings_password
+  patch "/settings/up_bank_token", to: "settings#update_up_bank_token", as: :settings_up_bank_token
+  post "/settings/sync_now", to: "settings#sync_now", as: :settings_sync_now
+  delete "/settings/disconnect_bank", to: "settings#disconnect_bank", as: :settings_disconnect_bank
+  delete "/settings/account", to: "settings#destroy_account", as: :settings_account
 
   # Goals
   resources :goals, only: [ :index, :create, :update, :destroy ]

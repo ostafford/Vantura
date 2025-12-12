@@ -8,3 +8,7 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 
 # Flowbite with Turbo support for Rails
 pin "flowbite", to: "https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.turbo.min.js"
+
+# Chartkick for charts and analytics
+pin "chartkick", to: "chartkick.js"
+pin "Chart.bundle", to: "Chart.bundle.js"

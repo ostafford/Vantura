@@ -69,6 +69,11 @@ en:
     # Settings
     settings:
       updated: "Settings updated successfully"
+      password_updated: "Password updated successfully"
+      token_updated: "Up Bank token updated successfully"
+      sync_started: "Sync started"
+      bank_disconnected: "Up Bank account disconnected successfully"
+      account_deleted: "Your account has been deleted"
     
     # Onboarding
     onboarding:

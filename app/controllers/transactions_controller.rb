@@ -1,4 +1,6 @@
 class TransactionsController < ApplicationController
+  include ChartDataHelper
+
   before_action :authenticate_user!
 
   def index
@@ -6,6 +8,10 @@ class TransactionsController < ApplicationController
     # Calculate summary stats on all matching transactions before pagination
     @summary_stats = calculate_summary_stats(filtered_scope)
     @pagy, @transactions = pagy(:offset, filtered_scope, items: 20)
+
+    # Prepare chart data based on filtered transactions
+    # Use the filtered scope to calculate analytics
+    prepare_transaction_analytics_data(filtered_scope)
   end
 
   def show
@@ -190,5 +196,81 @@ class TransactionsController < ApplicationController
     )
   rescue => e
     Rails.logger.error "Failed to broadcast transaction update: #{e.message}"
+  end
+
+  def prepare_transaction_analytics_data(filtered_scope)
+    # Convert filtered scope to array for analytics calculations
+    transactions = filtered_scope.to_a
+
+    # Initialize empty data structures
+    @category_breakdown_data = {}
+    @spending_trend_data = {}
+    @income_vs_expenses_data = [
+      { name: "Income", data: {} },
+      { name: "Expenses", data: {} }
+    ]
+    @merchant_analytics_data = {}
+
+    return if transactions.empty?
+
+    # Category breakdown (from filtered transactions)
+    category_totals = transactions
+      .select { |t| t.category.present? && t.amount_cents < 0 }
+      .group_by(&:category)
+      .transform_values { |ts| ts.sum { |t| t.amount_cents.abs } }
+      .sort_by { |_, cents| cents }
+      .reverse
+      .first(10)
+      .to_h
+
+    @category_breakdown_data = category_totals.transform_keys { |cat| cat.name }.transform_values { |cents| cents / 100.0 }
+
+    # Spending over time (daily breakdown of filtered transactions)
+    daily_spending = transactions
+      .select { |t| t.amount_cents < 0 }
+      .group_by { |t| (t.settled_at || t.created_at_up || t.created_at).to_date }
+      .transform_values { |ts| ts.sum { |t| t.amount_cents.abs } }
+      .sort_by { |date, _| date }
+      .to_h
+
+    @spending_trend_data = daily_spending.transform_keys { |date| date.strftime("%Y-%m-%d") }.transform_values { |cents| cents / 100.0 }
+
+    # Income vs Expenses (from filtered transactions)
+    income_by_day = transactions
+      .select { |t| t.amount_cents > 0 }
+      .group_by { |t| (t.settled_at || t.created_at_up || t.created_at).to_date }
+      .transform_values { |ts| ts.sum(&:amount_cents) }
+      .sort_by { |date, _| date }
+      .to_h
+
+    expense_by_day = transactions
+      .select { |t| t.amount_cents < 0 }
+      .group_by { |t| (t.settled_at || t.created_at_up || t.created_at).to_date }
+      .transform_values { |ts| ts.sum { |t| t.amount_cents.abs } }
+      .sort_by { |date, _| date }
+      .to_h
+
+    @income_vs_expenses_data = [
+      {
+        name: "Income",
+        data: income_by_day.transform_keys { |date| date.strftime("%Y-%m-%d") }.transform_values { |cents| cents / 100.0 }
+      },
+      {
+        name: "Expenses",
+        data: expense_by_day.transform_keys { |date| date.strftime("%Y-%m-%d") }.transform_values { |cents| cents / 100.0 }
+      }
+    ]
+
+    # Top merchants (from filtered transactions)
+    merchant_totals = transactions
+      .select { |t| t.amount_cents < 0 && t.description.present? }
+      .group_by(&:description)
+      .transform_values { |ts| ts.sum { |t| t.amount_cents.abs } }
+      .sort_by { |_, cents| cents }
+      .reverse
+      .first(10)
+      .to_h
+
+    @merchant_analytics_data = merchant_totals.transform_values { |cents| cents / 100.0 }
   end
 end

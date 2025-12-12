@@ -125,7 +125,7 @@ class ProjectExpensesController < ApplicationController
     project.reload
 
     # Get all project members (for broadcasting to all)
-    all_members = (project.members + [project.owner]).uniq
+    all_members = (project.members + [ project.owner ]).uniq
 
     # Broadcast update to expense list
     project_expenses = project.project_expenses

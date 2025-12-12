@@ -1,0 +1,17 @@
+<div id="category-breakdown-chart" data-controller="chart-update">
+  <%= pie_chart category_breakdown_data,
+      id: "category-breakdown-chart",
+      donut: true,
+      prefix: "$",
+      height: "300px",
+      empty: "No category data available",
+      library: {
+        plugins: {
+          legend: {
+            display: true,
+            position: "bottom"
+          }
+        }
+      } %>
+</div>
+

@@ -10,15 +10,16 @@ export default class extends Controller {
     const sidebar = document.getElementById('sidebar')
     const backdrop = this.backdropTarget
     
-    // Sync backdrop visibility with drawer state
-    // Flowbite drawer uses aria-hidden attribute to track state
-    const observer = new MutationObserver(() => {
+    // Continuously monitor sidebar state and blur focused elements when hidden
+    // This prevents accessibility warnings about aria-hidden on focused elements
+    // Using requestAnimationFrame ensures we catch state changes immediately
+    const checkAndBlur = () => {
       const isHidden = sidebar.classList.contains('-translate-x-full') || 
                        sidebar.getAttribute('aria-hidden') === 'true'
+      
       if (isHidden) {
         backdrop.classList.add('hidden')
-        // When sidebar is hidden, blur any focused elements inside to fix accessibility warning
-        // Check if currently focused element is inside the sidebar
+        // Aggressively blur any focused elements inside hidden sidebar
         const activeElement = document.activeElement
         if (activeElement && sidebar.contains(activeElement)) {
           activeElement.blur()
@@ -26,19 +27,44 @@ export default class extends Controller {
       } else {
         backdrop.classList.remove('hidden')
       }
-    })
+      
+      // Continue monitoring on next animation frame
+      requestAnimationFrame(checkAndBlur)
+    }
     
-    observer.observe(sidebar, {
-      attributes: true,
-      attributeFilter: ['class', 'aria-hidden']
-    })
+    // Start continuous monitoring loop
+    requestAnimationFrame(checkAndBlur)
+    
+    // Prevent focus from entering hidden sidebar (capture phase to intercept early)
+    // Use a flag to prevent infinite recursion
+    let isHandlingFocus = false
+    sidebar.addEventListener('focusin', (e) => {
+      // Prevent re-entry to avoid infinite recursion
+      if (isHandlingFocus) {
+        e.stopPropagation()
+        return
+      }
+      
+      const isHidden = sidebar.classList.contains('-translate-x-full') || 
+                       sidebar.getAttribute('aria-hidden') === 'true'
+      if (isHidden && sidebar.contains(e.target)) {
+        isHandlingFocus = true
+        e.stopPropagation() // Stop event from propagating
+        e.target.blur()
+        // Don't redirect focus - just blur. The requestAnimationFrame loop handles any remaining focus.
+        // Redirecting focus causes infinite loops when the target triggers focusin events.
+        // Use setTimeout to reset flag after current event loop completes
+        setTimeout(() => {
+          isHandlingFocus = false
+        }, 0)
+      }
+    }, true) // Use capture phase to intercept focus events before they reach the target
     
     // Initial sync
     const isHidden = sidebar.classList.contains('-translate-x-full') || 
                      sidebar.getAttribute('aria-hidden') === 'true'
     if (isHidden) {
       backdrop.classList.add('hidden')
-      // Blur any focused elements on initial load if sidebar is hidden
       const activeElement = document.activeElement
       if (activeElement && sidebar.contains(activeElement)) {
         activeElement.blur()
@@ -56,6 +82,13 @@ export default class extends Controller {
       // Fallback: manually close drawer if toggle button not found
       const sidebar = document.getElementById('sidebar')
       const backdrop = this.backdropTarget
+      
+      // Blur any focused elements BEFORE hiding to prevent accessibility warnings
+      const activeElement = document.activeElement
+      if (activeElement && sidebar.contains(activeElement)) {
+        activeElement.blur()
+      }
+      
       sidebar.classList.add('-translate-x-full')
       sidebar.setAttribute('aria-hidden', 'true')
       backdrop.classList.add('hidden')

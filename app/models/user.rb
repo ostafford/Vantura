@@ -10,6 +10,9 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  # Active Storage attachment for avatar
+  has_one_attached :avatar
+
   # Encrypted Up Bank token using Rails built-in encryption
   encrypts :up_bank_token
 
@@ -58,6 +61,7 @@ class User < ApplicationRecord
 
   # Validations
   validates :email_address, presence: true, uniqueness: true
+  validates :date_format, inclusion: { in: %w[DD/MM/YYYY MM/DD/YYYY YYYY-MM-DD] }, allow_nil: true
 
   # Methods
   def has_up_bank_token?

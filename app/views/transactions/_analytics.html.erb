@@ -8,12 +8,114 @@
     </button>
   </div>
 
-  <div class="text-center py-12 text-gray-500 dark:text-gray-400">
-    <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-    </svg>
-    <p class="text-lg font-medium mb-2">Analytics Coming in Phase 3</p>
-    <p class="text-sm">Charts and visualizations will be implemented with Chart.js</p>
-  </div>
-</div>
+  <% if @category_breakdown_data.present? || @spending_trend_data.present? || @income_vs_expenses_data.present? || @merchant_analytics_data.present? %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <!-- Income vs Expenses Line Chart -->
+      <% if @income_vs_expenses_data.present? && (@income_vs_expenses_data[0][:data].any? || @income_vs_expenses_data[1][:data].any?) %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Income vs Expenses
+          </h3>
+          <div id="transaction-income-vs-expenses-chart" data-controller="chart-update">
+            <%= line_chart @income_vs_expenses_data,
+                id: "transaction-income-vs-expenses-chart",
+                prefix: "$",
+                colors: ["#10b981", "#ef4444"],
+                height: "250px",
+                library: {
+                  plugins: {
+                    legend: {
+                      display: true,
+                      position: "bottom"
+                    }
+                  }
+                } %>
+          </div>
+        </div>
+      <% end %>
 
+      <!-- Category Breakdown Donut Chart -->
+      <% if @category_breakdown_data.present? && @category_breakdown_data.any? %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Category Breakdown
+          </h3>
+          <div id="transaction-category-breakdown-chart" data-controller="chart-update">
+            <%= pie_chart @category_breakdown_data,
+                id: "transaction-category-breakdown-chart",
+                donut: true,
+                prefix: "$",
+                height: "250px",
+                empty: "No category data available",
+                library: {
+                  plugins: {
+                    legend: {
+                      display: true,
+                      position: "bottom"
+                    }
+                  }
+                } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Spending Trend Chart -->
+    <% if @spending_trend_data.present? && @spending_trend_data.any? %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Spending Trend
+        </h3>
+        <div id="transaction-spending-trend-chart" data-controller="chart-update">
+          <%= line_chart @spending_trend_data,
+              id: "transaction-spending-trend-chart",
+              prefix: "$",
+              colors: ["#3b82f6"],
+              height: "250px",
+              curve: false,
+              empty: "No spending data available",
+              library: {
+                plugins: {
+                  legend: {
+                    display: false
+                  }
+                }
+              } %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Merchant Analytics Bar Chart -->
+    <% if @merchant_analytics_data.present? && @merchant_analytics_data.any? %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Top Merchants
+        </h3>
+        <div id="transaction-merchant-analytics-chart" data-controller="chart-update">
+          <%= bar_chart @merchant_analytics_data,
+              id: "transaction-merchant-analytics-chart",
+              prefix: "$",
+              colors: ["#8b5cf6"],
+              height: "250px",
+              empty: "No merchant data available",
+              library: {
+                plugins: {
+                  legend: {
+                    display: false
+                  }
+                },
+                indexAxis: "y"
+              } %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+      <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      <p class="text-lg font-medium mb-2">No Analytics Data</p>
+      <p class="text-sm">Apply filters or add transactions to see analytics charts</p>
+    </div>
+  <% end %>
+</div>

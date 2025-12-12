@@ -63,9 +63,13 @@ class OnboardingController < ApplicationController
   private
 
   def redirect_if_completed
-    # If user has completed onboarding (either via sync or skip), redirect to dashboard
-    # last_synced_at is set when onboarding completes
+    # If user has completed onboarding, redirect to dashboard
+    # Exception: allow connect_up_bank if user doesn't have a token (they can connect from settings)
     if current_user.last_synced_at.present?
+      if action_name == "connect_up_bank" && !current_user.has_up_bank_token?
+        # Allow access to connect_up_bank if user doesn't have a token
+        return
+      end
       redirect_to dashboard_path
     end
   end

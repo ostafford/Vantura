@@ -1,7 +1,8 @@
 class DashboardController < ApplicationController
+  include ChartDataHelper
+
   before_action :authenticate_user!
   before_action :redirect_to_onboarding_if_needed, only: [ :index ]
-  after_action :trigger_sync_if_needed, only: [ :index ]
 
   def index
     # Use Russian Doll caching
@@ -35,6 +36,13 @@ class DashboardController < ApplicationController
     # Check if user needs to see insights banner (only show if they haven't connected Up Bank)
     # Dismissal is handled client-side via localStorage
     @show_insights = !current_user.has_up_bank_token?
+
+    # Chart data (server-side rendering)
+    @income_vs_expenses_data = prepare_income_vs_expenses_data(current_user)
+    @category_breakdown_data = prepare_category_breakdown_data(current_user)
+    @spending_trend_data = prepare_spending_trend_data(current_user)
+    @merchant_analytics_data = prepare_merchant_analytics_data(current_user)
+    @daily_average_data = prepare_daily_average_data(current_user)
   end
 
   def sync
@@ -58,14 +66,5 @@ class DashboardController < ApplicationController
     if current_user.needs_onboarding?
       redirect_to onboarding_connect_up_bank_path
     end
-  end
-
-  def trigger_sync_if_needed
-    # Use database-backed throttling instead of session
-    last_sync = current_user.webhook_events.maximum(:created_at)
-    return if last_sync && last_sync > 5.minutes.ago
-    return unless current_user.has_up_bank_token?
-
-    SyncUpBankDataJob.perform_later(current_user)
   end
 end

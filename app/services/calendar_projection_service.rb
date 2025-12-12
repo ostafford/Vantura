@@ -1,21 +1,21 @@
 class CalendarProjectionService
   def self.calculate(user:, start_date:, end_date:)
     current_balance = user.accounts.transactional.sum(:balance_cents)
-    
+
     # Get planned transactions
     base_planned = user.planned_transactions
                        .by_date_range(start_date, end_date)
                        .includes(:category, :transaction_record)
-    
+
     all_planned = base_planned.flat_map do |pt|
       pt.occurrences_for_month(start_date.year, start_date.month)
     end
-    
+
     # Get actual transactions (use settled_at for more accurate date grouping)
     actual_transactions = user.transactions
                               .by_settled_date_range(start_date.beginning_of_day, end_date.end_of_day)
                               .includes(:account, :category)
-    
+
     projection_data = sequential_projection(
       start_date: start_date,
       end_date: end_date,
@@ -23,10 +23,10 @@ class CalendarProjectionService
       planned_transactions: all_planned,
       actual_transactions: actual_transactions
     )
-    
+
     weekly_projection = calculate_weekly_projection(projection_data, start_date)
     monthly_projection = projection_data[end_date]&.dig(:balance_cents) || current_balance
-    
+
     {
       projection_data: projection_data,
       weekly_projection: weekly_projection,
@@ -34,9 +34,9 @@ class CalendarProjectionService
       current_balance: current_balance
     }
   end
-  
+
   private
-  
+
   # Sequential day-by-day projection calculation
   def self.sequential_projection(start_date:, end_date:, current_balance:, planned_transactions:, actual_transactions:)
     projection = {}
@@ -92,7 +92,7 @@ class CalendarProjectionService
     current_week_start = start_of_month.beginning_of_week
 
     while current_week_start <= start_of_month.end_of_month
-      week_end = [current_week_start.end_of_week, start_of_month.end_of_month].min
+      week_end = [ current_week_start.end_of_week, start_of_month.end_of_month ].min
 
       week_balance = projection_data[week_end]&.dig(:balance_cents) || projection_data.values.last&.dig(:balance_cents) || 0
 
@@ -108,4 +108,3 @@ class CalendarProjectionService
     weeks
   end
 end
-

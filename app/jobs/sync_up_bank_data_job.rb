@@ -1,6 +1,8 @@
 require "redis"
 
 class SyncUpBankDataJob < ApplicationJob
+  include ChartDataHelper
+
   queue_as :default
 
   # Retry strategy: polynomially_longer provides a more gradual backoff than exponentially_longer
@@ -126,6 +128,7 @@ class SyncUpBankDataJob < ApplicationJob
 
     # Broadcast updates
     broadcast_dashboard_update(user)
+    broadcast_chart_updates(user)
 
     # Broadcast completion toast
     broadcast_sync_completion_toast(user, success: true, transaction_count: new_transactions_count)
@@ -249,7 +252,7 @@ class SyncUpBankDataJob < ApplicationJob
       "user_#{user.id}_dashboard",
       target: "dashboard-stats",
       partial: "dashboard/stats",
-      locals: { stats: stats }
+      locals: { stats: stats, user: user }
     )
 
     # Update recent transactions list (Flow A: REPLACE entire list)
@@ -259,10 +262,15 @@ class SyncUpBankDataJob < ApplicationJob
       "user_#{user.id}_dashboard",
       target: "recent-transactions",
       partial: "dashboard/recent_transactions",
-      locals: { recent_transactions: recent_transactions }
+      locals: { recent_transactions: recent_transactions, user: user }
     )
   rescue => e
-    Rails.logger.error "Failed to broadcast update: #{e.message}"
+    # Log error with context for debugging
+    Rails.logger.error "Failed to broadcast dashboard update for user #{user.id}: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n") if e.backtrace
+
+    # Don't raise - broadcast failures shouldn't break sync job
+    # The update will be available on next page refresh
   end
 
   def broadcast_sync_completion_toast(user, success:, transaction_count: 0, error_message: nil)
@@ -287,6 +295,70 @@ class SyncUpBankDataJob < ApplicationJob
       locals: { message: message, toast_type: toast_type }
     )
   rescue => e
-    Rails.logger.error "Failed to broadcast sync completion toast: #{e.message}"
+    # Log error with context for debugging
+    Rails.logger.error "Failed to broadcast sync completion toast for user #{user.id}: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n") if e.backtrace
+
+    # Don't raise - toast failure is non-critical, sync still succeeded
+  end
+
+  def broadcast_chart_updates(user)
+    # Broadcast chart updates via Turbo Stream
+    # Income vs Expenses Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "income-vs-expenses-chart",
+      partial: "dashboard/charts/income_vs_expenses",
+      locals: {
+        income_vs_expenses_data: prepare_income_vs_expenses_data(user)
+      }
+    )
+
+    # Category Breakdown Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "category-breakdown-chart",
+      partial: "dashboard/charts/category_breakdown",
+      locals: {
+        category_breakdown_data: prepare_category_breakdown_data(user)
+      }
+    )
+
+    # Spending Trend Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "spending-trend-chart",
+      partial: "dashboard/charts/spending_trend",
+      locals: {
+        spending_trend_data: prepare_spending_trend_data(user)
+      }
+    )
+
+    # Merchant Analytics Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "merchant-analytics-chart",
+      partial: "dashboard/charts/merchant_analytics",
+      locals: {
+        merchant_analytics_data: prepare_merchant_analytics_data(user)
+      }
+    )
+
+    # Daily Average Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "daily-average-chart",
+      partial: "dashboard/charts/daily_average",
+      locals: {
+        daily_average_data: prepare_daily_average_data(user)
+      }
+    )
+  rescue => e
+    # Log error with context for debugging
+    Rails.logger.error "Failed to broadcast chart updates for user #{user.id}: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n") if e.backtrace
+
+    # Don't raise - broadcast failures shouldn't break sync job
+    # Charts will update on next page refresh
   end
 end

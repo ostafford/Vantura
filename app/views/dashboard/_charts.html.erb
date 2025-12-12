@@ -1,18 +1,122 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-  <!-- Income vs Expenses Chart -->
+  <!-- Income vs Expenses Line Chart -->
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Income vs Expenses</h3>
-    <div class="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
-      <p class="text-sm">Chart will be implemented in Phase 3 with Chart.js</p>
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      Income vs Expenses (Last 30 Days)
+    </h3>
+    <div id="income-vs-expenses-chart" data-controller="chart-update">
+      <%= line_chart @income_vs_expenses_data,
+          id: "income-vs-expenses-chart",
+          prefix: "$",
+          colors: ["#10b981", "#ef4444"],
+          height: "300px",
+          library: {
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom"
+              }
+            }
+          } %>
     </div>
   </div>
 
-  <!-- Category Breakdown Chart -->
+  <!-- Category Breakdown Donut Chart -->
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Category Breakdown</h3>
-    <div class="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
-      <p class="text-sm">Chart will be implemented in Phase 3 with Chart.js</p>
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      Category Breakdown (This Month)
+    </h3>
+    <div id="category-breakdown-chart" data-controller="chart-update">
+      <%= pie_chart @category_breakdown_data,
+          id: "category-breakdown-chart",
+          donut: true,
+          prefix: "$",
+          height: "300px",
+          empty: "No category data available",
+          library: {
+            plugins: {
+              legend: {
+                display: true,
+                position: "bottom"
+              }
+            }
+          } %>
     </div>
   </div>
 </div>
 
+<!-- Spending Trend Chart -->
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    Spending Trend (Last 6 Months)
+  </h3>
+  <div id="spending-trend-chart" data-controller="chart-update">
+    <%= line_chart @spending_trend_data,
+        id: "spending-trend-chart",
+        prefix: "$",
+        colors: ["#3b82f6"],
+        height: "300px",
+        curve: false,
+        empty: "No spending data available",
+        library: {
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        } %>
+  </div>
+</div>
+
+<!-- Merchant Analytics and Daily Average -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+  <!-- Merchant Analytics Bar Chart -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      Top Merchants (This Month)
+    </h3>
+    <div id="merchant-analytics-chart" data-controller="chart-update">
+      <%= bar_chart @merchant_analytics_data,
+          id: "merchant-analytics-chart",
+          prefix: "$",
+          colors: ["#8b5cf6"],
+          height: "300px",
+          empty: "No merchant data available",
+          library: {
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            indexAxis: "y"
+          } %>
+    </div>
+  </div>
+
+  <!-- Daily Average Chart -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      Daily Spending (Last 30 Days)
+    </h3>
+    <div id="daily-average-chart" data-controller="chart-update">
+      <%= line_chart @daily_average_data[:daily],
+          id: "daily-average-chart",
+          prefix: "$",
+          colors: ["#f59e0b"],
+          height: "300px",
+          empty: "No spending data available",
+          library: {
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          } %>
+      <% if @daily_average_data[:average] > 0 %>
+        <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+          <p>Average daily spending: <span class="font-semibold">$<%= number_with_precision(@daily_average_data[:average], precision: 2) %></span></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

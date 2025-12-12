@@ -1,0 +1,21 @@
+<div id="daily-average-chart" data-controller="chart-update">
+  <%= line_chart daily_average_data[:daily],
+      id: "daily-average-chart",
+      prefix: "$",
+      colors: ["#f59e0b"],
+      height: "300px",
+      empty: "No spending data available",
+      library: {
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      } %>
+  <% if daily_average_data[:average] > 0 %>
+    <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+      <p>Average daily spending: <span class="font-semibold">$<%= number_with_precision(daily_average_data[:average], precision: 2) %></span></p>
+    </div>
+  <% end %>
+</div>
+

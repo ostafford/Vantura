@@ -45,7 +45,7 @@ class PlannedTransaction < ApplicationRecord
   def occurrences_for_date_range(start_date, end_date, max_occurrences: 100)
     # For non-recurring transactions, return single occurrence if in range
     unless is_recurring?
-      return planned_date >= start_date && planned_date <= end_date ? [occurrence_data(planned_date)] : []
+      return planned_date >= start_date && planned_date <= end_date ? [ occurrence_data(planned_date) ] : []
     end
 
     # Build ice_cube schedule

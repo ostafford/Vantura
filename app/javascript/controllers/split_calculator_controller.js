@@ -221,5 +221,6 @@ export default class extends Controller {
       this.validationMessageTarget.classList.toggle("dark:text-green-400", !isError && message)
     }
   }
+  
 }
 

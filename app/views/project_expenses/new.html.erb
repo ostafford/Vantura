@@ -1,6 +1,8 @@
-<%# If request is from modal (Turbo Frame), render form only %>
+<%# If request is from modal (Turbo Frame), render form wrapped in Turbo Frame %>
 <% if request.headers["Turbo-Frame"] == "project-expense-form" %>
-  <%= render "project_expenses/form", project: @project, project_expense: @project_expense %>
+  <%= turbo_frame_tag "project-expense-form" do %>
+    <%= render "project_expenses/form", project: @project, project_expense: @project_expense %>
+  <% end %>
 <% else %>
   <div class="container mx-auto px-4 py-6">
     <div class="flex items-center justify-between mb-6">

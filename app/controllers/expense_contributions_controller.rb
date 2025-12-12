@@ -47,4 +47,3 @@ class ExpenseContributionsController < ApplicationController
     Rails.logger.error "Failed to broadcast project updates: #{e.message}"
   end
 end
-

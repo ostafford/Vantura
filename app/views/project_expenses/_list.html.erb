@@ -7,15 +7,40 @@
 <% filter_category = params[:category_id] %>
 <% filter_month = params[:month] %>
 
+<%# Apply filters %>
+<% filtered_expenses = project_expenses.to_a %>
+<% if filter_status != "all" %>
+  <% filtered_expenses = filtered_expenses.select do |expense| %>
+    <% if filter_status == "pending" %>
+      <% expense.expense_contributions.any? { |c| c.status == "pending" } %>
+    <% elsif filter_status == "paid" %>
+      <% expense.expense_contributions.any? && expense.expense_contributions.all? { |c| c.status == "paid" } %>
+    <% else %>
+      <% true %>
+    <% end %>
+  <% end %>
+<% end %>
+<% if filter_category.present? %>
+  <% filtered_expenses = filtered_expenses.select { |e| e.category_id == filter_category.to_i } %>
+<% end %>
+<% if filter_month.present? %>
+  <% month_date = Date.parse("#{filter_month}-01") rescue nil %>
+  <% if month_date %>
+    <% filtered_expenses = filtered_expenses.select { |e| e.expense_date.year == month_date.year && e.expense_date.month == month_date.month } %>
+  <% end %>
+<% end %>
+
 <div id="project-<%= project.id %>-expenses">
   <%# Filters %>
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-4">
     <div class="flex flex-wrap items-center gap-3">
       <%= turbo_frame_tag "expense-filters" do %>
-        <%= form_with url: project_project_expenses_path(project),
+        <%= form_with url: project_path(project),
             method: :get,
-            local: true,
-            data: { controller: "auto-submit" },
+            data: { 
+              controller: "auto-submit",
+              turbo_frame: "project-#{project.id}-expenses"
+            },
             class: "flex flex-wrap items-center gap-3" do |f| %>
           
           <%# Status filter %>
@@ -59,9 +84,9 @@
 
   <%# Expense list %>
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-    <% if project_expenses.any? %>
+    <% if filtered_expenses.any? %>
       <div class="divide-y divide-gray-200 dark:divide-gray-700">
-        <% project_expenses.each do |expense| %>
+        <% filtered_expenses.each do |expense| %>
           <%= render "project_expenses/expense_item", expense: expense, project: project, current_user: current_user %>
         <% end %>
       </div>

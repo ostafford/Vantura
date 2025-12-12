@@ -15,7 +15,7 @@
             </span>
           <% end %>
           <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
-            <%= expense.name || expense.description %>
+            <%= expense.name.presence || expense.description %>
           </h4>
         </div>
         <span class="ml-4 text-sm font-bold text-gray-900 dark:text-white flex-shrink-0">

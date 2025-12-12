@@ -1,0 +1,149 @@
+<%= turbo_frame_tag "profile-form" do %>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Profile</h2>
+    
+    <%= form_with model: @user, url: settings_path, method: :patch, multipart: true, 
+        data: { controller: "avatar-upload", turbo_frame: "_top" } do |f| %>
+      
+      <div class="space-y-4">
+        <!-- Avatar Upload -->
+        <div>
+          <%= f.label :avatar, "Avatar", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+          <div class="flex items-center space-x-4">
+            <% if @user.avatar.attached? %>
+              <%= image_tag @user.avatar, 
+                  class: "w-20 h-20 rounded-full object-cover",
+                  id: "avatar-preview",
+                  alt: "User avatar",
+                  data: { avatar_upload_target: "preview" } %>
+            <% else %>
+              <div class="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center"
+                   id="avatar-preview"
+                   data-avatar-upload-target="preview">
+                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            <% end %>
+            <div>
+              <%= f.file_field :avatar, 
+                  accept: "image/*",
+                  class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-300",
+                  data: { action: "change->avatar-upload#preview" } %>
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                JPG, PNG or GIF. Max size 5MB.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Name -->
+        <div>
+          <%= f.label :name, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+          <%= f.text_field :name, 
+              class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" %>
+        </div>
+
+        <!-- Email (Read-only) -->
+        <div>
+          <%= f.label :email_address, "Email", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+          <%= f.text_field :email_address, 
+              disabled: true,
+              class: "w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400 cursor-not-allowed" %>
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Email cannot be changed. Contact support if you need to update your email.
+          </p>
+        </div>
+
+        <!-- Password Change Link -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Password
+          </label>
+          <button type="button" 
+                  data-controller="modal"
+                  data-action="click->modal#open"
+                  data-modal-id-value="password-modal"
+                  class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+            Change Password
+          </button>
+        </div>
+
+        <div class="flex justify-end">
+          <%= f.submit "Save Changes", 
+              class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Password Change Modal -->
+  <div id="password-modal" 
+       tabindex="-1" 
+       aria-hidden="true" 
+       data-controller="modal"
+       class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full bg-gray-500 bg-opacity-50">
+    <div class="relative p-4 w-full max-w-md max-h-full" data-action="click->modal#closeBackground">
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-800">
+        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Change Password
+          </h3>
+          <button type="button" 
+                  class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                  data-action="click->modal#close">
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        
+        <%= form_with model: @user, url: settings_password_path, method: :patch,
+            data: { turbo_frame: "_top" } do |f| %>
+          <div class="p-4 md:p-5 space-y-4">
+            <%= f.label :current_password, "Current Password", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+            <%= f.password_field :current_password, 
+                placeholder: "Current Password",
+                autocomplete: "current-password",
+                class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white",
+                required: true %>
+            
+            <%= f.label :password, "New Password", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+            <%= f.password_field :password, 
+                placeholder: "New Password",
+                autocomplete: "new-password",
+                class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white",
+                required: true %>
+            
+            <%= f.label :password_confirmation, "Confirm New Password", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+            <%= f.password_field :password_confirmation, 
+                placeholder: "Confirm New Password",
+                autocomplete: "new-password",
+                class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white",
+                required: true %>
+            
+            <% if @user.errors.any? %>
+              <div class="text-sm text-red-600 dark:text-red-400">
+                <%= @user.errors.full_messages.join(", ") %>
+              </div>
+            <% end %>
+          </div>
+          
+          <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+            <%= f.submit "Update Password", 
+                class: "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" %>
+            <button type="button" 
+                    data-controller="modal"
+                    data-action="click->modal#close"
+                    data-modal-id-value="password-modal"
+                    class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">
+              Cancel
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+

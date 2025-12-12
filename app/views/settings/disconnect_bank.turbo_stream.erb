@@ -1,0 +1,12 @@
+<%# Update up-bank-status frame to show disconnected state %>
+<%= turbo_stream.replace "up-bank-status" do %>
+  <%= render "up_bank" %>
+<% end %>
+
+<%# Show flash message as toast %>
+<% if flash[:notice].present? || notice.present? %>
+  <%= turbo_stream.append "toast-container" do %>
+    <%= render "shared/toast", type: "success", message: flash[:notice] || notice %>
+  <% end %>
+<% end %>
+

@@ -1,0 +1,54 @@
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+  <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Preferences</h2>
+  
+  <%= form_with model: @user, url: settings_path, method: :patch,
+      data: { controller: "settings", turbo_frame: "_top" } do |f| %>
+    
+    <div class="space-y-4">
+      <!-- Dark Mode -->
+      <div>
+        <label class="flex items-center space-x-3">
+          <%= f.check_box :dark_mode,
+              class: "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
+              data: { action: "change->settings#toggleDarkMode" } %>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Dark Mode</span>
+        </label>
+      </div>
+
+      <!-- Currency -->
+      <div>
+        <%= f.label :currency, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+        <%= f.select :currency,
+            options_for_select([
+              ["AUD - Australian Dollar", "AUD"],
+              ["USD - US Dollar", "USD"],
+              ["EUR - Euro", "EUR"],
+              ["GBP - British Pound", "GBP"],
+              ["CAD - Canadian Dollar", "CAD"],
+              ["NZD - New Zealand Dollar", "NZD"]
+            ], @user.currency),
+            {},
+            class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" %>
+      </div>
+
+      <!-- Date Format -->
+      <div>
+        <%= f.label :date_format, "Date Format", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+        <%= f.select :date_format,
+            options_for_select([
+              ["DD/MM/YYYY", "DD/MM/YYYY"],
+              ["MM/DD/YYYY", "MM/DD/YYYY"],
+              ["YYYY-MM-DD", "YYYY-MM-DD"]
+            ], @user.date_format || "DD/MM/YYYY"),
+            {},
+            class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" %>
+      </div>
+
+      <div class="flex justify-end">
+        <%= f.submit "Save Preferences",
+            class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+

@@ -14,7 +14,7 @@ class CalendarController < ApplicationController
       # Clear session if explicitly unset
       session.delete(:calendar_selected_date)
     end
-    
+
     # Store view in session
     session[:calendar_view] = @view
 
@@ -57,7 +57,7 @@ class CalendarController < ApplicationController
     base_planned = current_user.planned_transactions
                                 .by_date_range(@start_date, @end_date)
                                 .includes(:category, :transaction_record)
-    
+
     # Generate occurrences for the date range
     if @view == "month"
       @planned_transactions = base_planned.flat_map { |pt| pt.occurrences_for_month(@year, @month) }
@@ -105,7 +105,7 @@ class CalendarController < ApplicationController
       render partial: "calendar/selected_day_frame",
              locals: { date: @selected_date, projection: projection, frame_id: frame_id },
              layout: false
-      return
+      nil
     end
   end
 
@@ -119,7 +119,7 @@ class CalendarController < ApplicationController
     planned = current_user.planned_transactions
                           .where("planned_date <= ? OR is_recurring = ?", end_date, true)
                           .includes(:category)
-    
+
     # Generate all occurrences for recurring transactions using the model method
     all_planned = planned.flat_map { |pt| pt.occurrences_for_date_range(start_date, end_date) }
 
@@ -141,10 +141,10 @@ class CalendarController < ApplicationController
 
   def generate_calendar_csv(planned_transactions, actual_transactions, start_date, end_date)
     require "csv"
-    
+
     CSV.generate(headers: true) do |csv|
-      csv << ["Date", "Type", "Description", "Amount", "Category", "Status", "Account"]
-      
+      csv << [ "Date", "Type", "Description", "Amount", "Category", "Status", "Account" ]
+
       # Add planned transactions
       planned_transactions.each do |pt|
         csv << [
@@ -157,7 +157,7 @@ class CalendarController < ApplicationController
           "N/A"
         ]
       end
-      
+
       # Add actual transactions
       actual_transactions.each do |t|
         transaction_date = t.settled_at&.to_date || t.created_at_up&.to_date || t.created_at.to_date

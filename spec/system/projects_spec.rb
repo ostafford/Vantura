@@ -163,9 +163,14 @@ RSpec.describe 'Projects Page', type: :system do
 
       click_button 'Save Expense'
 
-      # Wait for modal to close and expense to appear
-      expect(page).not_to have_css('#add-expense-modal:not(.hidden)', wait: 2)
-      expect(page).to have_text('Test Expense')
+      # Wait for modal to close
+      expect(page).not_to have_css('#add-expense-modal:not(.hidden)', wait: 5)
+
+      # Wait for expense to appear in list (Turbo Stream broadcast)
+      # Check for the amount first to confirm expense was created
+      expect(page).to have_text('$50.00', wait: 5)
+      # Then check for description (expense name/description is shown in the list)
+      expect(page).to have_text('Test Expense', wait: 5)
     end
   end
 
@@ -178,7 +183,7 @@ RSpec.describe 'Projects Page', type: :system do
 
     it 'works with equal split' do
       fill_in 'Total Amount (AUD)', with: '100.00'
-      
+
       # Select equal split (should be default)
       choose 'Equal split'
 
@@ -187,7 +192,10 @@ RSpec.describe 'Projects Page', type: :system do
 
       # Check that amounts are calculated
       # Should split between owner and member = 2 people = $50 each
-      expect(page).to have_field('contribution_amounts', with: '50.00', match: :first)
+      # Find the amount input fields by data attribute
+      amount_fields = page.all('[data-split-calculator-target="amountInput"]', minimum: 2)
+      expect(amount_fields.first.value).to eq('50.00')
+      expect(amount_fields.last.value).to eq('50.00')
     end
 
     it 'validates total matches expense amount' do
@@ -218,19 +226,20 @@ RSpec.describe 'Projects Page', type: :system do
     it 'can mark contribution as paid' do
       visit project_path(project)
 
-      # Click Details button on expense
+      # Click Details button on expense - this should open the modal for this specific expense
       click_button 'Details', match: :first
 
-      # Wait for modal
-      expect(page).to have_css("[id^='expense-detail-modal-']:not(.hidden)", wait: 2)
+      # Wait for modal - use the expense ID to find the specific modal
+      modal_id = "expense-detail-modal-#{expense.id}"
+      expect(page).to have_css("##{modal_id}:not(.hidden)", wait: 2)
 
-      # Find and click Mark as Paid button
-      within("[id^='expense-detail-modal-']") do
-        click_button 'Mark as Paid'
+      # Find and click the first Mark as Paid button (for any pending contribution)
+      within("##{modal_id}") do
+        click_button 'Mark as Paid', match: :first
       end
 
-      # Wait for update
-      expect(page).to have_text('✓ Paid', wait: 2)
+      # Wait for Turbo Stream update to complete
+      expect(page).to have_text('✓ Paid', wait: 5)
     end
   end
 
@@ -271,10 +280,11 @@ RSpec.describe 'Projects Page', type: :system do
 
       # Mark as paid
       click_button 'Details', match: :first
-      expect(page).to have_css("[id^='expense-detail-modal-']:not(.hidden)", wait: 2)
+      modal_id = "expense-detail-modal-#{expense.id}"
+      expect(page).to have_css("##{modal_id}:not(.hidden)", wait: 2)
 
-      within("[id^='expense-detail-modal-']") do
-        click_button 'Mark as Paid'
+      within("##{modal_id}") do
+        click_button 'Mark as Paid', match: :first
       end
 
       # Wait for summary update
@@ -314,11 +324,10 @@ RSpec.describe 'Projects Page', type: :system do
 
       # Filter by paid
       select 'Paid', from: 'status'
-      sleep 0.5
 
-      expect(page).to have_text('Paid Expense')
-      expect(page).not_to have_text('Pending Expense')
+      # Wait for Turbo Stream update to complete
+      expect(page).to have_text('Paid Expense', wait: 5)
+      expect(page).not_to have_text('Pending Expense', wait: 5)
     end
   end
 end
-

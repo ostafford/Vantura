@@ -60,6 +60,9 @@
         disabled: disabled,
         class: "block w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 #{css_class}"
       } %>
+    <% if local_assigns[:data] %>
+      <% date_field_options[:data] = local_assigns[:data] %>
+    <% end %>
     <% date_field_options[:value] = value if value.present? %>
     <%= form.date_field field_name, date_field_options %>
   <% when 'datetime-local' %>

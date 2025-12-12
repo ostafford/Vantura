@@ -1,4 +1,6 @@
 class ProcessUpWebhookJob < ApplicationJob
+  include ChartDataHelper
+
   queue_as :default
 
   # Large transaction threshold in cents ($1000 = 100,000 cents)
@@ -74,6 +76,7 @@ class ProcessUpWebhookJob < ApplicationJob
     # Broadcast update via Turbo Streams
     broadcast_dashboard_update(user)
     broadcast_transaction_prepend(user, transaction)
+    broadcast_chart_updates(user)
   end
 
   def process_transaction_deleted(payload, user)
@@ -90,10 +93,15 @@ class ProcessUpWebhookJob < ApplicationJob
       "user_#{user.id}_dashboard",
       target: "recent-transactions",
       partial: "dashboard/recent_transactions",
-      locals: { recent_transactions: recent_transactions }
+      locals: { recent_transactions: recent_transactions, user: user }
     )
   rescue => e
-    Rails.logger.error "Failed to broadcast update: #{e.message}"
+    # Log error with context for debugging
+    Rails.logger.error "Failed to broadcast dashboard update for user #{user.id}: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n") if e.backtrace
+
+    # Don't raise - broadcast failures shouldn't break webhook processing
+    # The update will be available on next page refresh
   end
 
   def broadcast_transaction_prepend(user, transaction)
@@ -110,6 +118,71 @@ class ProcessUpWebhookJob < ApplicationJob
     # For real-time summary updates, would need to broadcast to transaction-summary frame
     # This is deferred as it requires recalculating stats based on current filters
   rescue => e
-    Rails.logger.error "Failed to broadcast transaction prepend: #{e.message}"
+    # Log error with context for debugging
+    Rails.logger.error "Failed to broadcast transaction prepend for user #{user.id}, transaction #{transaction.id}: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n") if e.backtrace
+
+    # Don't raise - broadcast failures shouldn't break webhook processing
+    # The transaction will be visible on next page refresh
+  end
+
+  def broadcast_chart_updates(user)
+    # Broadcast chart updates via Turbo Stream
+    # Income vs Expenses Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "income-vs-expenses-chart",
+      partial: "dashboard/charts/income_vs_expenses",
+      locals: {
+        income_vs_expenses_data: prepare_income_vs_expenses_data(user)
+      }
+    )
+
+    # Category Breakdown Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "category-breakdown-chart",
+      partial: "dashboard/charts/category_breakdown",
+      locals: {
+        category_breakdown_data: prepare_category_breakdown_data(user)
+      }
+    )
+
+    # Spending Trend Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "spending-trend-chart",
+      partial: "dashboard/charts/spending_trend",
+      locals: {
+        spending_trend_data: prepare_spending_trend_data(user)
+      }
+    )
+
+    # Merchant Analytics Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "merchant-analytics-chart",
+      partial: "dashboard/charts/merchant_analytics",
+      locals: {
+        merchant_analytics_data: prepare_merchant_analytics_data(user)
+      }
+    )
+
+    # Daily Average Chart
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{user.id}_dashboard",
+      target: "daily-average-chart",
+      partial: "dashboard/charts/daily_average",
+      locals: {
+        daily_average_data: prepare_daily_average_data(user)
+      }
+    )
+  rescue => e
+    # Log error with context for debugging
+    Rails.logger.error "Failed to broadcast chart updates for user #{user.id}: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n") if e.backtrace
+
+    # Don't raise - broadcast failures shouldn't break webhook processing
+    # Charts will update on next page refresh
   end
 end

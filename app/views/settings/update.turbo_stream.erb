@@ -1,0 +1,14 @@
+<%# Update profile form frame %>
+<%= turbo_stream.replace "profile-form" do %>
+  <%= render "profile" %>
+<% end %>
+
+<%# Show flash message as toast %>
+<% if flash[:notice].present? || notice.present? %>
+  <%= turbo_stream.append "toast-container" do %>
+    <%= render "shared/toast", type: "success", message: flash[:notice] || notice %>
+  <% end %>
+<% end %>
+
+<%# Note: Preferences section updates automatically via form submission %>
+

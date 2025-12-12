@@ -35,6 +35,8 @@ gem "ice_cube", "~> 0.17.0"
 gem "dotenv-rails", "~> 3.1", ">= 3.1.8"
 # pagy for pagination
 gem "pagy", "~> 43.1", ">= 43.1.8"
+# chartkick for charts and analytics
+gem "chartkick"
 # rspec for testing
 gem "rspec-rails", "~> 8.0", ">= 8.0.2"
 # faker for testing

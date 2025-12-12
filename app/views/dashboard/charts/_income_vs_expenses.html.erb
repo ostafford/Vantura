@@ -1,0 +1,16 @@
+<div id="income-vs-expenses-chart" data-controller="chart-update">
+  <%= line_chart income_vs_expenses_data,
+      id: "income-vs-expenses-chart",
+      prefix: "$",
+      colors: ["#10b981", "#ef4444"],
+      height: "300px",
+      library: {
+        plugins: {
+          legend: {
+            display: true,
+            position: "bottom"
+          }
+        }
+      } %>
+</div>
+
