@@ -1,0 +1,75 @@
+<div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+     data-controller="budget-calculator"
+     data-budget-calculator-limit-value="<%= calculation[:limit] %>"
+     data-budget-calculator-spent-value="<%= calculation[:spent] %>">
+  
+  <div class="flex justify-between items-start mb-4">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-900">
+        <%= budget.name %>
+      </h3>
+      <% if budget.category %>
+        <span class="inline-block mt-1 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+          <%= budget.category.name %>
+        </span>
+      <% end %>
+      <p class="text-sm text-gray-500 mt-1">
+        <%= budget.period.humanize %> Budget
+      </p>
+    </div>
+    <div class="text-right">
+      <% if budget.active? %>
+        <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Active</span>
+      <% else %>
+        <span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Inactive</span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="mb-4">
+    <div class="flex justify-between text-sm mb-2">
+      <span data-budget-calculator-target="percentage" class="font-medium text-gray-700"></span>
+      <span class="text-gray-500">
+        <span data-budget-calculator-target="spent"></span> / 
+        <span data-budget-calculator-target="amount"></span>
+      </span>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+      <div class="h-full rounded-full transition-all duration-300"
+           data-budget-calculator-target="progressBar"></div>
+    </div>
+  </div>
+
+  <!-- Budget Stats -->
+  <div class="grid grid-cols-2 gap-4 text-sm">
+    <div>
+      <span class="text-gray-500">Remaining:</span>
+      <span class="font-semibold text-gray-900 ml-2" data-budget-calculator-target="remaining"></span>
+    </div>
+    <div>
+      <span class="text-gray-500">Transactions:</span>
+      <span class="font-semibold text-gray-900 ml-2"><%= calculation[:transactions_count] %></span>
+    </div>
+  </div>
+
+  <% if calculation[:alert_triggered] %>
+    <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+      <p class="text-sm text-yellow-800">
+        ⚠️ Budget threshold reached (<%= budget.alert_threshold %>%)
+      </p>
+    </div>
+  <% end %>
+
+  <!-- Actions -->
+  <div class="mt-4 flex space-x-2">
+    <%= link_to "View", budget_path(budget), class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+    <%= link_to "Edit", edit_budget_path(budget), class: "text-gray-600 hover:text-gray-800 text-sm font-medium" %>
+    <%= button_to budget.active? ? "Deactivate" : "Activate", 
+        toggle_active_budget_path(budget), 
+        method: :post,
+        class: "text-gray-600 hover:text-gray-800 text-sm font-medium",
+        form: { class: "inline" } %>
+  </div>
+</div>
+

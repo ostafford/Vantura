@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Offline - Vantura</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+        padding: 20px;
+      }
+      .container {
+        max-width: 500px;
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+      p {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+      }
+      .icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="icon">📡</div>
+      <h1>You're Offline</h1>
+      <p>It looks like you're not connected to the internet. Please check your connection and try again.</p>
+      <button onclick="window.location.reload()" class="px-6 py-3 bg-white text-purple-600 border-none rounded-lg text-base cursor-pointer font-semibold hover:bg-gray-50 transition-colors">
+        Try Again
+      </button>
+    </div>
+  </body>
+</html>
+

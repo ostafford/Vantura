@@ -1,0 +1,53 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-900">Accounts</h1>
+    <p class="text-gray-600 mt-2">All your accounts</p>
+  </div>
+
+  <% if @accounts.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @accounts.each do |account| %>
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-semibold text-gray-900">
+              <%= account.display_name_or_type %>
+            </h3>
+            <span class="px-3 py-1 text-xs font-medium rounded-full 
+              <%= account.account_type == 'TRANSACTIONAL' ? 'bg-blue-100 text-blue-800' : '' %>
+              <%= account.account_type == 'SAVER' ? 'bg-green-100 text-green-800' : '' %>
+              <%= account.account_type == 'HOME_LOAN' ? 'bg-red-100 text-red-800' : '' %>">
+              <%= account.account_type %>
+            </span>
+          </div>
+          
+          <div class="space-y-2">
+            <div>
+              <p class="text-sm text-gray-500">Balance</p>
+              <p class="text-2xl font-bold text-gray-900">
+                <%= number_to_currency(account.balance, unit: "$") %>
+              </p>
+            </div>
+            
+            <div>
+              <p class="text-sm text-gray-500">Ownership</p>
+              <p class="text-sm font-medium text-gray-700"><%= account.ownership_type %></p>
+            </div>
+            
+            <div>
+              <p class="text-sm text-gray-500">Currency</p>
+              <p class="text-sm font-medium text-gray-700"><%= account.currency_code %></p>
+            </div>
+          </div>
+
+          <%= link_to "View Details", account_path(account), class: "mt-4 inline-block w-full text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors" %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg shadow p-8 text-center">
+      <p class="text-gray-500 mb-4">No accounts found. Configure your Up Bank PAT in settings to sync your accounts.</p>
+      <%= link_to "Go to Settings", settings_path, class: "inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" %>
+    </div>
+  <% end %>
+</div>
+

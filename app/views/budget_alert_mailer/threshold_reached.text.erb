@@ -1,0 +1,22 @@
+Budget Alert
+
+Hello <%= @user.email %>,
+
+Your budget "<%= @budget.name %>" has reached its alert threshold.
+
+Budget Details:
+<% if @budget.category %>
+  Category: <%= @budget.category.name %>
+<% end %>
+Period: <%= @budget.period.humanize %>
+Budget Limit: $<%= number_with_precision(@calculation[:limit], precision: 2) %>
+Amount Spent: $<%= number_with_precision(@calculation[:spent], precision: 2) %>
+Remaining: $<%= number_with_precision(@calculation[:remaining], precision: 2) %>
+Percentage: <%= @calculation[:percentage].round(1) %>%
+Alert Threshold: <%= @budget.alert_threshold %>%
+Period: <%= @calculation[:period_start].strftime("%B %d, %Y") %> - <%= @calculation[:period_end].strftime("%B %d, %Y") %>
+
+View your budget: <%= budget_url(@budget) %>
+
+This alert was triggered because your spending reached <%= @budget.alert_threshold %>% of your budget limit.
+

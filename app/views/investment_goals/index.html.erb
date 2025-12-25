@@ -1,0 +1,23 @@
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Investment Goals</h1>
+      <p class="text-gray-600 mt-2">Track your savings growth and progress toward financial goals</p>
+    </div>
+    <%= link_to "New Investment Goal", new_investment_goal_path, class: "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" %>
+  </div>
+
+  <% if @investment_goals.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @investment_goals.each do |goal| %>
+        <%= render 'goal_card', goal: goal %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg shadow p-8 text-center">
+      <p class="text-gray-500 mb-4">No investment goals yet. Create your first goal to start tracking your savings growth.</p>
+      <%= link_to "Create Investment Goal", new_investment_goal_path, class: "inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" %>
+    </div>
+  <% end %>
+</div>
+

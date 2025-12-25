@@ -1,0 +1,79 @@
+<%= form_with model: @investment_goal, local: true, class: "space-y-6" do |f| %>
+  <% if @investment_goal.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(@investment_goal.errors.count, "error") %> prohibited this investment goal from being saved:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% @investment_goal.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, "Goal Name", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= f.text_field :name, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", placeholder: "e.g., Emergency Fund, Vacation Savings" %>
+  </div>
+
+  <div>
+    <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= f.text_area :description, rows: 3, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", placeholder: "Optional description of your investment goal" %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <%= f.label :target_amount, "Target Amount", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span class="text-gray-500 sm:text-sm">$</span>
+        </div>
+        <%= f.number_field :target_amount, 
+            step: 0.01,
+            min: 0,
+            class: "block w-full pl-7 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+            placeholder: "10000.00" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :target_date, "Target Date", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.date_field :target_date, 
+          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+      <p class="mt-1 text-sm text-gray-500">Optional: When you want to reach this goal</p>
+    </div>
+  </div>
+
+  <div>
+    <%= f.label :account_id, "Linked Saver Account", class: "block text-sm font-medium text-gray-700 mb-2" %>
+    <%= f.select :account_id, 
+        options_from_collection_for_select(@accounts, :id, :display_name_or_type, @investment_goal.account_id),
+        { include_blank: "Select a saver account (optional)" },
+        { class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" } %>
+    <p class="mt-1 text-sm text-gray-500">Link this goal to a saver account to track balance automatically</p>
+  </div>
+
+  <div class="flex items-center">
+    <%= f.check_box :active, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+    <%= f.label :active, "Active", class: "ml-2 block text-sm text-gray-900" %>
+    <p class="ml-2 text-sm text-gray-500">Only active goals are tracked and displayed</p>
+  </div>
+
+  <div class="flex justify-end space-x-3 pt-4 border-t">
+    <%= link_to "Cancel", investment_goals_path, class: "px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+    <%= f.submit class: "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+  </div>
+<% end %>
+

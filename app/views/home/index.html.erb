@@ -1,0 +1,19 @@
+<div class="max-w-2xl mx-auto px-5 py-12 text-center">
+  <h1 class="text-3xl font-bold text-gray-900 mb-4">Welcome to Vantura</h1>
+  <p class="text-lg text-gray-600 mb-8">Budgeting & Investment Tracker for Up Bank</p>
+
+  <% if user_signed_in? %>
+    <p class="mb-4">You are signed in as: <strong class="font-semibold"><%= current_user.email %></strong></p>
+    <p class="mt-5">
+      <%= link_to "Sign Out", destroy_user_session_path, data: { turbo_method: :delete }, class: "inline-block px-5 py-2.5 text-blue-600 no-underline border border-blue-600 rounded hover:bg-blue-50 transition-colors" %>
+    </p>
+  <% else %>
+    <div class="mt-8">
+      <p>
+        <%= link_to "Sign Up", new_user_registration_path, class: "inline-block px-5 py-2.5 mx-2.5 text-white bg-blue-600 no-underline rounded hover:bg-blue-700 transition-colors" %>
+        <%= link_to "Sign In", new_user_session_path, class: "inline-block px-5 py-2.5 mx-2.5 text-blue-600 no-underline border border-blue-600 rounded hover:bg-blue-50 transition-colors" %>
+      </p>
+    </div>
+  <% end %>
+</div>
+
